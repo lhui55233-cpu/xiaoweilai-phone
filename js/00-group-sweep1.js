@@ -16347,8 +16347,9 @@ const PET_CUTOUT_KEY = 'phone_pet_cutout_v1';
 const MEM_KEY = 'guichao.memories.v1';
 const WEATHER_KEY = 'phone_weather_v1';
 // T 组 A22 形状原样（patches/patch_groupT.py 的 PREFS_DEFAULT），本组不改键名与默认值。
-const PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: '', iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
+const PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
 const WALLPAPERS = [
+  { id: 'fish', name: '游鱼', css: 'linear-gradient(135deg,#ffffff 0%,#dce2f1 100%)' },
   { id: '', name: '纯白', css: '#ffffff' },
   { id: '#fdf2f4', name: '柔粉', css: '#fdf2f4' },
   { id: '#eef7f2', name: '薄荷', css: '#eef7f2' },
@@ -16389,6 +16390,17 @@ const loadPrefs = () => {
   else { d = _read(PREFS_KEY, null); _prefsRawCache = d; _prefsRawAt = now; }
   const p = Object.assign({}, PREFS_DEFAULT, (d && typeof d === 'object') ? d : {});
   p.themeCustom = Object.assign({}, PREFS_DEFAULT.themeCustom, (d && d.themeCustom) || {});
+  // [GROUP-FISH] 游鱼成为默认壁纸：一次性迁移。以前没设过壁纸（''）→ 游鱼；以前通过
+  // 美化/相机设过图片壁纸（只存在 SystemStore 里）的 → 把图片写进偏好保留下来，不覆盖；
+  // 已迁过的（wallpaperMigrated）不再动；用户之后再点纯白也不会被迁回。
+  if (!p.wallpaperMigrated) {
+    let savedImg = '';
+    try { if (typeof SystemStore !== 'undefined' && SystemStore && typeof SystemStore.get === 'function') savedImg = SystemStore.get('wallpaper') || ''; } catch (e) {}
+    if (typeof savedImg === 'string' && (savedImg.indexOf('data:') === 0 || savedImg.indexOf('http') === 0)) { p.wallpaper = savedImg; }
+    else if (!p.wallpaper) { p.wallpaper = 'fish'; }
+    p.wallpaperMigrated = true;
+    try { savePrefs(p); } catch (e) {}
+  }
   return p;
 };
 const savePrefs = (p) => { _prefsRawCache = p; _prefsRawAt = Date.now(); const _ok = _write(PREFS_KEY, p); try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (e) {} /* GROUP-THROTTLE: 写后立即失效主题解析缓存（petSkin 经此写，FIX-2 readPrefs 缓存须即时失效） */ return _ok; };
@@ -16406,6 +16418,12 @@ const applyPrefs = () => {
         shell.style.backgroundImage = 'url("' + wp + '")';
         shell.style.backgroundColor = '#ffffff';
         try { if (window.SystemStore) SystemStore.set('wallpaper', wp); } catch (e) {}
+      } else if (wp === 'fish') {
+        // [GROUP-FISH] 游鱼：底色由 FishWallpaper 的调色板决定（跟随主题时取主题色）；
+        // Canvas 铺在 shell 背景之上（css/00 #xwl-fish-canvas），此处只负责底色兜底。
+        shell.style.backgroundImage = 'none';
+        shell.style.backgroundColor = (window.FishWallpaper && typeof window.FishWallpaper.currentBg === 'function') ? window.FishWallpaper.currentBg() : (p.fishBg || '#ffffff');
+        try { if (window.SystemStore) SystemStore.set('wallpaper', ''); } catch (e) {}
       } else {
         shell.style.backgroundImage = 'none';
         shell.style.backgroundColor = (wp ? wallpaperCss(wp) : ((window.BuThemes && window.BuThemes.shellBg()) || wallpaperCss(wp)));
@@ -16415,6 +16433,8 @@ const applyPrefs = () => {
       shell.setAttribute('data-gw-clock', p.clockStyle || 'digital');
     }
   } catch (e) {}
+  // [GROUP-FISH] 壁纸改动后同步游鱼 Canvas（可见性/调色板/风格/启停）。
+  try { if (window.FishWallpaper && typeof window.FishWallpaper.sync === 'function') window.FishWallpaper.sync(); } catch (e) {}
   try {
     if (window.IconSystem && window.IconSystem.cfg) {
       // [AK] 先读一次已存布局再改 cfg：否则此时内存里还是默认布局，下一行 save() 会把
@@ -18048,10 +18068,11 @@ const renderDesktopSettingsHTML = () => {
   const st = focusStats(Date.now());
   return '<div class="gw-set-h">壁纸</div>' +
     '<div class="gw-seg">' + WALLPAPERS.map((wp) => '<button class="gw-swatch' + ((p.wallpaper || '') === wp.id ? ' on' : '') + '" data-gw-set="wallpaper" data-v="' + esc(wp.id) + '" style="background:' + esc(wp.css) + '" title="' + esc(wp.name) + '" aria-label="壁纸' + esc(wp.name) + '"></button>').join('') + '</div>' +
-    '<div class="gw-set-row"><div class="lb">当前壁纸<div class="sub">' + esc(WALLPAPERS.find((x) => x.id === (p.wallpaper || '')) ? WALLPAPERS.find((x) => x.id === (p.wallpaper || '')).name : '纯白') + '（默认纯白，改完桌面实时预览）</div></div></div>' +
+    '<div class="gw-set-row"><div class="lb">当前壁纸<div class="sub">' + esc(WALLPAPERS.find((x) => x.id === (p.wallpaper || '')) ? WALLPAPERS.find((x) => x.id === (p.wallpaper || '')).name : '图片') + '（默认游鱼，改完桌面实时预览）</div></div></div>' +
+    ((p.wallpaper || '') === 'fish' && window.FishWallpaper && typeof window.FishWallpaper.settingsHTML === 'function' ? window.FishWallpaper.settingsHTML(p) : '') +
     '<div class="gw-set-h">主题</div>' +
     (window.BuThemes ? window.BuThemes.desktopSettingsHtml() : '<div class="gw-set-row"><div class="lb">当前主题：' + esc(themeLabel(p.theme)) + '</div></div>') +
-(function(){var bv=(window.GroupBV?window.GroupBV.load():{enabled:true,style:'eye'});var seg='<div class="gw-seg"><button data-bv-boot-set="style" data-v="eye" class="'+(bv.style==='eye'?'on':'')+'">流泪之眼</button><button data-bv-boot-set="style" data-v="letter" class="'+(bv.style==='letter'?'on':'')+'">信笺</button></div>';return '<div class="gw-set-h">开机动画</div><div class="gw-set-row"><div class="lb">开机动画<div class="sub">冷启动时播一次，点一下屏幕可跳过；关了直接进桌面。</div></div><button class="gw-switch'+(bv.enabled?' on':'')+'" data-bv-boot-toggle="1" aria-label="开机动画"></button></div><div class="gw-set-row"><div class="lb">样式<div class="sub">默认流泪之眼：文字排成的眼睛落一滴泪，最后只留 future；信笺是信封展开 + 火漆印。</div></div></div>'+seg+'<div class="gw-set-row"><div class="lb">预览<div class="sub">现在播一次当前样式的开机动画。</div></div><button data-bv-boot-preview="1" style="border:1px solid #e8ddd2;background:#fff;border-radius:8px;padding:7px 10px;font-size:12px">预览</button></div>';})()+
+(function(){var iv=(window.GroupIntro?window.GroupIntro.load():{enabled:true});return '<div class="gw-set-h">开机动画</div><div class="gw-set-row"><div class="lb">开机动画<div class="sub">冷启动时播一次：字母雨落进水面，信封展开“因为爱，所以相遇”，最后汇成 FUTURE；点一下屏幕可跳过；关了直接进锁屏。</div></div><button class="gw-switch'+(iv.enabled?' on':'')+'" data-intro-boot-toggle="1" aria-label="开机动画"></button></div><div class="gw-set-row"><div class="lb">预览<div class="sub">现在播一次开机动画。</div></div><button data-intro-boot-preview="1" style="border:1px solid #e8ddd2;background:#fff;border-radius:8px;padding:7px 10px;font-size:12px">预览</button></div>';})()+
     '<div class="gw-set-h">应用图标</div>' +
     seg('iconStyle', ICON_STYLES, p.iconStyle || 'default') +
     '<div class="gw-set-h">桌面图标</div>' +
@@ -18116,6 +18137,22 @@ const openDesktopSettings = (win) => {
           setPref(key, v);
           if (key === 'petSkin' || key === 'petSize' || key === 'petMode') refreshPetSkin();
           renderPet();
+          const body = sub.querySelector('#gw-desk-body');
+          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          return;
+        }
+        const fishBtn = e.target.closest('[data-fish-set]');
+        if (fishBtn) {
+          e.stopPropagation();
+          try { if (window.FishWallpaper) window.FishWallpaper.setOpt(fishBtn.getAttribute('data-fish-set'), fishBtn.getAttribute('data-v')); } catch (err) {}
+          const body = sub.querySelector('#gw-desk-body');
+          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          return;
+        }
+        const fishTog = e.target.closest('[data-fish-toggle]');
+        if (fishTog) {
+          e.stopPropagation();
+          try { if (window.FishWallpaper) window.FishWallpaper.toggleOpt(fishTog.getAttribute('data-fish-toggle')); } catch (err) {}
           const body = sub.querySelector('#gw-desk-body');
           if (body) body.innerHTML = renderDesktopSettingsHTML();
           return;
@@ -18188,6 +18225,12 @@ const openDesktopSettings = (win) => {
         }
       });
       sub.addEventListener('change', (e) => {
+        if (e.target && e.target.id === 'gw-fish-color') {
+          try { if (window.FishWallpaper) window.FishWallpaper.setBg(e.target.value); } catch (err) {}
+          const body = sub.querySelector('#gw-desk-body');
+          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          return;
+        }
         if (e.target && e.target.id === 'gw-cutout-file') {
           const f = e.target.files && e.target.files[0];
           if (!f) return;

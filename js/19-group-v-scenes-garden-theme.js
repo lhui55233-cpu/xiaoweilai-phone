@@ -30,7 +30,7 @@ var dayNum = function () { return new Date().getDate(); };
    当前是哪一套由 c1/c2 的值反推，不加新字段（T 的 getUiPrefs 只认白名单字段，新字段会被它下次保存时丢掉）。
    归巢默认套装的 c1 取 '#ffffff'，与 T 的默认值完全一致，这样全新手机直接识别为“归巢默认”而不是“自定义”。 */
 var PREFS_KEY = 'phone_ui_prefs_v1';
-var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: '', iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
+var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
 var THEMES = [
   { id: 'guichao', name: '归巢默认', c1: '#ffffff', c2: '#34363b', desc: '归巢黑白灰，默认主题' },
   { id: 'warm', name: '晨光暖阳', c1: '#fdf6ec', c2: '#c87a5a', desc: '陶土暖阳' },
