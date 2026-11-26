@@ -1,0 +1,432 @@
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] {
+  background: #fffaf5;
+  color: #4b3026;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-app {
+  --pomo-ink: #4b3026;
+  --pomo-muted: #9a8278;
+  --pomo-line: #eee1d8;
+  --pomo-red: #e96c5a;
+  --pomo-soft: #fff3ed;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: calc(var(--sys-island-safe-top, 62px) + 10px) 17px calc(env(safe-area-inset-bottom, 0px) + 28px);
+  background: #fffaf5;
+  color: var(--pomo-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-app,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-app * {
+  box-sizing: border-box;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-header {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  gap: 10px;
+  margin: 0 0 21px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-back.sys-app-backbtn {
+  position: static;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #eadbd0;
+  border-radius: 12px;
+  background: #fff;
+  color: #6e5146;
+  box-shadow: 0 2px 8px rgba(92, 55, 39, .06);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  z-index: 1;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-back svg,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-fullscreen-btn svg {
+  width: 19px;
+  height: 19px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  flex: 1;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-brand-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--pomo-red);
+  flex: 0 0 auto;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-brand strong {
+  display: block;
+  color: #49291f;
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: .02em;
+  line-height: 1.2;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-brand small {
+  display: block;
+  margin-top: 3px;
+  color: var(--pomo-muted);
+  font-size: 11px;
+  line-height: 1.2;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-fullscreen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 0 9px;
+  border: 1px solid #eadbd0;
+  border-radius: 11px;
+  background: #fff;
+  color: #735649;
+  font-size: 12px;
+  white-space: nowrap;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-hero {
+  padding: 17px 12px 19px;
+  border: 1px solid #f1e3d9;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #fff 0%, #fff8f3 100%);
+  box-shadow: 0 10px 28px rgba(107, 64, 42, .055);
+  text-align: center;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 0 11px;
+  border: 1px solid #f1d8cd;
+  border-radius: 999px;
+  background: #fff4ee;
+  color: #9b4e42;
+  font-size: 12px;
+  font-weight: 650;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-phase-mark {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pomo-red);
+  box-shadow: 0 0 0 3px rgba(233, 108, 90, .12);
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-clock {
+  margin: 13px 0 1px;
+  color: #3e2019;
+  font-size: clamp(70px, 19vw, 100px);
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.055em;
+  line-height: 1.04;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-round-label {
+  color: #92796f;
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-round-label span {
+  padding: 0 4px;
+  color: #d9b2a5;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-rounds {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 9px 0 14px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-round-dot {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  color: #d8c9c0;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-round-dot.done {
+  color: var(--pomo-red);
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-round-dot svg {
+  width: 100%;
+  height: 100%;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, .9fr);
+  gap: 9px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-primary,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-skip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 47px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-primary {
+  border: 1px solid #b64f43;
+  background: linear-gradient(135deg, #e87865, #d95d4e);
+  color: #fff;
+  box-shadow: 0 5px 12px rgba(194, 83, 68, .16);
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-primary svg,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-skip svg {
+  width: 17px;
+  height: 17px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-skip {
+  border: 1px solid #ecddd3;
+  background: #fff;
+  color: #715449;
+  font-weight: 600;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-card {
+  margin-top: 13px;
+  padding: 14px;
+  border: 1px solid #eee1d7;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 5px 16px rgba(107, 64, 42, .035);
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-section-heading,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-week-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-section-heading h2,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-week-head h3 {
+  margin: 0;
+  color: #52352a;
+  font-size: 14px;
+  font-weight: 730;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-section-heading > span,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-week-head > span {
+  color: #a58c81;
+  font-size: 11px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-duration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 8px;
+  border: 1px solid #f0e4dc;
+  border-radius: 11px;
+  background: #fffaf6;
+  color: #80685e;
+  font-size: 11px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-duration input {
+  width: 32px;
+  padding: 4px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #4c2b21;
+  font-size: 15px;
+  font-weight: 720;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] input[type="number"]::-webkit-inner-spin-button,
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid #f0e4dc;
+  border-radius: 10px;
+  background: #fffaf6;
+  color: #9a8278;
+  font-size: 12px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-goal input {
+  width: 26px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #55372b;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-goal-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 12px 0 7px;
+  color: #604337;
+  font-size: 12px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-goal-row strong {
+  font-size: 21px;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-goal-row strong small {
+  color: #a28b80;
+  font-size: 11px;
+  font-weight: 500;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-goal-row > span {
+  color: #a08172;
+  font-size: 11px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f5eae3;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f19a7d, #e96c5a);
+  transition: width .25s ease;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-week-head {
+  margin-top: 15px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-week-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 7px;
+  height: 86px;
+  margin-top: 9px;
+  padding: 7px 5px 0;
+  border-top: 1px solid #f3e8e1;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  height: 100%;
+  gap: 5px;
+  color: #a28d82;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-bar-track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 59px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-bar-track i {
+  display: block;
+  width: min(18px, 75%);
+  min-height: 3px;
+  border-radius: 6px 6px 3px 3px;
+  background: #e9c8b9;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-bar-track i.today {
+  background: linear-gradient(180deg, #ef9b7c, #e96c5a);
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-empty {
+  grid-column: 1 / -1;
+  align-self: center;
+  color: #a38c81;
+  font-size: 11px;
+  text-align: center;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-sounds {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 11px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-sound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 35px;
+  padding: 0 5px;
+  border: 1px solid #eee2d9;
+  border-radius: 10px;
+  background: #fffdfa;
+  color: #856d62;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-sound.selected {
+  border-color: #e7aa98;
+  background: #fff1e9;
+  color: #a84e40;
+  box-shadow: 0 0 0 2px rgba(233, 108, 90, .07);
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-sound-icon {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-note {
+  margin: 9px 0 0;
+  color: #aa9388;
+  font-size: 10px;
+  line-height: 1.45;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-footer {
+  padding: 16px 2px 3px;
+  color: #a89186;
+  font-size: 11px;
+  text-align: center;
+}
+#sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-app.xwl-pomo-fullscreen {
+  min-height: 100vh;
+  background: #fffaf5;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 34px);
+}
+#gw-focus-pill.on {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#gw-focus-pill svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  fill: #f16f5b;
+  stroke: #a94b3e;
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#gw-focus-pill span {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 365px) {
+  #sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-app { padding-right: 12px; padding-left: 12px; }
+  #sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-card { padding: 12px; }
+  #sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-duration { padding: 0 5px; font-size: 10px; }
+  #sys-app-host .sys-app-window[data-app-sandbox="pomodoro"] .xwl-pomo-sound { font-size: 10px; }
+}

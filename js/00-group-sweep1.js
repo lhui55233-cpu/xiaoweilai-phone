@@ -94,7 +94,8 @@
         const state = {
             isLocked: true,
             activeApp: null,
-            wallpaper: StorageEngine.get('wallpaper', '') // [D组] 默认壁纸改为空（本地纯白），不再默认外链紫图
+            wallpaper: StorageEngine.get('wallpaper', ''), // [D组] 默认壁纸改为空（本地纯白），不再默认外链紫图
+            lockscreen_wp: StorageEngine.get('lockscreen_wp', '')
         };
         return {
             get: (key) => state[key],
@@ -5600,8 +5601,11 @@ AppManager.register('beautify', (() => {
        crown: `<svg viewBox="0 0 100 100" width="26" height="26"><path d="M8 78 L18 18 L38 48 L50 10 L62 48 L82 18 L92 78 Z" fill="var(--dec-c, #FFD57E)" stroke="#FFFFFF" stroke-width="3"/><rect x="8" y="82" width="84" height="8" fill="#FFFFFF" rx="4"/></svg>`
    };
 
-   // [AJ] 内置预设壁纸已清空：默认纯白壁纸，无预设图、无热链；用户自己上传才有壁纸
-   const PresetWallpapers = [];
+   // [GROUP-WALLPAPER] 本地内置 SVG；雨景壁纸的动态雨幕由独立 Canvas 模块绘制。
+   const PresetWallpapers = [
+       { id: 'unsent-words', name: '无法显现的文字', url: 'wallpapers/unsent-words.svg' },
+       { id: 'rain-letters', name: '雨落碎了字里行间', url: 'wallpapers/rain-between-words.svg' }
+   ];
 
    // 2. 内部高度密封的视图装配输出层
    const renderView = () => `
@@ -5967,8 +5971,8 @@ AppManager.register('beautify', (() => {
                <div style="font-size: 13px; color: #8E8E93; text-transform: uppercase; margin-bottom: 8px; margin-left: 16px;">静态墙纸</div>
                <div style="background: #FFFFFF; border-radius: 10px; padding: 16px;">
                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                       ${PresetWallpapers.map((url) => `
-                           <img src="${url}" style="width: 100%; aspect-ratio: 9/19.5; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" onclick="window.BeautifyEngine.previewGallery('${url}')" />
+                       ${PresetWallpapers.map((wp) => `
+                           <img src="${wp.url}" alt="${wp.name}" title="${wp.name}" style="width: 100%; aspect-ratio: 9/19.5; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor:pointer;" onclick="window.BeautifyEngine.previewGallery('${wp.url}')" />
                        `).join('') || '<div style="color:#8E8E93;font-size:13px;line-height:1.8;grid-column:1/-1;">还没有预设壁纸。<br>点「上传」添加自己的壁纸，默认是纯白。</div>'}
                    </div>
                </div>
@@ -6542,20 +6546,29 @@ AppManager.register('beautify', (() => {
                // 靶向装配壁纸至具体层级 (桌面 / 锁屏)
                applyWallpaperTarget: (targetMode) => {
                    const finalUrl = BStore.customWpUrl;
+                   const builtin = PresetWallpapers.find((x) => x.url === finalUrl);
                    if (!finalUrl) return alert("请先点击上方预设画廊、填入直链或从本地拉取一张图像！");
-                   if (!/^(https?:\/\/|data:image\/)/i.test(finalUrl)) { alert("壁纸地址不对：请填 http(s) 开头的图片直链，或从本地上传图片"); return; }
+                   if (!builtin && !/^(https?:\/\/|data:image\/)/i.test(finalUrl)) { alert("壁纸地址不对：请填 http(s) 开头的图片直链，或从本地上传图片"); return; }
                    
                    if (targetMode === 'desktop') {
                        const shellDom = document.getElementById('sys-shell');
-                       if (shellDom) shellDom.style.backgroundImage = `url(${finalUrl})`;
-                       if (typeof SystemStore !== 'undefined') SystemStore.set('wallpaper', finalUrl);
-                       if (window.BeautifyEngine && BeautifyEngine.applyWallpaperDim) BeautifyEngine.applyWallpaperDim();
+                       if (builtin && window.GroupW && typeof window.GroupW.setPref === 'function') {
+                           window.GroupW.setPref('wallpaper', builtin.id);
+                       } else {
+                           if (shellDom) shellDom.style.backgroundImage = `url("${finalUrl}")`;
+                           if (typeof SystemStore !== 'undefined') SystemStore.set('wallpaper', finalUrl);
+                           if (window.BeautifyEngine && BeautifyEngine.applyWallpaperDim) BeautifyEngine.applyWallpaperDim();
+                       }
                        alert("精美壁纸已精准覆盖系统主桌面引擎！");
                    } else if (targetMode === 'lockscreen') {
-                       if (typeof SystemStore !== 'undefined') SystemStore.set('lockscreen_wp', finalUrl);
-                       // 尝试干涉当前运行系统中的锁屏层 (如果开放接口)
-                       const lsDom = document.getElementById('sys-lockscreen-layer') /* 锁屏层真实 id（原 sys-lock-screen 不存在，设置永不生效） */;
-                       if (lsDom) lsDom.style.backgroundImage = `url(${finalUrl})`;
+                       if (typeof SystemStore !== 'undefined') SystemStore.set('lockscreen_wp', builtin ? builtin.id : finalUrl);
+                       const lsDom = document.getElementById('sys-lockscreen-layer');
+                       if (lsDom) {
+                           lsDom.style.backgroundImage = `url("${finalUrl}")`;
+                           if (builtin) lsDom.setAttribute('data-xwl-wallpaper-id', builtin.id);
+                           else lsDom.removeAttribute('data-xwl-wallpaper-id');
+                       }
+                       try { if (window.XwlRainWallpaper && window.XwlRainWallpaper.sync) window.XwlRainWallpaper.sync(); } catch (e) {}
                        alert("锁屏环境层背景已独立覆写生效！");
                    }
                },
@@ -16352,7 +16365,9 @@ const WALLPAPERS = [
   { id: '#fdf2f4', name: '柔粉', css: '#fdf2f4' },
   { id: '#eef7f2', name: '薄荷', css: '#eef7f2' },
   { id: '#eef4fb', name: '天空', css: '#eef4fb' },
-  { id: '#faf6ef', name: '暖米', css: '#faf6ef' }
+  { id: '#faf6ef', name: '暖米', css: '#faf6ef' },
+  { id: 'unsent-words', name: '无法显现的文字', css: '#353744', image: 'url("wallpapers/unsent-words.svg")' },
+  { id: 'rain-letters', name: '雨落碎了字里行间', css: '#344352', image: 'url("wallpapers/rain-between-words.svg")' }
 ];
 const ICON_STYLES = [
   { id: 'default', name: '默认' }, { id: 'line', name: '极简线条' }, { id: 'jelly', name: '液态果冻' },
@@ -16412,27 +16427,45 @@ const applyPrefs = () => {
     const shell = document.getElementById('sys-shell');
     if (shell) {
       const wp = p.wallpaper || '';
-      if (wp.indexOf('data:') === 0 || wp.indexOf('http') === 0) {
+      const preset = WALLPAPERS.find((x) => x.id === wp);
+      if (preset && preset.image) {
+        shell.style.backgroundImage = preset.image;
+        shell.style.backgroundColor = preset.css || '#ffffff';
+        try { if (typeof SystemStore !== 'undefined') SystemStore.set('wallpaper', ''); } catch (e) {}
+      } else if (wp.indexOf('data:') === 0 || wp.indexOf('http') === 0) {
         shell.style.backgroundImage = 'url("' + wp + '")';
         shell.style.backgroundColor = '#ffffff';
-        try { if (window.SystemStore) SystemStore.set('wallpaper', wp); } catch (e) {}
+        try { if (typeof SystemStore !== 'undefined') SystemStore.set('wallpaper', wp); } catch (e) {}
       } else if (wp === 'fish') {
         // [GROUP-FISH] 游鱼：底色由 FishWallpaper 的调色板决定（跟随主题时取主题色）；
         // Canvas 铺在 shell 背景之上（css/00 #xwl-fish-canvas），此处只负责底色兜底。
         shell.style.backgroundImage = 'none';
         shell.style.backgroundColor = (window.FishWallpaper && typeof window.FishWallpaper.currentBg === 'function') ? window.FishWallpaper.currentBg() : (p.fishBg || '#ffffff');
-        try { if (window.SystemStore) SystemStore.set('wallpaper', ''); } catch (e) {}
+        try { if (typeof SystemStore !== 'undefined') SystemStore.set('wallpaper', ''); } catch (e) {}
       } else {
         shell.style.backgroundImage = 'none';
         shell.style.backgroundColor = (wp ? wallpaperCss(wp) : ((window.BuThemes && window.BuThemes.shellBg()) || wallpaperCss(wp)));
-        try { if (window.SystemStore) SystemStore.set('wallpaper', ''); } catch (e) {}
+        try { if (typeof SystemStore !== 'undefined') SystemStore.set('wallpaper', ''); } catch (e) {}
       }
       shell.setAttribute('data-gw-wallpaper', wp);
       shell.setAttribute('data-gw-clock', p.clockStyle || 'digital');
     }
+    const lockLayer = document.getElementById('sys-lockscreen-layer');
+    const lockWp = (typeof SystemStore !== 'undefined') ? SystemStore.get('lockscreen_wp') : '';
+    if (lockLayer && lockWp) {
+      const lockPreset = WALLPAPERS.find((x) => x.id === lockWp);
+      if (lockPreset && lockPreset.image) {
+        lockLayer.style.backgroundImage = lockPreset.image;
+        lockLayer.setAttribute('data-xwl-wallpaper-id', lockPreset.id);
+      } else if (typeof lockWp === 'string' && (lockWp.indexOf('data:') === 0 || lockWp.indexOf('http') === 0)) {
+        lockLayer.style.backgroundImage = 'url("' + lockWp + '")';
+        lockLayer.removeAttribute('data-xwl-wallpaper-id');
+      }
+    }
   } catch (e) {}
   // [GROUP-FISH] 壁纸改动后同步游鱼 Canvas（可见性/调色板/风格/启停）。
   try { if (window.FishWallpaper && typeof window.FishWallpaper.sync === 'function') window.FishWallpaper.sync(); } catch (e) {}
+  try { if (window.XwlRainWallpaper && typeof window.XwlRainWallpaper.sync === 'function') window.XwlRainWallpaper.sync(); } catch (e) {}
   try {
     if (window.IconSystem && window.IconSystem.cfg) {
       // [AK] 先读一次已存布局再改 cfg：否则此时内存里还是默认布局，下一行 save() 会把
@@ -16811,6 +16844,17 @@ const pomoResume = (nowMs) => {
   try { if (window.DynamicIsland) window.DynamicIsland.showActivity({ type: 'pomodoro', until: st.until, phase: st.phase, minutes: st.minutes, startedAt: st.startedAt, paused: false }); } catch (e) {}
   return st;
 };
+const pomoSkip = (nowMs) => {
+  const state = _read(FOCUS_STATE_KEY, null);
+  const pomo = pomoLoad();
+  const phase = state && PHASE_LABEL[state.phase] ? state.phase : (pomo.session && PHASE_LABEL[pomo.session.phase] ? pomo.session.phase : (PHASE_LABEL[pomo.phase] ? pomo.phase : 'focus'));
+  const round = (state && state.round) || (pomo.session && pomo.session.round) || pomo.round || 1;
+  const next = nextPhaseAfter(phase, round);
+  if (state && (state.active || state.paused)) { try { if (window.DynamicIsland) window.DynamicIsland.endActivity('pomodoro'); } catch (e) {} }
+  _write(FOCUS_STATE_KEY, { active: false });
+  pomoSave(Object.assign({}, pomo, { phase: next.phase, round: next.round, session: null }));
+  return next;
+};
 // 提前结束：走 N 组 focusEnd（按实际经过分钟记账），不发专注完成奖励。
 const pomoStopEarly = (nowMs) => {
   const now = nowMs || Date.now();
@@ -16858,14 +16902,17 @@ const pomoTick = (nowMs) => {
   }
   const nx = nextPhaseAfter(phase, s.round || 1);
   const pomo = pomoLoad();
-  pomoSave(Object.assign({}, pomo, { phase: nx.phase, round: nx.round }));
+  _write(FOCUS_STATE_KEY, { active: false });
+  try { if (window.DynamicIsland) window.DynamicIsland.endActivity('pomodoro'); } catch (e) {}
+  pomoSave(Object.assign({}, pomo, { phase: nx.phase, round: nx.round, session: null }));
   chime(false);
   notify('休息结束', '休息好了，开始下一轮专注吧。');
   return { active: false, completed: phase, next: nx };
 };
 const streakFromDays = (days, todayStr) => {
   let n = 0;
-  const d = new Date(todayStr + 'T12:00:00');
+  const parts = String(todayStr || '').split('-').map(Number);
+  const d = parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2], 12) : new Date(NaN);
   if (isNaN(d.getTime())) return 0;
   for (let i = 0; i < 370; i++) {
     const k = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
@@ -16875,7 +16922,8 @@ const streakFromDays = (days, todayStr) => {
 };
 const last7Days = (days, todayStr) => {
   const out = [];
-  const d = new Date(todayStr + 'T12:00:00');
+  const parts = String(todayStr || '').split('-').map(Number);
+  const d = parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2], 12) : new Date(NaN);
   if (isNaN(d.getTime())) return out;
   for (let i = 6; i >= 0; i--) {
     const dd = new Date(d);
@@ -18063,10 +18111,10 @@ const renderDesktopSettingsHTML = () => {
       /* GROUP-WIDGET（第 3 项）: 日历行直接进日历页（设置也是入口之一）。 */ (c.kind === 'calendar' ? '<button data-gw-opencal="1">打开</button>' : '') +
       '</div>';
   }).join('');
-  const st = focusStats(Date.now());
   return '<div class="gw-set-h">壁纸</div>' +
-    '<div class="gw-seg">' + WALLPAPERS.map((wp) => '<button class="gw-swatch' + ((p.wallpaper || '') === wp.id ? ' on' : '') + '" data-gw-set="wallpaper" data-v="' + esc(wp.id) + '" style="background:' + esc(wp.css) + '" title="' + esc(wp.name) + '" aria-label="壁纸' + esc(wp.name) + '"></button>').join('') + '</div>' +
+    '<div class="gw-seg">' + WALLPAPERS.map((wp) => '<button class="gw-swatch' + ((p.wallpaper || '') === wp.id ? ' on' : '') + '" data-gw-set="wallpaper" data-v="' + esc(wp.id) + '" style="background:' + esc(wp.image ? wp.image + ' center/cover no-repeat' : wp.css) + '" title="' + esc(wp.name) + '" aria-label="壁纸' + esc(wp.name) + '"></button>').join('') + '</div>' +
     '<div class="gw-set-row"><div class="lb">当前壁纸<div class="sub">' + esc(WALLPAPERS.find((x) => x.id === (p.wallpaper || '')) ? WALLPAPERS.find((x) => x.id === (p.wallpaper || '')).name : '图片') + '（默认游鱼，改完桌面实时预览）</div></div></div>' +
+    (((p.wallpaper || '') === 'rain-letters' || (typeof SystemStore !== 'undefined' && SystemStore.get('lockscreen_wp') === 'rain-letters')) ? swRow('rainEnabled', '雨幕动效', '仅在锁屏／桌面显示；减少动态效果或低电量时自动暂停。', p.rainEnabled !== false) : '') +
     ((p.wallpaper || '') === 'fish' && window.FishWallpaper && typeof window.FishWallpaper.settingsHTML === 'function' ? window.FishWallpaper.settingsHTML(p) : '') +
     '<div class="gw-set-h">主题</div>' +
     (window.BuThemes ? window.BuThemes.desktopSettingsHtml() : '<div class="gw-set-row"><div class="lb">当前主题：' + esc(themeLabel(p.theme)) + '</div></div>') +
@@ -18092,8 +18140,6 @@ const renderDesktopSettingsHTML = () => {
     store +
     '<div class="gw-set-row"><div class="lb">更多小组件<div class="sub">专注热力图、宠物状态、共读统计等由 AC 组小组件商店管理。</div></div><button data-gw-acstore="1" style="border:1px solid #e8ddd2;background:#fff;border-radius:8px;padding:7px 10px;font-size:12px">打开商店</button></div>' +
     '<div class="gw-set-h">已在桌面</div>' + placed +
-    '<div class="gw-set-h">番茄专注 · 桌宠市场</div>' +
-    '<div class="gw-set-row"><div class="lb">专注番茄<div class="sub">今日已专注 ' + st.todayMinutes + ' 分钟 · 连续 ' + st.streak + ' 天 · 目标 ' + st.todaySessions + '/' + st.goal + ' 轮</div></div><button data-gw-openpomo="1" style="border:0;background:#3a1e14;color:#ffe9c9;border-radius:8px;padding:8px 12px;font-size:13px">打开</button></div>' +
     '<div class="gw-set-h">说明</div>' +
     '<div class="muted">偏好存在 phone_ui_prefs_v1（T 组形状），W 组小组件布局存在 phone_widgets_w_v1（AC 组的 phone_widgets_v1 不动）；长按桌面空白处也可进这里，不占桌面图标。</div>';
 };
@@ -18528,6 +18574,13 @@ const togglePomoFullscreen = () => {
   } catch (e) {}
 };
 const openPomodoro = () => {
+  try {
+    if (typeof AppManager !== 'undefined' && AppManager && typeof AppManager.launch === 'function') {
+      AppManager.launch('pomodoro');
+      return true;
+    }
+  } catch (e) {}
+  // 旧版脚本加载不全时保留兼容入口。
   buildPomodoroOverlay();
   const ov = document.getElementById('gw-pomo-overlay');
   if (!ov) return false;
@@ -18558,7 +18611,7 @@ const updateStatusPill = () => {
   if (!pill) return;
   const s = _read(FOCUS_STATE_KEY, null);
   if (s && s.active && Date.now() < (s.until || 0)) {
-    pill.textContent = '🍅 ' + fmtMS(s.until - Date.now());
+    pill.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.4c-5.1-2.3-8.4 1.5-8.4 6.7 0 5.5 3.4 9 8.4 9s8.4-3.5 8.4-9c0-5.2-3.3-9-8.4-6.7Z"/><path d="M12 5.7c-.4-2-1.8-3.3-3.8-3.4.7 2.1 1.9 3.2 3.8 3.4Zm0 0c1-2 2.6-2.8 4.5-2.6-.7 1.9-2.2 2.8-4.5 2.6Z"/></svg><span>' + fmtMS(s.until - Date.now()) + '</span>';
     pill.classList.add('on');
   } else {
     pill.classList.remove('on');
@@ -18571,6 +18624,8 @@ const tickSecond = () => {
     if (r && r.completed) {
       const ov = document.getElementById('gw-pomo-overlay');
       if (ov && ov.style.display !== 'none') renderPomo();
+      const pomoWin = document.querySelector('.sys-app-window[data-app-sandbox="pomodoro"]');
+      if (pomoWin && typeof pomoWin._xwlPomoRefresh === 'function') pomoWin._xwlPomoRefresh();
       renderWidgets();
       refreshPetSkin();
     } else if (r && r.active) {
@@ -18578,6 +18633,8 @@ const tickSecond = () => {
       if (t) t.textContent = fmtMS(r.remainingMs);
       const w = document.querySelector('#gw-widget-row [data-gw-kind="focus"] .gw-w-focus-time');
       if (w) w.textContent = fmtMS(r.remainingMs);
+      const pomoWin = document.querySelector('.sys-app-window[data-app-sandbox="pomodoro"]');
+      if (pomoWin && typeof pomoWin._xwlPomoTick === 'function') pomoWin._xwlPomoTick(r);
     }
   } catch (e) {}
   try {
@@ -18634,7 +18691,7 @@ return {
   catRename: catRename, catBuy: catBuy, catEquip: catEquip, xpNeeded: xpNeeded, grantXp: grantXp,
   setPrice: setPrice, SHOP: SHOP, shopById: shopById,
   pomoRemaining: pomoRemaining, pomoLoad: pomoLoad, pomoSave: pomoSave, pomoDurations: pomoDurations,
-  nextPhaseAfter: nextPhaseAfter, pomoStart: pomoStart, pomoPause: pomoPause, pomoResume: pomoResume,
+  nextPhaseAfter: nextPhaseAfter, pomoStart: pomoStart, pomoPause: pomoPause, pomoResume: pomoResume, pomoSkip: pomoSkip,
   pomoStopEarly: pomoStopEarly, pomoTick: pomoTick, afterFocusReward: afterFocusReward,
   streakFromDays: streakFromDays, last7Days: last7Days, focusStats: focusStats,
   taskLoad: taskLoad, taskSave: taskSave, taskAdd: taskAdd, taskPin: taskPin, taskToggle: taskToggle, taskRemove: taskRemove,
@@ -33966,6 +34023,8 @@ const IconSystem = (() => {
             glyph:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><circle cx="12" cy="5.6" r="1.7"/><circle cx="17.6" cy="14.8" r="1.7"/><circle cx="6.4" cy="14.8" r="1.7"/>' },
         cinema:     { name:'影院',     tint:['#E9E4F5','#CFC2EC'],
             glyph:'<rect x="3" y="4.5" width="18" height="15" rx="3.5"/><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor" stroke="none"/><path d="M7 4.5v15M17 4.5v15" stroke-dasharray="2 2.4"/>' },
+        pomodoro:   { name:'番茄专注', tint:['#FCE7E1','#F6B9AA'],
+            glyph:'<path d="M12 5.8c-5-2.3-8.7 1.3-8.7 6.8 0 5.8 3.5 9.3 8.7 9.3s8.7-3.5 8.7-9.3c0-5.5-3.7-9.1-8.7-6.8Z"/><path d="M12 6c-.5-2.4-2.2-3.8-4.5-3.7.7 2.4 2.2 3.7 4.5 3.7Zm0 0c1.1-2.3 3.1-3.3 5.2-3-.8 2.2-2.5 3.3-5.2 3Z"/><path d="M12 6v2.1"/>' },
     };
 
     // ── C. 桌面布局数据（与原 DesktopEngine 一致，但加上自定义层）──
@@ -34001,6 +34060,7 @@ const IconSystem = (() => {
         music:      ['linear-gradient(155deg,#F2A8C4,#E08AAF)', '#FFFFFF'],
         script:     ['linear-gradient(155deg,#D8B98A,#B98F56)', '#FFFFFF'],
         cinema:     ['linear-gradient(155deg,#3A3A5C,#232338)', '#FFFFFF'],
+        pomodoro:   ['linear-gradient(155deg,#F5A493,#E56A58)', '#FFFFFF'],
     };
 
     // ── D. 用户自定义覆盖层（base64 缓存）──

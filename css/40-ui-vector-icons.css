@@ -1,0 +1,4 @@
+/* GROUP-UI-VECTORS · 将替换后的图标统一为轻量线稿，不改变既有控件布局。 */
+.xwl-ui-vector{display:inline-block;width:1.08em;height:1.08em;flex:0 0 auto;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+button .xwl-ui-vector{margin-right:.24em}
+.sys-lock-widgets .xwl-ui-vector{width:1em;height:1em;vertical-align:-.14em}

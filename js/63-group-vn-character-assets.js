@@ -221,19 +221,20 @@
     var chars = Array.isArray(vn.characters) ? vn.characters.slice() : [];
     var shown = {};
     Object.keys(ov._awVN && ov._awVN.sprites || {}).forEach(function (n) { if (chars.indexOf(n) < 0) chars.push(n); });
-    if (!chars.length) chars.push('主角');
     var modal = document.createElement('div'); modal.className = 'vnca-modal'; modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-label', '人物形象');
     modal.innerHTML = '<div class="vnca-sheet"><div class="vnca-head"><div><span class="vnca-kicker">CHARACTER STUDIO</span><h2>人物形象</h2><p>《' + esc(vn.title) + '》 · 添加自己的图片或 VRM</p></div><button type="button" data-vnca-close aria-label="关闭">×</button></div>'
-      + '<div class="vnca-character-tabs">' + chars.map(function (n, i) { return '<button type="button" data-vnca-select="' + esc(n) + '" class="' + (!i ? 'is-on' : '') + '">' + esc(n) + '</button>'; }).join('') + '</div>'
+      + (chars.length ? '<div class="vnca-character-tabs">' + chars.map(function (n, i) { return '<button type="button" data-vnca-select="' + esc(n) + '" class="' + (!i ? 'is-on' : '') + '">' + esc(n) + '</button>'; }).join('') + '</div>' : '')
       + '<div data-vnca-pane></div></div>';
-    modal._vncaVNId = vnId; modal._vncaChars = chars; modal._vncaChar = chars[0];
+    modal._vncaVNId = vnId; modal._vncaChars = chars; modal._vncaChar = chars[0] || '';
     ov.appendChild(modal);
+    var emptyPane = modal.querySelector('[data-vnca-pane]');
+    if (!chars.length && emptyPane) emptyPane.innerHTML = '<div class="vnca-empty-state"><div class="vnca-empty-title">暂时还没有人物</div><p>添加含人物姓名的剧本后，人物会出现在列表中；之后可以为人物上传图片立绘或 VRM 模型。</p><span>列表保持空白，不会预置占位角色。</span></div>';
     function show(name) {
       modal._vncaChar = name;
       modal.querySelectorAll('[data-vnca-select]').forEach(function (b) { b.classList.toggle('is-on', b.getAttribute('data-vnca-select') === name); });
       assetPane(ov, name).then(function (html) { var pane = modal.querySelector('[data-vnca-pane]'); if (pane && modal.isConnected && modal._vncaChar === name) pane.innerHTML = html; });
     }
-    modal._vncaShow = show; show(chars[0]);
+    modal._vncaShow = show; if (chars.length) show(chars[0]);
     modal.addEventListener('click', function (ev) {
       var sel = ev.target.closest && ev.target.closest('[data-vnca-select]');
       var close = ev.target.closest && ev.target.closest('[data-vnca-close]');
