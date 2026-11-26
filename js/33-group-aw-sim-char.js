@@ -45,8 +45,12 @@ var toast = function (m) { try { if (window.WeChatAppEngine && WeChatAppEngine.t
 /* ── 日程（只读 cike_char_day_v1，K 组 9 时段；无效时回默认） ── */
 function loadDay() {
   var d = rd(DAY_KEY, null);
-  if (d && Array.isArray(d.slots) && d.slots.length >= 1 && d.slots.every(function (s) { return typeof s.hour === 'number' && typeof s.place === 'string' && typeof s.activity === 'string'; })) return d;
-  return { city: '上海', weather: '晴', slots: DEFAULT_SLOTS.slice() };
+  if (d && Array.isArray(d.slots) && d.slots.length >= 1 && d.slots.every(function (s) { return typeof s.hour === 'number' && typeof s.place === 'string' && typeof s.activity === 'string'; })) {
+    var out = Object.assign({}, d);
+    out.isDefault = false;
+    return out;
+  }
+  return { city: '上海', weather: '晴', slots: DEFAULT_SLOTS.slice(), isDefault: true };
 }
 function slotForHour(day, hour) {
   var idx = 0;
@@ -55,9 +59,10 @@ function slotForHour(day, hour) {
 }
 function currentActivity(nowMs) {
   var d = new Date(nowMs || Date.now());
-  var s = slotForHour(loadDay(), d.getHours());
+  var day = loadDay();
+  var s = slotForHour(day, d.getHours());
   var phase = (d.getHours() >= 6 && d.getHours() < 17) ? 'day' : ((d.getHours() >= 17 && d.getHours() < 19) ? 'dusk' : 'night');
-  return { hour: s.hour, place: s.place, activity: s.activity, text: '在' + s.place + '，' + s.activity + '。', phase: phase, at: fmtTime(nowMs || Date.now()) };
+  return { hour: s.hour, place: s.place, activity: s.activity, text: '在' + s.place + '，' + s.activity + '。', phase: phase, at: fmtTime(nowMs || Date.now()), isDefault: !!day.isDefault };
 }
 
 /* ── 需求（cike_sim_v1；按流逝时间衰减，按当前活动回补） ── */
@@ -133,7 +138,7 @@ function genMurmur(nowMs) {
     cur.activity + '……嗯，就是这样，平平常常的一天。'
   ];
   var t = picks[Math.floor(Math.random() * picks.length)];
-  addMurmur(t, 'sim'); return t;
+  addMurmur(t, 'template'); return t;
 }
 
 /* ── 查手机此刻状态（模板推测，诚实标注，不是真截屏） ── */
@@ -452,7 +457,7 @@ function registerCharInWeChat(ch) {
   var sess = null;
   (store.sessions || []).forEach(function (s) { if (s.name === ch.name && !s.isGroup) sess = s; });
   if (!sess) {
-    sess = { id: 'chat_' + Date.now() + '_' + ch.id, name: ch.name, avatar: ch.avatar || '', isGroup: false, isPinned: false, unread: 0, heartsVoice: '好感度 80% | 潜台词：新朋友。', emotionState: '平静', chatBg: '', wxid: 'wxid_' + ch.name.toLowerCase().replace(/\s/g, ''), region: '中国', lastTime: '刚刚', preview: ch.greeting || '我们已经是好友了，开始聊天吧', memory: [], events: [], messages: [{ id: 'init', sender: ch.name, type: 'text', content: ch.greeting || '你好，我们已经是好友了。', time: '刚刚' }] };
+    sess = { id: 'chat_' + Date.now() + '_' + ch.id, name: ch.name, avatar: ch.avatar || '', isGroup: false, isPinned: false, unread: 0, heartsVoice: '好感度 0% | 潜台词：刚认识，还不了解。', emotionState: '平静', chatBg: '', wxid: 'wxid_' + ch.name.toLowerCase().replace(/\s/g, ''), region: '中国', lastTime: '刚刚', preview: ch.greeting || '我们已经是好友了，开始聊天吧', memory: [], events: [], messages: [{ id: 'init', sender: ch.name, type: 'text', content: ch.greeting || '你好，我们已经是好友了。', time: '刚刚' }] };
     store.sessions.push(sess);
   }
   ch.sessionId = sess.id;
@@ -527,13 +532,16 @@ function enableChar(id) {
   var cs = listChars(); cs.forEach(function (x) { if (x.id === id) { x.status = 'active'; x.enabled = true; } }); wr(CHARS_KEY, cs);
   registerCharInWeChat(ch); return ch;
 }
+/* ── 人物回复：模板回复必须带可见标注 label（调用方渲染时要把 label
+   显示出来，不能只留在返回值里）；用户自己写的示例对话按原样回，via:'example'。
+   模型路径见 replyForCharModel：接通模型时 via:'model'，失败才回落模板。 ── */
 function replyForChar(chOrId, userText) {
   var ch = (typeof chOrId === 'string') ? findChar(chOrId) : chOrId;
   if (!ch) throw new Error('找不到这个人物');
   var t = String(userText || '');
   var ex = null;
   (ch.examples || []).forEach(function (e) { if (!ex && e.q && t.indexOf(e.q) !== -1) ex = e; });
-  if (ex) return { text: ex.a, via: 'template', matched: 'example' };
+  if (ex) return { text: ex.a, via: 'example', matched: 'example' };
   var short = /简短|短句|话少/.test(ch.rules || '') || /简短|短句/.test(ch.speechStyle || '');
   var style = ch.speechStyle || '';
   var cands = short
@@ -541,7 +549,7 @@ function replyForChar(chOrId, userText) {
     : ['嗯，我在听，你继续说。', '这个嘛……' + (ch.traits ? '按我的性子，' : '') + '我觉得挺好的。', '哈哈，你这么一说，我也想起来了。', '好呀，那我们就这么说定了。'];
   var text = cands[Math.floor(Math.random() * cands.length)];
   if (style) text = text;
-  return { text: text, via: 'template', matched: 'template' };
+  return { text: text, via: 'template', matched: 'template', label: '模板回复 · 未接模型' };
 }
 function replyForCharModel(chOrId, userText) {
   var ch = (typeof chOrId === 'string') ? findChar(chOrId) : chOrId;
@@ -564,35 +572,35 @@ function ensureStyle() {
   if (document.getElementById('aw-style')) return;
   var st = document.createElement('style'); st.id = 'aw-style';
   st.textContent = [
-    '#aw-sim-panel{margin:10px 2px 12px;background:rgba(255,252,248,.96);border:1px solid #ece3d3;border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(90,60,30,.08);}',
-    '#aw-sim-panel h4{margin:0 0 6px;font-size:13px;color:#7a4a28;letter-spacing:1px;}',
-    '.aw-sim-line{font-size:13px;color:#4a3226;line-height:1.6;}',
-    '.aw-need{margin:6px 0;} .aw-need span{display:inline-block;width:44px;font-size:11px;color:#8a6a52;}',
-    '.aw-bar{display:inline-block;width:120px;height:6px;background:#eee;border-radius:3px;vertical-align:middle;} .aw-bar i{display:block;height:6px;background:#b08954;border-radius:3px;}',
+    '#aw-sim-panel{margin:10px 2px 12px;background:rgba(251,249,244,.96);border:1px solid #dce2f1;border-radius:16px;padding:12px 14px;box-shadow:0 1px 2px rgba(30,39,72,.06),0 4px 14px rgba(30,39,72,.08);}',
+    '#aw-sim-panel h4{margin:0 0 6px;font-size:13px;color:#1e2748;letter-spacing:1px;}',
+    '.aw-sim-line{font-size:13px;color:#1e2748;line-height:1.6;}',
+    '.aw-need{margin:6px 0;} .aw-need span{display:inline-block;width:44px;font-size:11px;color:#5b6b8a;}',
+    '.aw-bar{display:inline-block;width:120px;height:6px;background:#eef0f5;border-radius:3px;vertical-align:middle;} .aw-bar i{display:block;height:6px;background:#1e2748;border-radius:3px;}',
     '.aw-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}',
-    '.aw-btns button{border:0;background:#f3e2d3;color:#7a4a28;font-size:12px;font-weight:700;border-radius:16px;padding:7px 11px;cursor:pointer;}',
+    '.aw-btns button{border:0;background:#dce2f1;color:#1e2748;font-size:12px;font-weight:700;border-radius:16px;padding:7px 11px;cursor:pointer;}',
     '.aw-btns button:active{transform:scale(.94);}',
-    '#aw-overlay{position:absolute;inset:0;background:#f7f3ec;z-index:60;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;display:none;}',
+    '#aw-overlay{position:absolute;inset:0;background:#fbf9f4;z-index:60;overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 40px;box-sizing:border-box;display:none;}',
     '#aw-overlay.show{display:block;}',
-    '.aw-ov-back{border:0;background:none;color:#7a4a28;font-size:15px;font-weight:700;cursor:pointer;padding:6px 0;}',
-    '.aw-ov-title{font-size:17px;font-weight:800;color:#3a1e14;margin:4px 0 10px;}',
-    '.aw-card{background:#fff;border:1px solid #ece3d3;border-radius:14px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.7;color:#4a3226;}',
-    '.aw-card input,.aw-card textarea,.aw-card select{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;margin:4px 0 8px;font-family:inherit;}',
-    '.aw-card label{font-size:12px;color:#8a6a52;font-weight:700;}',
-    '.aw-btn{border:0;background:#7a4a28;color:#fff;font-size:13px;font-weight:700;border-radius:16px;padding:8px 14px;cursor:pointer;margin:2px 4px 2px 0;}',
-    '.aw-btn.ghost{background:#f3e2d3;color:#7a4a28;}',
-    '.aw-empty{font-size:13px;color:#a08a7a;line-height:1.8;padding:10px 2px;}',
+    '.aw-ov-back{border:0;background:none;color:#1e2748;font-size:15px;font-weight:700;cursor:pointer;padding:6px 0;}',
+    '.aw-ov-title{font-size:17px;font-weight:800;color:#1e2748;margin:4px 0 10px;}',
+    '.aw-card{background:#fffdf8;border:1px solid #dce2f1;border-radius:14px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.7;color:#1e2748;box-shadow:0 1px 2px rgba(30,39,72,.05),0 4px 12px rgba(30,39,72,.06);}',
+    '.aw-card input,.aw-card textarea,.aw-card select{width:100%;box-sizing:border-box;border:1px solid #dce2f1;border-radius:8px;padding:8px;font-size:13px;margin:4px 0 8px;font-family:inherit;background:#fffdf8;color:#1e2748;}',
+    '.aw-card label{font-size:12px;color:#5b6b8a;font-weight:700;}',
+    '.aw-btn{border:0;background:#1e2748;color:#fff;font-size:13px;font-weight:700;border-radius:16px;padding:8px 14px;cursor:pointer;margin:2px 4px 2px 0;}',
+    '.aw-btn.ghost{background:#dce2f1;color:#1e2748;}',
+    '.aw-empty{font-size:13px;color:#5b6b8a;line-height:1.8;padding:10px 2px;}',
     '.aw-pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}',
-    '.aw-pc{background:#fff;border:1px solid #ece3d3;border-radius:12px;overflow:hidden;cursor:pointer;}',
-    '.aw-pc-meta{padding:8px 10px;font-size:11px;line-height:1.6;color:#4a3226;}',
-    '.aw-pc-meta b{font-size:12px;color:#3a1e14;}',
+    '.aw-pc{background:#fffdf8;border:1px solid #dce2f1;border-radius:12px;overflow:hidden;cursor:pointer;}',
+    '.aw-pc-meta{padding:8px 10px;font-size:11px;line-height:1.6;color:#1e2748;}',
+    '.aw-pc-meta b{font-size:12px;color:#1e2748;}',
     '#wx-view-aw-create-char{background:#ededed;z-index:3200;}',
     '#wx-view-aw-create-char .wx-scroll-view{padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;}',
     '.aw-cc-field{margin:0 12px 10px;background:#fff;border-radius:10px;padding:12px;}',
     '.aw-cc-field label{display:block;font-size:12px;color:#888;margin-bottom:4px;}',
     '.aw-cc-field input,.aw-cc-field textarea,.aw-cc-field select{width:100%;box-sizing:border-box;border:1px solid #e0e0e0;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;}',
     '.aw-cc-field details{font-size:13px;color:#333;} .aw-cc-field summary{cursor:pointer;font-weight:700;padding:4px 0;}',
-    '.aw-warn{color:#b5541e;font-size:12px;line-height:1.6;}'
+    '.aw-warn{color:#1e2748;font-size:12px;line-height:1.6;}'
   ].join('\n');
   document.head.appendChild(st);
 }
@@ -613,13 +621,13 @@ function simPanelHTML() {
     if (parts.length) driveLine = '<div class="aw-sim-line">内在驱动：' + esc(parts.slice(0, 5).join(' · ')) + '</div>';
   }
   return '<h4>模拟人生 · ' + esc(mainCharName()) + ' 的一天</h4>'
-    + '<div class="aw-sim-line">🕐 ' + esc(cur.at) + ' — ' + esc(cur.text) + '（好感：' + esc(tier.label) + '）</div>'
+    + '<div class="aw-sim-line">🕐 ' + esc(cur.at) + ' — ' + esc(cur.text) + '（好感：' + esc(tier.label) + '）' + (cur.isDefault ? ' · 默认日程 · 未设置' : '') + '</div>'
     + '<div class="aw-sim-line">📱 此刻他手机上：' + esc(phoneNow()) + '（模拟人生推测，不是真截屏）</div>'
     + needsBarHTML('饿', s.needs.hunger) + needsBarHTML('累', 100 - s.needs.energy) + needsBarHTML('心情', s.needs.mood) + needsBarHTML('社交', s.needs.social)
     + driveLine
     + '<div class="aw-sim-line">🎯 今日小目标：' + esc(g ? goalText(g) : '今天还没有小目标') + '</div>'
     + '<div class="aw-sim-line">🤝 最近承诺：' + esc(promises.length ? promiseText(promises[0]) : '没有进行中的承诺') + '</div>'
-    + '<div class="aw-sim-line">💭 ' + (mu ? '刚才他嘟囔：「' + esc(mu.text) + '」' : '他还没嘟囔什么。') + '</div>'
+    + '<div class="aw-sim-line">💭 ' + (mu ? '刚才他嘟囔：「' + esc(mu.text) + '」' + (mu.source === 'template' ? '（模板嘟囔）' : '') : '他还没嘟囔什么。') + '</div>'
     + '<div class="aw-sim-line">📮 明信片：共 ' + pcs.length + ' 张' + (pcs.length ? '，最新一张来自' + esc(pcs[0].place) + ' · ' + esc(pcs[0].event) : '') + '</div>'
     + '<div class="aw-btns"><button type="button" data-aw-open="travel">✈️ 旅行</button><button type="button" data-aw-open="murmur">💭 碎碎念</button><button type="button" data-aw-open="postcards">📮 明信片册</button><button type="button" data-aw-open="home">🏠 家</button><button type="button" data-aw-open="letters">✉️ 写信过程</button><button type="button" data-aw-open="phone">📱 查手机</button></div>';
 }
@@ -670,20 +678,24 @@ function openOverlay(page, arg) {
     handleOverlayAct(b.getAttribute('data-aw-act'), b.getAttribute('data-id') || '', b, ov);
   };
   var sc = ov.querySelector('#aw-tr-q'); if (sc) sc.addEventListener('input', function () { var list = document.getElementById('aw-tr-list'); if (list) list.innerHTML = travelListHTML(sc.value); });
-  var pf = ov.querySelector('#aw-pc-filter'); if (pf) pf.addEventListener('change', function () { var grid = document.getElementById('aw-pc-grid'); if (grid) grid.innerHTML = postcardGridHTML(pf.value); });
+  var pf = ov.querySelector('#aw-pc-filter'); if (pf) pf.addEventListener('change', function () { var grid = document.getElementById('aw-pc-grid'); if (grid) grid.innerHTML = postcardGridHTML(pf.value, grid.getAttribute('data-aw-pc-date') || ''); });
   if (ov.scrollTop !== undefined) ov.scrollTop = 0;
 }
 function closeOverlay() { var ov = document.getElementById('aw-overlay'); if (ov) ov.classList.remove('show'); }
 function travelListHTML(q) {
   var ts = searchTravel(q);
-  if (!ts.length) return '<div class="aw-empty">还没有旅行。新建一个目的地场景，char 就可以出发了。<br>目的地可以是手机里已有的真实地点（' + esc(listDestinations().slice(0, 6).join('、')) + '），也可以是你编的新地方。</div>';
+  if (!ts.length) {
+    var dayDefault = false; try { dayDefault = !!loadDay().isDefault; } catch (e) {}
+    return '<div class="aw-empty">还没有旅行。新建一个目的地场景，char 就可以出发了。' + (dayDefault ? '<br>今日日程还没设置（默认日程），先去此刻设置真实日程，这里的地点会跟着变；也可以直接编一个新地方。' : '<br>目的地可以是手机里已有的真实地点（' + esc(listDestinations().slice(0, 6).join('、')) + '），也可以是你编的新地方。') + '</div>';
+  }
   return ts.map(function (t) {
-    return '<div class="aw-card"><b>' + esc(t.name) + '</b> · ' + (t.status === 'active' ? '进行中' : '已结束') + ' · ' + (t.rounds || []).length + ' 轮<br><span style="color:#8a6a52">' + esc(t.goal || t.setting || '') + '</span><br><button class="aw-btn ghost" type="button" data-aw-act="tr-open" data-id="' + t.id + '">进入行程</button></div>';
+    return '<div class="aw-card"><b>' + esc(t.name) + '</b> · ' + (t.status === 'active' ? '进行中' : '已结束') + ' · ' + (t.rounds || []).length + ' 轮<br><span style="color:#5b6b8a">' + esc(t.goal || t.setting || '') + '</span><br><button class="aw-btn ghost" type="button" data-aw-act="tr-open" data-id="' + t.id + '">进入行程</button></div>';
   }).join('');
 }
-function postcardGridHTML(place) {
+function postcardGridHTML(place, dateStr) {
   var pcs = place ? postcardsByPlace(place) : listPostcards();
-  if (!pcs.length) return '<div class="aw-empty">还没有明信片。char 出门旅行或遇到值得记的事时，会寄明信片回来。</div>';
+  if (dateStr) pcs = pcs.filter(function (p) { return String(p.time || '').indexOf(dateStr) === 0; });
+  if (!pcs.length) return '<div class="aw-empty">' + (dateStr ? '这一天没有明信片。' : '还没有明信片。char 出门旅行或遇到值得记的事时，会寄明信片回来。') + '</div>';
   return '<div class="aw-pc-grid">' + pcs.map(function (p) {
     return '<div class="aw-pc" data-aw-act="pc-open" data-id="' + p.id + '"><div>' + postcardSVG(p.scene, currentActivity(p.ts).phase) + '</div><div class="aw-pc-meta"><b>' + esc(p.place) + '</b><br>' + esc(p.time) + '<br>' + esc(p.event) + '<br>新见闻：' + esc(p.discovery) + '</div></div>';
   }).join('') + '</div>';
@@ -700,12 +712,12 @@ function overlayHTML(page, arg) {
       + '<input id="aw-tr-goal" type="text" placeholder="目标：这次旅行想达成什么">'
       + '<textarea id="aw-tr-events" rows="3" placeholder="隐藏事件（每行一个，格式：效果文本 | 概率，如：遇见一只橘猫，跟着它走了一段路 | 0.3）&#10;只会看到效果，不会看到概率和骰子。"></textarea>'
       + '<button class="aw-btn" type="button" data-aw-act="tr-create">出发</button>'
-      + '<div style="font-size:12px;color:#8a6a52">已有真实地点：' + esc(listDestinations().join('、')) + '</div></div>'
-      + '<div class="aw-card"><button class="aw-btn ghost" type="button" data-aw-act="tr-export">导出行程 JSONL</button><span id="aw-tr-export-out" style="font-size:12px;color:#8a6a52"></span></div>';
+      + '<div style="font-size:12px;color:#5b6b8a">已有真实地点：' + esc(listDestinations().join('、')) + '</div></div>'
+      + '<div class="aw-card"><button class="aw-btn ghost" type="button" data-aw-act="tr-export">导出行程 JSONL</button><span id="aw-tr-export-out" style="font-size:12px;color:#5b6b8a"></span></div>';
   }
   if (page === 'trip') {
     var tr = findTrip(arg); if (!tr) return back + '<div class="aw-empty">找不到这次旅行。</div>';
-    var rounds = (tr.rounds || []).map(function (r) { return '<div style="border-top:1px solid #f0e8da;padding:8px 0"><b>第' + r.n + '轮</b> · ' + esc(r.action) + '<br>' + esc(r.narrative) + (r.event ? '<br><span style="color:#b5541e">✦ ' + esc(r.event.text) + '</span>' : '') + '</div>'; }).join('') || '<div class="aw-empty">还没行动，写下第一句行动吧。</div>';
+    var rounds = (tr.rounds || []).map(function (r) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>第' + r.n + '轮</b> · ' + esc(r.action) + '<br>' + esc(r.narrative) + (r.event ? '<br><span style="color:#1e2748">✦ ' + esc(r.event.text) + '</span>' : '') + '</div>'; }).join('') || '<div class="aw-empty">还没行动，写下第一句行动吧。</div>';
     return back + '<div class="aw-ov-title">✈️ ' + esc(tr.name) + '</div>'
       + '<div class="aw-card">' + esc(tr.setting || '') + (tr.goal ? '<br>目标：' + esc(tr.goal) : '') + ' · ' + (tr.status === 'active' ? '进行中' : '已结束') + '</div>'
       + '<div class="aw-card">' + rounds + '</div>'
@@ -715,59 +727,61 @@ function overlayHTML(page, arg) {
   }
   if (page === 'murmur') {
     var list = listMurmur();
-    var inner = readInnerLog().slice(-5).reverse().map(function (e) { var t = e && (e.text || e.msg || e.content); return t ? '<div style="border-top:1px solid #f0e8da;padding:6px 0">💭 ' + esc(String(t)) + '</div>' : ''; }).join('');
+    var inner = readInnerLog().slice(-5).reverse().map(function (e) { var t = e && (e.text || e.msg || e.content); return t ? '<div style="border-top:1px solid #dce2f1;padding:6px 0">💭 ' + esc(String(t)) + '</div>' : ''; }).join('');
     return back + '<div class="aw-ov-title">💭 碎碎念</div>'
-      + '<div class="aw-card"><button class="aw-btn" type="button" data-aw-act="mu-gen">听他嘟囔一句</button><span style="font-size:12px;color:#8a6a52">实时动态，带时间戳</span></div>'
-      + '<div class="aw-card">' + (list.length ? list.map(function (m) { return '<div style="border-top:1px solid #f0e8da;padding:8px 0"><b>' + esc(fmtTime(m.ts)) + '</b><br>「' + esc(m.text) + '」<br><span style="font-size:11px;color:#a08a7a">来源：' + esc(m.source === 'inner' ? '内心独白' : '模拟人生') + '</span></div>'; }).join('') : '<div class="aw-empty">还没有碎碎念。点“听他嘟囔一句”，或等他自己嘟囔。</div>') + '</div>'
+      + '<div class="aw-card"><button class="aw-btn" type="button" data-aw-act="mu-gen">听他嘟囔一句</button><span style="font-size:12px;color:#5b6b8a">模板嘟囔 · 未接模型，点一下生成一句</span></div>'
+      + '<div class="aw-card">' + (list.length ? list.map(function (m) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>' + esc(fmtTime(m.ts)) + '</b><br>「' + esc(m.text) + '」<br><span style="font-size:11px;color:#5b6b8a">来源：' + esc(m.source === 'inner' ? '内心独白' : (m.source === 'template' ? '模板嘟囔' : '模拟人生')) + '</span></div>'; }).join('') : '<div class="aw-empty">还没有碎碎念。点“听他嘟囔一句”，或等他自己嘟囔。</div>') + '</div>'
       + '<div class="aw-card"><b>内心独白 · 最近</b>' + (inner || '<div class="aw-empty">暂无内心独白记录。</div>') + '</div>';
   }
   if (page === 'postcards') {
     var places = postcardPlaces();
-    return back + '<div class="aw-ov-title">📮 明信片册</div>'
+    var dateArg = (typeof arg === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(arg)) ? arg : '';
+    return back + '<div class="aw-ov-title">📮 明信片册' + (dateArg ? ' · ' + esc(dateArg) + '（' + postcardsForDate(dateArg).length + ' 张）' : '') + '</div>'
+      + (dateArg ? '<div class="aw-card"><button class="aw-btn ghost" type="button" data-aw-act="pc-all">看全部明信片</button></div>' : '')
       + '<div class="aw-card"><label>按地点筛选</label><select id="aw-pc-filter"><option value="">全部地点</option>' + places.map(function (p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join('') + '</select>'
-      + '<div id="aw-pc-grid">' + postcardGridHTML('') + '</div></div>'
-      + '<div style="font-size:12px;color:#a08a7a">插画是画出来的场景，不是真照片。每张明信片可点开看大图、存成归巢记忆。</div>';
+      + '<div id="aw-pc-grid" data-aw-pc-date="' + esc(dateArg) + '">' + postcardGridHTML('', dateArg) + '</div></div>'
+      + '<div style="font-size:12px;color:#5b6b8a">插画是画出来的场景，不是真照片。每张明信片可点开看大图、存成归巢记忆。</div>';
   }
   if (page === 'postcard') {
     var pcs = listPostcards(); var pc = null; pcs.forEach(function (x) { if (x.id === arg) pc = x; });
     if (!pc) return back + '<div class="aw-empty">找不到这张明信片。</div>';
     return back + '<div class="aw-ov-title">📮 明信片</div>'
-      + '<div class="aw-card"><div>' + postcardSVG(pc.scene, currentActivity(pc.ts).phase) + '</div><div style="font-size:12px;color:#a08a7a">插画（非照片）· 立体书风格手绘场景</div>'
+      + '<div class="aw-card"><div>' + postcardSVG(pc.scene, currentActivity(pc.ts).phase) + '</div><div style="font-size:12px;color:#5b6b8a">插画（非照片）· 立体书风格手绘场景</div>'
       + '<div style="margin-top:8px">「' + esc(pc.caption) + '」</div>'
       + '<div style="margin-top:8px">🕐 时间：' + esc(pc.time) + '<br>📍 地点：' + esc(pc.place) + '<br>✦ 事件：' + esc(pc.event) + '<br>🌱 新见闻：' + esc(pc.discovery) + '<br>🏷️ 来源：' + esc(PC_SOURCES[pc.source] || pc.source) + '</div>'
       + '<div style="margin-top:8px"><button class="aw-btn" type="button" data-aw-act="pc-save" data-id="' + pc.id + '">存成归巢记忆</button>' + (pc.savedMemoryId ? '<span style="font-size:12px;color:#4a7a5a">已存（' + esc(pc.savedMemoryId) + '）</span>' : '') + '</div>'
       + '<div style="margin-top:8px"><button class="aw-btn ghost" type="button" data-aw-act="pc-jump" data-id="' + pc.id + '">跳回当时的立体书场景</button>' + (pc.ref && pc.ref.type === 'travel' ? '<button class="aw-btn ghost" type="button" data-aw-act="tr-open" data-id="' + pc.ref.id + '">看旅行记录</button>' : '') + '<button class="aw-btn ghost" type="button" data-aw-act="pc-day" data-id="' + pc.id + '">看当天明信片</button></div>'
-      + '<div style="font-size:12px;color:#8a6a52">当天明信片共 ' + postcardsForDate(pc.time.slice(0, 10)).length + ' 张；存成记忆后，记忆树里也能找到这一天。</div></div>';
+      + '<div style="font-size:12px;color:#5b6b8a">当天明信片共 ' + postcardsForDate(pc.time.slice(0, 10)).length + ' 张；存成记忆后，记忆树里也能找到这一天。</div></div>';
   }
   if (page === 'home') {
     var home = getHome(); var rn = roomNow();
     return back + '<div class="aw-ov-title">🏠 char 的家</div>'
       + '<div class="aw-card">现在：' + (rn ? '在家里 · ' + esc(roomName(rn)) + '，' + esc(currentActivity().activity) : '出门在外 · ' + esc(currentActivity().text)) + '<br>这间房子就是乙游 3D 家的那一间，同一份数据（otome_home_v1），不是两间房。</div>'
-      + '<div class="aw-card">' + ROOMS.map(function (r) { return '<div style="padding:6px 0;border-top:1px solid #f0e8da">' + (rn === r.id ? '📍 ' : '· ') + esc(r.name) + ' <span style="color:#a08a7a">' + r.en + '</span>' + ((home.visitedRooms || []).indexOf(r.id) !== -1 ? ' · 去过' : '') + '</div>'; }).join('') + '</div>'
-      + '<div class="aw-card">🐱 宠物：' + (home.pet ? esc(home.pet.name || home.pet.kind) + '（饱食 ' + (home.pet.satiety != null ? home.pet.satiety : '—') + ' · 心情 ' + (home.pet.mood != null ? home.pet.mood : '—') + '）' : '还没有宠物') + '<br><span style="font-size:12px;color:#8a6a52">装修/养宠/互动在乙游 3D 家里做，此刻这里只看他在家干什么。</span></div>';
+      + '<div class="aw-card">' + ROOMS.map(function (r) { return '<div style="padding:6px 0;border-top:1px solid #dce2f1">' + (rn === r.id ? '📍 ' : '· ') + esc(r.name) + ' <span style="color:#5b6b8a">' + r.en + '</span>' + ((home.visitedRooms || []).indexOf(r.id) !== -1 ? ' · 去过' : '') + '</div>'; }).join('') + '</div>'
+      + '<div class="aw-card">🐱 宠物：' + (home.pet ? esc(home.pet.name || home.pet.kind) + '（饱食 ' + (home.pet.satiety != null ? home.pet.satiety : '—') + ' · 心情 ' + (home.pet.mood != null ? home.pet.mood : '—') + '）' : '还没有宠物') + '<br><span style="font-size:12px;color:#5b6b8a">装修/养宠/互动在乙游 3D 家里做，此刻这里只看他在家干什么。</span></div>';
   }
   if (page === 'letters') {
     var album = rd('cike_album_v1', []);
     if (!album.length) return back + '<div class="aw-empty">信件箱还是空的。等 char 给你写信，这里会出现每封信的写信过程。</div>';
     return back + '<div class="aw-ov-title">✉️ 写信过程</div><div class="aw-card">'
-      + album.map(function (l, i) { return '<div style="padding:8px 0;border-top:1px solid #f0e8da"><b>' + esc(l.role || 'char') + '</b> · ' + esc(l.time || '') + '<br>' + esc(String(l.text || '').slice(0, 40)) + '……<br><button class="aw-btn ghost" type="button" data-aw-act="letter-open" data-id="' + i + '">看这封信是怎么写出来的</button></div>'; }).join('')
-      + '</div><div style="font-size:12px;color:#a08a7a">成品信仍在信件箱里，用手撕信封动画打开；这里只看写信过程。</div>';
+      + album.map(function (l, i) { return '<div style="padding:8px 0;border-top:1px solid #dce2f1"><b>' + esc(l.role || 'char') + '</b> · ' + esc(l.time || '') + '<br>' + esc(String(l.text || '').slice(0, 40)) + '……<br><button class="aw-btn ghost" type="button" data-aw-act="letter-open" data-id="' + i + '">看这封信是怎么写出来的</button></div>'; }).join('')
+      + '</div><div style="font-size:12px;color:#5b6b8a">成品信仍在信件箱里，用手撕信封动画打开；这里只看写信过程。</div>';
   }
   if (page === 'letter') {
     var alb = rd('cike_album_v1', []); var letter = alb[parseInt(arg, 10)];
     if (!letter) return back + '<div class="aw-empty">找不到这封信。</div>';
     var j = buildLetterJourney(letter.text || '');
     return back + '<div class="aw-ov-title">✉️ 写信过程</div>'
-      + '<div class="aw-card"><div style="font-size:12px;color:#b5541e">' + esc(j.note) + '</div>'
-      + j.versions.map(function (v) { return '<div style="border-top:1px solid #f0e8da;padding:8px 0"><b>' + esc(v.label) + '</b> · ' + esc(v.note) + '<br>' + esc(v.text) + '</div>'; }).join('')
-      + '<div style="border-top:1px solid #f0e8da;padding:8px 0"><b>划掉的句子</b><br>' + j.crossedOut.map(esc).join('<br>') + '</div>'
-      + '<div style="border-top:1px solid #f0e8da;padding:8px 0"><b>停顿和犹豫</b><br>' + j.hesitations.map(esc).join('<br>') + '</div>'
-      + '<div style="border-top:1px solid #f0e8da;padding:8px 0"><b>写信时的内心独白</b><br>' + j.monologue.map(function (m) { return esc(m.at) + '：' + esc(m.text); }).join('<br>') + '</div>'
+      + '<div class="aw-card"><div style="font-size:12px;color:#1e2748">' + esc(j.note) + '</div>'
+      + j.versions.map(function (v) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>' + esc(v.label) + '</b> · ' + esc(v.note) + '<br>' + esc(v.text) + '</div>'; }).join('')
+      + '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>划掉的句子</b><br>' + j.crossedOut.map(esc).join('<br>') + '</div>'
+      + '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>停顿和犹豫</b><br>' + j.hesitations.map(esc).join('<br>') + '</div>'
+      + '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>写信时的内心独白</b><br>' + j.monologue.map(function (m) { return esc(m.at) + '：' + esc(m.text); }).join('<br>') + '</div>'
       + '<button class="aw-btn" type="button" data-aw-act="letter-goto">去信件箱打开原信</button></div>';
   }
   var cur2 = currentActivity();
   return back + '<div class="aw-ov-title">模拟人生 · ' + esc(mainCharName()) + '</div>'
-    + '<div class="aw-card">' + esc(cur2.at) + ' — ' + esc(cur2.text) + '<br>好感：' + esc(tierOf(affectionValue()).label) + ' · 需求：饿 ' + loadSim().needs.hunger + ' / 精力 ' + loadSim().needs.energy + ' / 心情 ' + loadSim().needs.mood + ' / 社交 ' + loadSim().needs.social + '</div>'
+    + '<div class="aw-card">' + esc(cur2.at) + ' — ' + esc(cur2.text) + (cur2.isDefault ? ' · 默认日程 · 未设置' : '') + '<br>好感：' + esc(tierOf(affectionValue()).label) + ' · 需求：饿 ' + loadSim().needs.hunger + ' / 精力 ' + loadSim().needs.energy + ' / 心情 ' + loadSim().needs.mood + ' / 社交 ' + loadSim().needs.social + '</div>'
     + '<div class="aw-card"><button class="aw-btn" type="button" data-aw-act="goto" data-id="travel">旅行</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="murmur">碎碎念</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="postcards">明信片册</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="home">家</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="letters">写信过程</button></div>';
 }
 function handleOverlayAct(act, id, btn, ov) {
@@ -788,13 +802,58 @@ function handleOverlayAct(act, id, btn, ov) {
   }
   if (act === 'tr-end-save') { try { var r1 = endTrip(id, { saveMemory: true }); toast(r1.memory ? '已存成归巢记忆' : '已结束'); openOverlay('travel'); } catch (e) { toast(e.message || '结束失败'); } return; }
   if (act === 'tr-end-drop') { try { endTrip(id, { saveMemory: false }); toast('已放弃，没有留下记录'); openOverlay('travel'); } catch (e) { toast(e.message || '结束失败'); } return; }
-  if (act === 'tr-export') { var out = document.getElementById('aw-tr-export-out'); var j = exportTravelJSONL(); if (out) out.textContent = j ? ('已导出 ' + j.split('\n').length + ' 行（复制自下方数据，见控制台）') : '暂无行程可导出'; try { console.log('[AW travel JSONL]\n' + j); } catch (e) {} return; }
+  if (act === 'tr-export') {
+    var out = document.getElementById('aw-tr-export-out'); var j = exportTravelJSONL();
+    if (!j) { if (out) out.textContent = '暂无行程可导出'; toast('暂无行程可导出'); return; }
+    var lines = j.split('\n').length;
+    try {
+      var blob = new Blob([j], { type: 'application/x-ndjson;charset=utf-8' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      var d0 = new Date(); a.download = '旅行行程-' + d0.getFullYear() + '-' + pad2(d0.getMonth() + 1) + '-' + pad2(d0.getDate()) + '.jsonl';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { try { URL.revokeObjectURL(a.href); } catch (e) {} if (a.parentNode) a.parentNode.removeChild(a); }, 800);
+      if (out) out.textContent = '已导出 ' + lines + ' 行，文件已下载';
+      toast('已导出 ' + lines + ' 行，文件已下载');
+    } catch (e) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(j);
+          if (out) out.textContent = '下载失败，已复制 ' + lines + ' 行到剪贴板';
+          toast('下载失败，已复制到剪贴板');
+        } else { if (out) out.textContent = '导出失败：浏览器不支持下载'; toast('导出失败：浏览器不支持下载'); }
+      } catch (e2) { if (out) out.textContent = '导出失败'; toast('导出失败'); }
+    }
+    return;
+  }
   if (act === 'tr-postcards') { openOverlay('postcards'); return; }
   if (act === 'mu-gen') { genMurmur(); openOverlay('murmur'); return; }
   if (act === 'pc-open') { openOverlay('postcard', id); return; }
   if (act === 'pc-save') { var m = savePostcardMemory(id); if (m) { toast(m.already ? '这张已经存过了' : '已存成归巢记忆'); openOverlay('postcard', id); } else toast('保存失败'); return; }
-  if (act === 'pc-jump') { closeOverlay(); var tl = document.getElementById('ck-timeline'); if (tl) tl.scrollIntoView(); toast('回到立体书场景'); return; }
-  if (act === 'pc-day') { openOverlay('postcards'); return; }
+  if (act === 'pc-jump') {
+    var pc0 = null; listPostcards().forEach(function (x) { if (x.id === id) pc0 = x; });
+    closeOverlay();
+    var tl = document.getElementById('ck-timeline');
+    var jumped = false;
+    if (pc0 && tl) {
+      var items = tl.querySelectorAll('.ck-tl-item');
+      var best = null;
+      for (var i = 0; i < items.length; i++) { if ((items[i].textContent || '').indexOf(pc0.place) !== -1) { best = items[i]; break; } }
+      if (best) {
+        try { best.click(); } catch (e) {}
+        try { best.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e2) { try { best.scrollIntoView(); } catch (e3) {} }
+        jumped = true;
+      }
+    }
+    if (!jumped && tl) { try { tl.scrollIntoView(); } catch (e) {} }
+    toast(jumped ? '已跳回「' + (pc0 ? pc0.place : '') + '」的立体书场景' : '时间线里没有这一站，已回到时间线');
+    return;
+  }
+  if (act === 'pc-day') {
+    var pc1 = null; listPostcards().forEach(function (x) { if (x.id === id) pc1 = x; });
+    openOverlay('postcards', pc1 ? pc1.time.slice(0, 10) : '');
+    return;
+  }
+  if (act === 'pc-all') { openOverlay('postcards'); return; }
   if (act === 'letter-open') { openOverlay('letter', id); return; }
   if (act === 'letter-goto') { closeOverlay(); var ab = document.getElementById('ck-album-btn'); if (ab) ab.click(); return; }
 }

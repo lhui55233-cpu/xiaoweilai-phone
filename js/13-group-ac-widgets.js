@@ -24,15 +24,50 @@ const ACWidgets = (() => {
     { id: 'read', ico: '📖', name: '共读统计', desc: '和他一起读了多少分钟、读了几本书。' },
     { id: 'quote', ico: '💬', name: '今日一句话', desc: '每天一句，点一下换一句。' }
   ];
-  const QUOTES = [
-    '今天也要好好吃饭，好好睡觉。',
-    '慢慢来，比较快。',
-    '把今天过成值得写进日记的一天。',
-    '专注 25 分钟，剩下的交给休息。',
-    '他也在想你，只是不说。',
-    '先读一页，再读一页。',
-    '天气很好，适合出门走走。'
-  ];
+  const QUOTE_KEYS = { quotes: 'read_quotes_v1', diary: 'cike_cache_v1', memories: 'guichao.memories.v1' };
+  const firstSentence = (t) => {
+    const s = String(t || '').replace(/^\s+/, '');
+    if (!s) return '';
+    const m = s.split(/[。！？\n]/).map((x) => x.trim()).filter(Boolean)[0] || '';
+    return m;
+  };
+  /* 今日一句话只读她的真实内容，不再写死文案。来源按稳妥程度排序：
+     ① 共读摘抄 read_quotes_v1（她自己存的句子，按书汇总）；
+     ② 日记 cike_cache_v1（::beside 日记的首句）；
+     ③ 归巢记忆 guichao.memories.v1（最新记忆的首行）。
+     三处都没有 → 空数组，界面显示空态“还没有一句话，写一句吧”。 */
+  const quoteList = () => {
+    const out = [];
+    const push = (text, source) => {
+      const t = String(text || '').trim();
+      if (!t || out.some((q) => q.text === t || q.text === t.slice(0, 60))) return;
+      out.push({ text: t.length > 60 ? t.slice(0, 60) + '…' : t, source: source });
+    };
+    try {
+      const qm = readJSON(QUOTE_KEYS.quotes, null);
+      if (qm && typeof qm === 'object') {
+        const arrs = Array.isArray(qm) ? qm : Object.keys(qm).map((k) => qm[k]);
+        arrs.forEach((a) => { (Array.isArray(a) ? a : []).forEach((q) => { if (q) push(q.text || q.quote || q, '摘抄'); }); });
+      }
+    } catch (e) {}
+    try {
+      const cache = readJSON(QUOTE_KEYS.diary, null) || {};
+      Object.keys(cache).forEach((k) => { if (k.indexOf('::beside') >= 0) push(firstSentence(cache[k]), '日记'); });
+    } catch (e) {}
+    try {
+      const mems = readJSON(QUOTE_KEYS.memories, null) || [];
+      (Array.isArray(mems) ? mems.slice() : []).sort((a, b) => (Number(b.created) || 0) - (Number(a.created) || 0)).slice(0, 10).forEach((m) => { if (m) push(firstSentence(m.content || m.title || ''), '记忆'); });
+    } catch (e) {}
+    return out;
+  };
+  const quoteOfDayInfo = (d) => {
+    const list = quoteList();
+    if (!list.length) return { text: '', source: '' };
+    const t = d || new Date();
+    const idx = (t.getDate() + t.getMonth() + quoteOffset) % list.length;
+    return list[idx];
+  };
+  const quoteOfDay = (d) => quoteOfDayInfo(d).text;
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const pad2 = (n) => String(n).padStart(2, '0');
   const dayStr = (d) => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
@@ -113,7 +148,7 @@ const ACWidgets = (() => {
     const to = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0');
     return '#' + to(r) + to(g) + to(b);
   };
-  const quoteOfDay = (d) => { const t = d || new Date(); const idx = (t.getDate() + t.getMonth() + quoteOffset) % QUOTES.length; return QUOTES[idx]; };
+  /* quoteOfDay / quoteOfDayInfo 见上（QUOTES 已删，读真实内容）。 */
 
   /* ── 4. 主题：HSL 色轮选色 → --ac-accent 实时预览 + 写 phone_ui_prefs_v1.themeCustom ── */
   const applyTheme = () => {
@@ -209,7 +244,9 @@ const ACWidgets = (() => {
       return '<div>共读累计 <b>' + src.readTotal + '</b> 分钟 · ' + src.readBooks + ' 本书</div>'
         + (p.showDetail ? '<div class="ac-w-foot">和他一起读的进度，打开阅读 app 能看到同一份记录。</div>' : '');
     }
-    return '<div>“' + esc(quoteOfDay()) + '”</div>';
+    const qi = quoteOfDayInfo();
+    if (!qi.text) return '<div>还没有一句话，写一句吧。</div>';
+    return '<div>“' + esc(qi.text) + '”</div><div class="ac-w-foot">来自' + esc(qi.source) + '</div>';
   };
   const render = () => {
     const zone = document.getElementById('ac-widget-zone');
@@ -259,7 +296,7 @@ const ACWidgets = (() => {
     let html = '';
     if (state.dock.weather) html += '<div class="ac-dock-cell" data-ac-dock-cell="weather" data-ac-open-app="weather"><div class="ac-dock-k">天气</div><div class="ac-dock-v">☀️ ' + esc(weatherText) + '</div></div>';
     if (state.dock.time) html += '<div class="ac-dock-cell" data-ac-dock-cell="time"><div class="ac-dock-k">' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + days[now.getDay()] + '</div><div class="ac-dock-v">' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div></div>';
-    if (state.dock.quote) html += '<div class="ac-dock-cell" data-ac-dock-cell="quote" data-ac-next-quote="1"><div class="ac-dock-k">今日一句话</div><div class="ac-dock-v">' + esc(quoteOfDay()) + '</div></div>';
+    if (state.dock.quote) { const qi = quoteOfDayInfo(); html += '<div class="ac-dock-cell" data-ac-dock-cell="quote" data-ac-next-quote="1"><div class="ac-dock-k">今日一句话</div><div class="ac-dock-v">' + esc(qi.text ? '“' + qi.text + '”' : '还没有一句话，写一句吧') + '</div></div>'; }
     if (state.dock.music) html += '<div class="ac-dock-cell" data-ac-dock-cell="music" data-ac-open-app="music"><div class="ac-dock-k">音乐</div><div class="ac-dock-v">🎵 一起听</div></div>';
     bar.innerHTML = html;
   };
@@ -374,7 +411,7 @@ const ACWidgets = (() => {
       const openApp = e.target.closest('[data-ac-open-app]');
       if (openApp) { launchApp(openApp.getAttribute('data-ac-open-app')); return; }
       const nq = e.target.closest('[data-ac-next-quote]');
-      if (nq) { quoteOffset = (quoteOffset + 1) % QUOTES.length; renderDock(); return; }
+      if (nq) { const nqLen = quoteList().length; if (nqLen) quoteOffset = (quoteOffset + 1) % nqLen; renderDock(); return; }
     });
     zone.addEventListener('pointerdown', (e) => {
       const card = e.target.closest('.ac-widget');
@@ -407,7 +444,7 @@ const ACWidgets = (() => {
         const openApp = e.target.closest('[data-ac-open-app]');
         if (openApp) { launchApp(openApp.getAttribute('data-ac-open-app')); return; }
         const nq = e.target.closest('[data-ac-next-quote]');
-        if (nq) { quoteOffset = (quoteOffset + 1) % QUOTES.length; renderDock(); return; }
+        if (nq) { const nqLen = quoteList().length; if (nqLen) quoteOffset = (quoteOffset + 1) % nqLen; renderDock(); return; }
       });
     }
   };
@@ -423,7 +460,7 @@ const ACWidgets = (() => {
     addWidget: addWidget, removeWidget: removeWidget, moveWidget: moveWidget, resizeWidget: resizeWidget,
     updateWidget: updateWidget, enterMoveMode: enterMoveMode, exitMoveMode: exitMoveMode, isMoving: isMoving,
     setTheme: setTheme, hslToHex: hslToHex, setWallpaperAnim: setWallpaperAnim, setDock: setDock,
-    heatmapData: heatmapData, readSources: readSources, quoteOfDay: quoteOfDay, applyTheme: applyTheme,
+    heatmapData: heatmapData, readSources: readSources, quoteOfDay: quoteOfDay, quoteOfDayInfo: quoteOfDayInfo, quoteList: quoteList, applyTheme: applyTheme,
     catalog: () => CATALOG.slice(), load: load,
     _state: () => state, _keys: { widgets: KEY, prefs: PREFS_KEY, focus: FOCUS_KEY, read: READ_KEY, play: PLAY_KEY, fish: FISH_KEY, home: HOME_KEY, weather: WEATHER_KEY, habits: HABIT_KEYS }
   };

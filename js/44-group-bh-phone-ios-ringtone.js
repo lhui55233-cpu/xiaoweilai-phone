@@ -748,7 +748,6 @@ window.GroupBH = (function () {
       '.bh-incall-name{font-size:28px;font-weight:600;margin-top:16px;}',
       '.bh-incall-num{font-size:14px;color:rgba(255,255,255,.75);margin-top:4px;}',
       '.bh-incall-status{font-size:15px;color:rgba(255,255,255,.85);margin-top:10px;}',
-      '.bh-incall-sim{font-size:11px;color:rgba(255,255,255,.55);margin-top:10px;}',
       '.bh-mini-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:12px auto 0;}',
       '.bh-mini-key{height:52px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;}',
       '.bh-inkeypad-display{font-size:14px;color:rgba(255,255,255,.85);min-height:20px;margin-top:8px;}',

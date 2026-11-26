@@ -42,9 +42,11 @@ function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v));} catch 
 function todayStr(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);}
 function esc(s) { return String(s == null? '': s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');}
 function uid(p) { return (p || 'id') + '_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1e6).toString(36);}
+/* 与此刻同源：角色名只读 SystemStore.get('character')；取不到显示“TA”，
+   不再写死人名做 fallback。 */
 function activeCharName() {
-try { if (typeof MemoryCore!== 'undefined' && MemoryCore.world) return MemoryCore.world.get('activeChar') || '夏油杰';} catch (e) {}
-return '夏油杰';
+try { if (typeof SystemStore !== 'undefined' && SystemStore.get('character')) return SystemStore.get('character'); } catch (e) {}
+return 'TA';
 }
 function fmtTime(ts) { var d = new Date(ts); return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);}
 
@@ -337,13 +339,9 @@ return open[0];
 var RULE_KEY = 'char_daily_rules_v1';
 function ruleLoad() { var a = read(RULE_KEY, null); return Array.isArray(a) ? a : []; }
 function ruleSave(a) { write(RULE_KEY, a); }
-function ruleSeed() {
-  return [
-    { id: uid('rl'), text: '23:00 提醒我睡觉', time: '23:00', kind: 'time', enabled: true, lastFired: '' },
-    { id: uid('rl'), text: '每完成一个番茄，夸我一次', time: '', kind: 'pomodoro', enabled: true, lastFired: '' }
-  ];
-}
-function ruleList() { var a = ruleLoad(); if (!a.length) { a = ruleSeed(); ruleSave(a); } return a; }
+/* 每日规则只存用户自己写的规则：首次加载不再写入预设种子；空态在
+   ruleSettingsHTML 里引导用户自己写。已存用户数据原样保留，不删除。 */
+function ruleList() { return ruleLoad(); }
 function ruleAdd(text, time, kind) {
   var t = String(text || '').trim();
   if (!t) return { ok: false, reason: 'empty' };
@@ -568,18 +566,12 @@ var CHORD_PROGS = [
   { id: 'dusk', label: '暮 · Am–G–F–Em', chords: ['Am', 'G', 'F', 'Em'] },
   { id: 'bright', label: '亮 · C–G–Am–F', chords: ['C', 'G', 'Am', 'F'] }
 ];
-function chordSeeds() {
-  var now = Date.now();
-  return [
-    { id: 'seed1', label: '清晨 · 一起醒来', context: '他说“早上好”，窗帘还只拉开一半。', prog: 'warm', mood: '安心', createdAt: now },
-    { id: 'seed2', label: '雨夜 · 阳台', context: '雨敲着阳台，他陪我站了一会儿，什么都没说。', prog: 'rain', mood: '安静', createdAt: now },
-    { id: 'seed3', label: '分别 · 车站', context: '车开走的时候，他在原地站了很久。', prog: 'dusk', mood: '想念', createdAt: now }
-  ];
-}
+/* 情绪和弦只存用户自己存过的时刻：首次加载不再写入虚构种子；
+   已存用户数据（含以前写入的种子）原样保留，不删除。 */
 function chordLoad() {
   var o = read(CHORD_KEY, null);
-  if (o && o.anchors) return o;
-  var s = { anchors: chordSeeds(), activeId: null };
+  if (o && Array.isArray(o.anchors)) return o;
+  var s = { anchors: [], activeId: null };
   write(CHORD_KEY, s);
   return s;
 }
@@ -647,21 +639,21 @@ function chordCardHTML() {
   var cur = chordCurrent();
   var items = s.anchors.map(function (a) {
     var p = chordProg(a.prog);
-    return '<div style="border:1px solid #f0e6dc;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.7;color:#4a3226;">'
-      + '<b>' + esc(a.label) + '</b> <span style="font-size:11px;color:#a08a7a;">' + esc(a.mood || '') + ' · ' + esc(p.label) + (s.activeId === a.id ? ' · 此刻情绪' : '') + '</span>'
+    return '<div style="border:1px solid #dce2f1;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.7;color:#1e2748;">'
+      + '<b>' + esc(a.label) + '</b> <span style="font-size:11px;color:#5b6b8a;">' + esc(a.mood || '') + ' · ' + esc(p.label) + (s.activeId === a.id ? ' · 此刻情绪' : '') + '</span>'
       + '<div>“' + esc(a.context) + '”</div>'
-      + '<div style="margin-top:6px;"><button style="border:0;background:#7a4a28;color:#fff;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordPlayById(\'' + a.id + '\')">▶ 播这段和弦</button> '
-      + '<button style="border:0;background:#f3e2d3;color:#7a4a28;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordSetActiveById(\'' + a.id + '\')">回到这个情绪</button> '
-      + '<button style="border:0;background:none;color:#a08a7a;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordRemoveById(\'' + a.id + '\')">删除</button></div></div>';
+      + '<div style="margin-top:6px;"><button style="border:0;background:#1e2748;color:#fff;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordPlayById(\'' + a.id + '\')">▶ 播这段和弦</button> '
+      + '<button style="border:0;background:#dce2f1;color:#1e2748;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordSetActiveById(\'' + a.id + '\')">回到这个情绪</button> '
+      + '<button style="border:0;background:none;color:#5b6b8a;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordRemoveById(\'' + a.id + '\')">删除</button></div></div>';
   }).join('');
-  return '<div class="ck-sub-card" id="ck-chord-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#3a1e14;margin-bottom:4px;">🎹 情绪和弦</div>'
-    + '<div style="font-size:12px;color:#8a6a52;line-height:1.6;">把一个时刻存成“一句话 + 一段和弦进行”，以后点一下就能回到相似的情绪温度。和弦是 WebAudio 现场合成的，不用音频文件。' + (cur ? '此刻情绪：<b>' + esc(cur.label) + '</b>。' : '') + '</div>'
-    + items
+  return '<div class="ck-sub-card" id="ck-chord-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#1e2748;margin-bottom:4px;">🎹 情绪和弦</div>'
+    + '<div style="font-size:12px;color:#5b6b8a;line-height:1.6;">把一个时刻存成“一句话 + 一段和弦进行”，以后点一下就能回到相似的情绪温度。和弦是 WebAudio 现场合成的，不用音频文件。' + (cur ? '此刻情绪：<b>' + esc(cur.label) + '</b>。' : '') + '</div>'
+    + (items ? items : '<div style="font-size:13px;color:#5b6b8a;padding:8px 0;">还没有存过的时刻，点下面存一个。</div>')
     + '<div style="margin-top:10px;"><input id="ck-chord-label" maxlength="20" placeholder="名字，如：加班夜 · 他等我回家" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;margin:4px 0;">'
     + '<input id="ck-chord-ctx" maxlength="80" placeholder="当时的一句话，如：他说“别急，我在呢”" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;margin:4px 0;">'
     + '<div style="display:flex;gap:8px;"><input id="ck-chord-mood" maxlength="8" placeholder="心情词" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;min-width:0;">'
     + '<select id="ck-chord-prog" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;min-width:0;">' + CHORD_PROGS.map(function (p) { return '<option value="' + p.id + '">' + esc(p.label) + '</option>'; }).join('') + '</select></div>'
-    + '<button style="border:0;background:#7a4a28;color:#fff;border-radius:12px;padding:8px 14px;font-size:13px;margin-top:8px;cursor:pointer;" onclick="window.CharInnerLife.chordAddFromForm()">存下来</button></div></div>';
+    + '<button style="border:0;background:#1e2748;color:#fff;border-radius:12px;padding:8px 14px;font-size:13px;margin-top:8px;cursor:pointer;" onclick="window.CharInnerLife.chordAddFromForm()">存下来</button></div></div>';
 }
 
 function renderInnerHTML() {
@@ -674,43 +666,44 @@ var proms = getPromises().filter(function (p) { return p.status === 'open';});
 var dreams = getDreamsToday();
 var swLine = function (k, label) { return '<span style="display:inline-block;margin:0 6px 6px 0;padding:4px 10px;border-radius:12px;font-size:12px;background:' + (sw[k]? '#e8f5e9;color:#2e7d32;': '#f5f5f5;color:#999;') + '">' + label + (sw[k]? ' 开': ' 关') + '</span>';};
 var logHtml = log.length? log.slice(0, 10).map(function (e) {
-var seg = function (k, label) { return e[k]? '<div style="font-size:12px;line-height:1.6;color:#5a4636;"><b style="color:#c87a5a;">' + label + '</b> ' + esc(e[k]) + '</div>': '';};
-return '<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-size:11px;color:#a08a7a;margin-bottom:6px;">' + esc(fmtTime(e.ts)) + ' · ' + esc(STATE_LABEL[e.state] || e.state || '') + (e.trigger? ' · 触发：' + esc(e.trigger): '') + '</div>' +
+var seg = function (k, label) { return e[k]? '<div style="font-size:12px;line-height:1.6;color:#1e2748;"><b style="color:#1e2748;">' + label + '</b> ' + esc(e[k]) + '</div>': '';};
+return '<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-size:11px;color:#5b6b8a;margin-bottom:6px;">' + esc(fmtTime(e.ts)) + ' · ' + esc(STATE_LABEL[e.state] || e.state || '') + (e.trigger? ' · 触发：' + esc(e.trigger): '') + '</div>' +
 seg('sense', '感知') + seg('appraise', '想法') + seg('decide', '决定') + seg('act', '行动') + seg('reflect', '回想') +
-(e.memoryRef? '<div style="font-size:11px;color:#a08a7a;margin-top:4px;">依据：' + esc(e.memoryRef) + '</div>': '') + '</div>';
+(e.memoryRef? '<div style="font-size:11px;color:#5b6b8a;margin-top:4px;">依据：' + esc(e.memoryRef) + '</div>': '') + '</div>';
 }).join(''): '<div class="ck-sub-card"><div class="ck-gen-empty">还没有内心记录。<br>等她主动找你、推进小目标或做夜间整理后，这里会出现她的 SENSE → APPRAISE → DECIDE → ACT → REFLECT。</div></div>';
 var goalHtml = goals.map(function (g) {
-return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:13px;color:#3a1e14;"><span>' + esc(g.title) + '</span><span>' + (g.status === 'done'? '✓ 完成': g.progress + '%') + '</span></div>' +
-'<div style="height:6px;border-radius:3px;background:#f0e6dc;margin-top:4px;"><div style="height:6px;border-radius:3px;background:#c87a5a;width:' + (g.progress || 0) + '%;"></div></div></div>';
+return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:13px;color:#1e2748;"><span>' + esc(g.title) + '</span><span>' + (g.status === 'done'? '✓ 完成': g.progress + '%') + '</span></div>' +
+'<div style="height:6px;border-radius:3px;background:#dce2f1;margin-top:4px;"><div style="height:6px;border-radius:3px;background:#1e2748;width:' + (g.progress || 0) + '%;"></div></div></div>';
 }).join('');
 var promHtml = proms.length? proms.map(function (p) {
 var due = new Date(p.dueTs);
-return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:#3a1e14;margin-bottom:8px;"><span>' + esc(p.text) + '（' + (due.getMonth() + 1) + '月' + due.getDate() + '日到期）</span>' +
-'<button data-ck-promise-done="' + esc(p.id) + '" style="flex-shrink:0;border:1px solid #c87a5a;color:#c87a5a;background:#fff;border-radius:12px;padding:4px 10px;font-size:12px;">已兑现</button></div>';
-}).join(''): '<div style="font-size:13px;color:#a08a7a;">暂无进行中的承诺。</div>';
+return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:#1e2748;margin-bottom:8px;"><span>' + esc(p.text) + '（' + (due.getMonth() + 1) + '月' + due.getDate() + '日到期）</span>' +
+'<button data-ck-promise-done="' + esc(p.id) + '" style="flex-shrink:0;border:1px solid #1e2748;color:#1e2748;background:#fff;border-radius:12px;padding:4px 10px;font-size:12px;">已兑现</button></div>';
+}).join(''): '<div style="font-size:13px;color:#5b6b8a;">暂无进行中的承诺。</div>';
 return '<div class="ck-sub-card" style="margin-bottom:10px;">' +
-'<div style="font-size:12px;letter-spacing:2px;color:#b08a6a;font-weight:700;">INNER LIFE · 此刻状态</div>' +
-'<div style="font-size:20px;font-weight:800;color:#3a1e14;margin:6px 0 2px;">她现在：' + esc(STATE_LABEL[st] || st) + ' <span style="font-size:11px;color:#a08a7a;font-weight:400;">' + esc(st) + '</span></div>' +
-'<div style="font-size:12px;color:#8a6a52;line-height:1.6;">正在聊天 ENGAGED · 白天无互动 IDLE · 深夜 DORMANT · 做梦时 DREAM。开关在设置里可调，关掉就真的停下。</div>' +
+'<div style="font-size:12px;letter-spacing:2px;color:#5b6b8a;font-weight:700;">INNER LIFE · 此刻状态</div>' +
+'<div style="font-size:20px;font-weight:800;color:#1e2748;margin:6px 0 2px;">她现在：' + esc(STATE_LABEL[st] || st) + ' <span style="font-size:11px;color:#5b6b8a;font-weight:400;">' + esc(st) + '</span></div>' +
+'<div style="font-size:12px;color:#5b6b8a;line-height:1.6;">正在聊天 ENGAGED · 白天无互动 IDLE · 深夜 DORMANT · 做梦时 DREAM。开关在设置里可调，关掉就真的停下。</div>' +
 '<div style="margin-top:8px;">' + swLine('mind', '思考 mind') + swLine('utility', '实用 utility') + swLine('dream', '做梦 dream') + swLine('hands', '动手 hands') + '</div>' +
 chordCardHTML() +
-(dreams.length? '<div style="font-size:12px;color:#8a6a52;margin-top:4px;">今晚的梦（读 char_dreams_v1）：' + esc(dreams[0].text.slice(0, 60)) + '</div>': '<div style="font-size:12px;color:#a08a7a;margin-top:4px;">今晚还没有梦境记录（梦境由 M 组写入 char_dreams_v1）。</div>') +
+(dreams.length? '<div style="font-size:12px;color:#5b6b8a;margin-top:4px;">今晚的梦（读 char_dreams_v1）：' + esc(dreams[0].text.slice(0, 60)) + '</div>': '<div style="font-size:12px;color:#5b6b8a;margin-top:4px;">今晚还没有梦境记录（梦境由 M 组写入 char_dreams_v1）。</div>') +
 '</div>' +
-'<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#3a1e14;margin-bottom:8px;">小目标</div>' + goalHtml +
+'<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#1e2748;margin-bottom:8px;">小目标</div>' + goalHtml +
 '<div class="ck-btn-row" style="margin-top:10px;"><div class="ck-btn ck-btn-main" data-ck-inner="advance-goals" style="flex:1;text-align:center;">推进一下小目标</div>' +
 '<div class="ck-btn ck-btn-ghost" data-ck-inner="nightly" style="flex:1;text-align:center;">现在整理一次</div></div>' +
-'<div id="ck-inner-status" style="font-size:12px;color:#8a6a52;margin-top:8px;min-height:16px;"></div></div>' +
-'<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#3a1e14;margin-bottom:8px;">承诺</div>' + promHtml + '</div>' +
-'<div style="font-size:12px;letter-spacing:2px;color:#b08a6a;font-weight:700;margin:4px 0 8px;">内心循环记录 · 最近 ' + Math.min(log.length, 10) + ' 条</div>' +
+'<div id="ck-inner-status" style="font-size:12px;color:#5b6b8a;margin-top:8px;min-height:16px;"></div></div>' +
+'<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#1e2748;margin-bottom:8px;">承诺</div>' + promHtml + '</div>' +
+'<div style="font-size:12px;letter-spacing:2px;color:#5b6b8a;font-weight:700;margin:4px 0 8px;">内心循环记录 · 最近 ' + Math.min(log.length, 10) + ' 条</div>' +
 logHtml;
 }
 
-// ── 样式：此刻新卡片配色（无外链图片）──
+/* ── 样式：此刻新卡片配色（无外链图片）──
+   入口卡片用正常层叠的浅纸底 + ink 字，不用 important 覆盖紫渐变。 */
 try {
 var _st = document.createElement('style');
-_st.textContent = '.ck-c-inner{background:linear-gradient(150deg,#b7a6e8,#8a6fc0)!important;}' +
-'.ck-c-inner.ck-card-en{color:rgba(255,255,255,.85);}.ck-c-inner.ck-card-cn{color:#fff;}' +
-'.ck-c-inner.ck-card-arrow{color:rgba(255,255,255,.7);}';
+_st.textContent = '.ck-c-inner{background:#fffdf8;border:1px solid #dce2f1;}' +
+'.ck-c-inner.ck-card-en{color:rgba(30,39,72,.65);}.ck-c-inner.ck-card-cn{color:#1e2748;}' +
+'.ck-c-inner.ck-card-arrow{color:rgba(30,39,72,.55);}';
 document.head.appendChild(_st);
 } catch (e) {}
 

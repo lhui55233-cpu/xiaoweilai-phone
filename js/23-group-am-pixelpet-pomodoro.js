@@ -615,7 +615,7 @@ function focusPanelHtml() {
     + '<text x="42" y="46" text-anchor="middle" font-size="15" font-weight="700" fill="#7a4a28">' + elapsed + '′</text></svg>'
     + '<div>' + pixelHtml('cat', moodFor(Date.now())) + '</div>'
     + '<div style="flex:1;"><div id="am-focus-view" style="font-size:16px;font-weight:700;">' + esc(viewTxt) + '</div>'
-    + '<div class="am-muted">进度长在猫身体里：圆环扫过，猫的肚子也一点点被“专注”填满。</div>'
+    + '<div class="am-muted">圆环是真实的专注进度，猫按心情待在旁边陪你。</div>'
     + '<div class="am-muted">🪙 金币 <span style="filter:brightness(' + bright + ');">🪙</span> ' + coins + ' 枚（otome_coins_v1，全机唯一账本，只读；怀里的金币随总数变亮）</div></div></div>'
     + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">'
     + '<button type="button" class="' + (s.view === 'elapsed' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'elapsed\')">已专注多久</button>'

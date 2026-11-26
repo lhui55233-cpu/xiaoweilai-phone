@@ -20,7 +20,7 @@ var G = function (name) {
   try { if (typeof window !== 'undefined' && window[name] !== undefined) return window[name]; } catch (e) {}
   try { return (0, eval)(name); } catch (e) { return undefined; }
 };
-var REG = G('AppRegistry'), MGR = G('AppManager'), DIALOG = G('SysDialog');
+var REG = G('AppRegistry'), MGR = G('AppManager');
 var $ = function (s, r) { return (r || document).querySelector(s); };
 var sleep = function (ms) { return new Promise(function (res) { setTimeout(res, ms); }); };
 
@@ -230,6 +230,9 @@ var AFSearch = {
     } catch (e) {}
     if (!ids.length) { try { ids = Object.keys(REG || {}); } catch (e) {} }
     ids.forEach(function (id) {
+      /* 只列已注册可启动的应用：未在 AppRegistry 里注册的 id 不进搜索结果，
+         点按不再走到“尚未上线，敬请期待”。 */
+      try { if (!REG || !REG[id]) return; } catch (e) { return; }
       var name = id;
       try { name = (window.IconSystem && IconSystem.getName(id)) || id; } catch (e) {}
       if (name.toLowerCase().indexOf(q) >= 0 || id.toLowerCase().indexOf(q) >= 0) out.push({ type: 'app', id: id, title: name, sub: '应用' });
@@ -265,7 +268,8 @@ var AFSearch = {
     try {
       if (REG && REG[appId] && MGR && MGR.launch) { MGR.launch(appId); return true; }
     } catch (e) {}
-    try { if (DIALOG && DIALOG.alert) DIALOG.alert('「' + appId + '」尚未上线，敬请期待。'); else alert('「' + appId + '」尚未上线，敬请期待。'); } catch (e) {}
+    /* 未注册的应用不弹“尚未上线，敬请期待”——搜索结果已提前过滤，
+       这里只静默失败，不留死按钮。 */
     return false;
   },
   open: function (r) {

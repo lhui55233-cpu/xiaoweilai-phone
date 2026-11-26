@@ -203,7 +203,9 @@ function avInitEngine() {
     var origRP = E.openRedPacket;
     E.openRedPacket = function (greeting, amount, mid) {
       var msg = mid ? findMsg(mid) : null;
-      var amt = msg && msg.amount ? (parseFloat(msg.amount) || 0) : (parseFloat(amount) || Math.round((Math.random() * 82 + 6.66) * 100) / 100);
+      // F1b1 · WX-03 闭合：无金额不编随机金额（原 Math.random()*82+6.66 回落已删）；
+      // amt 为 0 时沿用 js/00 侧 openRedPacket 口径：没有金额，无法拆开。
+      var amt = msg && msg.amount ? (parseFloat(msg.amount) || 0) : (parseFloat(amount) || 0);
       E._avRp = { mid: mid || null, amount: amt, greeting: greeting, credited: false };
       if (msg && msg.sender === '我') {
         var amtDom = $('wx-rp-result-amount');

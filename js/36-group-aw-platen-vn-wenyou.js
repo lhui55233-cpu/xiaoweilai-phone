@@ -802,7 +802,7 @@ var render = function () {
     }
   }
   var langBtns = VN_LANGS.map(function (l) {
-    return '<button type="button" data-aw-vn="lang:' + l + '" style="padding:4px 8px;border:1px solid ' + (state.lang === l ? '#b08d3e' : '#d8cdb4') + ';border-radius:14px;background:' + (state.lang === l ? '#f3e6c8' : '#fff') + ';font-size:12px;cursor:pointer">' + VN_LANG_NAMES[l] + '</button>';
+    return '<button type="button" data-aw-vn="lang:' + l + '" style="padding:4px 8px;border:1px solid ' + (state.lang === l ? '#1e2748' : '#d8cdb4') + ';border-radius:14px;background:' + (state.lang === l ? '#f3e6c8' : '#fff') + ';font-size:12px;cursor:pointer">' + VN_LANG_NAMES[l] + '</button>';
   }).join('');
   var toolbar = '<div style="display:flex;gap:6px;align-items:center;padding:8px 10px;background:#fffdf7;border-bottom:1px solid #e6dcc3;flex-wrap:wrap">'
     + '<span style="font-size:13px;font-weight:700;flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">《' + esc3(vn.title) + '》</span>'
@@ -833,19 +833,19 @@ var render = function () {
   var body = '';
   if (line.type === 'choice') {
     body = '<div style="font-size:13px;color:#8a6a52;margin-bottom:8px">选一个：</div>' + line.options.map(function (o, i) {
-      return '<button type="button" data-aw-vn-choice="' + i + '" style="display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px;border:1px solid #b08d3e;background:#fffdf7;border-radius:8px;font-size:14px;cursor:pointer">' + esc3(vnLangText(o, state.lang, vn.lang || 'zhs')) + '</button>';
+      return '<button type="button" data-aw-vn-choice="' + i + '" style="display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px;border:1px solid #1e2748;background:#fffdf7;border-radius:8px;font-size:14px;cursor:pointer">' + esc3(vnLangText(o, state.lang, vn.lang || 'zhs')) + '</button>';
     }).join('');
   } else if (line.type === 'ending') {
-    body = '<div style="font-size:15px;line-height:1.9">' + esc3(vnLangText(line, state.lang, vn.lang || 'zhs')) + '</div><div style="margin-top:10px"><button type="button" data-aw-vn="finish" style="padding:10px 18px;border:0;border-radius:8px;background:#b08d3e;color:#fff;font-size:14px;cursor:pointer">看复盘</button></div>';
+    body = '<div style="font-size:15px;line-height:1.9">' + esc3(vnLangText(line, state.lang, vn.lang || 'zhs')) + '</div><div style="margin-top:10px"><button type="button" data-aw-vn="finish" style="padding:10px 18px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:14px;cursor:pointer">看复盘</button></div>';
   } else {
     var speaker = line.speaker || '';
     var textHtml = vnRichText(vnLangText(line, state.lang, vn.lang || 'zhs'));
     if (state.nvl) {
-      var acc = state.nvlText.map(function (e) { return '<div style="margin-bottom:10px"><span style="color:#b08d3e;font-size:12px;letter-spacing:2px">' + esc3(e.speaker || '旁白') + '</span><div style="font-size:15px;line-height:1.9">' + vnRichText(vnLangText(e, state.lang, vn.lang || 'zhs')) + '</div></div>'; }).join('');
-      acc += '<div style="margin-bottom:6px"><span style="color:#b08d3e;font-size:12px;letter-spacing:2px">' + (line.type === 'dialogue' ? esc3(speaker) : '旁白') + '</span><div style="font-size:15px;line-height:1.9">' + textHtml + '</div></div>';
+      var acc = state.nvlText.map(function (e) { return '<div style="margin-bottom:10px"><span style="color:#1e2748;font-size:12px;letter-spacing:2px">' + esc3(e.speaker || '旁白') + '</span><div style="font-size:15px;line-height:1.9">' + vnRichText(vnLangText(e, state.lang, vn.lang || 'zhs')) + '</div></div>'; }).join('');
+      acc += '<div style="margin-bottom:6px"><span style="color:#1e2748;font-size:12px;letter-spacing:2px">' + (line.type === 'dialogue' ? esc3(speaker) : '旁白') + '</span><div style="font-size:15px;line-height:1.9">' + textHtml + '</div></div>';
       body = '<div style="font-size:12px;color:#a08a7a;margin-bottom:6px">旁白模式（NVL）· 点一下继续 ›</div><div style="max-height:220px;overflow-y:auto">' + acc + '</div>';
     } else {
-      body = '<div style="font-size:12px;color:#b08d3e;letter-spacing:2px">' + (line.type === 'dialogue' ? esc3(speaker) : '旁白') + '</div><div style="font-size:15px;line-height:1.9;margin-top:6px">' + textHtml + '</div><div style="font-size:12px;color:#a08a7a;margin-top:8px">点一下继续 ›</div>';
+      body = '<div style="font-size:12px;color:#1e2748;letter-spacing:2px">' + (line.type === 'dialogue' ? esc3(speaker) : '旁白') + '</div><div style="font-size:15px;line-height:1.9;margin-top:6px">' + textHtml + '</div><div style="font-size:12px;color:#a08a7a;margin-top:8px">点一下继续 ›</div>';
     }
   }
   var dlg = '<div data-aw-vn="stage" style="background:#fffdf7;border-top:1px solid #e6dcc3;padding:14px 16px 26px;min-height:150px;cursor:pointer">' + body + '</div>';
@@ -853,7 +853,7 @@ var render = function () {
   if (state.panel === 'backlog') {
     panel = '<div style="position:absolute;inset:0;z-index:20;background:rgba(247,241,229,.97);overflow-y:auto;padding:16px;box-sizing:border-box">'
       + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">🕘 回望（点一句回到那里）</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
-      + (state.log.length ? state.log.map(function (e, idx) { return '<button type="button" data-aw-vn="blog" data-vn-log="' + idx + '" style="display:block;width:100%;text-align:left;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px;line-height:1.7;cursor:pointer"><span style="color:#b08d3e;font-size:12px">' + esc3(e.scene || '') + ' · ' + esc3(e.speaker || '旁白') + '</span><br>' + esc3(vnLangText(e, state.lang, vn.lang || 'zhs')) + '</button>'; }).join('') : '<div style="margin-top:12px;font-size:13px;color:#a08a7a">还没有读过的对白。</div>')
+      + (state.log.length ? state.log.map(function (e, idx) { return '<button type="button" data-aw-vn="blog" data-vn-log="' + idx + '" style="display:block;width:100%;text-align:left;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px;line-height:1.7;cursor:pointer"><span style="color:#1e2748;font-size:12px">' + esc3(e.scene || '') + ' · ' + esc3(e.speaker || '旁白') + '</span><br>' + esc3(vnLangText(e, state.lang, vn.lang || 'zhs')) + '</button>'; }).join('') : '<div style="margin-top:12px;font-size:13px;color:#a08a7a">还没有读过的对白。</div>')
       + '</div>';
   } else if (state.panel === 'save' || state.panel === 'load') {
     var isSave = state.panel === 'save';
@@ -861,7 +861,7 @@ var render = function () {
     var slotHtml = [1, 2, 3].map(function (n) {
       var sv = null; saves.forEach(function (s) { if (s.slot === n) sv = s; });
       var desc = sv ? ('第 ' + (sv.sceneIdx + 1) + ' 幕 · ' + esc3(sv.title || '') + ' · ' + esc3(sv.preview || '') + ' · ' + fmtTime3(sv.savedAt)) : '空槽位';
-      return '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px"><span style="flex:1">' + '槽位 ' + n + '：' + desc + '</span><button type="button" data-aw-vn="' + (isSave ? 'slotsave' : 'slotload') + '" data-slot="' + n + '" style="padding:8px 14px;border:0;border-radius:8px;background:#b08d3e;color:#fff;font-size:13px;cursor:pointer">' + (isSave ? '存到这里' : (sv ? '读档' : '空')) + '</button></div>';
+      return '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px"><span style="flex:1">' + '槽位 ' + n + '：' + desc + '</span><button type="button" data-aw-vn="' + (isSave ? 'slotsave' : 'slotload') + '" data-slot="' + n + '" style="padding:8px 14px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:13px;cursor:pointer">' + (isSave ? '存到这里' : (sv ? '读档' : '空')) + '</button></div>';
     }).join('');
     panel = '<div style="position:absolute;inset:0;z-index:20;background:rgba(247,241,229,.97);overflow-y:auto;padding:16px;box-sizing:border-box">'
       + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">' + (isSave ? '💾 存档（3 个槽位）' : '📂 读档') + '</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
@@ -898,13 +898,13 @@ state.ended = true;
 try { if (window.XWLAudio) window.XWLAudio.stopAll(); } catch (e) {}
 try { if (window.VNCharacterAssets && window.VNCharacterAssets.onPlayerEnd) window.VNCharacterAssets.onPlayerEnd(); } catch (e) {}
 var review = '一共 ' + state.log.length + ' 句对白/旁白，走了 ' + (state.sceneIdx + 1) + ' 个场景，做了 ' + state.choicesMade.length + ' 次选择' + (state.affectionDelta? '，好感变化 ' + (state.affectionDelta > 0? '+': '') + state.affectionDelta: '，好感没有变化') + '。';
-ov.innerHTML = '<div style="flex:1;overflow-y:auto;padding:20px 16px 30px;background:#f7f1e5;font-family:serif;color:#2b2620">'
+ov.innerHTML = '<div style="flex:1;overflow-y:auto;padding:20px 16px 30px;background:#fbf9f4;font-family:serif;color:#2b2620">'
 + '<div style="text-align:center;font-size:22px;letter-spacing:4px">复盘</div>'
 + '<div style="text-align:center;font-size:12px;color:#8a6a52;margin-top:4px">《' + esc3(vn.title) + '》</div>'
 + '<div style="margin-top:14px;font-size:14px;line-height:2;background:#fffdf7;border:1px solid #e6dcc3;border-radius:8px;padding:14px">' + esc3(review) + '</div>'
 + (state.choicesMade.length? '<div style="margin-top:10px;font-size:13px;line-height:1.9">' + state.choicesMade.map(function (c) { return '· ' + esc3(c);}).join('<br>') + '</div>': '')
 + '<div style="margin-top:10px;font-size:12px;color:#8a6a52">回望里有 ' + state.log.length + ' 条记录；语言：' + VN_LANG_NAMES[state.lang] + '；好感变量 affection=' + (state.vars.affection || 0) + '。</div>'
-+ '<div style="display:flex;gap:8px;margin-top:16px"><button type="button" data-aw-vn="save" style="flex:1;padding:12px;border:0;border-radius:8px;background:#b08d3e;color:#fff;font-size:14px;cursor:pointer">💾 保存成归巢记忆</button><button type="button" data-aw-vn="discard" style="flex:1;padding:12px;border:1px solid #b08d3e;border-radius:8px;background:transparent;color:#7a4a28;font-size:14px;cursor:pointer">放弃，不留记录</button></div>'
++ '<div style="display:flex;gap:8px;margin-top:16px"><button type="button" data-aw-vn="save" style="flex:1;padding:12px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:14px;cursor:pointer">💾 保存成归巢记忆</button><button type="button" data-aw-vn="discard" style="flex:1;padding:12px;border:1px solid #1e2748;border-radius:8px;background:transparent;color:#7a4a28;font-size:14px;cursor:pointer">放弃，不留记录</button></div>'
 + '<div style="margin-top:10px;text-align:center"><button type="button" data-aw-vn="close" style="border:0;background:none;color:#7a4a28;font-size:14px;cursor:pointer">‹ 回到剧本</button></div></div>';
 };
 ov.onclick = function (ev) {
@@ -970,7 +970,7 @@ return true;
 function openVNReview(result, fileName, opts) { /* [GROUP-FIX16] WENYOU2 合并：保留 opts（host/fromWenyou/win），见 FIX16-4-REBASED */
 var host = (opts && opts.host) || document.querySelector('.gd-root[data-gd="script"]') || document.body;
 var ov = document.getElementById('aw-vn-review');
-if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#f7f1e5;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
+if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#fbf9f4;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
 var vn = result.vn;
 var matches = matchVNCharacters(vn);
 var sceneCount = vn.scenes.length;
@@ -1043,7 +1043,7 @@ parsed.vn.scenes.forEach(function (s) { s.lines.forEach(function (l) { if (l.typ
 if (!hasDialogueOrChoice && /\.(txt|epub)$/i.test(file.name)) {
 var host = document.querySelector('.gd-root[data-gd="script"]') || document.body;
 var ov = document.getElementById('aw-vn-review');
-if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#f7f1e5;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
+if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#fbf9f4;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
 ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">‹ 返回</button><div class="aw-news-mast"><div class="aw-news-mastname">正在整理小说正文</div><div class="aw-news-mastsub">没有识别到明确对白/选项 · 整理后仍会先审阅，不会直接保存</div></div>'
 + '<div style="font-size:14px;line-height:1.9">正在尝试把正文拆分为场景、对白、选项与结局。若已配置视觉小说模型，会优先使用模型；否则会明确标注为模板整理。</div>';
 ov.style.display = 'block';
@@ -1554,7 +1554,8 @@ function wyUpdateSendBtn(root) {
    里程碑：好感首次到达 60/80/90/100。触发记录按角色名存新键
    phone_wenyou_milestones_v1（每角色每档只一次，重启不重复）；信内容
    由生成侧按真实状态现写——模型模式走模型（「信：……」行），模板模式
-   按规则写并在信纸下标明；不预填固定台词、不编假回忆、不提数值。
+   按规则写并在信纸下标明；模板信正文 = 骨架句 + 真实状态段（地点、
+   最近 2–3 轮真实选择/事件、四维数值、里程碑值），不编假回忆。
    信封动画复用此刻信箱的 ck-letter-* CSS（.opened 驱动），只收敛尺寸。
    上传：TXT 用 TextDecoder 先 UTF-8 严格解、失败 GBK 兜底；epub 是 zip，
    用 JSZip（CDN 动态加载，离线/加载失败如实报错，绝不假装成功）；解析
@@ -1587,14 +1588,37 @@ function wyMarkMilestonesFired(crossed, adv, n) {
   all[name] = rec;
   wr3(WY_MS_KEY, all);
 }
+/* B-P0-8 里程碑信：模板句只作骨架（每档一句心情），正文里的事实由
+   wyLetterFacts(adv, m, action) 按真实状态现写——地点、最近 2–3 轮
+   真实选择/事件（adv.rounds，本轮尚未入队所以只取往轮 + 当前行动）、
+   当前四维数值（wyStatusValues：好感度/爱意/愤怒/理智）、里程碑值 m。
+   wyBuildMilestoneLetters 在模板信后统一附上事实段（含独白分支的信），
+   模型模式的信走模型「信：……」行原文，不附模板事实段。 */
 function wyTemplateLetterText(adv, m, action) {
+  if (m >= 100) return '到了这一步，我不想再绕圈子了。我心里只剩下一个很确定的念头：就是你了。以后不管去哪、遇到什么，我都想和你一起走。';
+  if (m >= 90) return '我发现自己已经不太会想象没有你的日子了。那种“就是你”的感觉越来越清楚，只差一句说出口的话。';
+  if (m >= 80) return '有些话我一直没说出口，但现在瞒不住了。你在我心里已经是很重要的人了。';
+  return '写这封信的时候，我的手有点抖。我忽然发现自己开始在意你了——在意你的脚步，在意你说话的神情。我不想再装作什么都没发生。';
+}
+function wyLetterFacts(adv, m, action) {
   var place = (adv && adv.state && adv.state.place) || '';
+  var v = wyStatusValues(adv);
   var act = String(action || '').replace(/[。！？!?.]+$/, '');
-  var withAct = function (mid) { return act ? ('在' + place + '，刚才你' + act + mid) : ('在' + place + mid); };
-  if (m >= 100) return '到了这一步，我不想再绕圈子了。' + withAct('的时候') + '，我心里只剩下一个很确定的念头：就是你了。以后不管去哪、遇到什么，我都想和你一起走。';
-  if (m >= 90) return '我发现自己已经不太会想象没有你的日子了。' + withAct('之后') + '，那种“就是你”的感觉越来越清楚，只差一句说出口的话。';
-  if (m >= 80) return '有些话我一直没说出口，但现在瞒不住了。' + withAct('的时候') + '，我越来越确定：你在我心里已经是很重要的人了。';
-  return '写这封信的时候，我的手有点抖。' + withAct('的时候') + '，我忽然发现自己开始在意你了——在意你的脚步，在意你说话的神情。我不想再装作什么都没发生。';
+  var past = [];
+  var rounds = (adv && adv.rounds) || [];
+  for (var i = rounds.length - 1; i >= 0 && past.length < 3; i--) {
+    var r = rounds[i];
+    if (!r) continue;
+    var bits = [];
+    if (r.action) bits.push('你' + String(r.action).slice(0, 24));
+    if (r.hiddenEvent) bits.push('还发生了：' + String(r.hiddenEvent).slice(0, 24));
+    if (bits.length) past.unshift('第' + r.n + '轮' + bits.join('，'));
+  }
+  var s = '写这封信的时候，我们在' + (place || '这里') + '。';
+  if (act) s += '刚才，你' + act + '。';
+  if (past.length) s += '再往前数：' + past.join('；') + '。';
+  s += '现在，我对你的好感度是 ' + v.affection + '，到了这一档 ' + m + '；爱意 ' + v.love + '，愤怒 ' + v.anger + '，理智 ' + v.reason + '。';
+  return s;
 }
 function wyBuildMilestoneLetters(adv, crossed, dmText, mode, monologue, action, n) {
   var parsed = wyParseWenyou(dmText, mainName3());
@@ -1609,6 +1633,7 @@ function wyBuildMilestoneLetters(adv, crossed, dmText, mode, monologue, action, 
     if (isModel && modelText && !usedModelText) { text = modelText; via = 'model'; usedModelText = true; }
     else if (idx === 0 && (parsed.thoughts || monologue)) { text = parsed.thoughts || monologue; via = isModel ? 'model' : 'template'; }
     else { text = wyTemplateLetterText(adv, m, action); via = 'template'; }
+    if (via === 'template') text = text + wyLetterFacts(adv, m, action);
     letters.push({ m: m, text: text, via: via, open: false });
   });
   wyMarkMilestonesFired(crossed, adv, n);
@@ -1768,6 +1793,11 @@ function wyEpubDocText(htmlText) {
   return out;
 }
 function wyParseEpubBuffer(buf) {
+  // F1b1 · 优先用阅读器同形的本地解包（window.__xwParseEpubBuffer，DecompressionStream，
+  // 离线可用，与 js/00 共用同一解析函数）；不可用时才回落在线 JSZip。
+  if (typeof window !== 'undefined' && typeof window.__xwParseEpubBuffer === 'function') {
+    return window.__xwParseEpubBuffer(buf);
+  }
   return wyLoadJSZip().then(function (JSZip) { return JSZip.loadAsync(buf); }).then(function (zip) {
     var container = zip.file('META-INF/container.xml');
     if (!container) throw new Error('这个 epub 里没有 META-INF/container.xml，解不开');
@@ -1897,11 +1927,11 @@ function wyOpenCoverChooser(bookId, bookTitle, onDone, hostEl) {
       return '<button type="button" data-wy-cov-builtin="' + esc3(b.id) + '" style="border:1px solid #e6dcc3;border-radius:8px;padding:6px;cursor:pointer;background:#fffdf7;font-size:11px;color:#2b2620"><span style="display:block;height:44px;border-radius:4px;background:' + esc3(b.css) + ';margin-bottom:4px"></span>' + esc3(b.name) + '</button>';
     }).join('');
   } catch (e) {}
-  ov.innerHTML = '<div style="background:#f7f1e5;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:86%;overflow-y:auto;box-sizing:border-box;font-family:serif;color:#2b2620">'
+  ov.innerHTML = '<div style="background:#fbf9f4;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:86%;overflow-y:auto;box-sizing:border-box;font-family:serif;color:#2b2620">'
     + '<h3 style="margin:0 0 4px;font-size:18px;letter-spacing:2px">换封面</h3>'
     + '<div style="font-size:12px;color:#8a6a52">《' + esc3(bookTitle || '') + '》 · 上传本地图（裁成封面比例，≤2MB）或选一款内置封面；换好的封面存在手机里，跟着备份走。</div>'
-    + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><label style="flex:1;text-align:center;padding:10px;border:1px solid #b08d3e;background:#fffdf7;border-radius:8px;font-size:13px;cursor:pointer">📤 上传本地图片<input type="file" accept="image/*" style="display:none" data-wy-cov-file="1"></label>'
-    + '<button type="button" data-wy-cov-clear="1" style="flex:1;padding:10px;border:1px solid #b08d3e;background:transparent;border-radius:8px;font-size:13px;cursor:pointer;color:#7a4a28">恢复自动封面</button></div>'
+    + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><label style="flex:1;text-align:center;padding:10px;border:1px solid #1e2748;background:#fffdf7;border-radius:8px;font-size:13px;cursor:pointer">📤 上传本地图片<input type="file" accept="image/*" style="display:none" data-wy-cov-file="1"></label>'
+    + '<button type="button" data-wy-cov-clear="1" style="flex:1;padding:10px;border:1px solid #1e2748;background:transparent;border-radius:8px;font-size:13px;cursor:pointer;color:#7a4a28">恢复自动封面</button></div>'
     + '<div style="font-size:12px;color:#8a6a52;margin-top:14px">内置封面</div>'
     + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' + builtins + '</div>'
     + '<div style="margin-top:14px;text-align:center"><button type="button" data-wy-cov-close="1" style="border:0;background:none;color:#7a4a28;font-size:14px;cursor:pointer">关闭</button></div></div>';
@@ -1938,21 +1968,21 @@ function wyOpenCoverChooser(bookId, bookTitle, onDone, hostEl) {
 
 /* ── 文游 UI（参考应用式结构，本手机自己的代码与文案） ── */
 var WY_CSS = [
-'.wy-root{position:absolute;inset:0;overflow-y:auto;background:linear-gradient(180deg,#f3eff9,#f7f1e5);font-family:"Songti SC","Noto Serif SC",STSong,serif;color:#2b2620;padding:14px 14px 40px;box-sizing:border-box;}',
+'.wy-root{position:absolute;inset:0;overflow-y:auto;background:#fbf9f4;font-family:"Songti SC","Noto Serif SC",STSong,serif;color:#2b2620;padding:14px 14px 40px;box-sizing:border-box;}',
 '.wy-title{font-size:26px;letter-spacing:6px;text-align:center;}',
 '.wy-sub{text-align:center;font-size:11px;letter-spacing:3px;color:#8a6a52;margin-top:4px;}',
 '.wy-wall{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}',
-'.wy-card{border-radius:90px 90px 12px 12px;padding:26px 10px 16px;min-height:150px;text-align:center;cursor:pointer;box-shadow:0 6px 16px rgba(120,100,160,.12);display:flex;flex-direction:column;justify-content:center;gap:8px;}',
-'.wy-card.lav{background:#efe9f7;}.wy-card.cream{background:#f7f1e5;}',
+'.wy-card{border-radius:16px;border:1px solid #e9e4dc;padding:26px 10px 16px;min-height:150px;text-align:center;cursor:pointer;box-shadow:0 1px 2px rgba(30,39,72,.05),0 8px 24px rgba(30,39,72,.08);display:flex;flex-direction:column;justify-content:center;gap:8px;}',
+'.wy-card.lav,.wy-card.cream{background:#fbf9f4;}',
 '.wy-card b{font-size:15px;line-height:1.6;}',
-'.wy-card.wy-en{font-size:10px;letter-spacing:2px;color:#8a6a52;border-top:1px solid #d9c8e8;padding-top:6px;}',
-'.wy-card.create{border:1.5px dashed #b9a8d8;background:transparent;box-shadow:none;color:#6a5a8a;}',
+'.wy-card.wy-en{font-size:10px;letter-spacing:2px;color:#8a6a52;border-top:1px solid #e6e0d8;padding-top:6px;}',
+'.wy-card.create{border:1.5px dashed #bfc8e0;background:transparent;box-shadow:none;color:#6a5a8a;}',
 '.wy-card.wy-plus{font-size:26px;}',
 '.wy-empty{grid-column:1/-1;font-size:13px;color:#a08a7a;line-height:1.9;text-align:center;padding:8px;}',
 '.wy-sec{font-size:14px;font-weight:700;margin:18px 0 8px;letter-spacing:2px;}',
-'.wy-adv-row{display:flex;justify-content:space-between;align-items:center;background:#fffdf7;border:1px solid #e6dcc3;border-left:3px solid #b08d3e;border-radius:6px;padding:10px 12px;margin-bottom:8px;}',
+'.wy-adv-row{display:flex;justify-content:space-between;align-items:center;background:#fffdf7;border:1px solid #e6dcc3;border-left:3px solid #1e2748;border-radius:6px;padding:10px 12px;margin-bottom:8px;}',
 '.wy-modal{position:absolute;inset:0;background:rgba(43,38,32,.35);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
-'.wy-modal-card{background:#f7f1e5;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:86%;overflow-y:auto;box-sizing:border-box;}',
+'.wy-modal-card{background:#fbf9f4;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:86%;overflow-y:auto;box-sizing:border-box;}',
 '.wy-modal-card h3{margin:0 0 4px;font-size:18px;letter-spacing:2px;}',
 '.wy-modal-card label{display:block;font-size:12px;color:#8a6a52;margin-top:12px;}',
 '.wy-modal-card input,.wy-modal-card select,.wy-modal-card textarea{width:100%;box-sizing:border-box;border:1px solid #d9c48a;border-radius:6px;padding:9px 10px;margin-top:4px;background:#fffdf7;font-size:13px;font-family:inherit;}',

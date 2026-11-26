@@ -562,7 +562,7 @@ function callback(name, opts) {
     + '<div class="bi-out-name">' + esc(name) + '</div>'
     + '<div class="bi-out-status" id="bi-out-status">正在呼叫…</div>'
     + '<div class="bi-out-timer" id="bi-out-timer">0秒</div>'
-    + '<div class="bi-out-line" id="bi-out-line">模拟回拨 · 不会真的拨出</div>'
+    + '<div class="bi-out-line" id="bi-out-line">……</div>'
     + '<div class="bi-out-mode" id="bi-out-mode">通话模式：模板对话（未接模型）</div>'
     + '<div class="bi-out-btns"><button type="button" id="bi-out-totext">转文字</button>'
     + '<button type="button" id="bi-out-hangup">挂断</button></div>'

@@ -142,9 +142,11 @@ function ddzSendChat(text, who) {
   var chat = ddzChatLoad();
   chat.push({ id: 'gyc_' + Date.now() + '_' + chat.length, who: who, text: t.slice(0, 140), ts: Date.now() });
   if (who === 'me') {
-    // char 只在聊天通道里回一句，不调任何斗地主函数、不改棋盘状态
+    // char 只在聊天通道里回一句，不调任何斗地主函数、不改棋盘状态。
+    // 模板回复必须在界面上可见标注（见 ddzChatHtml 的“模板回复 · 未接模型”角标）；
+    // 斗地主桌边聊天没有人物记录可接模型，暂不走模型。
     var reply = /哈哈|好笑|笑死/.test(t) ? DDZ_CHAT_REPLIES[0] : DDZ_CHAT_REPLIES[chat.length % DDZ_CHAT_REPLIES.length];
-    chat.push({ id: 'gyc_' + (Date.now() + 1) + '_r', who: 'char', text: reply, ts: Date.now() + 1 });
+    chat.push({ id: 'gyc_' + (Date.now() + 1) + '_r', who: 'char', text: reply, via: 'template', ts: Date.now() + 1 });
   }
   if (chat.length > 50) chat = chat.slice(-50);
   ddzChatSave(chat);
@@ -154,9 +156,9 @@ function ddzSendChat(text, who) {
 function ddzChatHtml() {
   var chat = ddzChatLoad().slice(-6);
   var lines = chat.length ? chat.map(function (m) {
-    return '<div>' + (m.who === 'me' ? '你：' : _esc(_charName()) + '：') + _esc(m.text) + '</div>';
+    return '<div>' + (m.who === 'me' ? '你：' : _esc(_charName()) + '：') + _esc(m.text) + (m.who === 'char' && m.via === 'template' ? ' <span class="gy-muted">模板回复 · 未接模型</span>' : '') + '</div>';
   }).join('') : '<div class="gy-muted">桌边聊天 · 还没人说话，先打个招呼吧。</div>';
-  return '<div class="groupy-ddz-chat" id="groupy-ddz-chat"><div style="font-weight:700;">💬 桌边聊天 <span class="gy-muted">独立通道 · 只聊天，不改牌局</span></div>'
+  return '<div class="groupy-ddz-chat" id="groupy-ddz-chat"><div style="font-weight:700;">💬 桌边聊天 <span class="gy-muted">独立通道 · 只聊天，不改牌局 · 模板回复 · 未接模型</span></div>'
     + '<div class="gy-lines">' + lines + '</div>'
     + '<div style="display:flex;gap:6px;"><input id="groupy-ddz-input" placeholder="边打边聊…" style="flex:1;border:1px solid #e8d5c0;border-radius:10px;padding:6px 8px;font-size:12px;">'
     + '<button type="button" onclick="window.GroupY && window.GroupY.ddzSendChatFromInput()">发送</button></div></div>';
@@ -495,7 +497,7 @@ function dayViewHtml(nowMs) {
     return '<div class="gy-row"><div class="gy-time">' + r.hour + '点</div><div style="flex:1;">他：' + _esc(r.charPlace + ' · ' + r.charActivity) + '<br>我：' + mine + '</div></div>';
   }).join('') : '<div class="gy-muted">char 今天还没有日程（cike_char_day_v1 未设置）。</div>';
   return '<div class="groupy-panel" id="groupy-dayview"><h4>🗓️ 我们的一天</h4>'
-    + '<div class="gy-muted">同一时间轴对照 · 左边是他，右边是你' + (d.mineCount ? '' : '（你今天还没有日程）') + '</div>' + rows + '</div>'; /* GROUP-FIX7：日程 app 已删，去掉指引 */
+    + '<div class="gy-muted">同一时间轴对照 · 上面是他，下面是你' + (d.mineCount ? '' : '（你今天还没有日程）') + '</div>' + rows + '</div>'; /* GROUP-FIX7：日程 app 已删，去掉指引 */
 }
 function moodHtml() {
   var r = todayMood();

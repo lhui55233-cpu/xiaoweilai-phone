@@ -61,7 +61,7 @@ try { var h = read(HOME_KEY, null); if (h && h.pet && h.pet.kind === 'cat') retu
 return null;
 }
 
-/* ── 片库：本地模拟短片（CSS 渐变 + 表情分镜卡，无真实影片文件） ── */
+/* ── 片库：本地模拟短片（CSS 渐变 + 表情分镜卡 + 每幕一幅 SVG 场景插画，无真实影片文件） ── */
 var SERIES = [
 { id: 'day', title: 'char 的一天', desc: '跟着他过完普普通通、又有点发光的一天。'},
 { id: 'rain', title: '雨夜', desc: '一场雨，把两个人留在同一间咖啡馆里。'},
@@ -224,6 +224,37 @@ var s = '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBo
 + '<text x="28" y="262" font-size="20" fill="#6d4c2f" font-family="sans-serif">' + esc(String(t.thought || '').slice(0, 34)) + '</text>'
 + '<text x="28" y="322" font-size="16" fill="#a8a29c" font-family="sans-serif">影院 · 一起看 ｜ 本地模拟短片票根</text></svg>';
 return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+}
+/* B-P0-9 幕间插画：与 ticketSVG 同一套 SVG 制图做法（字符串拼 SVG，不外链图片），
+   只用本幕自己的真实数据——场景渐变色 g、地点里的时刻（定昼夜）、幕名。
+   不是真实影片画面，放映屏仍按文字分镜标注。 */
+function sceneArtSVG(sc) {
+  var g0 = (sc.g && sc.g[0]) || '#dce2f1';
+  var g1 = (sc.g && sc.g[1]) || '#bfc8e0';
+  var hm = String(sc.place || '').match(/(\d{1,2}):(\d{2})/);
+  var hour = hm ? parseInt(hm[1], 10) : 12;
+  var night = hour >= 18 || hour < 6;
+  var stars = '';
+  if (night) {
+    var pts = [[60, 30], [150, 55], [260, 26], [380, 48], [480, 28], [560, 58], [330, 70], [210, 80]];
+    stars = pts.map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.5" fill="#fff" opacity="0.85"/>'; }).join('');
+  }
+  var orb = night
+    ? '<circle cx="520" cy="52" r="26" fill="#fbf9f4"/><circle cx="512" cy="46" r="6" fill="#dce2f1"/><circle cx="528" cy="58" r="4" fill="#dce2f1"/>'
+    : '<circle cx="520" cy="52" r="26" fill="#fffdf8"/><circle cx="520" cy="52" r="34" fill="#fffdf8" opacity="0.35"/>';
+  var buildings = '';
+  var bx = [0, 70, 150, 240, 330, 420, 500, 580];
+  var bh = [46, 70, 52, 84, 60, 76, 48, 64];
+  for (var i = 0; i < bx.length; i++) {
+    buildings += '<rect x="' + bx[i] + '" y="' + (200 - bh[i]) + '" width="58" height="' + bh[i] + '" fill="#1e2748" opacity="0.18"/>';
+  }
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="' + esc(sc.t || '分镜') + '">'
+    + '<defs><linearGradient id="cxg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + esc(g0) + '"/><stop offset="1" stop-color="' + esc(g1) + '"/></linearGradient></defs>'
+    + '<rect width="640" height="200" fill="url(#cxg)"/>'
+    + stars + orb + buildings
+    + '<rect y="188" width="640" height="12" fill="#1e2748" opacity="0.12"/>'
+    + '</svg>';
+  return s;
 }
 function saveTicketToAlbum(ticketId) {
 var t = null; tickets().forEach(function (x) { if (x.id === ticketId) t = x;});
@@ -409,15 +440,18 @@ var CX_CSS = '<style>'
 + '.cx-ghost{display:inline-block;background:#f4f1ee;color:#55524e;border:1px solid #ece7e2;border-radius:16px;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;}'
 + '.cx-chip{display:inline-block;background:#f4f1ee;border:1px solid #ece7e2;border-radius:999px;padding:6px 12px;font-size:12px;color:#6d6862;margin:0 6px 6px 0;cursor:pointer;}'
 + '.cx-badge{display:inline-block;background:#fdf0e4;color:#b06a2a;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600;}'
-+ '.cx-screen{position:relative;border-radius:18px;overflow:hidden;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:22px 16px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.3);}'
++ '.cx-screen{position:relative;border-radius:18px;overflow:hidden;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:22px 16px;background:#fbf9f4;border:1px solid #e6e0d8;color:#1e2748;}'
++ '.cx-art{margin:-22px -16px 8px;width:calc(100% + 32px);}'
++ '.cx-art svg{display:block;width:100%;height:auto;border-radius:17px 17px 0 0;}'
++ '.cx-screen-note{font-size:11px;letter-spacing:1px;color:#8a8580;}'
 + '.cx-screen .ic{font-size:52px;}'
 + '.cx-screen .tt{font-size:18px;font-weight:700;text-align:center;}'
 + '.cx-screen .pl{font-size:12px;opacity:.92;}'
 + '.cx-screen .ln{font-size:14px;line-height:1.8;text-align:center;max-width:92%;}'
 + '.cx-screen .ln b{opacity:.85;}'
-+ '.cx-prog{height:6px;border-radius:3px;background:rgba(255,255,255,.35);width:100%;margin-top:10px;overflow:hidden;}'
-+ '.cx-prog>i{display:block;height:100%;background:#fff;border-radius:3px;}'
-+ '.cx-danmaku{position:absolute;left:100%;white-space:nowrap;font-size:14px;font-weight:600;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6);animation:cx-dm 5s linear forwards;pointer-events:none;z-index:3;}'
++ '.cx-prog{height:6px;border-radius:3px;background:#e8e2d9;width:100%;margin-top:10px;overflow:hidden;}'
++ '.cx-prog>i{display:block;height:100%;background:#1e2748;border-radius:3px;}'
++ '.cx-danmaku{position:absolute;left:100%;white-space:nowrap;font-size:14px;font-weight:600;color:#1e2748;text-shadow:0 1px 0 rgba(255,255,255,.85);animation:cx-dm 5s linear forwards;pointer-events:none;z-index:3;}'
 + '@keyframes cx-dm{from{transform:translateX(0);}to{transform:translateX(-140vw);}}'
 + '.cx-float{position:absolute;bottom:12px;font-size:34px;animation:cx-fl 1.6s ease-out forwards;pointer-events:none;z-index:4;}'
 + '@keyframes cx-fl{0%{transform:translateY(0) scale(.6);opacity:0;}20%{opacity:1;}100%{transform:translateY(-120px) scale(1.2);opacity:0;}}'
@@ -490,13 +524,15 @@ function renderScreen() {
   var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">' + esc(film.title) + '</div>'
     + '<div class="cx-sub">第 ' + (state.sceneIdx + 1) + ' / ' + film.scenes.length + ' 幕 · ' + esc(sc.place) + ' · 剩余 <span id="cx-remain">' + fmtClock(state.remain) + '</span></div></div>'
     + '<div class="cx-body">'
-    + '<div class="cx-screen" id="cx-screen" style="background:linear-gradient(155deg,' + sc.g[0] + ',' + sc.g[1] + ');">'
+    + '<div class="cx-screen" id="cx-screen">'
+    + '<div class="cx-art">' + sceneArtSVG(sc) + '</div>'
     + '<span class="ic">' + sc.ic + '</span><span class="tt">' + esc(sc.t) + '</span><span class="pl">' + esc(sc.place) + '</span>'
+    + '<span class="cx-screen-note">文字分镜 · 无视频</span>'
     + sc.lines.map(function (ln) { return '<div class="ln"><b>' + esc(ln[0]) + '</b> ' + esc(ln[1]) + '</div>'; }).join('')
     + '<div class="cx-prog"><i style="width:' + pct + '%;"></i></div></div>'
     + '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'
     + '<button class="cx-ghost" data-cx="prev">‹ 上一幕</button>'
-    + '<button class="cx-btn" data-cx="playpause">' + (state.playing ? '⏸ 暂停' : '▶ 播放') + '</button>'
+    + '<button class="cx-btn" data-cx="playpause">' + (state.playing ? '⏸ 暂停' : '▶ 开始放映（文字分镜）') + '</button>'
     + '<button class="cx-ghost" data-cx="next">下一幕 ›</button>'
     + (sc.intro ? '<button class="cx-ghost" data-cx="skip-intro">跳过片头 »</button>' : '')
     + (sc.outro ? '<button class="cx-ghost" data-cx="skip-outro">跳过片尾 »</button>' : '')
@@ -530,6 +566,7 @@ function renderNotes() {
     + '<div class="cx-label">随记</div><textarea class="cx-ta" id="cx-n-notes">' + esc(n.notes) + '</textarea>'
     + '<div class="cx-label">char 的记录 <span style="color:#b06a2a;">（模板生成，不是真人写的）</span></div>'
     + '<div class="cx-card" style="white-space:pre-wrap;font-size:14px;line-height:1.8;">' + esc(n.charNote || '（char 还没写）') + '</div>'
+    + '<div class="cx-note" style="margin:12px 0 0;">💬 边看边聊说明：放映室里 char 的快捷回复（哈哈 / 感动 / 递爆米花 / 递可乐 / 碰杯）是预设台词，按演出流程出现，不是模型实时说的话；你自己发的消息和这本手记里的记录都是真的。</div>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
     + '<button class="cx-btn" data-cx="notes-save" data-id="' + film.id + '">保存手记</button>'
     + '<button class="cx-ghost" data-cx="notes-char" data-id="' + film.id + '">✍️ 让 char 写一句</button>'

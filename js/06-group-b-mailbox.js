@@ -222,17 +222,26 @@ function openLetterbox(anchor){
       var hl = highlightSentence(L.text);
       body.querySelector('.gB-stage-wrap').style.display = 'none';
       wrap.style.display = 'block';
-      function pageHtml(p, isTop){
-        var html = esc(p);
-        if(hl && p.indexOf(hl) !== -1){
-          html = esc(p).split(esc(hl)).join('<span class="gB-hl'+(isTop?' gB-on':'')+'">'+esc(hl)+'</span>');
+      function pageHtml(p, isTop, isLast){
+        var lines = String(p).split('\n');
+        var html = lines.map(function(line, li){
+          var t = line.trim();
+          if(!t) return '';
+          var cls = (isTop && li === 0 && /[：:]$/.test(t)) ? 'gB-lp-sal' : (/^[✦✧❀❁✿♡♥♪]+$/.test(t) ? 'gB-lp-deco' : 'gB-lp');
+          var h = esc(t);
+          if(hl && t.indexOf(hl) !== -1){
+            h = esc(t).split(esc(hl)).join('<span class="gB-hl'+(isTop?' gB-on':'')+'">'+esc(hl)+'</span>');
+          }
+          return '<p class="'+cls+'">'+h+'</p>';
+        }).join('');
+        if(isLast){
+          html += '<div class="gB-letter-sign"><div class="gB-sign-name">'+esc(L.role)+'</div><div class="gB-sign-time">'+esc(L.time)+'</div></div>';
         }
         return '<div class="gB-lpage-text">'+html+'</div>';
       }
       wrap.innerHTML =
-        '<div class="gB-letter-meta">'+esc(L.role)+'　·　'+esc(L.time)+'</div>' +
         '<div class="gB-deck" id="gB-deck">' +
-          pages.map(function(p, i){ return '<div class="gB-lpage" data-gb-lpage="'+i+'">'+pageHtml(p, i===0)+'</div>'; }).join('') +
+          pages.map(function(p, i){ return '<div class="gB-lpage" data-gb-lpage="'+i+'">'+pageHtml(p, i===0, i===pages.length-1)+'</div>'; }).join('') +
         '</div>' +
         '<div class="gB-deck-foot">' +
           '<span class="gB-pager-btn" id="gB-lprev">‹</span>' +

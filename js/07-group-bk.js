@@ -3,7 +3,7 @@
    D组 · 未上线功能上线 / 壁纸改白接线 / 控制中心同步 / 紧急呼叫
    只新增 AppManager 注册与全局 GroupD，不改 A/B/C 组区域。
    新增 localStorage 键（见各应用头部注释）。
-   所有“机内模拟”均在界面上明确标注，不假装连接真实服务。
+   模拟机制不在界面上逐条解释（2026-11-27 起按 TINA 要求去掉这类说明条）；诚实靠空态与“不假装生效”的行为本身保证。
    ══════════════════════════════════════════════════════════════ */
 (function () {
 'use strict';
@@ -78,7 +78,7 @@ var GD_CSS = '<style>'
 + '.gd-back{font-size:15px;color:#8a8580;cursor:pointer;display:inline-flex;align-items:center;gap:2px;font-weight:500;}'
 + '.gd-title{font-size:26px;font-weight:600;letter-spacing:.5px;margin:6px 0 2px;color:#2b2a28;}'
 + '.gd-sub{font-size:12px;color:#9a958f;line-height:1.5;}'
-+ '.gd-note{margin:12px 16px 0;padding:10px 12px;background:#fdf6ec;border:1px solid #f3e3c8;border-radius:14px;font-size:12px;line-height:1.7;color:#8a6d3b;}'
++ '.gd-note{margin:12px 16px 0;padding:10px 12px;background:#fffdf8;border:1px solid rgba(30,39,72,.28);border-radius:12px;font-size:12px;line-height:1.7;color:#1e2748;}'
 + '.gd-body{padding:12px 16px 30px;}'
 + '.gd-card{background:#fff;border:1px solid #f0edea;border-radius:18px;padding:14px 16px;margin-bottom:10px;box-shadow:0 4px 16px rgba(90,75,60,.06);}'
 + '.gd-row{display:flex;align-items:center;gap:12px;cursor:pointer;}'
@@ -115,7 +115,6 @@ var GD_CSS = '<style>'
 + '.gd-story h4{font-size:17px;margin:4px 0 10px;color:#2b2a28;}'
 + '/* GROUP-BA · BA-5/BA-9 信息 app 发送页 iOS 样式（仅 [data-gd="sms"] 作用域，不碰微信与其他应用；深色跟随手机主题） */'
 + '.gd-root[data-gd="sms"].ba-sms-thread .gd-head{display:none;}'
-+ '.gd-root[data-gd="sms"].ba-sms-thread .gd-note{display:none;}'
 + '.gd-root[data-gd="sms"].ba-sms-thread .gd-body{padding:0;}'
 + '.gd-root[data-gd="sms"] .ba-sms-top{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:8px;padding:10px 12px 8px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e5e5ea;}'
 + '.gd-root[data-gd="sms"] .ba-sms-back{border:0;background:none;font-size:28px;line-height:1;color:#007AFF;cursor:pointer;padding:2px 8px 2px 0;flex-shrink:0;}'
@@ -125,7 +124,6 @@ var GD_CSS = '<style>'
 + '.gd-root[data-gd="sms"] .ba-sms-name{font-size:15px;font-weight:600;color:#000;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
 + '.gd-root[data-gd="sms"] .ba-sms-acts{display:flex;gap:0;flex-shrink:0;}'
 + '.gd-root[data-gd="sms"] .ba-sms-acts button{border:0;background:none;font-size:20px;line-height:1;color:#007AFF;cursor:pointer;padding:6px;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-cap{text-align:center;font-size:11px;color:#8e8e93;padding:8px 0 2px;}'
 + '.gd-root[data-gd="sms"] .ba-sms-stream{padding:6px 14px 10px;display:flex;flex-direction:column;}'
 + '.gd-root[data-gd="sms"] .ba-sms-row{display:flex;margin-bottom:2px;}'
 + '.gd-root[data-gd="sms"] .ba-sms-row.me{justify-content:flex-end;}'
@@ -223,7 +221,7 @@ GD._gdApp = gdApp;
     var bindBody = function (win) {
         try { if (GD.habits) GD.habits.bind(win, app); } catch (e) {}
     };
-    app = gdApp('habits', '习惯', '本机习惯 · 存在手机里，重启还在', '本地习惯打卡：只保存在这台手机里，不会同步到任何服务器。', renderBody, bindBody);
+    app = gdApp('habits', '习惯', '本机习惯 · 存在手机里，重启还在', '', renderBody, bindBody);
     GD.habitsApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('habits', app); } catch (e) {}
 })();
@@ -318,7 +316,7 @@ GD._gdApp = gdApp;
             };
         });
     };
-    app = gdApp('memo', '备忘录', '本机记事 · 写完就存', '本地备忘录：只保存在这台手机里。', renderBody, bindBody);
+    app = gdApp('memo', '备忘录', '本机记事 · 写完就存', '', renderBody, bindBody);
     GD.memoApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('memo', app); } catch (e) {}
 })();
@@ -379,16 +377,12 @@ GD._gdApp = gdApp;
                 + '<div class="bh-incall-name">' + esc(callState.name) + '</div>'
                 + '<div class="bh-incall-num">' + esc(callState.number) + '</div>'
                 + (callState.ringing ? '<div class="bh-incall-status">正在呼叫 TA…约 5 秒后接通</div><button class="gd-btn-ghost" data-act="ao-text-instead" style="margin-top:12px;">改发文字</button>' : '<div class="bh-incall-status" id="gd-call-timer">0秒</div>')
-                + '<div class="bh-incall-sim">' + (function(){ try { return window.GroupAH ? window.GroupAH.callModeLabel() : '机内模拟通话 · 没有真的拨出去，对方是机内模拟。'; } catch (e) { return '机内模拟通话 · 没有真的拨出去，对方是机内模拟。'; } })() + '</div>'
-                + '<div class="bh-call-note" id="bh-call-note">' + (bhMuted ? '已静音（模拟通话）' : (bhSpeaker ? '免提已开（模拟通话）' : '')) + '</div>'
-                + (bhInKeypad ? '<div class="bh-inkeypad-display" id="bh-inkeypad-display">' + (bhInCallDial ? '已拨：' + esc(bhInCallDial) : '拨号键盘（模拟）') + '</div><div class="bh-mini-keys">' + [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']].map(function (k) { return '<div class="bh-mini-key" data-key2="' + k[0] + '">' + k[0] + '</div>'; }).join('') + '</div>' : '')
+                + '<div class="bh-call-note" id="bh-call-note">' + (bhMuted ? '已静音' : (bhSpeaker ? '免提已开' : '')) + '</div>'
+                + (bhInKeypad ? '<div class="bh-inkeypad-display" id="bh-inkeypad-display">' + (bhInCallDial ? '已拨：' + esc(bhInCallDial) : '拨号键盘') + '</div><div class="bh-mini-keys">' + [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']].map(function (k) { return '<div class="bh-mini-key" data-key2="' + k[0] + '">' + k[0] + '</div>'; }).join('') + '</div>' : '')
                 + '<div class="bh-grid">'
                 + '<button type="button" class="bh-grid-btn' + (bhMuted ? ' on' : '') + '" data-act="bh-mute"><span class="bh-grid-ic">🔇</span>静音</button>'
                 + '<button type="button" class="bh-grid-btn' + (bhSpeaker ? ' on' : '') + '" data-act="bh-speaker"><span class="bh-grid-ic">🔊</span>免提</button>'
                 + '<button type="button" class="bh-grid-btn' + (bhInKeypad ? ' on' : '') + '" data-act="bh-inkeypad"><span class="bh-grid-ic">▦</span>拨号键盘</button>'
-                + '<button type="button" class="bh-grid-btn" data-act="bh-addcall"><span class="bh-grid-ic">＋</span>添加通话</button>'
-                + '<button type="button" class="bh-grid-btn" data-act="bh-facetime"><span class="bh-grid-ic">📹</span>FaceTime</button>'
-                + '<button type="button" class="bh-grid-btn" data-act="bh-incontacts"><span class="bh-grid-ic">👤</span>通讯录</button>'
                 + '</div>'
                 + '<button class="bh-end" data-act="hangup" aria-label="结束通话"><span class="bh-end-ic">☎</span></button></div>';
             return html;
@@ -401,7 +395,7 @@ GD._gdApp = gdApp;
                 html += '<div class="gd-card gd-row" data-act="call-contact" data-name="' + esc(c.name) + '" data-num="' + esc(c.number || c.name) + '">'
                     + '<div class="gd-av">' + (c.avatarImg ? '<img src="' + esc(c.avatarImg) + '">' : esc(c.avatar)) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + esc(c.name) + '</div>'
-                    + '<div style="font-size:12px;color:#9a958f;">个人收藏 · ' + esc(c.manual ? '手动添加' : (c.preview || '微信联系人')) + '</div></div>'
+                    + '<div style="font-size:12px;color:#5f6b7a;">个人收藏 · ' + esc(c.manual ? '手动添加' : (c.preview || '微信联系人')) + '</div></div>'
                     + '<span style="font-size:20px;color:#FF9500;">★</span></div>';
             });
         } else if (tab === 'keypad') {
@@ -410,9 +404,8 @@ GD._gdApp = gdApp;
                 + '<div class="gd-keypad">' + keys.map(function (k) { return '<div class="gd-key" data-key="' + k[0] + '">' + k[0] + (k[1] ? '<small>' + k[1] + '</small>' : '') + '</div>'; }).join('') + '</div>'
                 + '<div class="bh-dial-actions"><button class="bh-call-btn" data-act="call" aria-label="拨打">☎</button>'
                 + '<button class="bh-del-btn" data-act="backspace" aria-label="删除">⌫</button></div>'
-                + '<div style="text-align:center;margin-top:18px;"><button class="gd-btn-ghost" data-act="emergency">🚨 紧急呼叫</button></div>'
-                + '<div style="text-align:center;margin-top:12px;"><button class="gd-btn-ghost" data-act="bh-ringtone" style="font-size:13px;">🔔 电话铃声设置</button></div>'
-                + '<div class="gd-note">拨号为机内模拟通话：接通后显示通话界面、计时，挂断后记入通话记录，不会真的拨出。</div>';
+                + '<div style="text-align:center;margin-top:18px;"><button class="gd-btn-ghost" data-act="emergency">🚨 紧急呼叫演练（模拟）</button></div>'
+                + '<div style="text-align:center;margin-top:12px;"><button class="gd-btn-ghost" data-act="bh-ringtone" style="font-size:13px;">🔔 电话铃声设置</button></div>';
         } else if (tab === 'contacts') {
             var list = allContacts();
             html += '<div style="display:flex;gap:8px;"><input class="gd-input" id="gd-man-name" placeholder="手动添加联系人姓名" style="flex:1;"><input class="gd-input" id="gd-man-num" placeholder="号码" style="width:120px;"><button class="gd-btn" data-act="add-contact">添加</button></div>';
@@ -421,7 +414,7 @@ GD._gdApp = gdApp;
                 html += '<div class="gd-card gd-row" data-act="call-contact" data-name="' + esc(c.name) + '" data-num="' + esc(c.number || c.name) + '">'
                     + '<div class="gd-av">' + (c.avatarImg ? '<img src="' + esc(c.avatarImg) + '">' : esc(c.avatar)) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + esc(c.name) + '</div>'
-                    + '<div style="font-size:12px;color:#9a958f;">' + esc(c.manual ? '手动添加' : (c.preview || '微信联系人')) + '</div></div>'
+                    + '<div style="font-size:12px;color:#5f6b7a;">' + esc(c.manual ? '手动添加' : (c.preview || '微信联系人')) + '</div></div>'
                     + '<span style="font-size:20px;color:#FF9500;cursor:pointer;" data-act="fav-toggle" data-name="' + esc(c.name) + '">' + ((window.GroupBH && window.GroupBH.isFavorite(c.name)) ? '★' : '☆') + '</span><span style="font-size:20px;color:#34a853;">📞</span></div>';
             });
         } else if (tab === 'voicemail') {
@@ -433,7 +426,7 @@ GD._gdApp = gdApp;
             vms.forEach(function (v) {
                 html += '<div class="gd-card gd-row"><div class="gd-av">' + esc((v.from || '?')[0]) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + esc(v.from) + '</div>'
-                    + '<div style="font-size:12px;color:#9a958f;">' + esc(v.label) + ' · ' + fmtDT(v.time) + (v.dur ? ' · ' + esc(v.dur) : '') + '</div></div>'
+                    + '<div style="font-size:12px;color:#5f6b7a;">' + esc(v.label) + ' · ' + fmtDT(v.time) + (v.dur ? ' · ' + esc(v.dur) : '') + '</div></div>'
                     + (v.audio ? '<button class="gd-btn-ghost" data-act="vm-play" data-id="' + esc(v.id) + '" style="padding:8px 12px;font-size:13px;">▶ 播放</button>' : '')
                     + (v.kind === 'rec' ? '<button class="gd-btn-ghost" data-act="vm-del" data-id="' + esc(v.id) + '" style="padding:8px 12px;font-size:13px;">删除</button>' : '') + '</div>';
             });
@@ -444,7 +437,7 @@ GD._gdApp = gdApp;
             logs.forEach(function (l) {
                 html += '<div class="gd-card gd-row" data-act="redial" data-name="' + esc(l.name) + '" data-num="' + esc(l.number) + '"><div class="gd-av">' + esc((l.name || '?')[0]) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;' + (l.type === 'missed' ? 'color:#FF3B30;' : '') + '">' + esc(l.name) + '</div>'
-                    + '<div style="font-size:12px;color:' + (l.type === 'missed' ? '#FF3B30' : '#9a958f') + ';">' + (l.type === 'incoming' ? '↙ 接入' : (l.type === 'missed' ? '↙ 未接来电' : '↗ 拨出')) + ' · ' + fmtDT(l.time) + (l.duration ? ' · ' + esc(l.duration) : '') + '</div>' + (l.summary ? '<div style="font-size:12px;color:#8a8580;margin-top:2px;">' + esc(l.summary) + '</div>' : '') + '</div>'
+                    + '<div style="font-size:12px;color:' + (l.type === 'missed' ? '#FF3B30' : '#5f6b7a') + ';">' + (l.type === 'incoming' ? '↙ 接入' : (l.type === 'missed' ? '↙ 未接来电' : '↗ 拨出')) + ' · ' + fmtDT(l.time) + (l.duration ? ' · ' + esc(l.duration) : '') + '</div>' + (l.summary ? '<div style="font-size:12px;color:#5f6b7a;margin-top:2px;">' + esc(l.summary) + '</div>' : '') + '</div>'
                     + '<button class="gd-btn-ghost" data-act="sms-recents" data-name="' + esc(l.name) + '" data-num="' + esc(l.number) + '" style="padding:8px 12px;font-size:13px;">短信</button><button class="gd-btn-ghost" data-act="redial" data-name="' + esc(l.name) + '" data-num="' + esc(l.number) + '" style="padding:8px 12px;font-size:13px;">回拨</button></div>';
             });
             if (logs.length) html += '<button class="gd-btn-ghost" data-act="clear-log" style="width:100%;">清空通话记录</button>';
@@ -475,13 +468,18 @@ GD._gdApp = gdApp;
                 else if (act === 'clear-log') { saveLog([]); app._refresh(); }
                 else if (act === 'fav-toggle') { if (ev) ev.stopPropagation(); if (window.GroupBH) window.GroupBH.toggleFavorite(btn.getAttribute('data-name')); app._refresh(); }
                 else if (act === 'sms-recents') { if (ev) ev.stopPropagation(); var _nm = btn.getAttribute('data-name'), _nb = btn.getAttribute('data-num'); var _ths = []; try { _ths = store.get('phone_sms_v1', []); } catch (e) {} if (!Array.isArray(_ths)) _ths = []; if (!_ths.some(function (x) { return x.name === _nm; })) { _ths.unshift({ id: uid(), name: _nm, number: _nb, messages: [] }); try { store.set('phone_sms_v1', _ths); } catch (e) {} } try { if (typeof AppManager !== 'undefined' && AppManager.launch) AppManager.launch('sms'); } catch (e) {} }
-                else if (act === 'bh-ringtone') { try { if (typeof AppManager !== 'undefined' && AppManager.launch) AppManager.launch('settings'); } catch (e) {} alert('已打开设置 app，请点“电话铃声”'); }
-                else if (act === 'bh-mute') { bhMuted = !bhMuted; var _n = win.querySelector('#bh-call-note'); if (_n) _n.textContent = bhMuted ? '已静音（模拟通话）' : ''; app._refresh(); }
-                else if (act === 'bh-speaker') { bhSpeaker = !bhSpeaker; var _n2 = win.querySelector('#bh-call-note'); if (_n2) _n2.textContent = bhSpeaker ? '免提已开（模拟通话）' : ''; app._refresh(); }
+                else if (act === 'bh-ringtone') { /* F2：直接进铃声子页，不再多一步 alert。设置行自带 data-act="bhRingtone"，点它即开子页；行没找到就停在设置首页（用户可再点“电话铃声”）。 */
+                    try { if (typeof AppManager !== 'undefined' && AppManager.launch) AppManager.launch('settings'); } catch (e) {}
+                    setTimeout(function () {
+                        try {
+                            var row = document.querySelector('.sys-app-window[data-app-sandbox="settings"] [data-act="bhRingtone"]');
+                            if (row) row.click();
+                        } catch (e) {}
+                    }, 500);
+                }
+                else if (act === 'bh-mute') { bhMuted = !bhMuted; var _n = win.querySelector('#bh-call-note'); if (_n) _n.textContent = bhMuted ? '已静音' : ''; app._refresh(); }
+                else if (act === 'bh-speaker') { bhSpeaker = !bhSpeaker; var _n2 = win.querySelector('#bh-call-note'); if (_n2) _n2.textContent = bhSpeaker ? '免提已开' : ''; app._refresh(); }
                 else if (act === 'bh-inkeypad') { bhInKeypad = !bhInKeypad; app._refresh(); }
-                else if (act === 'bh-addcall') { var _n3 = win.querySelector('#bh-call-note'); if (_n3) _n3.textContent = '模拟通话不支持添加通话'; }
-                else if (act === 'bh-facetime') { var _n4 = win.querySelector('#bh-call-note'); if (_n4) _n4.textContent = '模拟通话不支持 FaceTime'; }
-                else if (act === 'bh-incontacts') { var _n5 = win.querySelector('#bh-call-note'); if (_n5) _n5.textContent = '通话中查看通讯录暂不支持（模拟通话）'; }
                 else if (act === 'vm-play') { if (window.GroupBH) window.GroupBH.playVoicemail(btn.getAttribute('data-id')); }
                 else if (act === 'vm-del') { if (window.GroupBH) { var _r = window.GroupBH.deleteVoicemail(btn.getAttribute('data-id')); if (!_r.ok) alert('未接来电记录请去“最近通话”里清空'); app._refresh(); } }
                 else if (act === 'vm-record') { if (window.GroupBH) { if (window.GroupBH.isRecording()) { window.GroupBH.stopRecording(); } else { window.GroupBH.startRecording(function (st) { if (st && st.started) { app._refresh(); return; } if (st && st.ok) { alert('录音已保存到语音留言'); } else { alert('录音失败：' + (st && st.reason === 'no-recorder' ? '本机不支持录音' : (st && st.reason === 'too-big' ? '录音超过 2MB，未保存' : '未获得麦克风权限'))); } app._refresh(); }); setTimeout(function () { app._refresh(); }, 800); } } }
@@ -489,7 +487,7 @@ GD._gdApp = gdApp;
             };
         });
     };
-    app = gdApp('phone', '电话', '个人收藏 · 最近通话 · 通讯录 · 拨号键盘 · 语音留言', '联系人来自微信会话（只读）；拨号为机内模拟通话，不会真的拨出。', renderBody, bindBody);
+    app = gdApp('phone', '电话', '个人收藏 · 最近通话 · 通讯录 · 拨号键盘 · 语音留言', '', renderBody, bindBody);
     GD.phoneApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('phone', app); } catch (e) {}
 })();
@@ -503,7 +501,20 @@ GD._gdApp = gdApp;
     var threadId = null;
     // GROUP-BA · BA-7 信息发送页 UI 状态（只存内存，不落 localStorage、不新增键）
     var smsDrawerOpen = false, smsEmojiOpen = false, smsMenuIdx = -1, smsMoreIdx = -1;
-    var smsToast = '', smsVideoOpen = false, smsDetailOpen = false, smsBigImg = '', smsDraft = '';
+    var smsToast = '', smsDetailOpen = false, smsBigImg = '', smsDraft = '';
+    /* SMS-01（F2）：自动回复默认关，开关存在 phone_sms_autoreply_v1（true/false）。
+       开着时先走模型（AWGroup.replyForCharModel，复用 js/33 的调用链：模型接通
+       返回 via:'model'，否则静默回落模板）；拿不到模型回复时用下面的 REPLIES
+       关键词罐头，但消息带 via:'template'，开关行与消息下方同时标注
+       “模板回复 · 未接模型”。关着时发完不回任何消息。 */
+    var smsAutoReplyOn = function () { try { return store.get('phone_sms_autoreply_v1', false) === true; } catch (e) { return false; } };
+    var smsSetAutoReply = function (on) { try { store.set('phone_sms_autoreply_v1', !!on); } catch (e) {} };
+    var smsModelOn = function () { try { return !!(window.PhoneModel && PhoneModel.isEnabledFor && PhoneModel.isEnabledFor('chat')); } catch (e) { return false; } };
+    var smsAutoReplyRow = function () {
+        var on = smsAutoReplyOn();
+        var status = !on ? '自动回复已关 · 对方不会自动回' : (smsModelOn() ? '自动回复已开 · 接模型回复' : '自动回复已开 · 模板回复 · 未接模型');
+        return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fffdf8;border-bottom:1px solid rgba(30,39,72,.12);font-size:12px;color:#5f6b7a;line-height:1.6;"><span style="flex:1;">' + status + '</span><button class="gd-btn-ghost" data-act="sms-autoreply" style="padding:6px 12px;font-size:12px;">' + (on ? '关闭自动回复' : '打开自动回复') + '</button></div>';
+    };
     var REPLIES = [
         { k: ['你好', '在吗', '在么', 'hi', 'hello'], r: ['在呢，怎么啦？', '在的，刚看到消息。'] },
         { k: ['吃饭', '吃了吗', '饿'], r: ['还没吃呢，你吃了没？', '正想问你吃什么，要不要一起？'] },
@@ -543,9 +554,13 @@ GD._gdApp = gdApp;
                 if (m.text) inner += esc(m.text);
                 if (!inner) inner = '[图片]';
                 streamHtml += '<div class="ba-sms-row ' + (m.from === 'me' ? 'me' : 'them') + '"><div class="gd-bubble ba-sms-bubble ' + (m.from === 'me' ? 'me' : 'them') + '" data-ba-idx="' + i + '">' + inner + '</div></div>';
+                /* SMS-01：对方消息凡不是模型回的，都在下方标“模板回复 · 未接模型”。
+                   本 app 里 from:'them' 只由自动回复写入（旧消息也没有别的来源），所以
+                   没带 via:'model' 的一律按模板标注，不存在误标真人消息的情况。 */
+                if (m.from === 'them' && m.via !== 'model') streamHtml += '<div style="font-size:10px;color:#5f6b7a;margin:-2px 0 8px 12px;">模板回复 · 未接模型</div>';
                 if (smsMenuIdx === i) {
                     streamHtml += '<div class="ba-sms-ctx"><button data-act="copy" data-idx="' + i + '">复制</button><button data-act="reply" data-idx="' + i + '">回复</button><button data-act="more" data-idx="' + i + '">更多</button><button data-act="ctx-done">完成</button></div>';
-                    if (smsMoreIdx === i) streamHtml += '<div class="ba-sms-meta">' + fmtDT(m.time) + ' · 来自' + (m.from === 'me' ? '我' : '对方') + ' · 仅存于本机</div>';
+                    if (smsMoreIdx === i) streamHtml += '<div class="ba-sms-meta">' + fmtDT(m.time) + ' · 来自' + (m.from === 'me' ? '我' : '对方') + '</div>';
                 }
             });
             if (!th.messages.length) streamHtml = '<div class="gd-empty">还没有短信<br><span style="font-size:12px;">在下面输入第一条消息吧，只存在本机。</span></div>';
@@ -555,13 +570,12 @@ GD._gdApp = gdApp;
                     + (smsEmojiOpen ? '<div class="ba-sms-emoji">' + ['😀','😂','🥰','😭','😡','👍','❤️','🎉','😴','🤔'].map(function (e) { return '<button data-act="emoji-pick" data-emoji="' + e + '">' + e + '</button>'; }).join('') + '</div>' : '');
             }
             var ovHtml = '';
-            if (smsVideoOpen) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><div class="ba-sms-av ba-sms-av-lg">' + esc((th.name || '?')[0]) + '</div><div style="font-size:17px;font-weight:600;margin:10px 0 4px;">' + esc(th.name) + '</div><div style="font-size:12px;color:#8e8e93;line-height:1.7;">模拟视频通话<br>不会真的拨出 · 仅本机模拟</div><button class="gd-btn-danger" style="margin-top:14px;width:100%;" data-act="video-end">挂断</button></div></div>';
-            if (smsDetailOpen) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><div class="ba-sms-av ba-sms-av-lg">' + esc((th.name || '?')[0]) + '</div><div style="font-size:17px;font-weight:600;margin:10px 0 4px;">' + esc(th.name) + '</div><div style="font-size:13px;color:#666;line-height:1.9;text-align:left;">号码：' + esc(th.number || '暂无') + '<br>短信：机内短信，仅存于本机<br>对方回复为机内模拟回复</div><button class="gd-btn-ghost" style="margin-top:14px;width:100%;" data-act="detail-close">关闭</button></div></div>';
+            if (smsDetailOpen) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><div class="ba-sms-av ba-sms-av-lg">' + esc((th.name || '?')[0]) + '</div><div style="font-size:17px;font-weight:600;margin:10px 0 4px;">' + esc(th.name) + '</div><div style="font-size:13px;color:#666;line-height:1.9;text-align:left;">号码：' + esc(th.number || '暂无') + '</div><button class="gd-btn-ghost" style="margin-top:14px;width:100%;" data-act="detail-close">关闭</button></div></div>';
             if (smsBigImg) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><img class="ba-sms-bigimg" src="' + esc(smsBigImg) + '" alt="大图"><button class="gd-btn-ghost" style="margin-top:14px;width:100%;" data-act="bigimg-close">关闭</button></div></div>';
             var html = '<div class="ba-sms-top"><button class="ba-sms-back" data-act="back" aria-label="返回会话列表">‹</button>'
                 + '<div class="ba-sms-who"><div class="ba-sms-av">' + esc((th.name || '?')[0]) + '</div><div class="ba-sms-name">' + esc(th.name) + '</div></div>'
-                + '<div class="ba-sms-acts"><button data-act="video" aria-label="视频通话（模拟）" title="视频通话（模拟）">📹</button><button data-act="detail" aria-label="详情" title="详情">ⓘ</button></div></div>'
-                + '<div class="ba-sms-cap">机内短信 · 仅存于本机</div>'
+                + '<div class="ba-sms-acts"><button data-act="detail" aria-label="详情" title="详情">ⓘ</button></div></div>'
+                + smsAutoReplyRow()
                 + '<div id="gd-sms-stream" class="ba-sms-stream">' + streamHtml + '</div>'
                 + (smsToast ? '<div class="ba-sms-toast">' + esc(smsToast) + '</div>' : '')
                 + drawerHtml
@@ -603,18 +617,41 @@ GD._gdApp = gdApp;
             app._refresh();
             setTimeout(function () { smsToast = ''; if (threadId) app._refresh(); }, 1200);
         };
+        /* SMS-01：自动回复只在开关开着时触发。先走模型（AWGroup.replyForCharModel：
+           模型接通返回 via:'model'；未接通/调用失败静默回落模板，via:'template'），
+           拿不到可用人物或模型链不存在时直接用本地关键词罐头（仍标模板）。 */
+        var requestAutoReply = function (text, tid) {
+            var pushReply = function (txt, via) {
+                var ts = load(); var t2 = ts.find(function (x) { return x.id === tid; }); if (!t2) return;
+                t2.messages.push({ from: 'them', text: txt, time: Date.now(), via: via }); save(ts);
+                if (threadId === tid) { app._refresh(); scrollStream(); }
+            };
+            var ch = null;
+            try {
+                if (window.AWGroup && AWGroup.listChars) {
+                    var cs = AWGroup.listChars() || [];
+                    for (var i = 0; i < cs.length; i++) if (cs[i] && (cs[i].enabled || cs[i].status === 'active')) { ch = cs[i]; break; }
+                    if (!ch) ch = cs[0] || null;
+                }
+            } catch (e) {}
+            if (ch && window.AWGroup && AWGroup.replyForCharModel) {
+                try {
+                    AWGroup.replyForCharModel(ch, text).then(function (r) {
+                        if (r && r.via === 'model' && r.text) pushReply(r.text, 'model');
+                        else pushReply((r && r.text) || autoReply(text), 'template');
+                    }).catch(function () { pushReply(autoReply(text), 'template'); });
+                    return;
+                } catch (e) {}
+            }
+            setTimeout(function () { pushReply(autoReply(text), 'template'); }, 1200 + Math.random() * 800);
+        };
         var sendImageFile = function (file) {
             var reader = new FileReader();
             reader.onload = function (ev) {
                 var threads = load(); var th = threads.find(function (x) { return x.id === threadId; }); if (!th) return;
                 th.messages.push({ from: 'me', text: '', img: ev.target.result, time: Date.now() }); save(threads);
                 app._refresh(); scrollStream();
-                var tid = threadId;
-                setTimeout(function () {
-                    var ts = load(); var t2 = ts.find(function (x) { return x.id === tid; }); if (!t2) return;
-                    t2.messages.push({ from: 'them', text: autoReply(''), time: Date.now() }); save(ts);
-                    if (threadId === tid) { app._refresh(); scrollStream(); }
-                }, 1200 + Math.random() * 800);
+                if (smsAutoReplyOn()) requestAutoReply('', threadId);
             };
             try { reader.readAsDataURL(file); } catch (e) {}
         };
@@ -624,18 +661,14 @@ GD._gdApp = gdApp;
             var threads = load(); var th = threads.find(function (x) { return x.id === threadId; }); if (!th) return;
             th.messages.push({ from: 'me', text: text, time: Date.now() }); save(threads); inp.value = ''; smsDraft = '';
             app._refresh(); scrollStream();
-            var replyText = autoReply(text); var tid = threadId;
-            setTimeout(function () {
-                var ts = load(); var t2 = ts.find(function (x) { return x.id === tid; }); if (!t2) return;
-                t2.messages.push({ from: 'them', text: replyText, time: Date.now() }); save(ts);
-                if (threadId === tid) { app._refresh(); scrollStream(); }
-            }, 1200 + Math.random() * 800);
+            if (smsAutoReplyOn()) requestAutoReply(text, threadId);
         };
         win.querySelectorAll('[data-act]').forEach(function (btn) {
             btn.onclick = function () {
                 var act = btn.getAttribute('data-act');
-                if (act === 'open') { threadId = btn.getAttribute('data-id'); smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsVideoOpen = false; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
-                else if (act === 'back') { threadId = null; smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsVideoOpen = false; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
+                if (act === 'open') { threadId = btn.getAttribute('data-id'); smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
+                else if (act === 'back') { threadId = null; smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
+                else if (act === 'sms-autoreply') { smsSetAutoReply(!smsAutoReplyOn()); app._refresh(); }
                 else if (act === 'send') { send(); }
                 else if (act === 'plus') { smsDrawerOpen = !smsDrawerOpen; if (smsDrawerOpen) smsEmojiOpen = false; app._refresh(); }
                 else if (act === 'photo') { var f = win.querySelector('#ba-sms-file'); if (f) f.click(); }
@@ -649,8 +682,6 @@ GD._gdApp = gdApp;
                     }, function () { smsToast = '未能获取位置'; app._refresh(); setTimeout(function () { smsToast = ''; if (threadId) app._refresh(); }, 1200); }, { timeout: 5000 });
                     else { smsToast = '当前环境不支持定位'; app._refresh(); setTimeout(function () { smsToast = ''; if (threadId) app._refresh(); }, 1200); }
                 }
-                else if (act === 'video') { smsVideoOpen = true; app._refresh(); }
-                else if (act === 'video-end') { smsVideoOpen = false; app._refresh(); }
                 else if (act === 'detail') { smsDetailOpen = true; app._refresh(); }
                 else if (act === 'detail-close') { smsDetailOpen = false; app._refresh(); }
                 else if (act === 'bigimg-close') { smsBigImg = ''; app._refresh(); }
@@ -704,7 +735,7 @@ GD._gdApp = gdApp;
         var f2 = win.querySelector('#ba-sms-file-cam');
         if (f2) f2.addEventListener('change', function () { var file = f2.files && f2.files[0]; if (file) sendImageFile(file); f2.value = ''; });
     };
-    app = gdApp('sms', '信息', '本机短信会话', '机内短信：消息只存在这台手机里，不会发送给真人；对方回复为机内模拟回复。', renderBody, bindBody);
+    app = gdApp('sms', '信息', '本机短信会话', '', renderBody, bindBody);
     GD.smsApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('sms', app); } catch (e) {}
 })();
@@ -811,7 +842,7 @@ GD._gdApp = gdApp;
             lb.addEventListener('click', function (e) { if (e.target === lb) { lightbox = -1; app._refresh(); } });
         }
     };
-    app = gdApp('album', '相册', '本机已有图片汇总', '相册不联网：图片全部取自这台手机里已有的内容（壁纸 / 微信头像 / 朋友圈 / 聊天图片 / 你添加的照片）。', renderBody, bindBody);
+    app = gdApp('album', '相册', '本机已有图片汇总', '', renderBody, bindBody);
     GD.albumApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('album', app); } catch (e) {}
 })();
@@ -828,6 +859,37 @@ GD._gdApp = gdApp;
         { h0: 19, h1: 22, name: '夜晚', feel: '夜里渐凉', tip: '晚上适合待在家里。' },
         { h0: 22, h1: 24, name: '深夜', feel: '夜深了，体感偏凉', tip: '夜里风凉，早点休息。' }
     ];
+    /* C-轻-2（F2）：体感不再只按时段模板。优先读 AFWeather 的 Open-Meteo 实测
+       temperature_2m（af_weather_cache_v1，经 AFWeather.loadCache），按温度分档
+       推算体感与小贴士并注明实测温度与更新时间；读不到实测温度时仍用 PERIODS
+       时段文案，但明确标注“按时段的通用提示，非实测体感”。 */
+    var realTemp = function () {
+        try {
+            if (window.AFWeather && AFWeather.loadCache) {
+                var c = AFWeather.loadCache();
+                if (c && isFinite(+c.temp)) return { temp: +c.temp, fetchedAt: c.fetchedAt || 0, city: c.city || '' };
+            }
+        } catch (e) {}
+        return null;
+    };
+    var feelForTemp = function (t) {
+        if (t >= 32) return '体感闷热';
+        if (t >= 28) return '体感炎热';
+        if (t >= 24) return '体感温暖';
+        if (t >= 18) return '体感舒适';
+        if (t >= 12) return '体感偏凉';
+        if (t >= 5) return '体感寒冷';
+        return '体感严寒';
+    };
+    var tipForTemp = function (t) {
+        if (t >= 32) return '天很热，多补水，尽量别在正午久晒。';
+        if (t >= 28) return '天热注意防晒，记得补水。';
+        if (t >= 24) return '温度正好，适合出门走走。';
+        if (t >= 18) return '不冷不热，穿一件薄外套就够了。';
+        if (t >= 12) return '有点凉了，出门带件外套。';
+        if (t >= 5) return '天冷了，穿暖一点再出门。';
+        return '非常冷，注意保暖，尽量少在户外久待。';
+    };
     var renderBody = function () {
         var now = new Date();
         var h = now.getHours();
@@ -836,16 +898,28 @@ GD._gdApp = gdApp;
         var sched = store.get('phone_schedule_v1', []);
         var todayCount = sched.filter(function (x) { return x.date === todayStr() && !x.done; }).length;
         var memoCount = (store.get('phone_memo_v1', []) || []).length;
+        var real = realTemp();
+        var feel, tip, feelNote;
+        if (real) {
+            feel = feelForTemp(real.temp);
+            tip = tipForTemp(real.temp);
+            feelNote = '实测 ' + real.temp + '°C 推算（Open-Meteo' + (real.fetchedAt ? '，' + fmtDT(real.fetchedAt) + '更新' : '') + (real.city ? ' · ' + real.city : '') + '）';
+        } else {
+            feel = p.feel;
+            tip = p.tip;
+            feelNote = '按时段的通用提示，非实测体感';
+        }
         var html = '<div class="gd-card" style="text-align:center;padding:22px 16px;">'
             + '<div style="font-size:52px;line-height:1;">' + (isNight ? '🌙' : '☀️') + '</div>'
             + '<div style="font-size:40px;font-weight:300;margin-top:8px;letter-spacing:2px;">' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div>'
             + '<div style="font-size:14px;color:#6d6862;margin-top:4px;">' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + WEEK_CN[now.getDay()] + ' · ' + p.name + '</div>'
-            + '<div style="font-size:15px;font-weight:600;margin-top:12px;">' + p.feel + '</div>'
-            + '<div style="font-size:13px;color:#8a8580;margin-top:4px;line-height:1.7;">' + p.tip + '</div></div>'
+            + '<div style="font-size:15px;font-weight:600;margin-top:12px;">' + feel + '</div>'
+            + '<div style="font-size:13px;color:#5f6b7a;margin-top:4px;line-height:1.7;">' + tip + '</div>'
+            + '<div style="font-size:11px;color:#5f6b7a;margin-top:6px;">' + feelNote + '</div></div>'
             + '<div class="gd-card"><div style="font-size:14px;font-weight:600;">今天的手机</div>'
             + '<div style="font-size:13px;color:#6d6862;line-height:2;margin-top:6px;">📅 今日待办日程：' + todayCount + ' 项<br>📝 备忘录：' + memoCount + ' 条<br>🕐 本机时间 ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds()) + '（每分钟自动更新）</div></div>'
             + '<div id="af-weather-live"></div>'
-            + '<button class="gd-btn" data-act="refresh" style="width:100%;">↻ 刷新（按当前时间重新推算）</button>';
+            + '<button class="gd-btn" data-act="refresh" style="width:100%;">↻ 刷新（重新读取实测温度）</button>';
         return html;
     };
     var app; var timer = null;
@@ -857,7 +931,7 @@ GD._gdApp = gdApp;
         if (timer) clearInterval(timer);
         timer = setInterval(function () { if (win.isConnected) app._refresh(); }, 60000);
     };
-    app = gdApp('weather', '天气', 'Open-Meteo 实时天气 · 无网回退本地', '实时天气来自 Open-Meteo（免费、无需 key）；定位走 J2 组 LocationGateway，城市可保存（weather_city_v1）。没网或取数失败时回退本地数据并标注来源与时间，不编造天气。时段与体感文案仍由本机时间推算。', renderBody, bindBody);
+    app = gdApp('weather', '天气', 'Open-Meteo 实时天气 · 无网回退本地', '实时天气来自 Open-Meteo（免费、无需 key）；定位走 J2 组 LocationGateway，城市可保存（weather_city_v1）。没网或取数失败时回退本地数据并标注来源与时间，不编造天气。体感按 Open-Meteo 实测温度分档推算；没有实测温度时按时段给通用提示，并明确标注“非实测体感”。', renderBody, bindBody);
     GD.weatherApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('weather', app); } catch (e) {}
 })();
@@ -928,7 +1002,7 @@ GD._gdApp = gdApp;
             };
         });
     };
-    app = gdApp('weibo', '微博', '本机动态流 · 发帖点赞评论都在本机', '本地微博：未连接微博服务器，所有动态、点赞、评论只保存在这台手机里；初始动态来自手机已有内容，均标为「本地动态」。', renderBody, bindBody);
+    app = gdApp('weibo', '微博', '本机动态流 · 发帖点赞评论都在本机', '', renderBody, bindBody);
     GD.weiboApp = app;
     try { if (typeof AppManager !== 'undefined') AppManager.register('weibo', app); } catch (e) {}
 })();
@@ -1068,7 +1142,9 @@ GD._gdApp = gdApp;
    phone_catos_v1 只作迁移备份：首次打开把旧数值并过去一次，之后不再写它。
    脸是 desksprite 像素猫（FIX-2 的 GroupFIX2.SKINS.cat，帧逐字照录；
    调色板由本组改成橘色，见 FIX2 CAT_PALETTE），画在 canvas 上；
-   GroupFIX2 不在时退回原来的 emoji 脸。
+   GroupFIX2 / GroupW 都不在时，用本文件内嵌的同一份猫帧副本
+   （CAT_FALLBACK_ROWS / CAT_FALLBACK_PALETTE，逐字抄自 js/57
+   SKINS.cat，desksprite cat.json，MIT）直接画，绝不用 emoji 脸。
    数值口径与旧猫窝一致：摸摸 心情+8/亲密度+3，喂食 饱食+25/亲密度+2，
    玩耍 心情+12/饱食-5/亲密度+2，全部免费（番茄钟的喂食/玩耍收金币是另一套，
    不动）；改名最多 8 字。衰减走共享猫的 catTick（饱食 -3/h、心情 -1/h、
@@ -1133,8 +1209,40 @@ GD._gdApp = gdApp;
         }
         d.lastSeen = Date.now(); store.set(KEY, d);
     };
-    var hasPixel = function () {
-        try { return !!(window.GroupFIX2 && GroupFIX2.SKINS && GroupFIX2.SKINS.cat); } catch (e) { return false; }
+    /* C-轻-5（F2）回落像素猫：帧与调色板逐字抄自 js/57 GroupFIX2 SKINS.cat
+       （desksprite cat.json，MIT；橘色调色板是 GROUP-DESKPET 的改色）。
+       只在 GroupW / GroupFIX2 都画不出来时用，不画任何新像素。 */
+    var CAT_FALLBACK_ROWS = [
+        '.B.........B.',
+        'BB.........BB',
+        'BBBbBBBBBbBBB',
+        '.BBBNgGgNBBB.',
+        '.BBBggPggBBB.',
+        '.BBBBBBBbBBB.',
+        '.BWWWBBBBBB..',
+        '.BWWWbBBBBB..',
+        '.BBBBBBBBBB..',
+        '..BBBBBBBB...',
+        '..BBBBBBBB...',
+        '..BB....BB...',
+        '..BB....BB...'
+    ];
+    var CAT_FALLBACK_PALETTE = { '.': null, B: '#D97B29', b: '#E89B4A', G: '#F2A950', g: '#F7BE78', W: '#FFF3E0', P: '#FF9EAD', N: '#3A2A1E' };
+    var paintCatRows = function (cv, rows, pal) {
+        if (!cv) return false;
+        try {
+            cv.width = 13; cv.height = 13;
+            var ctx = cv.getContext('2d'); if (!ctx) return false;
+            ctx.clearRect(0, 0, 13, 13);
+            for (var y = 0; y < rows.length && y < 13; y++) {
+                var row = rows[y];
+                for (var x = 0; x < row.length && x < 13; x++) {
+                    var col = pal[row.charAt(x)];
+                    if (col) { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); }
+                }
+            }
+            return true;
+        } catch (e) { return false; }
     };
     var drawFace = function (win) {
         try {
@@ -1142,17 +1250,23 @@ GD._gdApp = gdApp;
             if (!cv) return;
             var ok = false;
             try { ok = !!(window.GroupW && GroupW.drawPixelCat && GroupW.drawPixelCat(cv, 'idle')); } catch (e) {}
-            if (ok) { var em = win.querySelector('#gd-cat-face'); if (em) em.style.display = 'none'; }
+            if (!ok) {
+                try {
+                    var sk = (window.GroupFIX2 && GroupFIX2.SKINS && GroupFIX2.SKINS.cat) || null;
+                    if (sk && sk.frames && sk.frames.idle) ok = paintCatRows(cv, sk.frames.idle, sk.palette || CAT_FALLBACK_PALETTE);
+                } catch (e) {}
+            }
+            if (!ok) ok = paintCatRows(cv, CAT_FALLBACK_ROWS, CAT_FALLBACK_PALETTE);
+            /* canvas 画不出来（例如无 2d 上下文）也不回落 emoji 脸，只显示一行诚实说明。 */
+            if (!ok) { var em = win.querySelector('#gd-cat-face-missing'); if (em) em.style.display = ''; }
         } catch (e) {}
     };
     var renderBody = function () {
         var d = load();
-        var face = d.mood >= 60 ? '😸' : (d.mood >= 30 ? '😺' : '😿');
         var status = d.satiety < 25 ? '饿了，快喂我！' : (d.mood < 30 ? '有点不开心，陪我玩玩吧。' : (d.affection > 30 ? '最喜欢你了～' : '今天也要好好相处哦。'));
-        var pixel = hasPixel();
         var html = '<div class="gd-card" style="text-align:center;padding:24px 16px 18px;">'
-            + (pixel ? '<canvas id="gd-cat-canvas" width="13" height="13" style="width:104px;height:104px;image-rendering:pixelated;margin:0 auto;display:block;" aria-label="橘猫"></canvas>' : '')
-            + '<div style="font-size:92px;line-height:1;" id="gd-cat-face">' + face + '</div>'
+            + '<canvas id="gd-cat-canvas" width="13" height="13" style="width:104px;height:104px;image-rendering:pixelated;margin:0 auto;display:block;" aria-label="橘猫"></canvas>'
+            + '<div id="gd-cat-face-missing" style="display:none;font-size:12px;color:#5f6b7a;margin-top:8px;">猫的图片暂时画不出来，饱腹 / 心情 / 亲密度数字仍是真的。</div>'
             + '<div style="font-size:20px;font-weight:600;margin-top:10px;">' + esc(d.name) + '</div>'
             + '<div style="font-size:13px;color:#8a8580;margin-top:4px;">' + status + '</div>'
             + (bubble ? '<div style="display:inline-block;background:#fff;border:1px solid #f0e6dc;border-radius:14px;padding:8px 14px;font-size:13px;margin-top:12px;box-shadow:0 4px 14px rgba(90,75,60,.08);">' + esc(bubble) + '</div>' : '')
@@ -1359,7 +1473,7 @@ GD._gdApp = gdApp;
             };
         });
     };
-    app = gdApp('catos', '桌宠市场', '本机桌宠 · 摸摸 / 喂食 / 玩耍', '桌宠市场：代码里只剩一个名字的桌宠应用，现在是真的能养的猫，状态存在本机。', renderBody, bindBody);
+    app = gdApp('catos', '桌宠市场', '本机桌宠 · 摸摸 / 喂食 / 玩耍', '', renderBody, bindBody);
     GD.catosApp = app;
     GD.catosShared = { load: load, save: save, migrateOnce: migrateOnce };
     try { if (typeof AppManager !== 'undefined') AppManager.register('catos', app); } catch (e) {}
@@ -1381,34 +1495,34 @@ GD._gdApp = gdApp;
         var render = function () {
             var list = load();
             var html = '<div style="padding:18px 18px 40px;">'
-                + '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:22px;font-weight:700;">🚨 紧急呼叫</span>'
+                + '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:22px;font-weight:700;">🚨 紧急呼叫演练（模拟）</span>'
                 + '<button id="gd-em-close" style="border:1px solid #ece7e2;background:#f4f1ee;border-radius:999px;padding:8px 14px;font-size:14px;">关闭</button></div>'
-                + '<div style="margin-top:10px;padding:10px 12px;background:#fdf6ec;border:1px solid #f3e3c8;border-radius:14px;font-size:12px;line-height:1.7;color:#8a6d3b;">机内模拟呼叫：这里的拨打不会接通真实电话或报警电话，仅在本机内模拟通话流程。如遇真实紧急情况，请用真机拨打 110 / 120 / 119。</div>';
+                + '<div style="margin-top:10px;padding:10px 12px;background:#fffdf8;border:1px solid rgba(30,39,72,.28);border-radius:12px;font-size:12px;line-height:1.7;color:#1e2748;">机内模拟呼叫：这里的拨打不会接通真实电话或报警电话，仅在本机内模拟通话流程。如遇真实紧急情况，请用真机拨打 110 / 120 / 119。</div>';
             if (simCall) {
                 html += '<div style="margin-top:16px;background:#fff;border:1px solid #f0edea;border-radius:18px;padding:22px;text-align:center;box-shadow:0 4px 16px rgba(90,75,60,.06);">'
                     + '<div style="font-size:18px;font-weight:600;">正在模拟呼叫</div>'
                     + '<div style="font-size:22px;font-weight:700;margin-top:10px;">' + esc(simCall.name) + '</div>'
-                    + '<div style="font-size:13px;color:#9a958f;margin-top:4px;">' + esc(simCall.number) + '</div>'
+                    + '<div style="font-size:13px;color:#5f6b7a;margin-top:4px;">' + esc(simCall.number) + '</div>'
                     + '<div style="font-size:15px;margin-top:8px;"><span id="gd-em-timer">0秒</span> · 机内模拟</div>'
                     + '<button id="gd-em-hangup" style="margin-top:18px;padding:12px 32px;border-radius:999px;border:none;background:#e5484d;color:#fff;font-size:16px;">挂断</button></div>';
             }
-            html += '<div style="font-size:12px;color:#9a958f;margin:18px 0 8px;font-weight:600;">紧急联系人</div>';
-            if (!list.length) html += '<div style="text-align:center;color:#a8a29c;font-size:13px;line-height:2;padding:16px;">还没有紧急联系人<br><span style="font-size:12px;">在下面添加一位家人或朋友，紧急时可一键模拟拨打。</span></div>';
+            html += '<div style="font-size:12px;color:#5f6b7a;margin:18px 0 8px;font-weight:600;">紧急联系人</div>';
+            if (!list.length) html += '<div style="text-align:center;color:#5f6b7a;font-size:13px;line-height:2;padding:16px;">还没有紧急联系人<br><span style="font-size:12px;">在下面添加一位家人或朋友，紧急时可一键模拟拨打。</span></div>';
             list.forEach(function (c) {
                 html += '<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #f0edea;border-radius:18px;padding:13px 14px;margin-bottom:8px;">'
-                    + '<div style="flex:1;"><div style="font-size:15px;font-weight:600;">' + esc(c.name) + '</div><div style="font-size:12px;color:#9a958f;">' + esc(c.number) + '</div></div>'
+                    + '<div style="flex:1;"><div style="font-size:15px;font-weight:600;">' + esc(c.name) + '</div><div style="font-size:12px;color:#5f6b7a;">' + esc(c.number) + '</div></div>'
                     + '<button data-em-call="' + esc(c.name) + '|' + esc(c.number) + '" style="padding:9px 16px;border-radius:999px;border:none;background:#34a853;color:#fff;font-size:14px;">模拟拨打</button>'
                     + '<button data-em-del="' + c.id + '" style="padding:9px 10px;border-radius:12px;border:1px solid #f3c8c8;background:#fff;color:#d33;font-size:13px;">删除</button></div>';
             });
-            html += '<div style="font-size:12px;color:#9a958f;margin:16px 0 8px;font-weight:600;">添加紧急联系人</div>'
-                + '<div style="display:flex;gap:8px;"><input id="gd-em-name" placeholder="姓名" style="flex:1;box-sizing:border-box;border:1px solid #e9e4df;border-radius:14px;padding:11px 13px;font-size:15px;">'
-                + '<input id="gd-em-num" placeholder="号码" style="width:130px;box-sizing:border-box;border:1px solid #e9e4df;border-radius:14px;padding:11px 13px;font-size:15px;">'
-                + '<button id="gd-em-add" style="padding:11px 16px;border-radius:16px;border:none;background:#33363b;color:#fff;font-size:14px;">添加</button></div>'
-                + '<div style="font-size:12px;color:#9a958f;margin:18px 0 8px;font-weight:600;">公共紧急号码（同样为机内模拟）</div>'
+            html += '<div style="font-size:12px;color:#5f6b7a;margin:16px 0 8px;font-weight:600;">添加紧急联系人</div>'
+                + '<div style="display:flex;gap:8px;"><input id="gd-em-name" placeholder="姓名" style="flex:1;box-sizing:border-box;border:1px solid #e9e4df;border-radius:12px;padding:11px 13px;font-size:15px;">'
+                + '<input id="gd-em-num" placeholder="号码" style="width:130px;box-sizing:border-box;border:1px solid #e9e4df;border-radius:12px;padding:11px 13px;font-size:15px;">'
+                + '<button id="gd-em-add" style="padding:11px 16px;border-radius:12px;border:none;background:#1e2748;color:#fff;font-size:14px;">添加</button></div>'
+                + '<div style="font-size:12px;color:#5f6b7a;margin:18px 0 8px;font-weight:600;">公共紧急号码（同样为机内模拟）</div>'
                 + '<div style="display:flex;gap:8px;">'
-                + '<button data-em-call="报警|110" style="flex:1;padding:13px 0;border-radius:16px;border:1px solid #ece7e2;background:#fff;font-size:15px;font-weight:600;">110 报警</button>'
-                + '<button data-em-call="急救|120" style="flex:1;padding:13px 0;border-radius:16px;border:1px solid #ece7e2;background:#fff;font-size:15px;font-weight:600;">120 急救</button>'
-                + '<button data-em-call="火警|119" style="flex:1;padding:13px 0;border-radius:16px;border:1px solid #ece7e2;background:#fff;font-size:15px;font-weight:600;">119 火警</button>'
+                + '<button data-em-call="报警|110" style="flex:1;padding:13px 0;border-radius:12px;border:1px solid #ece7e2;background:#fff;font-size:15px;font-weight:600;">110 报警</button>'
+                + '<button data-em-call="急救|120" style="flex:1;padding:13px 0;border-radius:12px;border:1px solid #ece7e2;background:#fff;font-size:15px;font-weight:600;">120 急救</button>'
+                + '<button data-em-call="火警|119" style="flex:1;padding:13px 0;border-radius:12px;border:1px solid #ece7e2;background:#fff;font-size:15px;font-weight:600;">119 火警</button>'
                 + '</div></div>';
             ov.innerHTML = html;
             var closeBtn = ov.querySelector('#gd-em-close');
@@ -1905,7 +2019,7 @@ ensureRoundFields();
 var phase = session.roundPhase || 'dm';
 var h = '';
 if (phase === 'dm') {
-h += '<div class="sc-glass"><div class="sc-glass-tag">🎬 DM 开场 · 第' + (session.round || 1) + '轮</div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeRoundDm(sc, scene, session.round || 1, getCharName())) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入 char 的行动</div></div>';
+h += '<div class="sc-glass"><div class="sc-glass-tag">🎬 DM 开场 · 第' + (session.round || 1) + '轮 <span style="display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid rgba(30,39,72,.35);border-radius:999px;font-size:10px;letter-spacing:1px;color:#1e2748;background:#fffdf8;">模板 DM</span></div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeRoundDm(sc, scene, session.round || 1, getCharName())) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入 char 的行动</div></div>';
 } else if (phase === 'char') {
 h += '<div class="sc-glass"><div class="sc-glass-tag">🎭 char 的行动</div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeCharAction(scene)) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入你的行动</div></div>';
 } else if (phase === 'summary') {
@@ -2091,7 +2205,7 @@ var SC_CSS = '<style>'
 + '.sc-field label{font-size:12px;color:#686a71;}'
 + '.sc-field input,.sc-field textarea{border:1px solid #e2e3e6;border-radius:10px;padding:9px 11px;background:#fff;color:#292a2e;width:100%;box-sizing:border-box;}'
 + '.sc-field textarea{min-height:74px;resize:vertical;line-height:1.6;}'
-+ '.sc-notice{margin:0 0 10px;padding:9px 12px;background:#fdf6ec;border:1px solid #f3e3c8;border-radius:12px;font-size:12.5px;line-height:1.6;color:#8a6d3b;}'
++ '.sc-notice{margin:0 0 10px;padding:9px 12px;background:#fffdf8;border:1px solid rgba(30,39,72,.28);border-radius:12px;font-size:12.5px;line-height:1.6;color:#1e2748;}'
 + '.sc-screen-title{color:#ffe9c4;text-align:center;padding:74px 18px 0;}'
 + '.sc-screen-title h2{margin:0 0 8px;font-size:22px;letter-spacing:2px;}'
 + '.sc-screen-title p{margin:0;font-size:13px;line-height:1.7;color:#e8cf9f;}'
@@ -2129,9 +2243,9 @@ var SC_CSS = '<style>'
  + '.gd-root[data-gd="script"] .sc-tab{flex:0 0 auto;padding:8px 12px;border-radius:999px;font-size:12px;}'
  + '.gd-root[data-gd="script"] .sc-wrap{padding:8px;border-radius:18px;background:#fff;box-shadow:0 5px 20px rgba(60,48,30,.08);}'
  + '.gd-root[data-gd="script"] .sc-lamprow{min-height:18px;margin-bottom:4px;}'
- + '.gd-root[data-gd="script"] .oa-home-machine{background:radial-gradient(ellipse at 50% 10%,rgba(160,112,57,.34),transparent 62%),linear-gradient(150deg,#211a18,#34261f 70%,#171311);box-shadow:0 5px 20px rgba(45,29,17,.24);}'
+ + '.gd-root[data-gd="script"] .oa-home-machine{background:#fbf9f4;border:1px solid rgba(30,39,72,.28);box-shadow:0 5px 20px rgba(30,39,72,.10);}'
  + '.gd-root[data-gd="script"] .oa-home-machine .sc-lamprow{justify-content:space-around;}'
- + '.gd-root[data-gd="script"] .oa-home-machine .sc-machine{background:linear-gradient(180deg,#76552d,#352719);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,226,165,.3);}'
+ + '.gd-root[data-gd="script"] .oa-home-machine .sc-machine{background:#fffdf8;border:1px solid rgba(30,39,72,.20);box-shadow:0 6px 18px rgba(30,39,72,.10),inset 0 1px 0 rgba(255,255,255,.6);}'
  + '.gd-root[data-gd="script"] .oa-home-machine .sc-screen{height:170px;min-height:0;border-width:4px;border-radius:13px;}'
  + '.gd-root[data-gd="script"] .oa-home-machine .sc-stage{height:170px;}'
  + '.gd-root[data-gd="script"] .sc-console,.gd-root[data-gd="script"] .sc-2dnote,.gd-root[data-gd="script"] .sc-3d-toggle{display:none!important;}'
@@ -2144,9 +2258,9 @@ var SC_CSS = '<style>'
  + '.oa-cast-actions{display:flex;flex-direction:column;gap:5px;}'
  + '.oa-cast-actions button{border:1px solid #e8dfd0;background:#faf8f3;color:#68563b;border-radius:10px;padding:6px 8px;font-size:11px;white-space:nowrap;}'
  + '.oa-reel-shelf{display:flex;gap:9px;overflow-x:auto;padding:8px 1px 7px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}'
- + '.oa-reel-card{flex:0 0 82px;scroll-snap-align:center;border:1px solid #d6c9b3;border-radius:10px;padding:5px 5px 7px;background:#2f291f;color:#f5ead3;cursor:pointer;position:relative;box-shadow:0 3px 8px rgba(40,30,20,.14);}'
- + '.oa-reel-card:before,.oa-reel-card:after{content:"●　●　●";display:block;color:#a99470;font-size:6px;letter-spacing:1px;white-space:nowrap;overflow:hidden;height:8px;line-height:8px;}'
- + '.oa-reel-card.on{outline:2px solid #c8a35c;outline-offset:1px;background:#42341f;}'
+ + '.oa-reel-card{flex:0 0 82px;scroll-snap-align:center;border:1px solid rgba(30,39,72,.25);border-radius:10px;padding:5px 5px 7px;background:#fffdf8;color:#1e2748;cursor:pointer;position:relative;box-shadow:0 3px 8px rgba(30,39,72,.10);}'
+ + '.oa-reel-card:before,.oa-reel-card:after{content:"●　●　●";display:block;color:#bfc8e0;font-size:6px;letter-spacing:1px;white-space:nowrap;overflow:hidden;height:8px;line-height:8px;}'
+ + '.oa-reel-card.on{outline:2px solid #1e2748;outline-offset:1px;background:#dce2f1;}'
  + '.oa-reel-art{height:57px;border-radius:5px;background:linear-gradient(145deg,#d9c7a6,#8c6d4c);display:flex;align-items:flex-end;justify-content:center;color:#fff;font-size:10px;font-weight:700;text-align:center;overflow:hidden;text-shadow:0 1px 4px #000;padding:4px;box-sizing:border-box;}'
  + '.oa-reel-label{font-size:10px;line-height:1.25;text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
  + '.oa-home-caption{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 4px;color:#7b6b52;font-size:11px;}'
@@ -2426,7 +2540,7 @@ if (opt.affection > 0) session.moments.push('在「' + scene.title + '」选择�
 if (opt.reply) { session.log.push({ who: 'char', text: opt.reply});}
 finishRoundSummary(sc, scene);
                 // [AG组] 接模型 · 剧本 DM：选项的剧本台词不变；配好并打开时，模型再补一句 DM 旁白（不改好感、不改结局）；失败则只记回落，剧本照常放映
-                try { if (window.PhoneModel && window.PhoneModel.dmLineForScript) window.PhoneModel.dmLineForScript({ title: sc.title, setting: sc.setting, scene: scene.title, choice: opt.text, reply: opt.reply, charName: charName }, function (line) { if (!session) return; if (line) { session.log.push({ who: 'narr', text: line }); try { persistSession(session); } catch (e) {} } try { if (typeof app !== 'undefined' && app._refresh) app._refresh(); } catch (e) {} }); } catch (e) {}
+                try { if (window.PhoneModel && window.PhoneModel.dmLineForScript) window.PhoneModel.dmLineForScript({ title: sc.title, setting: sc.setting, scene: scene.title, choice: opt.text, reply: opt.reply, charName: charName }, function (line) { if (!session) return; if (line) { session.log.push({ who: 'narr', text: line, via: 'model' }); /* B-P1-1：模型 DM 旁白记 via:'model'，与模板 DM 区分 */ try { persistSession(session); } catch (e) {} } try { if (typeof app !== 'undefined' && app._refresh) app._refresh(); } catch (e) {} }); } catch (e) {}
 persistSession(session);
 };
 var saveCurrent = function (finished) {
@@ -2522,7 +2636,7 @@ var stageInner = '<div class="sc-stage" style="background:' + (SCENE_BG[scene.bg
 + '<div class="sc-scene-tag">' + esc(scene.title) + ' · 第' + (session.round || 1) + '轮 · ' + (AE_PHASE_NAMES[phase] || '') + '</div>'
 + '<div class="sc-aff">♥ 好感 ' + session.affection + '</div>'
 + '<div class="sc-standee">' + (_oaSpriteSrc ? '<img class="oa-character-sprite" src="' + esc(_oaSpriteSrc) + '" alt="' + esc(charName) + '立绘">' : charSvg(look, session.affection)) + '</div>'
-+ '<div class="sc-dialog"><div class="sc-who">' + esc(whoLabel) + '</div>'
++ '<div class="sc-dialog"><div class="sc-who">' + esc(whoLabel) + (phase === 'dm' ? ' <span style="display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid rgba(30,39,72,.35);border-radius:999px;font-size:10px;letter-spacing:1px;color:#1e2748;background:#fffdf8;">模板 DM</span>' : '') + '</div>'
 + '<p class="sc-line">' + (cur? esc(cur.text): (atEnd && scene.choice? esc(scene.choice.prompt): '（本幕结束，转动转轮到下一幕）')) + '</p></div></div>';
 h += oaPlayCastLine();
 h += machineTop(stageInner);
@@ -2806,7 +2920,7 @@ try {
 try { var _oaStrip = win.querySelector('.sc-cast-strip'); if (_oaStrip) _oaStrip.addEventListener('scroll', function () { try { if (_oaStrip.scrollWidth <= _oaStrip.clientWidth + 4) return; if (_oaStrip._oaT) clearTimeout(_oaStrip._oaT); _oaStrip._oaT = setTimeout(function () { var cards = _oaStrip.querySelectorAll('.sc-cast-card[data-id]'); if (!cards.length) return; var mid = _oaStrip.scrollLeft + _oaStrip.clientWidth / 2; var best = null, bestD = 1e9; for (var i = 0; i < cards.length; i++) { var c = cards[i]; var cc = c.offsetLeft + c.offsetWidth / 2; var d = Math.abs(cc - mid); if (d < bestD) { bestD = d; best = c; } } if (!best) return; var bid = best.getAttribute('data-id'); var AW9h = oaAW(); var cur = ''; try { cur = AW9h.scriptCharId(); } catch (e) {} if (bid && bid !== cur) { try { AW9h.setScriptChar(bid); } catch (e) {} var all = _oaStrip.querySelectorAll('.sc-cast-card'); for (var j = 0; j < all.length; j++) all[j].classList.toggle('on', all[j] === best); var lab = win.querySelector('[data-oa-curcast]'); if (lab) lab.textContent = best.querySelector('.sc-cast-name').textContent; } }, 140); } catch (e) {} }, { passive: true }); } catch (e) {}
 try { oaEnsure3D(win); } catch (e) {}
 };
-var app = gdApp('script', '剧本', '胶片阅读机 · 支线恋爱', '本地放映：胶片只存在这台手机里。演完选「保存记忆」才会写进归巢。', renderBody, bindBody);
+var app = gdApp('script', '剧本', '胶片阅读机 · 支线恋爱', '演完选「保存记忆」才会写进归巢。', renderBody, bindBody);
 GD.scriptApp = app;
 GD.scriptCore = { BUILTINS: SCRIPT_BUILTINS, CUSTOM_KEY: CUSTOM_KEY, SAVED_KEY: SAVED_KEY, SESSION_KEY: SESSION_KEY, GC_KEY: GC_KEY,
 allScripts: allScripts, findScript: findScript, computeEnding: computeEnding, validateScript: validateScript,
@@ -3153,10 +3267,12 @@ function celebrate(h, milestone, opts) {
 /* ── 小组件数据接口 ──
    W/AC 组的小组件系统在本文件里尚未合入：没有组件仓库 /
    widgetRegistry，只有 desktop_widgets_v2 的硬编码渲染
-   （clock/token/diary/ahui*）。所以这里不硬接桌面，只提供
-   同一份数据的只读接口 + 可直接放进渲染映射的 HTML 字符串，
-   等 W/AC 合入后把 renderWidgetHTML('todos'|'habits') 的返回值
-   挂进它的组件仓库即可；习惯页底部也有这两个组件的入口。 */
+   （clock/token/diary/ahui*）。F2 于 2026-11-27 查过 js/13 ACWidgets：
+   它的商店 CATALOG 只有 heatmap/focus/pet/game/read/quote 六个 id，
+   没有 todos/habits，addWidget 会直接拒绝未知 id，所以这里不硬接桌面，
+   习惯设置页也不再放静态预览与说明按钮（见 renderSettings，只留一行
+   “预览图 · 尚未上线”的诚实说明）。下面只保留同一份数据的只读接口 +
+   可直接放进渲染映射的 HTML 字符串，等 W/AC 提供对应组件 id 后挂接。 */
 function widgetData(refDate) {
     refDate = refDate || todayStr();
     var d = load();
@@ -3187,7 +3303,7 @@ var ui = {
     page: 'habits', view: 'today', detailId: null, monthSel: null, /* GROUP-FIX7：日程页已删，默认即习惯页 */
     weekOffset: 0, monthCursor: null, showForm: false,
     formEmoji: '🌱', formFreq: 'daily', formDays: [1, 2, 3, 4, 5],
-    newName: '', dragId: null, qnTimer: null
+    newName: '', dragId: null, qnTimer: null, celebrateToast: ''
 };
 function tabBar(page) { /* GROUP-FIX7：日程 app 已删，只剩习惯一个标签 */
     return '<div class="gd-tabbar" style="margin:12px 16px 0;">'
@@ -3214,6 +3330,8 @@ function renderToday(d) {
         + '<div style="flex:1;"><div style="font-size:15px;font-weight:600;">今日完成率 ' + st.done + ' / ' + st.total + '</div>'
         + '<div style="font-size:12px;color:#9a958f;margin-top:4px;">最长连续打卡 ' + st.longest + ' 天 · ' + today + ' ' + WEEK_CN[new Date().getDay()] + '</div>'
         + '<div style="font-size:12px;color:#9a958f;margin-top:2px;">点圆圈打卡，习惯只在计划日出现。</div></div></div>';
+    /* HB-U（F2）：里程碑报喜用应用内卡片，不再弹原生 alert；8 秒后自动收起，也可点“知道了”关闭。 */
+    if (ui.celebrateToast) html += '<div class="gd-card" style="background:#fffdf8;border:1px solid rgba(30,39,72,.25);"><div style="font-size:13px;line-height:1.7;">里程碑 · ' + esc(ui.celebrateToast) + '</div><div style="text-align:right;margin-top:6px;"><button class="gd-btn-ghost" data-hb-act="toast-close" style="padding:6px 12px;font-size:12px;">知道了</button></div></div>';
     if (!hs.length) {
         html += '<div class="gd-empty">还没有习惯<br><span style="font-size:12px;">点下面「新建习惯」，从每天一件小事开始。</span></div>';
     }
@@ -3390,7 +3508,7 @@ function renderNewForm(d) {
 function renderSettings(d) {
     var s = d.settings;
     var modeBtns = Object.keys(MODES).map(function (k) {
-        return '<button class="gd-btn-ghost" data-hb-act="mode" data-mode="' + k + '" style="flex:1;' + (s.mode === k ? 'background:#33363b;color:#fff;border-color:#33363b;' : '') + '">' + MODES[k] + '模式</button>';
+        return '<button class="gd-btn-ghost" data-hb-act="mode" data-mode="' + k + '" style="flex:1;' + (s.mode === k ? 'background:#1e2748;color:#fff;border-color:#1e2748;' : '') + '">' + MODES[k] + '模式</button>';
     }).join('');
     return '<div class="gd-label">模式与话痨程度</div>'
         + '<div class="gd-card"><div style="display:flex;gap:8px;">' + modeBtns + '</div>'
@@ -3400,10 +3518,7 @@ function renderSettings(d) {
         + '<span id="hb-chatty-val" style="font-size:13px;width:34px;text-align:right;">' + s.chattiness + '</span></div>'
         + '<div style="font-size:12px;color:#9a958f;margin-top:4px;">0 安静、100 话痨：报喜的话会变长变短。</div></div>'
         + '<div class="gd-label">桌面小组件 · 今日待办 / 习惯打卡</div>'
-        + '<div class="gd-card"><div style="font-size:13px;line-height:1.7;">桌面小组件系统（W/AC 组）尚未合入本文件，这里先把数据接口准备好：两个组件读同一份 phone_habits_v1 数据。</div>'
-        + '<div style="margin-top:10px;">' + renderWidgetHTML('todos') + '</div>'
-        + '<div style="margin-top:10px;">' + renderWidgetHTML('habits') + '</div>'
-        + '<button class="gd-btn-ghost" data-hb-act="widget-info" style="width:100%;margin-top:10px;">小组件数据接口说明</button></div>';
+        + '<div class="gd-card"><div style="font-size:13px;line-height:1.7;">桌面小组件尚未上线（预览图 · 尚未上线）：查过 js/13 ACWidgets 的组件商店，里面没有待办 / 习惯组件，addWidget 也只接受商店里的 id，所以这里不放静态预览、不弹说明。数据接口已就绪：HabitCore.widgetData() 读今日待办与今日习惯打卡，renderWidgetHTML("todos" / "habits") 返回可直接挂进组件仓库的 HTML，等 W/AC 组提供对应组件 id 后再挂接。</div></div>';
 }
 function renderPage() {
     var d = load();
@@ -3437,9 +3552,11 @@ function bind(win, app) {
             if (act === 'view') { ui.view = el.getAttribute('data-view') || 'today'; ui.detailId = null; refresh(); }
             else if (act === 'toggle') {
                 var r = toggleCheck(id, el.getAttribute('data-date'));
-                if (r && r.celebrates) r.celebrates.forEach(function (c) { if (c.sent) { try { alert(c.text); } catch (e) {} } });
+                if (r && r.celebrates) r.celebrates.forEach(function (c) { if (c.sent) ui.celebrateToast = c.text; });
                 refresh();
+                if (ui.celebrateToast) setTimeout(function () { ui.celebrateToast = ''; try { app._refresh(); } catch (e) {} }, 8000);
             }
+            else if (act === 'toast-close') { ui.celebrateToast = ''; refresh(); }
             else if (act === 'week-cell') { toggleCheck(id, el.getAttribute('data-date')); refresh(); }
             else if (act === 'month-day') { ui.monthSel = el.getAttribute('data-date'); refresh(); }
             else if (act === 'month-prev') { monthShift(-1); refresh(); }
@@ -3480,9 +3597,6 @@ function bind(win, app) {
             else if (act === 'todo-toggle') { toggleTodo(id); refresh(); }
             else if (act === 'todo-del') { delTodo(id); refresh(); }
             else if (act === 'mode') { setMode(el.getAttribute('data-mode')); refresh(); }
-            else if (act === 'widget-info') {
-                try { alert('小组件数据接口已就绪：HabitCore.widgetData() 读今日待办与今日习惯打卡，renderWidgetHTML("todos" / "habits") 返回可直接挂进组件仓库的 HTML。桌面小组件系统（W/AC 组）尚未合入本文件，等它合入后挂接，不硬改桌面渲染。'); } catch (e) {}
-            }
         });
     });
     win.querySelectorAll('[data-hb-drag]').forEach(function (row) {
