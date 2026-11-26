@@ -1,36 +1,13 @@
-/* Xiaoweilai Phone · Siamese pixel icon pack
- * Loaded after the existing icon interaction styles.
- * CSS-only treatment; no image URL or external asset.
- */
-
-/* The selector is intentionally scoped to generated Siamese SVGs so uploaded
-   custom images and user-selected color icons retain their existing behavior. */
-#sys-shell .sys-app-icon:has(.xwl-siamese-svg){
-  image-rendering:pixelated;
-  filter:none !important;
-  border:0 !important;
-  box-shadow:none !important;
-  background:transparent !important;
+/* 默认图标：透明暖白底、细线稿；不覆盖用户自定义图像。 */
+#sys-shell .sys-app-icon:has(.xwl-handdrawn-svg) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px rgba(69, 100, 105, .10) !important;
+  filter: none !important;
 }
-
-#sys-shell .sys-app-icon:has(.xwl-siamese-svg) .xwl-siamese-svg{
-  display:block;
-  width:100%;
-  height:100%;
-  image-rendering:pixelated;
-  shape-rendering:crispEdges;
-  overflow:visible;
+#sys-shell .sys-app-icon .xwl-handdrawn-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
-
-#sys-shell .sys-app-icon:has(.xwl-siamese-svg) .xwl-siamese-svg rect,
-#sys-shell .sys-app-icon:has(.xwl-siamese-svg) .xwl-siamese-svg path,
-#sys-shell .sys-app-icon:has(.xwl-siamese-svg) .xwl-siamese-svg circle{
-  vector-effect:non-scaling-stroke;
-}
-
-/* Keep the pack legible during the existing iOS-style edit wiggle and drag. */
-#sys-shell.is-edit-mode .sys-app-icon:has(.xwl-siamese-svg){
-  image-rendering:pixelated;
-}
-
-/* User-uploaded images are deliberately not matched by the selectors above. */

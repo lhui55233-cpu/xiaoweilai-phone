@@ -64,7 +64,7 @@
     launcher.type = 'button';
     launcher.setAttribute('aria-controls', 'xwl-ocean-island-panel');
     launcher.setAttribute('aria-expanded', 'false');
-    launcher.innerHTML = '<span class="xwl-ocean-island__launcher-mark" aria-hidden="true">✦</span><span>猫咪小岛</span>';
+    launcher.innerHTML = '<span class="xwl-ocean-island__launcher-mark" aria-hidden="true">✦</span><span class="xwl-ocean-island__launcher-label sys-app-name">猫咪小岛</span>';
 
     var panel = document.createElement('section');
     panel.id = 'xwl-ocean-island-panel';
@@ -78,9 +78,15 @@
         '<p class="xwl-ocean-island__status" aria-live="polite">海风把小岛吹得亮晶晶。</p>' +
       '</div>';
     var grid = document.getElementById('sys-grid-base');
-    if (grid && grid.parentNode) grid.parentNode.insertBefore(launcher, grid);
+    if (grid) grid.appendChild(launcher);
     else document.body.appendChild(launcher);
     document.body.appendChild(panel);
+    // 桌面编辑会重建网格；保留原按钮和事件，避免入口消失。
+    if (grid && window.MutationObserver) {
+      new MutationObserver(function () {
+        if (!grid.contains(launcher)) grid.appendChild(launcher);
+      }).observe(grid, { childList: true });
+    }
 
     var status = panel.querySelector('.xwl-ocean-island__status');
     var lastFocus = null;

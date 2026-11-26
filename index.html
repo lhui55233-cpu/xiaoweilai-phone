@@ -194,10 +194,12 @@
     
     <div id="sys-modal-container" class="sys-layer"></div>
 <!-- GROUP-INTRO · 开场动画节点（接入包 ②）：放手机屏幕容器内部最末尾，不要放 body 下 -->
-<div class="intro" id="xwIntro" role="img" aria-label="love。因为爱，所以相遇。FUTURE。" style="display:none">
+<div class="intro" id="xwIntro" role="img" aria-label="love。因为爱，所以相遇。FUTURE。">
   <div class="scene" id="xwScene"></div>
 </div>
 </div>
+<!-- 启动动画在核心脚本前执行，避免慢加载时先闪出锁屏/桌面。 -->
+<script src="js/48-group-intro.js" id="intro-script" onerror="document.getElementById('xwIntro').style.display='none'"></script>
 
 <link rel="stylesheet" href="css/04-novel-3d-shelf.css">
 <link rel="stylesheet" href="css/05-group-aq-icons.css" id="guichao-ui-overlay">
@@ -312,7 +314,6 @@
 <script src="js/46-group-bq.js" id="bq-group-script"></script>
 <link rel="stylesheet" href="css/24-group-bs.css" id="bs-group-style">
 <script src="js/47-group-bs.js" id="bs-group-script"></script>
-<script src="js/48-group-intro.js" id="intro-script"></script>
 
 <link rel="stylesheet" href="css/25-group-bm-2.css" id="bm-group-style">
 <script src="js/49-group-bm.js" id="bm-group-script"></script>
@@ -346,6 +347,7 @@
 <link rel="stylesheet" href="css/33-siamese-icons.css">
 <link rel="stylesheet" href="css/34-ocean-island.css">
 <link rel="stylesheet" href="css/35-ocean-desktop.css">
+<link rel="stylesheet" href="css/36-minimal-desktop.css">
 <script src="js/61-siamese-icons.js"></script>
 <script src="js/62-ocean-island.js"></script>
 </body>

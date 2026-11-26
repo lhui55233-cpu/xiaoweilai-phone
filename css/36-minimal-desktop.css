@@ -1,0 +1,55 @@
+/* 小组件只在桌面隐藏，不删除用户配置与数据。 */
+#sys-desktop-layer #sys-widget-row,
+#sys-desktop-layer #ac-widget-zone,
+#sys-desktop-layer #ac-dock-bar,
+#sys-desktop-layer #groupr-lantern,
+#sys-desktop-layer #af-search,
+#sys-desktop-layer #desk-pet,
+#sys-desktop-layer #gw-desk,
+#sys-desktop-layer .gw-pet,
+#sys-desktop-layer .gw-widget-row,
+#sys-desktop-layer .sys-widget-host,
+#sys-desktop-layer .ac-widget { display: none !important; }
+#sys-shell #sys-desktop-layer .sys-desktop-page { padding-top: 16px; }
+#sys-shell #sys-desktop-layer .sys-app-grid {
+  grid-auto-rows: auto;
+  row-gap: 23px;
+  align-content: start;
+}
+/* 把小岛入口变成普通图标，不以小组件卡片占据桌面。 */
+#sys-shell #xwl-ocean-island-launcher {
+  position: static;
+  width: var(--sys-icon-size, 64px);
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #40565a;
+  font: inherit;
+}
+#sys-shell #xwl-ocean-island-launcher .xwl-ocean-island__launcher-mark {
+  width: var(--sys-icon-size, 64px);
+  height: var(--sys-icon-size, 64px);
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(91,112,116,.48);
+  border-radius: 25%;
+  background: rgba(253,254,252,.84);
+  box-shadow: 0 4px 14px rgba(69,100,105,.10);
+  color: #40565a;
+  font-size: 28px;
+  font-weight: 400;
+}
+#sys-shell #xwl-ocean-island-launcher .xwl-ocean-island__launcher-label {
+  font-size: 11px;
+  letter-spacing: .4px;
+  white-space: nowrap;
+}

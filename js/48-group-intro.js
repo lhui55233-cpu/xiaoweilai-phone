@@ -459,9 +459,9 @@ window.XWIntro={play,skip};
       force: !!opts.force,
       onDone: function (reason) {
         try { console.log('[GroupIntro] done:', reason); } catch (e) {}
-        enterLockscreen();
+        if (!opts.preserveScreen) enterLockscreen();
       },
-      onEvent: function (name) { if (name === 'exit') lockFadeIn(); }
+      onEvent: function (name) { if (name === 'exit' && !opts.preserveScreen) lockFadeIn(); }
     });
   }
   function skip() {
@@ -469,7 +469,11 @@ window.XWIntro={play,skip};
   }
   function boot() {
     var cfg = load();
-    if (!cfg.enabled) return false;
+    if (!cfg.enabled) {
+      var intro = document.getElementById('xwIntro');
+      if (intro) intro.style.display = 'none';
+      return false;
+    }
     play({});
     return true;
   }
@@ -506,4 +510,7 @@ window.XWIntro={play,skip};
 
   window.GroupIntro = { KEY: KEY, load: load, save: save, play: play, skip: skip, boot: boot, enterLockscreen: enterLockscreen, lockFadeIn: lockFadeIn };
   boot();
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted && load().enabled) play({ force: true, preserveScreen: true });
+  });
 })();
