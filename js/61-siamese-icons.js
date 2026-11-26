@@ -20,7 +20,7 @@
     album: '<path d="M7 7h18v18H7zM9.2 21l5.1-5 3.7 3.5 2.5-2.4 2.7 3.9"/><circle cx="19.7" cy="12.2" r="1.6"/>',
     settings: '<path d="M16 6.5v2.2m0 14.6v2.2M6.5 16h2.2m14.6 0h2.2M9.3 9.3l1.6 1.6m10.2 10.2 1.6 1.6m0-13.4-1.6 1.6M10.9 21.1l-1.6 1.6"/><circle cx="16" cy="16" r="6.2"/><circle cx="16" cy="16" r="2.5"/>',
     music: '<path d="M20.3 21.1V8.3l-8 1.9v12.2M20.3 12l-8 1.9"/><ellipse cx="9.9" cy="22.2" rx="2.5" ry="1.7"/><ellipse cx="17.9" cy="21" rx="2.5" ry="1.7"/>',
-    catos: '<path d="M8.4 13 7.9 7.5l4.6 2.1a11 11 0 0 1 7 0l4.6-2.1-.5 5.5a9.1 9.1 0 0 1-7.6 12 9.1 9.1 0 0 1-7.6-12Z"/><path d="M12.1 16.1h.1m7.6 0h.1M14.4 19.2c1.1 1 2.1 1 3.2 0M6 18h3m14 0h3"/>'
+    catos: '<path d="M7.7 14.1 7.3 8c0-.5.3-.7.8-.5l4.2 2.4a13 13 0 0 1 7.4 0l4.2-2.4c.5-.2.8 0 .8.5l-.4 6.1a7.7 7.7 0 0 1 .4 7.1c-1.4 2.6-4.5 4-8.7 4s-7.3-1.4-8.7-4a7.7 7.7 0 0 1 .4-7.1Z"/><path d="m9.5 10.3 1.8 1.1m11.2-1.1-1.8 1.1M12.3 16.3h.1m7.2 0h.1"/><path d="M15.3 18.2h1.4l-.7.8z" fill="#40565a" stroke-width=".8"/><path d="M16 19v.8c-.5 1.2-1.6 1.4-2.5.7m2.5-.7c.5 1.2 1.6 1.4 2.5.7M8.5 18.5l-2.2-.4m2.4 2.3-2.1.3m16.9-2.2 2.2-.4m-2.4 2.3 2.1.3" stroke-width="1.05"/>'
   };
   function icon(id) {
     return '<svg class="xwl-handdrawn-svg" viewBox="0 0 64 64" aria-hidden="true"><rect x="1.1" y="1.1" width="61.8" height="61.8" rx="16" fill="rgba(253,254,252,.84)" stroke="rgba(91,112,116,.48)" stroke-width="1.2"/><g transform="translate(7 7) scale(1.56)" fill="none" stroke="#40565a" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round">' + (PATHS[id] || '<path d="M16 7l2.4 6.4L25 16l-6.6 2.4L16 25l-2.4-6.6L7 16l6.6-2.6Z"/>') + '</g></svg>';
