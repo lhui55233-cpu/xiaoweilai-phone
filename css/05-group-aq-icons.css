@@ -135,14 +135,7 @@
    导致锁屏不可读。只把密码框底色向归巢中性灰靠拢。 */
 .sys-passcode-box{ background:rgba(37,38,42,.42) !important; }
 
-/* ── 7. 开屏 ── */
-#sys-splash-screen{ background-color:#ffffff !important; }
-#sys-splash-screen .sys-splash-logo{ color:#34363b !important; }
-#sys-splash-screen .sys-splash-title{ color:#25262a !important; }
-#sys-splash-screen .sys-splash-subtitle{ color:#85868d !important; }
-#sys-splash-screen::after{ background:rgba(37,38,42,.25) !important; }
-
-/* ── 8. 应用返回按钮 ── */
+/* ── 7. 应用返回按钮 ── */
 .sys-app-backbtn{
   background:rgba(255,255,255,.92) !important;
   color:#34363b !important;
@@ -151,7 +144,7 @@
 }
 .sys-app-backbtn:active{ background:#f7f7f8 !important; }
 
-/* ── 9. 应用窗口通用底色 ── */
+/* ── 8. 应用窗口通用底色 ── */
 .sys-app-window{
   background-color:#ffffff !important;
   color:#25262a;
@@ -160,7 +153,7 @@
 /* 应用内通用文字按钮：只统一字色与字体，不动背景/圆角（圆形图标按钮等不受影响） */
 .sys-app-window button{ font-family:inherit; color:#33353a; }
 
-/* ── 10. 应用内输入框 ── */
+/* ── 9. 应用内输入框 ── */
 .sys-app-window input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .sys-app-window textarea,
 .sys-app-window select{
@@ -176,7 +169,7 @@
   border-color:#b7b9bf !important; outline:none !important;
 }
 
-/* ── 11. 已知主/次按钮 ──
+/* ── 10. 已知主/次按钮 ──
    微信原生主按钮（绿）→ 归巢主按钮深灰底白字；危险按钮保持白底红字。 */
 .sys-app-window .wx-native-btn{
   background:#292b30 !important; color:#ffffff !important;
@@ -197,7 +190,7 @@
 }
 .sys-app-window .ck-btn{ border-radius:9px !important; }
 
-/* ── 12. 微信：页头 / 列表行 / 单元格 / 底部栏 ── */
+/* ── 11. 微信：页头 / 列表行 / 单元格 / 底部栏 ── */
 .sys-app-window .wx-header{
   background:#ffffff !important; border-bottom:1px solid #ececef !important;
 }
@@ -240,7 +233,7 @@
 }
 .sys-app-window .wx-drawer-item:hover{ background:#f7f7f8 !important; }
 
-/* ── 13. 设置类应用（st-）：分组与行 ── */
+/* ── 12. 设置类应用（st-）：分组与行 ── */
 .sys-app-window .st-group{
   background:#ffffff !important; border:1px solid #ececef !important;
   border-radius:12px !important;
@@ -249,7 +242,7 @@
 .sys-app-window .st-row:active{ background:#f7f7f8 !important; }
 .sys-app-window .st-foot{ color:#85868d !important; }
 
-/* ── 14. 美化助手（b-）：子页面与页头 ── */
+/* ── 13. 美化助手（b-）：子页面与页头 ── */
 .sys-app-window .b-page-view,
 .sys-app-window .b-sub-content,
 .sys-app-window .b-sub-view{ background:#ffffff !important; }
@@ -263,7 +256,7 @@
   color:#25262a !important; background:#f1f1f2 !important;
 }
 
-/* ── 15. 通用卡片 ──
+/* ── 14. 通用卡片 ──
    排除项：封面（cover）、主题（theme）、风格预览（style）、标题（title），
    这些元素的背景色/背景图是内容本身，不能抹白。 */
 .sys-app-window [class*="card"]:not([class*="cover"]):not([class*="theme"]):not([class*="style"]):not([class*="title"]){
@@ -273,7 +266,7 @@
   box-shadow:0 2px 10px rgba(37,38,42,.06) !important;
 }
 
-/* ── 16. 弹窗 / 遮罩 ── */
+/* ── 15. 弹窗 / 遮罩 ── */
 .sys-crash-dialog{
   background:#ffffff !important; color:#25262a !important;
   border:1px solid #e5e5e8 !important; border-radius:14px !important;
@@ -299,7 +292,7 @@
   box-shadow:0 20px 60px rgba(0,0,0,.12) !important;
 }
 
-/* ── 17. 空态 ──
+/* ── 16. 空态 ──
    颜色不用 !important：带内联红色（如生成失败提示）时保留原色警示。 */
 .sys-app-window [class*="empty"]{
   border:1px dashed #dedfe2 !important;
@@ -309,7 +302,7 @@
   padding:24px 16px !important; text-align:center;
 }
 
-/* ── 18. 徽章 / 标签（胶囊）──
+/* ── 17. 徽章 / 标签（胶囊）──
    微信未读红点 .wx-badge 是语义色，保持原样。 */
 .sys-app-window [class*="badge"]:not(.wx-badge),
 .sys-app-window [class*="tag"]:not([class*="stage"]){
@@ -319,7 +312,7 @@
   color:#85868d !important;
 }
 
-/* ── 19. 小说 3D 书架（上一轮新功能，只微调配色，不碰结构与 3D 逻辑） ──
+/* ── 18. 小说 3D 书架（上一轮新功能，只微调配色，不碰结构与 3D 逻辑） ──
    书脊/封面配色全部保留；只改说明文字与翻页箭头向归巢靠拢，
    地面阴影由墨绿改为中性灰。 */
 .sys-app-window[data-app-sandbox="novel"] #novel3d-cap-title{ color:#25262a !important; }
