@@ -33767,7 +33767,6 @@ const SystemReset = (() => {
         'phone_lock_passcode',         // [AJ] 旧锁屏密码键
         'phone_lock_disabled',         // [AJ] 旧锁屏开关
         'phone_lock_fail_v1',          // [AJ] 锁屏输错计数
-        'phone_onboarded_v1',          // [AJ] 首次设置标记
         'phone_char_named_v1',         // [AJ] char 是否已命名
     ];
 
