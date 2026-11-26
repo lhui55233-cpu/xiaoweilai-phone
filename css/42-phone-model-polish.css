@@ -253,3 +253,171 @@
 @media (prefers-reduced-motion: reduce) {
   #fb-api-switcher .fb-model-sheet { animation: none; }
 }
+
+/* WeChat API 编辑器：原生 select 的手机优先触屏交互层 */
+#wx-page-api-edit .wx-model-picker-field {
+  position: relative;
+  min-height: 44px;
+}
+#wx-page-api-edit .wx-model-picker-field > select#wx-edit-api-model {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+#wx-page-api-edit .wx-model-picker-trigger {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e4e7eb;
+  border-radius: 11px;
+  background: #fafbfc;
+  color: #202124;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+#wx-page-api-edit .wx-model-picker-trigger:hover,
+#wx-page-api-edit .wx-model-picker-trigger:focus-visible {
+  outline: none;
+  border-color: #9cc5f4;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, .10);
+}
+#wx-page-api-edit .wx-model-picker-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#wx-page-api-edit .wx-model-picker-chevron {
+  flex: 0 0 auto;
+  color: #77808a;
+  font-size: 19px;
+  line-height: 1;
+  transform: translateY(-2px);
+}
+#wx-api-model-picker {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  background: rgba(18, 24, 31, .38) !important;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+#wx-api-model-picker .wx-model-picker-sheet {
+  width: min(100%, 440px);
+}
+#wx-api-model-picker .wx-model-picker-option {
+  appearance: none;
+  font: inherit;
+}
+#wx-api-model-picker .wx-model-picker-option[aria-selected="true"] {
+  color: #147a5a;
+  font-weight: 600;
+  background: #f5faf8;
+}
+#wx-api-model-picker .wx-model-picker-check {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: #178f68;
+  font-size: 17px;
+  line-height: 20px;
+  text-align: center;
+}
+#wx-api-model-picker .wx-model-picker-empty {
+  padding: 22px 12px;
+  color: #777d85;
+  font-size: 14px;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  #wx-api-model-picker .wx-model-picker-sheet { animation: none; }
+}
+
+/* 独立 WeChat 面板复用上方 fb sheet 的基础布局 */
+#wx-api-model-picker .wx-model-picker-sheet {
+  max-height: min(76vh, 620px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 9px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: #f7f8fa;
+  box-shadow: 0 -8px 36px rgba(0, 0, 0, .16);
+  animation: fbModelSheetIn .2s ease-out both;
+}
+#wx-api-model-picker .fb-sheet-handle {
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 12px;
+  border-radius: 99px;
+  background: #d5d9de;
+}
+#wx-api-model-picker .fb-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0 14px;
+}
+#wx-api-model-picker .fb-sheet-title { color: #202124; font-size: 17px; font-weight: 650; }
+#wx-api-model-picker .fb-sheet-current { margin-top: 3px; color: #777d85; font-size: 12px; }
+#wx-api-model-picker .fb-sheet-close {
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 11px;
+  background: #eceff2;
+  color: #4d5966;
+  font-size: 13px;
+  cursor: pointer;
+}
+#wx-api-model-picker .fb-model-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  background: #fff;
+  overscroll-behavior: contain;
+}
+#wx-api-model-picker .fb-model-option {
+  width: 100%;
+  min-height: 51px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid #f0f1f3;
+  background: transparent;
+  color: #282d33;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+#wx-api-model-picker .fb-model-option:last-child { border-bottom: 0; }
+#wx-api-model-picker .fb-model-option:active { background: #f4f7f9; }
+#wx-api-model-picker .fb-model-option:focus-visible { outline: 2px solid #178f68; outline-offset: -2px; border-radius: 10px; }

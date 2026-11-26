@@ -32052,12 +32052,9 @@ var Voice = {
   },
   stop: function () { try { if ('speechSynthesis' in window && window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} }
 };
-function linesFor(kind, reason) {
-  var short = String(reason || '').replace(/^[^：]*：/, '').slice(0, 24);
-  if (kind === 'promise') return ['喂，是我。之前答应你的「' + short + '」快到时间了，我怕你忘了，打来提醒你一下。', '你还记得吧？别拖太久，我等你消息。'];
-  if (kind === 'schedule') return ['喂，是我。约好的「' + short + '」快到了，我已经在路上了。', '你出门了吗？路上慢点，我等你。'];
-  if (kind === 'undecided') return ['喂，是我。之前说的「' + short + '」还没定下来，我想了想还是打来问问你。', '你现在怎么想？我们商量一下。'];
-  return ['喂，是我。就是想你了，打来听听你的声音。', '你在干嘛呢？有没有想我？'];
+function linesFor() {
+  // 来电统一使用中性接通对白，不复述任何触发原因。
+  return ['喂，听得到吗？', '嗯，我在。'];
 }
 function showIncoming(o) {
   o = o || {};
@@ -32068,13 +32065,12 @@ function showIncoming(o) {
   var reason = o.reason || '想你了，打来看看你在干嘛';
   var kind = o.kind || 'checkin';
   callCur = { phase: 'ringing', kind: kind, name: name, reason: reason, startedAt: Date.now(), ringN: 0 };
-  try { if (window.DynamicIsland) window.DynamicIsland.showActivity({ type: 'call', source: 'ao', name: name, phase: 'ringing', startedAt: Date.now(), reason: reason }); } catch (e) {}
+  try { if (window.DynamicIsland) window.DynamicIsland.showActivity({ type: 'call', source: 'ao', name: name, phase: 'ringing', startedAt: Date.now() }); } catch (e) {}
   var ov = document.createElement('div');
   ov.id = 'ao-incoming'; ov.className = 'ao-incoming';
   ov.innerHTML = '<div class="ao-inc-card">'
     + '<div class="ao-inc-av ao-ringing" id="ao-inc-av">' + esc((name || '?')[0]) + '</div>'
     + '<div class="ao-inc-name">' + esc(name) + '</div>'
-    + '<div class="ao-inc-reason">📞 ' + esc(reason) + '</div>'
     + '<div class="ao-inc-note">模拟来电 · 不会真的拨出 · 响铃一阵一阵的</div>'
     + '<div class="ao-inc-btns"><button type="button" class="ao-inc-decline" id="ao-inc-decline">挂断</button>'
     + '<button type="button" class="ao-inc-answer" id="ao-inc-answer">接听</button></div>'
@@ -32122,13 +32118,12 @@ function showInCall() {
   ov.innerHTML = '<div class="ao-inc-card">'
     + '<div class="ao-inc-av">' + esc((c.name || '?')[0]) + '</div>'
     + '<div class="ao-inc-name">' + esc(c.name) + '</div>'
-    + '<div class="ao-inc-reason">' + esc(c.reason) + '</div>'
     + '<div class="ao-call-timer" id="ao-call-timer">0秒</div>'
     + '<div class="ao-call-line" id="ao-call-line">……</div>'
     + '<div class="ao-call-mode" id="ao-call-mode" style="font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;">通话模式：模板对话（未接模型）</div>'
     + '<div class="ao-call-note">模拟通话 · 对方是机内模拟 · 语音层与对话层分离：打断只停语音，不丢台词</div>'
     + '<div class="ao-call-btns"><button type="button" class="ao-call-interrupt" id="ao-call-interrupt">打断</button>'
-    + '<button type="button" class="ao-call-speak" id="ao-call-speak">🎙 说话</button>'
+    + '<button type="button" class="ao-call-speak" id="ao-call-speak">说话</button>'
     + '<button type="button" class="ao-call-hangup" id="ao-call-hangup">挂断</button></div>'
     + '<div class="ao-call-grace" id="ao-call-grace" style="display:none;">说完再见，多留 <span id="ao-call-grace-n">18</span> 秒…<button type="button" id="ao-call-cancel-grace">取消挂断</button></div>'
     + '</div>';
@@ -32165,9 +32160,7 @@ function tryModelExtraLine() {
   try {
     if (!window.PhoneModel || !PhoneModel.isEnabledFor || !PhoneModel.isEnabledFor('chat') || !PhoneModel.isConfigured || !PhoneModel.isConfigured()) return;
     if (!PhoneModel.chatComplete) return;
-    var _bkMsgs = [{ role: 'user', content: '（电话里，' + c.reason + '）用一句话自然地接话，不超过 30 字。' }];
-    try { if (!c.wbBlock && window.WorldBook && window.WorldBook.first) { var _bk2 = window.WorldBook.first('call', c.name, c.reason); c.wbBlock = _bk2.block || ''; c.wbTitles = (_bk2.titles || []).slice(); } } catch (e) {}
-    if (c.wbBlock) _bkMsgs.unshift({ role: 'system', content: c.wbBlock });
+    var _bkMsgs = [{ role: 'user', content: '（电话里）请只用一句简短、中性的问候自然接话；不要说“想你”或其他来电理由，也不要提及提醒、约定或待办。' }];
     var p = PhoneModel.chatComplete(_bkMsgs, { maxTokens: 60 });
     if (!p || !p.then) return;
     var done = false;
@@ -32185,13 +32178,12 @@ function tryModelExtraLine() {
 function answerCall() {
   var c = callCur;
   if (!c || c.phase !== 'ringing') return;
-  // GROUP-BK: 接听前先查世界书（电话语音回答先查再输出；模板台词不动，注入记在通话上，模型加线时拼进提示词）。
-  try { if (window.WorldBook && window.WorldBook.first) { var _bk = window.WorldBook.first('call', c.name, c.reason); c.wbBlock = _bk.block || ''; c.wbTitles = (_bk.titles || []).slice(); } } catch (e) {}
+  // 中性通话不查找或注入来电原因相关的世界书内容。
   stopRingTimers();
   clearCallPrompts();
   c.phase = 'talking';
   c.startedAt = Date.now();
-  try { if (window.DynamicIsland) window.DynamicIsland.showActivity({ type: 'call', source: 'ao', name: c.name, phase: 'talking', startedAt: c.startedAt, reason: c.reason }); } catch (e) {}
+  try { if (window.DynamicIsland) window.DynamicIsland.showActivity({ type: 'call', source: 'ao', name: c.name, phase: 'talking', startedAt: c.startedAt }); } catch (e) {}
   c.lines = linesFor(c.kind, c.reason);
   c.lineIdx = 0;
   c.interrupted = false;

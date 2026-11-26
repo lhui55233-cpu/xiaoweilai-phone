@@ -106,49 +106,59 @@
 #ao-incall .bh-inc-sub { font-size: 14px; font-variant-numeric: tabular-nums; }
 #ao-incall .bh-call-line {
   box-sizing: border-box;
-  width: min(100%, 340px);
-  min-height: 48px;
+  width: min(100%, 300px);
+  min-height: 28px;
   margin: 20px auto 0;
-  padding: 12px 14px;
-  border: 1px solid #e7eeea;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(31, 61, 46, .035);
-  color: #384740;
-  font-size: 14px;
-  line-height: 1.65;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #50635a;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 #ao-incall .bh-inc-bottom { width: 100%; max-width: 350px; gap: 16px; }
 #ao-incall .bh-grid {
-  grid-template-columns: repeat(3, minmax(72px, 1fr));
-  gap: 16px 12px;
-  width: 100%;
-  max-width: 310px;
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 18px;
+  width: min(100%, 300px);
+  max-width: 300px;
 }
 #ao-incall .bh-grid-btn {
-  min-height: 86px;
-  padding: 10px 4px;
-  border: 1px solid #e5ece8;
-  border-radius: 19px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(31, 61, 46, .035);
-  color: #384740;
-  font-size: 12px;
+  width: 72px;
+  min-height: 72px;
+  padding: 10px 5px;
+  border: 1px solid #e3ece6;
+  border-radius: 50%;
+  background: #eaf2ed;
+  box-shadow: none;
+  color: #40574a;
+  font-size: 11px;
 }
 #ao-incall .bh-grid-btn.on {
   border-color: #cce6d8;
   background: #e5f4eb;
   color: #168b57;
 }
-#ao-incall .bh-grid-ic { color: #4d675a; font-size: 21px; }
+#ao-incall .bh-grid-ic { display: inline-flex; align-items: center; justify-content: center; color: #4d675a; font-size: 21px; }
+#ao-incall .bh-grid-ic svg { display: block; }
 #ao-incall .bh-end {
   position: relative;
-  width: 66px;
-  height: 66px;
+  width: 64px;
+  height: 64px;
+  margin-top: 1px;
   border-radius: 50%;
   background: #e65b57;
   box-shadow: 0 7px 18px rgba(36, 50, 43, .12);
 }
+#ao-incall .bh-end-ic { display: inline-flex; align-items: center; justify-content: center; transform: none; color: #fff; }
+#ao-incall .bh-end-ic svg { display: block; }
+#ao-incall .bh-ic-dial { color: #53665c; }
+#ao-incall .bh-ic-key { border: 1px solid #e3ece6; background: #fff; color: #334a3d; }
+#ao-incall .bh-call-note { color: #61766a; }
 #ao-incall .bh-end::after {
   position: absolute;
   top: 73px;

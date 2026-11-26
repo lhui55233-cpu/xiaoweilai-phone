@@ -517,7 +517,6 @@ window.GroupBH = (function () {
     if (!ov) return false;
     if (ov.dataset.bhSkinned === '1') return true;
     var name = textOf(ov, '.ao-inc-name', charName());
-    var reason = textOf(ov, '.ao-inc-reason', '').replace(/^📞\s*/, '');
     ov.dataset.bhSkinned = '1';
     var first = (name || '?').charAt(0);
     ov.innerHTML = '<div class="bh-inc">'
@@ -529,8 +528,8 @@ window.GroupBH = (function () {
       + '</div>'
       + '<div class="bh-inc-bottom">'
       + '<div class="bh-inc-quick"><button type="button" class="bh-quick" id="bh-inc-remind">提醒我</button><button type="button" class="bh-quick" id="bh-inc-msg">信息</button></div>'
-      + '<div class="bh-slide" id="bh-slide"><div class="bh-slide-hint">滑动来接听</div><div class="bh-slide-thumb" id="bh-slide-thumb">☎</div></div>'
-      + '<div class="bh-inc-btns"><button type="button" class="bh-inc-decline" id="ao-inc-decline" aria-label="拒绝">✕</button><button type="button" class="bh-inc-answer" id="ao-inc-answer" aria-label="接听">☎</button></div>'
+      + '<div class="bh-slide" id="bh-slide"><div class="bh-slide-hint">滑动来接听</div><div class="bh-slide-thumb" id="bh-slide-thumb"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 10.8a14.9 14.9 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 .82.99v3.5a1 1 0 0 1-1.09 1A19 19 0 0 1 3 5.09 1 1 0 0 1 4 4h3.5a1 1 0 0 1 .99.82 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg></div></div>'
+      + '<div class="bh-inc-btns"><button type="button" class="bh-inc-decline" id="ao-inc-decline" aria-label="拒绝"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button><button type="button" class="bh-inc-answer" id="ao-inc-answer" aria-label="接听"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 10.8a14.9 14.9 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 .82.99v3.5a1 1 0 0 1-1.09 1A19 19 0 0 1 3 5.09 1 1 0 0 1 4 4h3.5a1 1 0 0 1 .99.82 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg></button></div>'
       + '<div class="ao-inc-chips" id="ao-inc-chips" style="display:none;">'
       + '<button type="button" data-chip="busy">忙，晚点回你</button>'
       + '<button type="button" data-chip="out">在外面，晚点回你</button>'
@@ -551,14 +550,13 @@ window.GroupBH = (function () {
     return true;
   }
 
-  /* ── 通话中页换肤（iOS 六宫格）── */
+  /* ── 通话中页换肤（一对一通话控件）── */
   var _icMuted = false, _icSpeaker = false, _icDial = '';
   function reskinInCall() {
     var ov = document.getElementById('ao-incall');
     if (!ov) return false;
     if (ov.dataset.bhSkinned === '1') return true;
     var name = textOf(ov, '.ao-inc-name', charName());
-    var reason = textOf(ov, '.ao-inc-reason', '');
     var timerTxt = textOf(ov, '#ao-call-timer', '0秒');
     var lineTxt = textOf(ov, '#ao-call-line', '……');
     ov.dataset.bhSkinned = '1';
@@ -569,7 +567,7 @@ window.GroupBH = (function () {
       + '<div class="bh-inc-av">' + esc(first) + '</div>'
       + '<div class="bh-inc-name">' + esc(name) + '</div>'
       + '<div class="bh-inc-sub" id="ao-call-timer">' + esc(timerTxt) + '</div>'
-      + '<div class="bh-inc-sim">模拟通话 · 对方是机内模拟</div>'
+      + '<div class="bh-inc-sim">语音通话中</div>'
       + '<div class="bh-call-line" id="ao-call-line">' + esc(lineTxt) + '</div>'
       + '</div>'
       + '<div class="bh-inc-bottom">'
@@ -578,14 +576,11 @@ window.GroupBH = (function () {
       + keys.map(function (k) { return '<button type="button" class="bh-ic-key" data-ickey="' + k[0] + '">' + k[0] + (k[1] ? '<small>' + k[1] + '</small>' : '') + '</button>'; }).join('')
       + '</div></div>'
       + '<div class="bh-grid">'
-      + '<button type="button" class="bh-grid-btn" data-ic="mute"><span class="bh-grid-ic">🔇</span>静音</button>'
-      + '<button type="button" class="bh-grid-btn" data-ic="speaker"><span class="bh-grid-ic">🔊</span>免提</button>'
-      + '<button type="button" class="bh-grid-btn" data-ic="keypad"><span class="bh-grid-ic">▦</span>拨号键盘</button>'
-      + '<button type="button" class="bh-grid-btn" data-ic="add"><span class="bh-grid-ic">＋</span>添加通话</button>'
-      + '<button type="button" class="bh-grid-btn" data-ic="ft"><span class="bh-grid-ic">📹</span>FaceTime</button>'
-      + '<button type="button" class="bh-grid-btn" data-ic="contacts"><span class="bh-grid-ic">👤</span>通讯录</button>'
+      + '<button type="button" class="bh-grid-btn" data-ic="mute"><span class="bh-grid-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 5.2 2.05M6 11a6 6 0 0 0 10.24 4.24M12 21v-3M8 21h8M4 4l16 16"/></svg></span>静音</button>'
+      + '<button type="button" class="bh-grid-btn" data-ic="speaker"><span class="bh-grid-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6l-5 4H4zM16 9.5a4 4 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/></svg></span>免提</button>'
+      + '<button type="button" class="bh-grid-btn" data-ic="keypad"><span class="bh-grid-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="17" cy="6" r="1"/><circle cx="7" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="17" cy="12" r="1"/><circle cx="7" cy="18" r="1"/><circle cx="12" cy="18" r="1"/><circle cx="17" cy="18" r="1"/></svg></span>拨号键盘</button>'
       + '</div>'
-      + '<button type="button" class="bh-end" id="ao-call-hangup" aria-label="结束通话"><span class="bh-end-ic">☎</span></button>'
+      + '<button type="button" class="bh-end" id="ao-call-hangup" aria-label="结束通话"><span class="bh-end-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8a14.9 14.9 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 .82.99v3.5a1 1 0 0 1-1.09 1A19 19 0 0 1 3 5.09 1 1 0 0 1 4 4h3.5a1 1 0 0 1 .99.82 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg></span></button>'
       + '<button type="button" class="bh-ic-interrupt" id="ao-call-interrupt">打断（只停语音，不丢台词）</button>'
       + '<div class="bh-call-grace" id="ao-call-grace" style="display:none;">说完再见，多留 <span id="ao-call-grace-n">18</span> 秒…<button type="button" id="ao-call-cancel-grace">取消挂断</button></div>'
       + '</div></div>';
@@ -598,9 +593,6 @@ window.GroupBH = (function () {
         if (k === 'mute') { _icMuted = !_icMuted; b.classList.toggle('on', _icMuted); sayNote(_icMuted ? '已静音（模拟通话）' : ''); }
         else if (k === 'speaker') { _icSpeaker = !_icSpeaker; b.classList.toggle('on', _icSpeaker); sayNote(_icSpeaker ? '免提已开（模拟通话）' : ''); }
         else if (k === 'keypad') { var ks = ov.querySelector('#bh-ic-keys'); if (ks) { var show = ks.style.display === 'none'; ks.style.display = show ? 'block' : 'none'; b.classList.toggle('on', show); } }
-        else if (k === 'add') sayNote('模拟通话不支持添加通话');
-        else if (k === 'ft') sayNote('模拟通话不支持 FaceTime');
-        else if (k === 'contacts') sayNote('通话中查看通讯录暂不支持（模拟通话）');
       });
     });
     ov.querySelectorAll('[data-ickey]').forEach(function (b) {
@@ -732,7 +724,7 @@ window.GroupBH = (function () {
       '.bh-grid-btn.on{background:rgba(255,255,255,.85);color:#1C1C1E;}',
       '.bh-grid-ic{font-size:22px;}',
       '.bh-end{width:72px;height:72px;border-radius:50%;border:0;background:#FF3B30;color:#fff;cursor:pointer;}',
-      '.bh-end-ic{font-size:28px;display:inline-block;transform:rotate(135deg);}',
+      '.bh-end-ic{font-size:0;display:inline-flex;align-items:center;justify-content:center;transform:none;}',
       '.bh-ic-interrupt{border:0;background:transparent;color:rgba(255,255,255,.65);font-size:12px;cursor:pointer;padding:6px;}',
       '.bh-call-grace{font-size:13px;color:#ffd9a0;}',
       '.bh-call-grace button{border:1px solid #ffd9a0;background:transparent;color:#ffd9a0;border-radius:999px;padding:6px 14px;font-size:13px;margin-left:8px;cursor:pointer;}',
