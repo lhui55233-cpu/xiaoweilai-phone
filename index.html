@@ -15,12 +15,13 @@
 <link rel="stylesheet" href="css/00-group-aa.css">
 
 <link rel="stylesheet" href="css/01-group-l-photostack.css" id="wx-photostack-groupL">
-<link rel="stylesheet" href="css/02-group-bv.css" id="bv-boot-style">
+<link rel="stylesheet" href="css/02-group-intro.css" id="intro-style">
 <link rel="stylesheet" href="css/03-group-fix3.css" id="fix3-group-style">
 </head>
 <body>
 
 <div id="sys-shell">
+<canvas id="xwl-fish-canvas" aria-hidden="true"></canvas>
 <div class="sys-float-ball" id="sys-float-ball"><div class="sys-ball-ring"><div class="sys-ball-mid"><div class="sys-ball-core"></div></div></div></div>
 
     <div class="sys-status-hit-zone" id="sys-status-hit-zone"></div>
@@ -192,6 +193,10 @@
    </div>
     
     <div id="sys-modal-container" class="sys-layer"></div>
+<!-- GROUP-INTRO · 开场动画节点（接入包 ②）：放手机屏幕容器内部最末尾，不要放 body 下 -->
+<div class="intro" id="xwIntro" role="img" aria-label="love。因为爱，所以相遇。FUTURE。" style="display:none">
+  <div class="scene" id="xwScene"></div>
+</div>
 </div>
 
 <link rel="stylesheet" href="css/04-novel-3d-shelf.css">
@@ -307,7 +312,7 @@
 <script src="js/46-group-bq.js" id="bq-group-script"></script>
 <link rel="stylesheet" href="css/24-group-bs.css" id="bs-group-style">
 <script src="js/47-group-bs.js" id="bs-group-script"></script>
-<script src="js/48-group-bv.js" id="bv-boot-script"></script>
+<script src="js/48-group-intro.js" id="intro-script"></script>
 
 <link rel="stylesheet" href="css/25-group-bm-2.css" id="bm-group-style">
 <script src="js/49-group-bm.js" id="bm-group-script"></script>
@@ -337,5 +342,6 @@
 <script src="js/58-group-pet.js"></script>
 <link rel="stylesheet" href="css/32-group-fix11.css">
 <script src="js/59-group-fix11.js"></script>
+<script src="js/60-group-fish-wallpaper.js"></script>
 </body>
 </html>
