@@ -113,10 +113,23 @@ function openLetterbox(anchor){
   function renderList(){
     body.innerHTML = letters.length ?
       letters.map(function(L){
-        return '<div class="gB-letter-row" role="button" tabindex="0" data-gb-letter="'+L.index+'">' +
-          '<div class="gB-letter-top"><span class="gB-letter-from">'+esc(L.role)+(L.isWelcome?'<span class="gB-badge">欢迎信</span>':'')+'</span>' +
-          '<span class="gB-letter-time">'+esc(L.time)+'</span></div>' +
-          '<div class="gB-letter-title">'+esc(letterTitle(L.text))+'</div></div>';
+        return '<div class="gB-letter-row" role="button" tabindex="0" aria-label="打开来自 '+esc(L.role)+' 的来信" data-gb-letter="'+L.index+'">' +
+          '<div class="gB-letter-archive">' +
+            '<div class="gB-envelope gB-envelope-back" aria-hidden="true"></div>' +
+            '<div class="gB-envelope gB-envelope-mid" aria-hidden="true"></div>' +
+            '<div class="gB-envelope gB-envelope-front">' +
+              '<span class="gB-envelope-flap" aria-hidden="true"></span>' +
+              '<span class="gB-envelope-mark" aria-hidden="true">✦</span>' +
+              '<span class="gB-envelope-label">来信档案</span>' +
+              '<span class="gB-envelope-copy">' +
+                '<span class="gB-letter-top"><span class="gB-letter-from">'+esc(L.role)+(L.isWelcome?'<span class="gB-badge">欢迎信</span>':'')+'</span>' +
+                '<span class="gB-letter-time">'+esc(L.time)+'</span></span>' +
+                '<span class="gB-letter-title">'+esc(letterTitle(L.text))+'</span>' +
+              '</span>' +
+            '</div>' +
+          '</div>' +
+          '<span class="gB-archive-open">拆阅 <b>›</b></span>' +
+        '</div>';
       }).join('') :
       '<div class="gB-empty">信箱还是空的。<br>此刻里的来信、存入的文字，<br>都会出现在这里。</div>';
     body.querySelectorAll('[data-gb-letter]').forEach(function(el){

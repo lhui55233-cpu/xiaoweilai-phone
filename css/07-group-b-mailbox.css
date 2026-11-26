@@ -12,13 +12,26 @@
 .gB-empty{background:#fffdf7;border:1px dashed #d8cbb2;border-radius:12px;padding:22px 16px;text-align:center;font-size:13px;color:#8a7d6b;line-height:1.8;}
 .gB-pager-btn{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid #e0d5bf;color:#8a6d4b;font-size:20px;line-height:32px;text-align:center;cursor:pointer;user-select:none;}
 .gB-pager-info{font-size:12px;color:#9a8f80;}
-/* ---- 信箱列表 ---- */
-.gB-letter-row{display:flex;flex-direction:column;gap:3px;padding:13px 14px;background:#fffdf7;border-bottom:1px solid #efe6d2;cursor:pointer;}
-.gB-letter-row:active{background:#f3ead6;}
+/* ---- 信箱列表：旧信叠放成档案，不使用写信表单式行列 ---- */
+.gB-letter-row{position:relative;display:block;min-height:142px;padding:8px 2px 20px;cursor:pointer;isolation:isolate;}
+.gB-letter-row:focus-visible{outline:2px solid #b8996d;outline-offset:2px;border-radius:12px;}
+.gB-letter-row:active .gB-envelope-front{transform:translateY(2px) rotate(-.35deg);box-shadow:0 5px 12px rgba(67,45,25,.18);}
+.gB-letter-archive{position:relative;height:124px;margin:0 4px;}
+.gB-envelope{position:absolute;inset:8px 7px 0;background:#d1ab79;border:1px solid rgba(111,76,39,.13);border-radius:7px;box-shadow:0 7px 16px rgba(67,45,25,.1);}
+.gB-envelope-back{transform:rotate(2.2deg);background:#c9a06f;}
+.gB-envelope-mid{inset:5px 4px 3px 10px;transform:rotate(-1.1deg);background:#e1c395;}
+.gB-envelope-front{inset:0 8px 8px 1px;overflow:hidden;background:linear-gradient(145deg,#f3ddb6 0%,#e7c895 58%,#d9b27d 100%);border:1px solid rgba(113,77,38,.2);border-radius:8px;box-shadow:0 10px 20px rgba(67,45,25,.2);transform:rotate(-.45deg);transition:transform .18s ease,box-shadow .18s ease;}
+.gB-envelope-front::before{content:"";position:absolute;inset:0;background:linear-gradient(32deg,transparent 49.5%,rgba(125,86,45,.14) 50%,transparent 50.7%),linear-gradient(148deg,transparent 49.5%,rgba(125,86,45,.11) 50%,transparent 50.7%);pointer-events:none;}
+.gB-envelope-flap{position:absolute;top:-42px;left:18%;width:64%;height:74px;border:1px solid rgba(124,84,42,.2);background:#efd3a4;transform:rotate(45deg);box-shadow:0 2px 4px rgba(102,67,32,.08);}
+.gB-envelope-mark{position:absolute;right:15px;top:12px;width:25px;height:25px;border:1px solid rgba(123,78,32,.38);border-radius:50%;color:#a5762a;text-align:center;font-size:13px;line-height:23px;transform:rotate(8deg);}
+.gB-envelope-label{position:absolute;left:15px;bottom:13px;color:#a5762a;font-family:serif;font-size:10px;letter-spacing:2px;opacity:.8;}
+.gB-envelope-copy{position:absolute;left:15px;right:49px;top:52px;z-index:1;}
 .gB-letter-top{display:flex;gap:8px;align-items:baseline;}
-.gB-letter-from{font-size:15px;font-weight:600;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.gB-letter-time{font-size:11px;color:#a89a86;flex:0 0 auto;}
-.gB-letter-title{font-size:13px;color:#6d6154;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.gB-letter-from{font-size:14px;font-weight:600;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#4d3b2a;}
+.gB-letter-time{font-size:10px;color:#8d7255;flex:0 0 auto;}
+.gB-letter-title{display:block;margin-top:5px;font-size:12px;color:#735d45;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.gB-archive-open{position:absolute;right:14px;bottom:6px;padding:2px 0;color:#a08b72;font-size:11px;letter-spacing:1px;}
+.gB-archive-open b{font-size:16px;font-weight:400;vertical-align:-1px;}
 .gB-badge{display:inline-block;font-size:10px;color:#a5762a;border:1px solid #d9bd7f;border-radius:8px;padding:0 5px;margin-left:6px;vertical-align:1px;}
 /* ---- 手撕信封舞台 ---- */
 .gB-stage-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:26px;}

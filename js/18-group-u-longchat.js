@@ -685,7 +685,6 @@ function openSettings() {
   var s = sid ? sess(sid) : null;
   var sum = sid ? getSummary(sid) : null;
   var undo = sid ? getUndoRecord(sid) : null;
-  var o = ourStory();
   var digs = latestDigests(3);
   ov.innerHTML = '<div class="wxu-set-head"><span>聊天设置 · ' + (s ? esc(s.name) : '') + '</span><button onclick="WxLongChat.closeSettings()">✕</button></div>' +
     '<div class="wxu-set-card"><div class="wxu-set-title">对话摘要</div>' +
@@ -700,8 +699,6 @@ function openSettings() {
     '<div class="wxu-set-card"><div class="wxu-set-title">分叉对话</div>' +
     '<div class="wxu-set-note">新建一个会话，复制本会话的全部消息与压缩摘要，原会话不动。</div>' +
     '<button onclick="WxLongChat.forkCurrentUI()">分叉对话</button></div>' +
-    '<div class="wxu-set-card"><div class="wxu-set-title">我们的故事</div>' +
-    '<div>在一起 <b>' + o.daysTogether + '</b> 天 · <b>' + o.totalMessages + '</b> 条消息 · 聊过 <b>' + o.activeDays + '</b> 天</div></div>' +
     '<div class="wxu-set-card"><div class="wxu-set-title">到目前为止 · 最新梗概</div>' +
     (digs.length ? digs.map(function (d) { return '<div class="wxu-digest">' + esc(d.text) + '</div>'; }).join('') :
       '<div class="wxu-set-note">还没有梗概。安静 120 分钟后会自动写一条（每天最多 1 条）。</div>') +
@@ -781,7 +778,6 @@ function ctxTarget() {
 function hideCtxMenu() { var m = $('wx-ctx-menu'); if (m) m.classList.remove('wx-active'); }
 
 function postRender() {
-  try { renderStoryFooter(); } catch (e) {}
   try { renderPinStrip(); } catch (e) {}
   try { markCompressedRows(); } catch (e) {}
   try { injectChatButtons(); } catch (e) {}
@@ -879,4 +875,3 @@ window.WxLongChat = {
   _keys: { summary: SUMMARY_KEY, undo: UNDO_KEY, compressed: COMPRESSED_KEY, digest: DIGEST_KEY, digestMeta: DIGEST_META_KEY, variants: VARIANTS_KEY, guichao: GC_KEY }
 };
 })();
-

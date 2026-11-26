@@ -15,6 +15,7 @@ var AW = window.AWGroup;
 var NEWS_KEY = 'phone_forum_news_v1', GEN_KEY = 'aw_char_gen_v1', LETTER_STATE_KEY = 'cike_letter_state_v1';
 var FORUM_POSTS_KEY = 'phone_forum_posts_v1', FORUM_REPLIES_KEY = 'phone_forum_replies_v1', FORUM_FAV_KEY = 'phone_forum_favs';
 var GC_KEY = 'guichao.memories.v1', ALBUM_KEY = 'cike_album_v1';
+var CA_ARCHIVE_KEY = 'phone_script_character_archive_v1';
 var esc2 = function (s) { return String(s == null? '': s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');};
 var rd2 = function (k, dflt) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined)? dflt: v;} catch (e) { return dflt;}};
 var wr2 = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true;} catch (e) { return false;}};
@@ -555,7 +556,16 @@ var CA_CSS = [
   '.aw-ca-ovbar{display:flex;gap:8px;align-items:center;margin-bottom:6px;}',
   '.aw-ca-ovbar button{border:1px solid #b08d3e;background:#fffdf7;color:#7a4a28;font-size:13px;font-weight:700;border-radius:4px;padding:7px 12px;cursor:pointer;}',
   '.aw-lib-row{display:flex;justify-content:space-between;align-items:center;background:#fffdf7;border:1px solid #e6dcc3;border-left:3px solid #b08d3e;border-radius:4px;padding:12px;margin-bottom:8px;}',
-  '.aw-lib-row b{font-family:"Songti SC","Noto Serif SC",STSong,serif;font-size:15px;}'
+  '.aw-lib-row b{font-family:"Songti SC","Noto Serif SC",STSong,serif;font-size:15px;}',
+  '.aw-ca-edit{margin:10px 0 20px;padding:14px;background:#fffdf7;border:1px solid #e6dcc3;border-radius:4px;color:#3d3933;}',
+  '.aw-ca-edit-title{font-weight:700;margin-bottom:10px;color:#7a4a28;}',
+  '.aw-ca-edit-sub{margin:12px 0 6px;font-size:12px;font-weight:700;color:#8a6a52;border-bottom:1px solid #e6dcc3;padding-bottom:4px;}',
+  '.aw-ca-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}',
+  '.aw-ca-edit-label{display:block;font-size:11px;color:#8a6a52;}',
+  '.aw-ca-edit-input{display:block;width:100%;box-sizing:border-box;min-height:34px;margin-top:3px;padding:7px;border:1px solid #d9c48a;border-radius:3px;background:#fff;color:#333;font:inherit;font-size:13px;}',
+  'textarea.aw-ca-edit-input{min-height:74px;resize:vertical;line-height:1.5;}',
+  '.aw-ca-edit-evidence{display:grid;grid-template-columns:120px minmax(0,1fr);gap:7px;margin-bottom:7px;}',
+  '@media(max-width:430px){.aw-ca-edit-grid{grid-template-columns:1fr;}.aw-ca-edit-evidence{grid-template-columns:1fr;}}'
 ].join('\n');
 function ensureCaStyle() {
   if (document.getElementById('aw-ca-style')) return;
@@ -595,7 +605,67 @@ function charSessionInfo(ch) {
     return { sessionId: sess.id, firstMsg: msgs.length ? (msgs[0].content || '') : '', lastTime: sess.lastTime || '', count: msgs.length };
   } catch (e) { return null; }
 }
-function archiveTabs(ch) {
+
+/* 用户 DOCX 模板的刑侦扩展：只存独立键，按角色 id 合并保存；读取不回写默认值。 */
+function loadCaSupplements() {
+  var v = rd2(CA_ARCHIVE_KEY, {});
+  return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+}
+function caSupplement(ch) {
+  var all = loadCaSupplements(), v = all[String(ch && ch.id || '')];
+  return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+}
+function caText(v) { return String(v == null ? '' : v); }
+function caEvidence(d, ch) {
+  var src = Array.isArray(d.evidence) ? d.evidence : [];
+  var cats = ['监控影像', '现场痕迹', '证人证词'];
+  return cats.map(function (cat, i) {
+    var x = src[i] && typeof src[i] === 'object' ? src[i] : {};
+    return { category: caText(x.category || cat), text: caText(x.text || ''), en: caText(x.en || '') };
+  });
+}
+function caArchiveView(ch) {
+  var d = caSupplement(ch), ev = caEvidence(d, ch);
+  return {
+    nameEn: caText(d.nameEn), age: caText(d.age || ch.age), height: caText(d.height), occupation: caText(d.occupation || ch.occupation), status: caText(d.status || (ch.status === 'pending' ? '待核查' : '已建档')),
+    caseNo: caText(d.caseNo), caseName: caText(d.caseName), timePlace: caText(d.timePlace), keyDoubt: caText(d.keyDoubt), evidence: ev,
+    location: Object.assign({ date: '', place: '', time: '', record: '', status: '' }, d.location && typeof d.location === 'object' ? d.location : {}),
+    interview: Object.assign({ place: '', time: '', status: '', qa: '', notes: '' }, d.interview && typeof d.interview === 'object' ? d.interview : {})
+  };
+}
+function saveCaSupplement(id, patch) {
+  id = String(id || ''); if (!id || !patch || typeof patch !== 'object') return false;
+  var all = loadCaSupplements(), prev = all[id] && typeof all[id] === 'object' ? all[id] : {};
+  var next = Object.assign({}, prev, patch);
+  next.location = Object.assign({}, prev.location && typeof prev.location === 'object' ? prev.location : {}, patch.location || {});
+  next.interview = Object.assign({}, prev.interview && typeof prev.interview === 'object' ? prev.interview : {}, patch.interview || {});
+  if (Array.isArray(patch.evidence)) {
+    var oldEvidence = Array.isArray(prev.evidence) ? prev.evidence : [];
+    next.evidence = oldEvidence.map(function (x, i) { return Object.assign({}, x && typeof x === 'object' ? x : {}, patch.evidence[i] || {}); });
+    patch.evidence.forEach(function (x, i) { if (i >= next.evidence.length) next.evidence[i] = Object.assign({}, x); });
+  }
+  all[id] = next; return wr2(CA_ARCHIVE_KEY, all);
+}
+function caField(id, label, value, wide) {
+  var field = wide ? '<textarea class="aw-ca-edit-input" rows="3" data-ca-field="' + esc2(id) + '">' + esc2(value) + '</textarea>' : '<input class="aw-ca-edit-input" data-ca-field="' + esc2(id) + '" value="' + esc2(value) + '">';
+  return '<label class="aw-ca-edit-label">' + esc2(label) + field + '</label>';
+}
+function archiveSupplementForm(ch) {
+  var d = caArchiveView(ch), e = d.evidence, l = d.location, q = d.interview;
+  return '<div class="aw-ca-edit" data-aw-ca-edit-panel><div class="aw-ca-edit-title">档案补充 · 用户 DOCX 模板字段</div><div class="aw-ca-edit-grid">'
+    + caField('nameEn', '姓名（英文）', d.nameEn) + caField('age', '年龄', d.age) + caField('height', '身高', d.height) + caField('occupation', '职业', d.occupation) + caField('status', '状态', d.status)
+    + caField('caseNo', '案号', d.caseNo) + caField('caseName', '案件名称', d.caseName) + caField('timePlace', '时间地点关联', d.timePlace, true) + caField('keyDoubt', '关键疑点', d.keyDoubt, true) + '</div>'
+    + '<div class="aw-ca-edit-sub">三条证据</div>' + e.map(function (x, i) { return '<div class="aw-ca-edit-evidence">' + caField('evidence.' + i + '.category', '分类', x.category) + caField('evidence.' + i + '.text', '文本', x.text, true) + '</div>'; }).join('')
+    + '<div class="aw-ca-edit-sub">位置核查</div><div class="aw-ca-edit-grid">' + caField('location.date', '日期', l.date) + caField('location.place', '地点', l.place) + caField('location.time', '时间', l.time) + caField('location.record', '记录', l.record, true) + caField('location.status', '状态', l.status) + '</div>'
+    + '<div class="aw-ca-edit-sub">询问笔录</div><div class="aw-ca-edit-grid">' + caField('interview.place', '地点', q.place) + caField('interview.time', '时间', q.time) + caField('interview.status', '状态', q.status) + caField('interview.qa', '问答', q.qa, true) + caField('interview.notes', '备注', q.notes, true) + '</div>'
+    + '<div style="margin-top:10px"><button type="button" class="aw-news-btn" data-aw-ca-ov="save-supplement" data-id="' + esc2(ch.id) + '">保存档案补充</button> <span data-ca-out style="font-size:12px;color:#8a6a52"></span></div></div>';
+}
+function archiveTabs(ch, scriptScope) {
+  if (scriptScope) {
+    var ce = caArchiveView(ch).evidence;
+    var enLabels = ['SURVEILLANCE', 'SCENE TRACE', 'WITNESS STATEMENT'];
+    return ce.map(function (e, i) { return { label: e.category, en: e.en || enLabels[i], text: e.text || '暂无记录' }; });
+  }
   var bio = [ch.background || '', ch.traits ? '性格：' + ch.traits : ''].filter(function (s) { return !!s; }).join('\n');
   var rel = [ch.relationship ? '与你的关系：' + ch.relationship : '', ch.likes ? '喜欢：' + ch.likes : '', ch.dislikes ? '讨厌：' + ch.dislikes : '', ch.habits ? '习惯：' + ch.habits : ''].filter(function (s) { return !!s; }).join('\n');
   var si = charSessionInfo(ch);
@@ -609,7 +679,15 @@ function archiveTabs(ch) {
     { label: '关键事件', en: 'KEY EVENTS', text: evLines.length ? evLines.join('\n') : '暂无记录', note: '初遇与示例对话，只取真实互动历史，没有就不写。' }
   ];
 }
-function archivePageTwo(ch) {
+function archivePageTwo(ch, scriptScope) {
+  if (scriptScope) {
+    var cd = caArchiveView(ch);
+    return {
+      place: cd.interview.place || '待补充', time: cd.interview.time || '待补充',
+      status: cd.interview.status || (ch.status === 'pending' ? '待进一步核实' : '待补充'),
+      statement: cd.interview.qa || '暂无询问笔录', notes: cd.interview.notes || ''
+    };
+  }
   var si = charSessionInfo(ch);
   var cur = null; try { cur = AW.currentActivity ? AW.currentActivity() : null; } catch (e) {}
   var place = ch.isMain && cur ? cur.place : '微信';
@@ -622,35 +700,44 @@ function archivePageTwo(ch) {
     statement: lines.length ? lines.join('\n') : '暂无记录'
   };
 }
-function archiveHTML(ch) {
+function archiveHTML(ch, options) {
+  var scriptScope = !!(options && options.scope === 'script');
   var list = allArchiveChars();
   var an = archiveNo(ch, list);
-  var tabs = archiveTabs(ch);
-  var p2 = archivePageTwo(ch);
+  var tabs = archiveTabs(ch, scriptScope);
+  var cd = caArchiveView(ch);
+  var p2 = archivePageTwo(ch, scriptScope);
   var statusLabel = ch.status === 'pending' ? '待核查' : (ch.isMain ? '主角档案' : '已建档');
   var cur = null; try { cur = AW.currentActivity ? AW.currentActivity() : null; } catch (e) {}
-  var slipPlace = ch.isMain && cur ? cur.place : '微信 · 聊天';
-  var slipDate = fmtTime2(Date.now()).slice(5, 10);
-  var slipTime = ch.isMain && cur ? (cur.at.slice(11) + ' 出现于' + cur.place + '<br>最近一次出现：' + cur.at) : ('最近出现：微信聊天<br>建档时间：' + fmtTime2(ch.createdAt || Date.now()));
-  var rows = [
-    ['AGE', ch.age ? ch.age + ' 岁' : '—'],
-    ['OCCUP.', ch.occupation || '—'],
-    ['STATUS', statusLabel],
+  var slipPlace = scriptScope ? (cd.location.place || '待补充') : (ch.isMain && cur ? cur.place : '微信 · 聊天');
+  var slipDate = scriptScope ? (cd.location.date || '待补充') : fmtTime2(Date.now()).slice(5, 10);
+  var slipYear = scriptScope ? '' : String(new Date().getFullYear());
+  var slipTime = scriptScope ? (cd.location.time || '待补充') : (ch.isMain && cur ? (cur.at.slice(11) + ' 出现于' + cur.place + '<br>最近一次出现：' + cur.at) : ('最近出现：微信聊天<br>建档时间：' + fmtTime2(ch.createdAt || Date.now())));
+  var rows = scriptScope ? [
+    ['AGE', cd.age ? cd.age + ' 岁' : '—'],
+    ['HEIGHT', cd.height || '—'],
+    ['OCCUP.', cd.occupation || '—'],
+    ['STATUS', cd.status || statusLabel],
     ['REL.', ch.relationship || '—'],
     ['FILE', an.file + ' / B']
+  ] : [
+    ['AGE', ch.age ? ch.age + ' 岁' : '—'], ['OCCUP.', ch.occupation || '—'], ['STATUS', statusLabel],
+    ['REL.', ch.relationship || '—'], ['FILE', an.file + ' / B']
   ];
-  var caseText = ch.isMain
-    ? '与你的关系：好感「' + (AW.tierOf ? AW.tierOf(AW.affectionValue ? AW.affectionValue() : 0).label : '') + '」。档案与模拟人生、剧本共用同一份数据。'
-    : '与你的关系：' + (ch.relationship || '—') + '。' + (ch.traits ? '性格：' + ch.traits + '。' : '') + '档案与微信创建人物、剧本选人共用同一份数据，改一处两处都变。';
+  var caseText = scriptScope
+    ? ([cd.caseNo ? '案号：' + cd.caseNo : '', cd.caseName ? '案件名称：' + cd.caseName : '', cd.timePlace ? '时间地点关联：' + cd.timePlace : '', cd.keyDoubt ? '关键疑点：' + cd.keyDoubt : ''].filter(function (x) { return !!x; }).join('\n') || '尚未补充案件关联信息。')
+    : (ch.isMain
+      ? '与你的关系：好感「' + (AW.tierOf ? AW.tierOf(AW.affectionValue ? AW.affectionValue() : 0).label : '') + '」。档案与模拟人生、剧本共用同一份数据。'
+      : '与你的关系：' + (ch.relationship || '—') + '。' + (ch.traits ? '性格：' + ch.traits + '。' : '') + '档案与微信创建人物、剧本选人共用同一份数据，改一处两处都变。');
   return '<div class="aw-ca" data-aw-ca-id="' + esc2(ch.id) + '">'
     + '<div class="aw-ca-backA"></div><div class="aw-ca-backB"></div>'
-    + '<div class="aw-ca-slip"><div class="aw-ca-slipHead"><span>LOCATION CHECK</span><span>04 / 07</span></div><div class="aw-ca-slipDate">' + esc2(slipDate) + ' <small>' + new Date().getFullYear() + '</small></div><div class="aw-ca-slipPlace">' + esc2(slipPlace) + '</div><div class="aw-ca-slipTime">' + slipTime + '</div><div class="aw-ca-slipStamp">待核实</div></div>'
+    + '<div class="aw-ca-slip"><div class="aw-ca-slipHead"><span>LOCATION CHECK</span><span>04 / 07</span></div><div class="aw-ca-slipDate">' + esc2(slipDate) + ' <small>' + esc2(slipYear) + '</small></div><div class="aw-ca-slipPlace">' + esc2(slipPlace) + '</div><div class="aw-ca-slipTime">' + esc2(slipTime.replace(/<br>/g, ' · ')) + (scriptScope && cd.location.record ? ' · ' + esc2(cd.location.record) : '') + '</div><div class="aw-ca-slipStamp">' + esc2(scriptScope ? (cd.location.status || '待补充') : '待核实') + '</div></div>'
     + '<div class="aw-ca-pass"><div class="aw-ca-passHole"></div><div class="aw-ca-passTop"><span>ACCESS / ' + esc2(an.no) + '</span><span>IDENTITY CARD</span></div><div class="aw-ca-passBody"><div class="aw-ca-passPhoto">' + charPhotoHTML(ch, 'aw-ca-passInit') + '</div><div class="aw-ca-passInfo"><b>' + esc2(ch.name) + '</b><small>ID / ' + esc2(an.file) + '<br>ARCHIVED</small></div></div><div class="aw-ca-passLine"></div><div class="aw-ca-passFoot"><span>RESTRICTED<br>DOCUMENT</span><div class="aw-ca-passBarcode"></div></div></div>'
     + '<div class="aw-ca-doc"><div class="aw-ca-docHead"><div class="aw-ca-docSmall">CRIMINAL INVESTIGATION / CASE RECORD</div><div class="aw-ca-docTitle">涉案人员档案 <i>No.' + esc2(an.no) + '</i></div><div class="aw-ca-docNumber">FILE / ' + esc2(an.file) + '<br>INTERNAL COPY</div></div>'
     + '<div class="aw-ca-conf">CONFIDENTIAL</div>'
     + '<div class="aw-ca-photo">' + charPhotoHTML(ch, 'aw-ca-photoInit') + '</div><div class="aw-ca-photoFrame"></div><div class="aw-ca-photoId">PHOTO / SUBJECT ' + esc2(an.no) + '</div>'
     + '<button class="aw-ca-mag" type="button" data-aw-ca="zoom" aria-label="放大观察人物照片">' + CA_MAGNIFY + '</button>'
-    + '<div class="aw-ca-person"><div class="aw-ca-personNo">SUBJECT / ' + esc2(an.no) + ' · IDENTIFICATION</div><div class="aw-ca-personName">' + esc2(ch.name) + '</div><div class="aw-ca-personRule"></div>'
+    + '<div class="aw-ca-person"><div class="aw-ca-personNo">SUBJECT / ' + esc2(an.no) + ' · IDENTIFICATION</div><div class="aw-ca-personName">' + esc2(ch.name) + (scriptScope && cd.nameEn ? '<small style="display:block;margin:3px 0 0;font-size:11px;font-style:italic;color:#818788">' + esc2(cd.nameEn) + '</small>' : '') + '</div><div class="aw-ca-personRule"></div>'
     + rows.map(function (r) { return '<div class="aw-ca-personRow"><b>' + r[0] + '</b>' + esc2(r[1]) + '</div>'; }).join('') + '</div>'
     + '<div class="aw-ca-redCircle">' + CA_REDCIRCLE + '</div>'
     + '<div class="aw-ca-case"><div class="aw-ca-caseLabel">CASE ASSOCIATION / 关联记录</div><div class="aw-ca-caseText">' + esc2(caseText) + '</div></div>'
@@ -659,31 +746,36 @@ function archiveHTML(ch) {
     + '<div class="aw-ca-record"><div class="aw-ca-recordLabel">INVESTIGATION NOTE / 01</div><div class="aw-ca-recordText">' + esc2(tabs[0].text) + '</div><div class="aw-ca-recordEn">“' + esc2(tabs[0].en) + '.”</div></div>'
     + '<div class="aw-ca-fp">' + CA_FINGERPRINT + '<div style="text-align:center;font-size:5px;letter-spacing:.08em;color:#858c8c">FINGERPRINT / SAMPLE 02</div></div>'
     + '<div class="aw-ca-docBottom"><div class="aw-ca-sign">REVIEWED BY / INVESTIGATION UNIT<br><em>Pending verification.</em></div><button class="aw-ca-next" type="button" data-aw-ca="next">翻阅记录 <svg viewBox="0 0 20 20" width="14" height="14"><path d="M4 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button></div>'
-    + '<div class="aw-ca-stamp"><svg viewBox="0 0 92 48" aria-hidden="true"><rect x="2" y="3" width="88" height="42" fill="none" stroke="#a44b4d" stroke-width="1.7"/><rect x="7" y="8" width="78" height="32" fill="none" stroke="#a44b4d" stroke-width=".65"/><text x="46" y="25" text-anchor="middle" font-family="serif" font-size="13" font-weight="bold" letter-spacing="2" fill="#a44b4d">' + (ch.status === 'pending' ? '待核查' : '已建档') + '</text><text x="46" y="35" text-anchor="middle" font-size="5.3" letter-spacing="1.4" fill="#a44b4d">UNDER REVIEW</text></svg></div>'
-    + '<div class="aw-ca-pageTwo"><div class="aw-ca-p2Head"><b>询问笔录</b><span>CASE ' + esc2(an.file) + ' / PAGE 02</span></div><div class="aw-ca-p2Info">记录地点：' + esc2(p2.place) + '<br>记录时间：' + esc2(p2.time) + '<br>询问对象：' + esc2(ch.name) + '<br>记录状态：' + esc2(p2.status) + '</div><div class="aw-ca-statement">' + esc2(p2.statement) + '</div><div class="aw-ca-p2Lines"></div><div class="aw-ca-p2Foot"><span>INTERVIEW TRANSCRIPT / 02</span><button class="aw-ca-return" type="button" data-aw-ca="return">返回主档案</button></div></div>'
+    + '<div class="aw-ca-stamp"><svg viewBox="0 0 92 48" aria-hidden="true"><rect x="2" y="3" width="88" height="42" fill="none" stroke="#a44b4d" stroke-width="1.7"/><rect x="7" y="8" width="78" height="32" fill="none" stroke="#a44b4d" stroke-width=".65"/><text x="46" y="25" text-anchor="middle" font-family="serif" font-size="13" font-weight="bold" letter-spacing="2" fill="#a44b4d">' + esc2(scriptScope ? (cd.status || '待补充') : (ch.status === 'pending' ? '待核查' : '已建档')) + '</text><text x="46" y="35" text-anchor="middle" font-size="5.3" letter-spacing="1.4" fill="#a44b4d">UNDER REVIEW</text></svg></div>'
+    + '<div class="aw-ca-pageTwo"><div class="aw-ca-p2Head"><b>询问笔录</b><span>CASE ' + esc2(an.file) + ' / PAGE 02</span></div><div class="aw-ca-p2Info">记录地点：' + esc2(p2.place) + '<br>记录时间：' + esc2(p2.time) + '<br>询问对象：' + esc2(ch.name) + '<br>记录状态：' + esc2(p2.status) + (scriptScope && cd.location.record ? '<br>位置核查记录：' + esc2(cd.location.record) : '') + '</div><div class="aw-ca-statement">' + esc2(p2.statement) + (scriptScope && p2.notes ? '<br>备注：' + esc2(p2.notes) : '') + '</div><div class="aw-ca-p2Lines"></div><div class="aw-ca-p2Foot"><span>INTERVIEW TRANSCRIPT / 02</span><button class="aw-ca-return" type="button" data-aw-ca="return">返回主档案</button></div></div>'
     + '<div class="aw-ca-zoom"><div class="aw-ca-zoomPhoto">' + charPhotoHTML(ch, 'aw-ca-photoInit') + '</div><button class="aw-ca-zoomClose" type="button" data-aw-ca="zoom-close" aria-label="关闭放大观察">×</button><div class="aw-ca-zoomLabel">SUBJECT OBSERVATION / ×1.35</div></div>'
     + '</div>'
     + '<div class="aw-ca-env"><div class="aw-ca-envBack"></div><div class="aw-ca-envFront"></div><div class="aw-ca-envFlap"></div><div class="aw-ca-envTitle">案件封存袋</div><div class="aw-ca-envSub">EVIDENCE STORAGE<br>RESTRICTED ACCESS</div><div class="aw-ca-envNo">FILE / ' + esc2(an.file) + '</div><div class="aw-ca-envSeal"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="#9a494b" stroke-width="1"/><circle cx="20" cy="20" r="13" fill="none" stroke="#9a494b" stroke-width=".6" stroke-dasharray="2 2"/><text x="20" y="24" text-anchor="middle" font-size="11" fill="#9a494b" font-family="serif">封</text></svg></div></div>'
     + '<div class="aw-ca-string">' + CA_THREAD + '</div>'
     + '</div>';
 }
-function openArchive(charId, host) {
+function openArchive(charId, host, options) {
   ensureCaStyle();
   var ch = (charId === 'main') ? mainCharObj() : AW.findChar(charId);
   if (!ch) { toast2('找不到这个人物'); return false; }
-  var root = host || document.querySelector('.gd-root[data-gd="script"]') || document.querySelector('#wx-app-root') || document.querySelector('.ck-root') || document.body;
+  var scriptScope = !!(options && options.scope === 'script') || !!(host && host.matches && host.matches('.gd-root[data-gd="script"]'));
+  var actualHost = host && host.nodeType === 1 ? host : null;
+  var root = actualHost || (scriptScope ? document.querySelector('.gd-root[data-gd="script"]') : null) || document.querySelector('#wx-app-root') || document.querySelector('.ck-root') || document.body;
   var ov = document.getElementById('aw-archive-ov');
-  if (!ov) { ov = document.createElement('div'); ov.id = 'aw-archive-ov'; ov.className = 'aw-ca-ov'; root.appendChild(ov); }
+  if (!ov) { ov = document.createElement('div'); ov.id = 'aw-archive-ov'; ov.className = 'aw-ca-ov'; }
+  if (ov.parentNode !== root) root.appendChild(ov);
   ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-ca-ov="back">‹ 返回</button><span style="font-size:13px;color:#8a6a52">人物档案 · ' + esc2(ch.name) + '</span>'
-    + (ch.isMain ? '<span style="font-size:12px;color:#8a6a52">主角 TA 在角色设置里配</span>' : '<button type="button" data-aw-ca-ov="edit" data-id="' + esc2(ch.id) + '">编辑</button><button type="button" data-aw-ca-ov="export" data-id="' + esc2(ch.id) + '">导出角色卡</button><button type="button" data-aw-ca-ov="delete" data-id="' + esc2(ch.id) + '">删除</button>')
-    + '</div><div class="aw-ca-wrap">' + archiveHTML(ch) + '</div>';
+    + (ch.isMain ? '<span style="font-size:12px;color:#8a6a52">主角 TA 在角色设置里配</span>' : (scriptScope ? '<button type="button" data-aw-ca-ov="export" data-id="' + esc2(ch.id) + '">导出角色卡</button>' : '<button type="button" data-aw-ca-ov="edit" data-id="' + esc2(ch.id) + '">编辑</button><button type="button" data-aw-ca-ov="export" data-id="' + esc2(ch.id) + '">导出角色卡</button><button type="button" data-aw-ca-ov="delete" data-id="' + esc2(ch.id) + '">删除</button>'))
+    + '</div><div class="aw-ca-wrap">' + archiveHTML(ch, scriptScope ? { scope: 'script' } : null) + '</div>'
+    + (scriptScope ? '<div style="margin:8px 0"><button type="button" class="aw-news-btn ghost" data-aw-ca-ov="toggle-edit">档案补充（可选）</button></div><div style="display:none" data-aw-ca-edit-wrap>' + archiveSupplementForm(ch) + '</div>' : '');
   ov.style.display = 'block';
   var ca = ov.querySelector('.aw-ca');
   var wrap = ov.querySelector('.aw-ca-wrap');
   var fit = function () { var w = wrap ? wrap.clientWidth : 360; var s = Math.min(1, w / 560); if (ca) ca.style.setProperty('--aw-ca-scale', s); if (wrap) wrap.style.height = Math.round(682 * s) + 'px'; };
   fit();
   setTimeout(function () { if (ca) ca.classList.add('aw-ca-visible'); }, 50);
-  var tabs = archiveTabs(ch);
+  var tabs = archiveTabs(ch, scriptScope);
+  var cd = caArchiveView(ch);
   ov.onclick = function (ev) {
     var t = ev.target && ev.target.closest ? ev.target.closest('[data-aw-ca-tab]') : null;
     if (t) {
@@ -707,9 +799,16 @@ function openArchive(charId, host) {
     if (o) {
       var oa = o.getAttribute('data-aw-ca-ov'); var id = o.getAttribute('data-id') || '';
       if (oa === 'back') { ov.style.display = 'none'; return; }
-      if (oa === 'edit') { ov.style.display = 'none'; AW.openCreateChar(id); return; }
+      if (oa === 'toggle-edit') { var ew = ov.querySelector('[data-aw-ca-edit-wrap]'); if (ew) ew.style.display = ew.style.display === 'none' ? 'block' : 'none'; return; }
+      if (oa === 'save-supplement') {
+        var patch = {}, loc = {}, iv = {}, evs = [{}, {}, {}];
+        ov.querySelectorAll('[data-ca-field]').forEach(function (el) { var k = el.getAttribute('data-ca-field'), v = el.value || ''; if (k.indexOf('evidence.') === 0) { var m = k.split('.'); evs[parseInt(m[1], 10)][m[2]] = v; } else if (k.indexOf('location.') === 0) loc[k.split('.')[1]] = v; else if (k.indexOf('interview.') === 0) iv[k.split('.')[1]] = v; else patch[k] = v; });
+        patch.evidence = evs; patch.location = loc; patch.interview = iv;
+        if (saveCaSupplement(id, patch)) { var out = ov.querySelector('[data-ca-out]'); if (out) out.textContent = '已保存'; openArchive(id, root, scriptScope ? { scope: 'script' } : null); } else toast2('保存失败'); return;
+      }
+      if (oa === 'edit') { if (scriptScope) return; ov.style.display = 'none'; AW.openCreateChar(id); return; }
       if (oa === 'export') { try { var card = AW.exportCard(id); var blob = new Blob([JSON.stringify(card, null, 2)], { type: 'application/json' }); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (AW.findChar(id).name || 'char') + '.json'; a.click(); } catch (e) { toast2(e.message || '导出失败'); } return; }
-      if (oa === 'delete') { try { if (window.confirm && !window.confirm('确定删除这个人物吗？ta 的会话也会一起删掉。')) return; AW.deleteChar(id); ov.style.display = 'none'; toast2('已删除'); } catch (e) { toast2(e.message || '删除失败'); } return; }
+      if (oa === 'delete') { if (scriptScope) return; try { if (window.confirm && !window.confirm('确定删除这个人物吗？ta 的会话也会一起删掉。')) return; AW.deleteChar(id); ov.style.display = 'none'; toast2('已删除'); } catch (e) { toast2(e.message || '删除失败'); } return; }
     }
   };
   return true;
@@ -717,7 +816,8 @@ function openArchive(charId, host) {
 function openCharLibrary(host) {
   var root = host || document.querySelector('.gd-root[data-gd="script"]') || document.querySelector('#wx-app-root') || document.body;
   var ov = document.getElementById('aw-lib-ov');
-  if (!ov) { ov = document.createElement('div'); ov.id = 'aw-lib-ov'; ov.className = 'aw-ca-ov'; root.appendChild(ov); }
+  if (!ov) { ov = document.createElement('div'); ov.id = 'aw-lib-ov'; ov.className = 'aw-ca-ov'; }
+  if (ov.parentNode !== root) root.appendChild(ov);
   var chars = allArchiveChars();
   ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-lib="back">‹ 返回</button><span style="font-size:13px;color:#8a6a52">角色库 · 与微信创建人物同一套数据</span><button type="button" data-aw-lib="new">＋ 创建人物</button></div>'
     + chars.map(function (ch) {
@@ -867,7 +967,7 @@ function boot2() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot2); else boot2();
 
 Object.assign(window.AWGroup, {
-  NEWS_KEY: NEWS_KEY, GEN_KEY: GEN_KEY, LETTER_STATE_KEY: LETTER_STATE_KEY,
+  NEWS_KEY: NEWS_KEY, GEN_KEY: GEN_KEY, LETTER_STATE_KEY: LETTER_STATE_KEY, CA_ARCHIVE_KEY: CA_ARCHIVE_KEY,
   loadNews: loadNews, collectNewsEvents: collectNewsEvents, generateNewspaperIssue: generateNewspaperIssue,
   publishPostToNews: publishPostToNews, listNewsIssues: listNewsIssues, getNewsIssue: getNewsIssue,
   getNewsArticle: getNewsArticle, readNewsArticle: readNewsArticle,
@@ -879,7 +979,7 @@ Object.assign(window.AWGroup, {
   writeLetter: writeLetter, checkNewLetters: checkNewLetters, openPastArchive: openPastArchive, openWriteLetter: openWriteLetter,
   ensureLetterRetro: ensureLetterRetro, ensureRetroStyle: ensureRetroStyle,
   mainCharObj: mainCharObj, allArchiveChars: allArchiveChars, archiveNo: archiveNo, archiveTabs: archiveTabs,
-  archivePageTwo: archivePageTwo, archiveHTML: archiveHTML, openArchive: openArchive, openCharLibrary: openCharLibrary,
+  archivePageTwo: archivePageTwo, archiveHTML: archiveHTML, openArchive: openArchive, openCharLibrary: openCharLibrary, loadCaSupplements: loadCaSupplements, caSupplement: caSupplement, saveCaSupplement: saveCaSupplement,
   scriptCharId: scriptCharId, setScriptChar: setScriptChar, ensureScriptArchive: ensureScriptArchive,
   genSwitch: genSwitch, setGenSwitch: setGenSwitch, buildTemplateDraft: buildTemplateDraft, generateCharDraft: generateCharDraft
 });

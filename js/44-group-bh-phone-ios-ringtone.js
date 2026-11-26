@@ -524,8 +524,8 @@ window.GroupBH = (function () {
       + '<div class="bh-inc-top">'
       + '<div class="bh-inc-av ao-ringing" id="ao-inc-av">' + esc(first) + '</div>'
       + '<div class="bh-inc-name">' + esc(name) + '</div>'
-      + '<div class="bh-inc-sub">模拟来电 · 不会真的拨出</div>'
-      + (reason ? '<div class="bh-inc-reason">来电原因：' + esc(reason) + '</div>' : '')
+      + '<div class="bh-inc-sub">语音通话邀请</div>'
+      + '<div class="bh-inc-sim">本机模拟来电</div>'
       + '</div>'
       + '<div class="bh-inc-bottom">'
       + '<div class="bh-inc-quick"><button type="button" class="bh-quick" id="bh-inc-remind">提醒我</button><button type="button" class="bh-quick" id="bh-inc-msg">信息</button></div>'
@@ -540,7 +540,7 @@ window.GroupBH = (function () {
     var ans = ov.querySelector('#ao-inc-answer');
     if (ans) ans.addEventListener('click', function () { try { AO.answerCall(); } catch (e) {} });
     var dec = ov.querySelector('#ao-inc-decline');
-    if (dec) dec.addEventListener('click', function () { var chips = ov.querySelector('#ao-inc-chips'); if (chips) chips.style.display = chips.style.display === 'none' ? 'flex' : 'none'; });
+    if (dec) dec.addEventListener('click', function () { try { AO.declineCall('busy', '不方便接听'); } catch (e) {} });
     var chipsBox = ov.querySelector('#ao-inc-chips');
     if (chipsBox) chipsBox.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[data-chip]') : null; if (!b) return; try { AO.declineCall(b.getAttribute('data-chip'), b.textContent); } catch (err) {} });
     var remind = ov.querySelector('#bh-inc-remind');
@@ -569,7 +569,6 @@ window.GroupBH = (function () {
       + '<div class="bh-inc-av">' + esc(first) + '</div>'
       + '<div class="bh-inc-name">' + esc(name) + '</div>'
       + '<div class="bh-inc-sub" id="ao-call-timer">' + esc(timerTxt) + '</div>'
-      + (reason ? '<div class="bh-inc-reason">' + esc(reason) + '</div>' : '')
       + '<div class="bh-inc-sim">模拟通话 · 对方是机内模拟</div>'
       + '<div class="bh-call-line" id="ao-call-line">' + esc(lineTxt) + '</div>'
       + '</div>'

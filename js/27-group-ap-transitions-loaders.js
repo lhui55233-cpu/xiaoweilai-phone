@@ -135,6 +135,11 @@ function wrapAppManager() {
             var cur = null;
             try { cur = AppManager.getActiveId(); } catch (e) {}
             if (reduced() || !cur) return origMin.call(AppManager);
+            if (cur === 'settings') {
+                var settingsWin = _winFor(cur);
+                try { GCAppHooks.run(cur, 'onLeave', settingsWin); defaultOnLeave(cur, settingsWin); } catch (e) {}
+                return origMin.call(AppManager);
+            }
             _setAnimating(true);
             var win = _winFor(cur);
             try { GCAppHooks.run(cur, 'onLeave', win); defaultOnLeave(cur, win); } catch (e) {}

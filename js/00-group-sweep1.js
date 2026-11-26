@@ -419,8 +419,9 @@ const NavigationManager = (() => {
             wxTop.classList.remove('wx-active');
             return true;
         }
-        // 5b. 设置子页面(.st-sub.show)
-        const stSubs = document.querySelectorAll('.st-sub.show');
+        // 5b. 设置子页面(.st-sub.show)：只处理当前前台设置 APP，避免消费缓存窗口。
+        const stWin = AppManager.getActiveId() === 'settings' ? AppManager.getWin('settings') : null;
+        const stSubs = stWin ? stWin.querySelectorAll('.st-sub.show') : [];
         if (stSubs.length) {
             stSubs[stSubs.length - 1].classList.remove('show');
             return true;
@@ -437,8 +438,9 @@ const NavigationManager = (() => {
             ckSubs[ckSubs.length - 1].classList.remove('show');
             return true;
         }
-        // 5e. 论坛 APP 详情页 (.fm-detail.show)
-        const fmDetail = document.querySelector('.fm-detail.show');
+        // 5e. 论坛 APP 详情页 (.fm-detail.show)：只处理当前前台论坛 APP，避免消费缓存窗口。
+        const fmWin = AppManager.getActiveId() === 'forum' ? AppManager.getWin('forum') : null;
+        const fmDetail = fmWin ? fmWin.querySelector('.fm-detail.show') : null;
         if (fmDetail) {
             fmDetail.classList.remove('show');
             return true;
@@ -7247,7 +7249,7 @@ AppManager.register('wechat', (() => {
       
       moments: [],
       
-      stickers: ['😀','😂','😍','🥰','😎','😭','😡','😱','🎉','❤️','👍','✨','🔥','🦊','🐱'],
+      stickers: [], // Built-in Unicode sticker tray is disabled; custom image packs are stored separately.
       
       innerVoices: [],
       
@@ -7255,13 +7257,8 @@ AppManager.register('wechat', (() => {
   };
 
   // ★★★ 微信数据持久化 —— 聊天记录/配置/账户存 localStorage，重进不丢 ★★★
-  const WX_PERSIST_KEY = 'phone_wechat_store_v2';   // ★ 升级到 v2：忽略 v1 的预置咒回角色数据
-  // 进入新版前，自动清掉旧版的 v1 数据（包括默认的夏油杰/五条悟/伏黑甚尔等）
-  try {
-      if (localStorage.getItem('phone_wechat_store_v1')) {
-          localStorage.removeItem('phone_wechat_store_v1');
-      }
-  } catch(e){}
+  const WX_PERSIST_KEY = 'phone_wechat_store_v2';
+  // Keep v1 untouched: older storage may contain user conversations mixed with demo contacts.
   const persistWX = () => {
       try {
           const data = {
@@ -7341,6 +7338,9 @@ AppManager.register('wechat', (() => {
       } catch(e){}
   };
   restoreWX();
+  if (!wxStore.sessions.some(s => s && s.id === wxStore.currentChatId)) {
+      wxStore.currentChatId = wxStore.sessions.length ? wxStore.sessions[0].id : '';
+  }
   wxStore._persist = persistWX;
 const styleBlock = `
       <style>
@@ -11557,13 +11557,7 @@ exitFullscreen: (e) => {
           sysPrompt += `\n如果用户问起"今天几号 / 现在几点 / 今年是哪一年 / 今天星期几"，必须按以上时间如实回答。若用户的提问与时间相关（节日、季节、早晚问候、时段问候等），请基于以上真实时间做出贴合的回应。`;
           sysPrompt += `\n但日常聊天中不要刻意复述时间、不要把时间当借口去催对方睡觉或做健康提醒。让时段感自然渗透在你回复的语气与长短里（深夜更慢更柔、清晨像刚醒、午后慵懒等）。`;
       }
-      // 读取"我的身份"，让 AI 知道在跟谁聊
-      try {
-          const myPersona = localStorage.getItem('phone_my_persona');
-          if (myPersona && myPersona.trim()) {
-              sysPrompt += `\n【对方（用户）的人设】你正在和这个人聊天：${myPersona.trim()}`;
-          }
-      } catch(e){}
+      // The retired “我的身份” page is no longer injected into model context.
       // ★ 角色独立主脑：注入该角色专属的人格/情绪/关系/记忆（与其他角色完全隔离）
       try {
           if (typeof RoleBrain !== 'undefined' && curSess && curSess.id) {
@@ -11669,6 +11663,16 @@ sysPrompt += `\n
         // 构造对话历史（取最近记忆）
             // [S组] 提示词检查器：本轮模板组装过程记进 char_subject_prompt_v1；语气档/时间事实/被动召回/立场门控作为 plain facts 追加进 sysPrompt
       try { if (window.CharSubject) { var _sa = window.CharSubject.assembleFor(_lastUserMsg || '', charName, { template: 'wechat_realai_v1', charName: charName }); if (_sa && _sa.promptBlock) sysPrompt += _sa.promptBlock; } } catch(e){}
+      let _socialContext = '';
+      const _hasSocialLink = /(?:https?:\/\/)?(?:[a-z0-9-]+\.)*(?:xhslink\.cn|xhslink\.com|xiaohongshu\.com|douyin\.com|iesdouyin\.com)(?:\/|\b)/i.test(_lastUserMsg || '');
+      if (_hasSocialLink) {
+          try {
+              if (window.SocialLinkReader && typeof window.SocialLinkReader.readContext === 'function') {
+                  _socialContext = await window.SocialLinkReader.readContext(_lastUserMsg || '');
+              }
+          } catch (e) {}
+          if (!_socialContext) _socialContext = '【社交平台链接读取结果】用户分享了小红书/抖音链接，但当前读取器不可用。不要猜测或编造帖子内容；若用户问帖子内容，请说明暂时无法读取，并请用户粘贴文字。';
+      }
       const messages = [{ role: 'system', content: sysPrompt }];
       const mem = (curSess.memory || []).slice(-12);
       mem.forEach(m => {
@@ -11677,6 +11681,17 @@ sysPrompt += `\n
               content: m.text
           });
       });
+      if (_socialContext) {
+          let _lastUserMessageIndex = -1;
+          for (let i = messages.length - 1; i > 0; i--) {
+              if (messages[i].role === 'user') { _lastUserMessageIndex = i; break; }
+          }
+          if (_lastUserMessageIndex >= 0) {
+              messages[_lastUserMessageIndex].content = String(messages[_lastUserMessageIndex].content || '') + '\n\n' + _socialContext;
+          } else {
+              messages.push({ role: 'user', content: '【用户分享的公开链接文字补充】\n' + _socialContext });
+          }
+      }
 
       // ★ 优先走自建后端代理（如已启用），失败/未启用则回退到直连 API
       let reply = null;
@@ -19873,7 +19888,8 @@ AppManager.register('novel', (() => {
    NovelStore.save = () => {
        try {
            localStorage.setItem(NOVEL_PERSIST_KEY, JSON.stringify({ books: NovelStore.books, folders: NovelStore.folders }));
-       } catch(e) { console.warn('[Novel] 保存失败', e); }
+           return true;
+       } catch(e) { console.warn('[Novel] 保存失败', e); return false; }
    };
    NovelStore.load = () => {
        try {
@@ -20857,7 +20873,7 @@ AppManager.register('novel', (() => {
                    <div style="padding:16px;">
                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                            <span style="font-size:13px;font-weight:800;color:#5c826f;">沉浸态阅读舱</span>
-                           <span style="font-size:11px;color:#8fa89b;cursor:pointer;" onclick="document.getElementById('novel-book-file-input').click()">导入本地文件 (.txt)</span>
+                           <span style="font-size:11px;color:#8fa89b;cursor:pointer;" onclick="document.getElementById('novel-book-file-input').click()">导入本地文件 (.txt / .md)</span>
                        </div>
                        <div style="margin:0 0 12px;"><button type="button" id="bq-typeset-entry" onclick="window.GroupBQ && window.GroupBQ.open()" style="width:100%;height:40px;border-radius:20px;border:1px solid #a8d8b9;background:#eaf6ee;color:#143024;font-weight:800;font-size:13px;cursor:pointer;">✎ 文字排版器 · 写自己的排版文档</button></div>
                        <div id="novel-shelf-list-box"></div>
@@ -20942,7 +20958,7 @@ AppManager.register('novel', (() => {
                </div>
            </div>
            
-           <input type="file" id="novel-book-file-input" accept=".txt" style="display:none;" />
+           <input type="file" id="novel-book-file-input" accept=".txt,.md,.markdown,text/plain,text/markdown" style="display:none;" />
        </div>
    `;
 
@@ -20957,7 +20973,7 @@ AppManager.register('novel', (() => {
             st.focus = Math.max(0, Math.min(st.focus, Math.max(0, books.length - 1)));
             st.pos = st.focus;
             if (!books.length) {
-                shelfBox.innerHTML = `<div style="padding:28px 16px;text-align:center;color:#8fa89b;font-size:13px;line-height:1.8;">书架还是空的<br>点右上角「导入本地文件」放一本 .txt 进来吧</div>`;
+                shelfBox.innerHTML = `<div style="padding:28px 16px;text-align:center;color:#8fa89b;font-size:13px;line-height:1.8;">书架还是空的<br>点右上角「导入本地文件」放一本 .txt 或 .md 进来吧</div>`;
                 return;
             }
             const palette = ['#c96f4a', '#7a9e7e', '#5b7fa6', '#b98a2f', '#8e6fb8', '#4a7a7a', '#a65a6e', '#6b7f59'];
@@ -22298,20 +22314,25 @@ AppManager.register('novel', (() => {
                    if (/\.epub$/i.test(fileObj.name)) { alert('暂不支持 .epub 格式（它是二进制压缩包，直接当文本读会乱码），请先转为 .txt 再导入'); bookInputDom.value = ''; return; }
                    // [GROUP-APPS] 编码识别走 NovelReaderCore.decodeText（reading-nook decode_text）
                    const finishImport = (fullText) => {
+                       // 导入保留完整原文；Markdown 沿用当前纯文本阅读视图，渲染统一 escHtml，绝不执行 HTML。
                        const text = String(fullText || '');
-                       if (text.length > 10000) alert('本书 ' + text.length + ' 字，仅导入前 10000 字');
-                       const shortText = text.substring(0, 10000);
-                       const chapters = NovelReaderCore.splitChapters(shortText, fileObj.name.replace(/\.[^/.]+$/, ""));
-                       NovelStore.books.unshift({
+                       const chapters = NovelReaderCore.splitChapters(text, fileObj.name.replace(/\.[^/.]+$/, ""));
+                       const previousBooks = NovelStore.books;
+                       const importedBook = {
                            id: 'book_' + Date.now(),
                            title: fileObj.name.replace(/\.[^/.]+$/, ""),
                            author: '本地文本',
                            cover: '',
-                           content: shortText,
+                           content: text,
                            progress: '已读 0%'
-                       });
-                       NovelStore.ensureBookMeta(NovelStore.books[0]);
-                       if (typeof NovelStore.save === 'function') NovelStore.save();
+                       };
+                       NovelStore.ensureBookMeta(importedBook);
+                       NovelStore.books = [importedBook].concat(previousBooks);
+                       if (typeof NovelStore.save !== 'function' || !NovelStore.save()) {
+                           NovelStore.books = previousBooks;
+                           try { alert('导入失败：书籍未能保存到本机存储，原有书籍和用户数据未改变。'); } catch(err) {}
+                           return;
+                       }
                        Controller.renderShelf(appWin);
                        try { if (window.GroupP) { window.GroupP.shelfOffer(); Controller.renderShelf(appWin); } } catch(e){}
                        try { alert('已导入：' + fileObj.name + '（识别到 ' + chapters.length + ' 章，打开阅读器可在左侧目录跳转）'); } catch(err) {}
@@ -22552,6 +22573,7 @@ AppManager.register('forum', (() => {
     const saveUserReplies = () => { try { localStorage.setItem(USER_REPLIES_KEY, JSON.stringify(userReplies)); } catch(e){} };
     let userPosts = loadUserPosts();
     let userReplies = loadUserReplies();
+    const fmEsc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
     const getPosts = () => userPosts.concat(POSTS);
     // 把之前存的用户回复合并回内置帖（带去重，避免重复挂载时翻倍）
     Object.keys(userReplies).forEach(pid => {
@@ -22669,16 +22691,16 @@ AppManager.register('forum', (() => {
         hits = hits.slice().sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0));
         if (!hits.length) return `<div class="fm-empty">${curBoard === 'FAV' ? '还没有收藏的帖子' : '没有找到相关帖子'}</div>`;
         return hits.map(p => `
-            <div class="fm-post" data-post="${p.id}">
+            <div class="fm-post" data-post="${fmEsc(p.id)}">
                 <div>
                     ${p.pinned ? '<span class="fm-post-pin">置顶</span>' : ''}
-                    <span class="fm-post-tag">${p.board}</span>
+                    <span class="fm-post-tag">${fmEsc(p.board)}</span>
                 </div>
-                <div class="fm-post-title">${p.title}</div>
-                <div class="fm-post-body">${p.body}</div>
+                <div class="fm-post-title">${fmEsc(p.title)}</div>
+                <div class="fm-post-body">${fmEsc(p.body)}</div>
                 <div class="fm-post-meta">
-                    <span class="author">${p.author}</span>
-                    <span>${p.time}</span>
+                    <span class="author">${fmEsc(p.author)}</span>
+                    <span>${fmEsc(p.time)}</span>
                     <span>回复 ${p.replies.length}</span>
                     <span>浏览 ${p.views}</span>
                 </div>
@@ -22693,7 +22715,7 @@ AppManager.register('forum', (() => {
         const floorJump = replies.length > 3 ? `
             <div class="fm-floorjump">
                 <span style="font-size:12px;color:#999;align-self:center;">跳楼层：</span>
-                ${replies.map(r => `<div class="fm-floorjump-btn" data-jump="fm-floor-${post.id}-${r.floor}">${r.floor}楼</div>`).join('')}
+                ${replies.map(r => `<div class="fm-floorjump-btn" data-jump="fm-floor-${fmEsc(post.id)}-${fmEsc(r.floor)}">${r.floor}楼</div>`).join('')}
             </div>` : '';
         const replyByFloor = {};
         replies.forEach(r => { replyByFloor[r.floor] = r; });
@@ -22704,18 +22726,18 @@ AppManager.register('forum', (() => {
             const isOwner = r.author === post.author || r.tag === '楼主';
             const isLong = (r.content || '').length > 40;
             const isMine = r.author === '我';
-            const toLine = r.replyTo ? `<div class="fm-reply-to">回复 @${r.replyTo} · ${r.parentFloor}楼</div>` : '';
-            const actions = `<div class="fm-reply-actions"><span data-fm-reply-act="reply" data-floor="${r.floor}">回复</span>${isMine ? `<span data-fm-reply-act="edit" data-floor="${r.floor}">编辑</span><span class="fm-act-del" data-fm-reply-act="del" data-floor="${r.floor}">删除</span>` : ''}</div>`;
+            const toLine = r.replyTo ? `<div class="fm-reply-to">回复 @${fmEsc(r.replyTo)} · ${fmEsc(r.parentFloor)}楼</div>` : '';
+            const actions = `<div class="fm-reply-actions"><span data-fm-reply-act="reply" data-floor="${fmEsc(r.floor)}">回复</span>${isMine ? `<span data-fm-reply-act="edit" data-floor="${fmEsc(r.floor)}">编辑</span><span class="fm-act-del" data-fm-reply-act="del" data-floor="${fmEsc(r.floor)}">删除</span>` : ''}</div>`;
             return `
-            <div class="fm-reply${isChild ? ' fm-reply-child' : ''}" id="fm-floor-${post.id}-${r.floor}" data-fm-floor="${r.floor}">
+            <div class="fm-reply${isChild ? ' fm-reply-child' : ''}" id="fm-floor-${fmEsc(post.id)}-${fmEsc(r.floor)}" data-fm-floor="${fmEsc(r.floor)}">
                 <div class="fm-reply-top">
-                    <span class="fm-reply-floor ${isOwner?'owner':''}">${r.floor}楼</span>
-                    <span class="fm-reply-author">${r.author}</span>
-                    <span class="fm-reply-tag">${r.tag}</span>
-                    <span class="fm-reply-time">${r.time}</span>
+                    <span class="fm-reply-floor ${isOwner?'owner':''}">${fmEsc(r.floor)}楼</span>
+                    <span class="fm-reply-author">${fmEsc(r.author)}</span>
+                    <span class="fm-reply-tag">${fmEsc(r.tag)}</span>
+                    <span class="fm-reply-time">${fmEsc(r.time)}</span>
                 </div>
                 ${toLine}
-                <div class="fm-reply-content ${isLong?'folded':''}" data-long="${isLong}">${r.content}</div>
+                <div class="fm-reply-content ${isLong?'folded':''}" data-long="${isLong}">${fmEsc(r.content)}</div>
                 ${isLong ? '<div class="fm-reply-unfold">展开全部 ▾</div>' : ''}
                 ${actions}
             </div>`;
@@ -22730,28 +22752,28 @@ AppManager.register('forum', (() => {
                 <div class="fm-d-bartitle">帖子详情</div>
             </div>
             <div class="fm-d-body">
-                <div class="fm-d-title">${post.title}</div>
+                <div class="fm-d-title">${fmEsc(post.title)}</div>
                 <div class="fm-d-info">
-                    <span class="author">${post.author}</span>
-                    <span>${post.authorTag}</span>
-                    <span>${post.time}</span>
+                    <span class="author">${fmEsc(post.author)}</span>
+                    <span>${fmEsc(post.authorTag)}</span>
+                    <span>${fmEsc(post.time)}</span>
                     <span>浏览 ${post.views}</span>
                 </div>
-                <div class="fm-d-content">${post.body}</div>
+                <div class="fm-d-content">${fmEsc(post.body)}</div>
                 <div class="fm-d-toolbar">
                     <div class="fm-d-toolbtn owner ${ownerOnly?'on':''}" data-owner-toggle="1">
                         ${ownerOnly ? '✓ ' : ''}只看楼主
                     </div>
-                    <div class="fm-d-toolbtn fav ${isFav?'on':''}" data-fav="${post.id}">
+                    <div class="fm-d-toolbtn fav ${isFav?'on':''}" data-fav="${fmEsc(post.id)}">
                         ${isFav ? '★ 已收藏' : '☆ 收藏'}
                     </div>
                 </div>
                 ${floorJump}
                 <div class="fm-d-replyhead">${ownerOnly ? '楼主回复' : '全部回复'}（${replies.length}）</div>
                 ${replyHtml}
-                ${replyTo ? `<div class="fm-replyto-chip"><span>回复 @${replyTo.author} · ${replyTo.floor}楼</span><b data-fm-replyto-cancel="1">✕ 取消</b></div>` : ''}
+                ${replyTo ? `<div class="fm-replyto-chip"><span>回复 @${fmEsc(replyTo.author)} · ${fmEsc(replyTo.floor)}楼</span><b data-fm-replyto-cancel="1">✕ 取消</b></div>` : ''}
                 <div class="fm-reply-box" style="display:flex;gap:8px;margin-top:14px;">
-                    <input type="text" id="fm-reply-input" placeholder="${replyTo ? '回复 @' + replyTo.author + '…' : '写下你的回复…'}" maxlength="300" style="flex:1;border:1px solid #e5e5ea;border-radius:16px;padding:9px 12px;font-size:13px;outline:none;">
+                    <input type="text" id="fm-reply-input" placeholder="${replyTo ? '回复 @' + fmEsc(replyTo.author) + '…' : '写下你的回复…'}" maxlength="300" style="flex:1;border:1px solid #e5e5ea;border-radius:16px;padding:9px 12px;font-size:13px;outline:none;">
                     <button id="fm-reply-submit" style="border:none;background:#07c160;color:#fff;border-radius:16px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;">回复</button>
                 </div>
             </div>`;
@@ -31216,7 +31238,6 @@ const PhoneModel = (() => {
         return '<div class="st-sub" id="st-sub-model">'
             + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">接模型</div></div>'
             + '<div style="padding:16px 16px 48px;">'
-            + '<div style="background:#FFF8E1;border:1px solid #F0D9A0;border-radius:10px;padding:12px;font-size:13px;line-height:1.7;color:#7A5A00;margin-bottom:12px;">费用按你选的供应商账单走，手机不代付。key 是你自己的，随时可换可清；key 只存在这台手机里，不会发给除你填的地址之外的任何地方，也不会出现在备份与日志里。</div>'
             + '<div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;"><div style="font-size:13px;color:#8E8E93;">当前模式</div><div id="pm-mode-status" style="font-size:16px;font-weight:600;margin-top:4px;">' + esc(overallLabel()) + '</div><div id="pm-last-call" style="font-size:12px;color:#8E8E93;margin-top:6px;">最近一次调用：' + esc(last) + '</div></div>'
             + '<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:12px;">'
             + '<div style="padding:13px 16px;border-bottom:0.5px solid #E5E5EA;"><div style="font-size:16px;color:#000;">接口地址（base URL）</div><input id="pm-baseurl" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 https://api.deepseek.com/v1" value="' + esc(cfg.baseUrl) + '" style="width:100%;border:none;outline:none;font-size:14px;color:#333;margin-top:6px;padding:0;"></div>'

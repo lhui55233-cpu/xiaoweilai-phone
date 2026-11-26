@@ -1,10 +1,10 @@
-/* GROUP-UI-VECTORS · 将明确的静态 UI emoji 图标替换为轻量线稿 SVG。
-   仅处理图标槽、装饰槽与非消息界面的按钮前缀；跳过聊天/剧本/用户输入/表情发送内容。 */
+/* GROUP-UI-VECTORS · 全站可见界面 emoji 转为线稿 SVG，不改动聊天/帖子/剧本原文。 */
 (function (w, d) {
   'use strict';
   if (w.XwlUIVectors) return;
+
   var cp = {
-    phone: [0x1F4DE, 0x1F4F1, 0x1F57F], mic: [0x1F399, 0x1F3A4, 0x1F3A4], music: [0x1F3B5, 0x1F3B6],
+    phone: [0x1F4DE, 0x1F4F1, 0x1F57F], mic: [0x1F399, 0x1F3A4], music: [0x1F3B5, 0x1F3B6],
     chat: [0x1F4AC, 0x1F4AD, 0x1F5E8, 0x1F4E2], mute: [0x1F507, 0x1F515], volume: [0x1F50A, 0x1F509],
     cat: [0x1F431, 0x1F63A, 0x1F638, 0x1F639, 0x1F63B, 0x1F63C, 0x1F63D, 0x1F640, 0x1F981],
     dog: [0x1F415, 0x1F436, 0x1F429], paw: [0x1F43E], person: [0x1F464, 0x1F465, 0x1F9D1, 0x1F9D2],
@@ -19,21 +19,22 @@
     plug: [0x1F50C], tag: [0x1F3F7], card: [0x1F4C7, 0x1F4C6], cup: [0x2615, 0x1F375], tomato: [0x1F345],
     idea: [0x1F4A1], clock: [0x23F0, 0x1F552, 0x1F553], sparkle: [0x2728, 0x1F389, 0x1F38A],
     shield: [0x1F6E1], bell: [0x1F514], car: [0x1F697, 0x1F695], pin: [0x1F4CD], gift: [0x1F381],
-    arrow: [0x1F4E4, 0x1F4E4], suitcase: [0x1F4BC], printer: [0x1F5A8], box: [0x1F4E6],
+    arrow: [0x1F4E4], suitcase: [0x1F4BC], printer: [0x1F5A8], box: [0x1F4E6],
     medal: [0x1F3C5, 0x1F947, 0x1F948, 0x1F949], crown: [0x1F451], diamond: [0x1F48E],
-    coffee: [0x2615], leaf: [0x1F343, 0x1F33F], sparkle2: [0x2728, 0x2726]
+    face: [0x1F600, 0x1F601, 0x1F602, 0x1F603, 0x1F604, 0x1F605, 0x1F606, 0x1F609, 0x1F60A, 0x1F60B, 0x1F60C, 0x1F60D, 0x1F610, 0x1F611, 0x1F612, 0x1F614, 0x1F615, 0x1F616, 0x1F617, 0x1F618, 0x1F61A, 0x1F61C, 0x1F61D, 0x1F61E, 0x1F61F, 0x1F620, 0x1F621, 0x1F622, 0x1F623, 0x1F624, 0x1F625, 0x1F628, 0x1F629, 0x1F62A, 0x1F62B, 0x1F62D, 0x1F630, 0x1F631, 0x1F633, 0x1F634, 0x1F635, 0x1F636, 0x1F637, 0x1F641, 0x1F642, 0x1F643, 0x1F644, 0x1F910, 0x1F914, 0x1F917, 0x1F92D, 0x1F970],
+    generic: []
   };
   var byCode = {};
   Object.keys(cp).forEach(function (name) { cp[name].forEach(function (n) { byCode[n.toString(16)] = name; }); });
   var paths = {
     person: '<circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/>',
+    face: '<circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/>',
     cat: '<path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/>',
     dog: '<path d="M5 9 3.8 5.5c-.3-1 1-1.7 1.8-1l3.2 2.3a10 10 0 0 1 6.4 0l3.2-2.3c.8-.7 2.1 0 1.8 1L19 9a7.5 7.5 0 0 1 1 3.8c0 4.6-3.3 7.4-8 7.4s-8-2.8-8-7.4A7.5 7.5 0 0 1 5 9Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.3 1 2.7 1 4 0"/>',
     paw: '<ellipse cx="12" cy="16.4" rx="5.5" ry="4.2"/><ellipse cx="5.8" cy="9.2" rx="1.8" ry="2.5"/><ellipse cx="10.1" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="14.4" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="18.6" cy="9.2" rx="1.8" ry="2.5"/>',
     phone: '<path d="M7.2 3.8h9.6a2 2 0 0 1 2 2v12.4a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2Z"/><path d="M9 6.5h6m-6 10h6"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6"/>',
     music: '<path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5Z"/>',
-    chat: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-5.5 4v-4.2A2.5 2.5 0 0 1 4 13.5Z"/><path d="M8 8h8m-8 3.5h5"/>',
     book: '<path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/>',
     file: '<path d="M6 3.5h8l4 4V20H6Z"/><path d="M14 3.5v4h4M9 12h6m-6 3h6"/>',
     folder: '<path d="M3.5 6.5h6l2 2h9v10.8H3.5Z"/><path d="M3.5 9h17"/>',
@@ -57,7 +58,6 @@
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
     tomato: '<path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/>',
     cup: '<path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/>',
-    coffee: '<path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/>',
     idea: '<path d="M8 16c0-2-3-3.2-3-7a7 7 0 0 1 14 0c0 3.8-3 5-3 7Zm1 2h6m-5 3h4"/>',
     shield: '<path d="M12 3 20 6v5.5c0 4.6-3.3 7.7-8 9.5-4.7-1.8-8-4.9-8-9.5V6Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/>',
     bell: '<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/>',
@@ -69,57 +69,81 @@
     diamond: '<path d="m4 8 3-4h10l3 4-8 12Z"/><path d="m4 8 8 12 8-12M7 4l5 16 5-16M4 8h16"/>',
     generic: '<path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>'
   };
+
   var emojiRe;
-  try { emojiRe = new RegExp('\\p{Extended_Pictographic}(?:\\uFE0F|\\uFE0E)?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F|\\uFE0E)?)*','gu'); }
-  catch (_) { emojiRe = /[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]/g; }
-  var protectedSelector = 'input,textarea,select,[contenteditable="true"],[data-user-content],[data-message-content],[data-emoji],[data-sticker],.wx-ctx-item,.wx-ctx-menu,.wx-emoji-picker,.wx-sticker,.wx-chat-bubble,.wx-message-content,.wx-msg-text,.wx-msg-stream,.wx-msg-row,.quoted-message,.chat-message,.chat-bubble,.vn-stage,.vn-dialogue,.vn-narration,.vnca-face-wrap,.aw-vn-stage,.aw-vn-dialogue,.sys-signature';
-  var iconWords = { icon:1, icons:1, ico:1, ic:1, avatar:1, badge:1, glyph:1, symbol:1, stamp:1, decor:1, emoji:1, mark:1 };
-  function blocked(el) { return !!(el && el.closest && el.closest(protectedSelector)); }
-  function slotFor(el) {
-    for (var n=el, depth=0; n && depth<4; n=n.parentElement, depth++) {
-      if (n.matches && (n.matches('.bn-zone > span:first-child,.sys-lock-widgets,.sys-w-token-hearts,.sys-w-token-hero-ph,.sys-w-diary-header-av,.vnca-toolbar-button,.vnca-file-button,.wx-cell-icon,.wx-icon-btn,.ot-fan-ico,.aw-news-icon,.aw-letter-icon'))) return n;
-      var names=String(n.className||'').toLowerCase().split(/[\s_-]+/); if (names.some(function(x){return !!iconWords[x];})) return n;
-    }
-    return null;
+  try {
+    emojiRe = new RegExp('(?:\\p{Extended_Pictographic}(?:\\uFE0F|\\uFE0E)?(?:[\\u{1F3FB}-\\u{1F3FF}])?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F|\\uFE0E)?(?:[\\u{1F3FB}-\\u{1F3FF}])?)*)|(?:[\\u{1F1E6}-\\u{1F1FF}]{2})|(?:[0-9#*]\\uFE0F?\\u20E3)', 'gu');
+  } catch (_) {
+    emojiRe = /(?:[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF])(?:\uFE0F|\uFE0E)?(?:\u200D(?:[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]))?/g;
   }
+  var protectedSelector = 'script,style,noscript,template,input,textarea,select,[contenteditable="true"],[data-user-content],[data-message-content],[data-emoji],[data-sticker],.wx-ctx-item,.wx-ctx-menu,.wx-sticker,.wx-chat-bubble,.wx-message-content,.wx-msg-text,.wx-msg-stream,.wx-msg-row,.quoted-message,.chat-message,.chat-bubble,.vn-stage,.vn-dialogue,.vn-narration,.vnca-face-wrap,.aw-vn-stage,.aw-vn-dialogue,.sys-signature,.wx-moments-nick,#wx-moments-container .wx-feed-main,#wx-moments-container .wx-feed-likes-comments,.ot-mom,#novel-reader-body,.fm-post-title,.fm-post-body,.fm-post-meta,.fm-d-title,.fm-d-content,.fm-d-info,.fm-reply-content,.gd-bubble,.gB-face,.gB-letter-row,.ck-letter-paper,.aw-news-body,.aw-ca';
+  function blocked(el) { return !!(el && el.closest && el.closest(protectedSelector)); }
+  function hasEmoji(text) { try { return new RegExp(emojiRe.source, emojiRe.flags).test(String(text || '')); } catch (_) { return false; } }
   function iconName(token) {
-    var chars=Array.from(token).filter(function(c){var n=c.codePointAt(0);return n!==0xFE0F && n!==0xFE0E && n!==0x200D && !(n>=0x1F3FB && n<=0x1F3FF);});
-    var first=chars.length?chars[0].codePointAt(0):0;
+    var chars = Array.from(token).filter(function (c) {
+      var n = c.codePointAt(0);
+      return n !== 0xFE0F && n !== 0xFE0E && n !== 0x200D && !(n >= 0x1F3FB && n <= 0x1F3FF);
+    });
+    var first = chars.length ? chars[0].codePointAt(0) : 0;
+    if (byCode[first.toString(16)]) return byCode[first.toString(16)];
+    if (first >= 0x1F600 && first <= 0x1F64F) return 'face';
+    if ((first >= 0x1F466 && first <= 0x1F9DD) || (first >= 0x1F3C2 && first <= 0x1F3FF)) return 'person';
+    if (first >= 0x1F400 && first <= 0x1F43F) return 'paw';
+    if (first >= 0x1F330 && first <= 0x1F37F) return 'cup';
+    if (first >= 0x1F680 && first <= 0x1F6FF) return 'car';
+    if (first >= 0x1F1E6 && first <= 0x1F1FF) return 'generic';
     return byCode[first.toString(16)] || 'generic';
   }
   function svg(token) {
-    var name=iconName(token), el=d.createElementNS('http://www.w3.org/2000/svg','svg');
-    el.setAttribute('viewBox','0 0 24 24'); el.setAttribute('class','xwl-ui-vector'); el.setAttribute('aria-hidden','true'); el.setAttribute('focusable','false');
-    el.innerHTML=paths[name]||paths.generic; return el;
+    var name = iconName(token), el = d.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    el.setAttribute('viewBox', '0 0 24 24');
+    el.setAttribute('class', 'xwl-ui-vector');
+    el.setAttribute('aria-hidden', 'true');
+    el.setAttribute('focusable', 'false');
+    el.setAttribute('data-vector-for', name);
+    el.innerHTML = paths[name] || paths.generic;
+    return el;
   }
-  function replaceNode(node, allInSlot) {
+  function replaceNode(node) {
     if (!node || !node.parentNode || !node.nodeValue || blocked(node.parentElement)) return false;
-    var parent=node.parentElement, slot=slotFor(parent), button=parent.closest && parent.closest('button');
-    if (!slot && !button) return false;
-    var text=node.nodeValue, tokens=[], re=new RegExp(emojiRe.source, emojiRe.flags), m;
-    while ((m=re.exec(text))) tokens.push({value:m[0],start:m.index,end:re.lastIndex});
+    var text = node.nodeValue, tokens = [], re = new RegExp(emojiRe.source, emojiRe.flags), m;
+    while ((m = re.exec(text))) tokens.push({ value: m[0], start: m.index, end: re.lastIndex });
     if (!tokens.length) return false;
-    if (!slot) {
-      var trimmed=text.trim(), lead=text.match(/^\s*/)[0].length;
-      var exact=tokens.length===1 && text.slice(lead,tokens[0].start)==='' && text.slice(tokens[0].end).trim()==='';
-      var prefix=tokens[0].start===lead && (text[tokens[0].end]===' ' || text[tokens[0].end]==='\u00a0' || tokens[0].end===text.length);
-      if (!exact && !prefix) return false;
-      tokens=tokens.slice(0,1); allInSlot=false;
-    }
-    var frag=d.createDocumentFragment(), at=0;
-    tokens.forEach(function(t){ if(t.start>at) frag.appendChild(d.createTextNode(text.slice(at,t.start))); frag.appendChild(svg(t.value)); at=t.end; });
-    if(at<text.length) frag.appendChild(d.createTextNode(text.slice(at)));
-    node.parentNode.replaceChild(frag,node); return true;
+    var frag = d.createDocumentFragment(), at = 0;
+    tokens.forEach(function (t) {
+      if (t.start > at) frag.appendChild(d.createTextNode(text.slice(at, t.start)));
+      frag.appendChild(svg(t.value));
+      at = t.end;
+    });
+    if (at < text.length) frag.appendChild(d.createTextNode(text.slice(at)));
+    node.parentNode.replaceChild(frag, node);
+    return true;
   }
   function process(root) {
     if (!root) return 0;
-    var nodes=[], walker=d.createTreeWalker(root,NodeFilter.SHOW_TEXT), n, changed=0;
-    while((n=walker.nextNode())) nodes.push(n);
-    nodes.forEach(function(t){ if(replaceNode(t,true)) changed++; }); return changed;
+    var nodes = [], walker = d.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, changed = 0;
+    while ((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(function (t) { if (replaceNode(t)) changed++; });
+    return changed;
   }
-  var queued=false;
-  function schedule() { if(queued) return; queued=true; w.setTimeout(function(){queued=false;process(d.body);},120); }
-  function install() { process(d.body); if(d.body && w.MutationObserver){ var mo=new MutationObserver(function(muts){ if(muts.some(function(m){return m.addedNodes.length||m.type==='characterData';})) schedule(); }); mo.observe(d.body,{childList:true,subtree:true,characterData:true}); w.XwlUIVectors._observer=mo; } }
-  w.XwlUIVectors={version:'1.0.0',process:process,iconFor:iconName};
-  if(d.readyState==='loading') d.addEventListener('DOMContentLoaded',install,{once:true}); else install();
-})(window,document);
+  var queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    w.setTimeout(function () { queued = false; if (d.body) process(d.body); }, 120);
+  }
+  function install() {
+    if (!d.body) return;
+    process(d.body);
+    if (w.MutationObserver) {
+      var mo = new MutationObserver(function (muts) {
+        if (muts.some(function (m) { return m.addedNodes.length || m.type === 'characterData'; })) schedule();
+      });
+      mo.observe(d.body, { childList: true, subtree: true, characterData: true });
+      w.XwlUIVectors._observer = mo;
+    }
+  }
+  w.XwlUIVectors = { version: '2.0.0', process: process, iconFor: iconName, hasEmoji: hasEmoji };
+  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', install, { once: true });
+  else install();
+})(window, document);

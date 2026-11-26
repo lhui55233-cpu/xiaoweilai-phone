@@ -151,7 +151,7 @@ function modelConfigured() {
 }
 function modelReply(talker, sess, userText) {
   var E = window.WeChatAppEngine;
-  if (!E) return Promise.resolve(null);
+  if (!E || typeof E.callRealAI !== 'function') return Promise.resolve(null);
   var cfg = null;
   try { if (window.PhoneModel && window.PhoneModel.apiCfgFor) cfg = window.PhoneModel.apiCfgFor('chat'); } catch (e) {}
   if (!cfg) { try { cfg = E.getActiveApiConfig && E.getActiveApiConfig(); } catch (e) {} }
@@ -164,7 +164,19 @@ function modelReply(talker, sess, userText) {
     + '你正在扮演「' + talker + '」在一个微信群聊里和用户聊天。群成员还有：' + groupMemberNames(sess).join('、')
     + '。只以' + talker + '的身份回一句话，6-20字左右，用微信聊天的语气，不写括号动作描写。';
   if (meta && meta.characterCore) sys += '你的说话风格：' + (meta.characterCore.speechStyle || '自然') + '；情绪基调：' + (meta.characterCore.emotionCore || '平和') + '。';
-  return E.callRealAI(cfg, [{ role: 'system', content: sys }, { role: 'user', content: userText }], (cfg.maxTokens || 300))
+  /* 只有已经具备真实模型调用能力时才读取；读取器失败时由其公开 API
+     返回“无法读取、不要编造”的上下文，不能用链接本身推测帖子内容。 */
+  var linkContext = '';
+  try {
+    if (window.SocialLinkReader && typeof window.SocialLinkReader.readContext === 'function') {
+      linkContext = window.SocialLinkReader.readContext(String(userText || ''));
+    }
+  } catch (e) { linkContext = ''; }
+  return Promise.resolve(linkContext).then(function (socialContext) {
+    var userContent = String(userText || '');
+    if (socialContext) userContent += '\n\n' + socialContext;
+    return E.callRealAI(cfg, [{ role: 'system', content: sys }, { role: 'user', content: userContent }], (cfg.maxTokens || 300));
+  })
     .then(function (t) { return (typeof t === 'string' && t.trim()) ? t.trim().slice(0, 300) : null; })
     .catch(function () { return null; });
 }

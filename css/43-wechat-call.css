@@ -1,0 +1,171 @@
+/* 小未来 · 微信式通话界面覆盖层。只改外观，不替换 AO 的计时、铃声、台词和通话状态。 */
+#ao-incoming.ao-incoming,
+#ao-incall.ao-incall {
+  box-sizing: border-box !important;
+  background: #f4f7f5 !important;
+  color: #24312b !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+#ao-incoming .bh-inc,
+#ao-incall .bh-inc {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  padding: calc(42px + env(safe-area-inset-top)) 26px calc(38px + env(safe-area-inset-bottom));
+  color: #24312b;
+  text-align: center;
+}
+#ao-incoming .bh-inc-top,
+#ao-incall .bh-inc-top {
+  flex: 1;
+  justify-content: center;
+  width: 100%;
+}
+#ao-incoming .bh-inc-av,
+#ao-incall .bh-inc-av {
+  width: 88px;
+  height: 88px;
+  border: 1px solid rgba(43, 113, 83, .12);
+  border-radius: 50%;
+  background: #dcebe3;
+  box-shadow: 0 8px 24px rgba(37, 79, 58, .08);
+  color: #2c7055;
+  font-size: 34px;
+  font-weight: 550;
+}
+#ao-incoming .bh-inc-name,
+#ao-incall .bh-inc-name {
+  margin-top: 18px;
+  color: #202a25;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+#ao-incoming .bh-inc-sub,
+#ao-incall .bh-inc-sub {
+  margin-top: 8px;
+  color: #68766f;
+  font-size: 14px;
+  font-weight: 450;
+}
+#ao-incoming .bh-inc-sim,
+#ao-incall .bh-inc-sim {
+  margin-top: 8px;
+  color: #9aa59f;
+  font-size: 11px;
+}
+#ao-incoming .bh-inc-bottom {
+  width: 100%;
+  max-width: 350px;
+  gap: 24px;
+}
+#ao-incoming .bh-inc-quick,
+#ao-incoming .bh-slide,
+#ao-incoming .ao-inc-chips {
+  display: none !important;
+}
+#ao-incoming .bh-inc-btns {
+  display: flex;
+  justify-content: center;
+  gap: clamp(76px, 24vw, 116px);
+  width: 100%;
+  padding-bottom: 28px;
+}
+#ao-incoming .bh-inc-decline,
+#ao-incoming .bh-inc-answer {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 7px 18px rgba(36, 50, 43, .12);
+  color: #fff;
+  font-size: 25px;
+}
+#ao-incoming .bh-inc-decline { background: #e65b57; }
+#ao-incoming .bh-inc-answer { background: #20ad68; }
+#ao-incoming .bh-inc-decline::after,
+#ao-incoming .bh-inc-answer::after {
+  position: absolute;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #69766f;
+  font-size: 12px;
+  font-weight: 450;
+  white-space: nowrap;
+}
+#ao-incoming .bh-inc-decline::after { content: "拒绝"; }
+#ao-incoming .bh-inc-answer::after { content: "接听"; }
+#ao-incoming .bh-inc-decline:active,
+#ao-incoming .bh-inc-answer:active,
+#ao-incall .bh-end:active { transform: scale(.96); }
+#ao-incall .bh-inc-top { justify-content: flex-start; padding-top: 7vh; }
+#ao-incall .bh-inc-av { width: 76px; height: 76px; font-size: 30px; }
+#ao-incall .bh-inc-name { margin-top: 13px; font-size: 23px; }
+#ao-incall .bh-inc-sub { font-size: 14px; font-variant-numeric: tabular-nums; }
+#ao-incall .bh-call-line {
+  box-sizing: border-box;
+  width: min(100%, 340px);
+  min-height: 48px;
+  margin: 20px auto 0;
+  padding: 12px 14px;
+  border: 1px solid #e7eeea;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(31, 61, 46, .035);
+  color: #384740;
+  font-size: 14px;
+  line-height: 1.65;
+}
+#ao-incall .bh-inc-bottom { width: 100%; max-width: 350px; gap: 16px; }
+#ao-incall .bh-grid {
+  grid-template-columns: repeat(3, minmax(72px, 1fr));
+  gap: 16px 12px;
+  width: 100%;
+  max-width: 310px;
+}
+#ao-incall .bh-grid-btn {
+  min-height: 86px;
+  padding: 10px 4px;
+  border: 1px solid #e5ece8;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(31, 61, 46, .035);
+  color: #384740;
+  font-size: 12px;
+}
+#ao-incall .bh-grid-btn.on {
+  border-color: #cce6d8;
+  background: #e5f4eb;
+  color: #168b57;
+}
+#ao-incall .bh-grid-ic { color: #4d675a; font-size: 21px; }
+#ao-incall .bh-end {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: #e65b57;
+  box-shadow: 0 7px 18px rgba(36, 50, 43, .12);
+}
+#ao-incall .bh-end::after {
+  position: absolute;
+  top: 73px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #69766f;
+  content: "挂断";
+  font-size: 12px;
+  white-space: nowrap;
+}
+#ao-incall .bh-ic-interrupt,
+#ao-incall .bh-call-grace { color: #78857e; }
+@media (max-height: 700px) {
+  #ao-incoming .bh-inc { padding-top: calc(24px + env(safe-area-inset-top)); padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  #ao-incoming .bh-inc-av { width: 74px; height: 74px; }
+  #ao-incoming .bh-inc-top { flex: .8; }
+  #ao-incall .bh-inc-top { padding-top: 2vh; }
+  #ao-incall .bh-grid { gap: 9px 10px; }
+  #ao-incall .bh-grid-btn { min-height: 72px; }
+}

@@ -57,7 +57,7 @@ baseline: { enabled: true, text: BASELINE},
 chat: { enabled: true, text: CHAT_DEFAULT},
 persona: { enabled: true, text: ''}
 },
-behaviors: { moments: true, wechat: true, postcard: true, tarot: true, morning: true, promise: true},
+behaviors: { moments: false, wechat: true, postcard: true, tarot: true, morning: true, promise: true},
 profiles: {},
 postedEventKeys: [],
 log: []
@@ -76,6 +76,8 @@ if (typeof s.prompts[id].text!== 'string') s.prompts[id].text = d.prompts[id].te
 });
 if (!s.behaviors || typeof s.behaviors!== 'object') s.behaviors = {};
 Object.keys(d.behaviors).forEach(function (k) { if (typeof s.behaviors[k]!== 'boolean') s.behaviors[k] = true;});
+// Moments are retired; keep any legacy value in storage but never activate the behavior.
+s.behaviors.moments = false;
 if (!s.profiles || typeof s.profiles!== 'object') s.profiles = {};
 if (!Array.isArray(s.postedEventKeys)) s.postedEventKeys = [];
 if (!Array.isArray(s.log)) s.log = [];
@@ -93,7 +95,7 @@ return '';
 function promptDefs() {
 return [
 { id: 'memory', title: '记忆管理', en: 'Memory OS · V1.0', desc: '记忆提取、分类、更新、时间、待续、检索、使用、维护、真实性、隐私。接模型时是记忆相关调用的系统提示词；未接模型时模板按它执行。', source: '原文：用户提供的《Memory OS · 内置记忆管理提示词 V1.0》，逐字安装，未改写、未删节、未润色。'},
-{ id: 'proactive', title: '主动行为', en: 'Proactive', desc: 'char 根据聊天主动行动：主动发朋友圈、主动微信消息、明信片、塔罗夜邀、早安唤醒、承诺提醒。只取自真实事件，频率走主动消息规则。', source: '内置提示词（AZ 组按用户举的例子写成规则，无示例剧情）。'},
+{ id: 'proactive', title: '主动行为', en: 'Proactive', desc: 'char 根据聊天主动行动：主动微信消息、明信片、塔罗夜邀、早安唤醒、承诺提醒。只取自真实事件，频率走主动消息规则。', source: '内置提示词（AZ 组按用户举的例子写成规则，无示例剧情）。'},
 { id: 'baseline', title: '互动基线', en: '角色互动规则', desc: '适用所有带恋爱与身体互动的功能：乙游模式、剧本 app（支线恋爱与视觉小说）、文游、微信里与人物的聊天、人物档案生成。', source: '原文：用户提供，逐字安装，未改写、未删节。'},
 { id: 'chat', title: '对话提示词', en: 'Chat', desc: '微信聊天的语气与规矩：短句、||| 分条、不写括号动作、不编造过去没有发生的事。', source: '内置提示词（AZ 组按手机现有聊天规矩整理，无示例剧情）。'},
 { id: 'persona', title: '角色人设提示词', en: 'Persona', desc: '主 char 的人设。与角色设置里的同一份：这里改，角色设置里也变；角色设置里改，这里也变。', source: '共享存储：char_identity_v1（AN 组角色身份），经 GroupAN 读写。'}
@@ -151,6 +153,7 @@ saveState(s);
 return getPrompt(id);
 }
 function behaviorEnabled(kind) {
+if (kind === 'moments') return false;
 var s = getState();
 return s.behaviors[kind]!== false &&!!s.prompts.proactive.enabled;
 }
@@ -477,7 +480,7 @@ function renderSettingsSub(act) {
       + '<button type="button" onclick="window.GroupAZ.resetPromptUI(\'' + d.id + '\')" style="border:0;border-radius:8px;padding:8px 14px;font-size:14px;background:#F2F2F7;color:#1C1C1E;">恢复默认</button>'
       + '<span style="font-size:12px;color:#8E8E93;line-height:1.5;">' + esc(d.source) + '</span></div>' + rows + '</div>';
   }).join('');
-  var beh = BEHAVIORS.map(function (b) {
+  var beh = BEHAVIORS.filter(function (b) { return b[0] !== 'moments'; }).map(function (b) {
     return '<div class="st-row"><span class="st-label">' + esc(b[1]) + '</span><div class="st-row-right"><input type="checkbox" ' + (s.behaviors[b[0]] ? 'checked' : '') + ' onchange="window.GroupAZ.setBehavior(\'' + b[0] + '\', this.checked)" style="width:20px;height:20px;accent-color:#007AFF;"></div></div>';
   }).join('');
   var prof = getProfile(charName());
@@ -498,7 +501,7 @@ function renderSettingsSub(act) {
     + '<div class="st-foot" style="margin:0 16px 8px;">每条提示词可看、可改、可恢复默认、可单独开关。提示词存在自己的命名空间 phone_prompts_v1 里（没有 key），随整屋备份/导出一起走。' + esc(modelStatusLine()) + '</div>'
     + '<div id="az-tip" style="margin:0 16px 8px;font-size:13px;color:#34C759;min-height:18px;"></div>'
     + cards
-    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px 4px;font-size:16px;font-weight:700;">主动行为开关</div><div style="font-size:13px;color:#8E8E93;padding:0 14px 8px;line-height:1.6;">每种主动行为可单独开关。关掉“朋友圈”，char 就不再主动发朋友圈；关掉“微信消息”，主动微信消息（含 GroupR 节流门）也不再发。</div>' + beh + '</div>'
+    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px 4px;font-size:16px;font-weight:700;">主动行为开关</div><div style="font-size:13px;color:#8E8E93;padding:0 14px 8px;line-height:1.6;">每种主动行为可单独开关。关闭“微信消息”后，主动微信消息（含 GroupR 节流门）也不再发。</div>' + beh + '</div>'
     + profHtml
     + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px 4px;font-size:16px;font-weight:700;">记忆分类对照</div><div style="font-size:13px;color:#8E8E93;padding:0 14px 8px;line-height:1.6;">Memory OS 的分类作主标签，手机现有分类作展示分组，不丢数据。</div>' + mapRows + '</div>'
     + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px;"><div style="font-size:16px;font-weight:700;">最近的主动行为</div><div style="margin-top:6px;">' + lastLog + '</div></div></div>'
