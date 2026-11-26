@@ -16,22 +16,21 @@
 
   /*
    * 已审查的稳定 DOM：
-   *   #wx-view-discover 内的三类入口分别由已有 onclick 导航到：
+   *   #wx-view-discover 内的入口分别由已有 onclick 导航到：
    *   openMomentsPage('全部')、openDiscoverRow('shake')、openDiscoverRow('look')。
-   *   这里隐藏整行，而不是删除父分组或改写 onclick，避免影响其他发现功能。
+   *   其中摇一摇/看一看隐藏整行，而不是删除父分组或改写 onclick，避免影响其他发现功能；
+   *   朋友圈入口与朋友圈子页（wx-view-moments-page）不再隐藏，恢复可见。
    *
-   * wx-view-moments-page / wx-view-my-persona 是已有固定子页 ID。
+   * wx-view-my-persona 是已有固定子页 ID。
    * wx-discover-overlay 是 _openDiscoverOverlay 的固定容器；其 title 只在该
    * 浮层的 .wx-header-title 中检查，用于拦截“摇一摇/看一看”子页，不读取聊天正文。
    */
   var HIDE_SELECTORS = [
-    '#wx-view-discover .wx-cell[onclick*="openMomentsPage"]',
     '#wx-view-discover .wx-cell[onclick*="openDiscoverRow(\'shake\')"]',
     '#wx-view-discover .wx-cell[onclick*="openDiscoverRow(\'look\')"]',
     '#wx-view-me .wx-cell[onclick*="openMyPersona"]',
     /* Hide the legacy profile header (avatar/nickname/WeChat ID/status) without erasing accountMeta. */
     '#wx-view-me .wx-me-header',
-    '#wx-view-moments-page',
     '#wx-view-my-persona',
     /* 默认 Unicode 表情筛选/字符行；不隐藏 GroupV/GroupAU 图片包挂载区。 */
     '#wx-view-chat-detail #wx-sticker-filter',

@@ -34116,10 +34116,11 @@ const IconSystem = (() => {
             ['dock','grid1','grid2'].forEach(z => {
                 if (layout[z]) layout[z] = layout[z].filter(id => id !== 'beautify' && id !== 'schedule');
             });
-            // [GROUP-FIX5] FIX5-D11：清掉已删的两个故事类 app 在已存布局（iconsystem_v1）里的残留图标——
+            // [GROUP-FIX5] FIX5-D11：清掉已删 app 在已存布局（iconsystem_v1）里的残留图标——
+            // privatedate/anecdote（故事类）、iftheatre（IF剧场）、wenyou（文游桌面图标）；
             // 否则 renderIconInner 会回退画通用图标，点按触发 guard 崩溃弹窗
             ['dock','grid1','grid2'].forEach(z => {
-                if (layout[z]) layout[z] = layout[z].filter(id => ['privatedate','anecdote'].indexOf(id) === -1);
+                if (layout[z]) layout[z] = layout[z].filter(id => ['privatedate','anecdote','iftheatre','wenyou'].indexOf(id) === -1);
             });
         } catch(e){}
         // 去重：同一 appId 不能出现在多个区
