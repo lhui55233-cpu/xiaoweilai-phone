@@ -33824,25 +33824,6 @@ window.SystemReset = SystemReset;
             }
             // 深色外观下调暗墙纸：启动后恢复用户开关
             try { if (window.BeautifyEngine && BeautifyEngine.applyWallpaperDim) BeautifyEngine.applyWallpaperDim(); } catch(e){}
-            
-            const splash = document.getElementById('sys-splash-screen');
-            if (splash) {
-                const removeSplash = () => {
-                    if (!splash.parentNode) return;
-                    splash.classList.add('sys-fade-out');
-                    setTimeout(() => { try { splash.remove(); } catch(e){} }, 650);
-                };
-                // 启动后 1.8 秒开始淡出
-                setTimeout(removeSplash, 1800);
-                // 硬兜底：3.5 秒后无论如何强制移除
-                setTimeout(() => {
-                    if (splash.parentNode) {
-                        splash.style.opacity = '0';
-                        splash.style.pointerEvents = 'none';
-                        setTimeout(() => { try { splash.remove(); } catch(e){} }, 300);
-                    }
-                }, 3500);
-            }
 
             // ★ 应用美化助手 → 布局与状态栏 持久化设置
             try {
