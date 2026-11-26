@@ -551,7 +551,7 @@ var CA_CSS = [
   '@keyframes awCaFade{from{opacity:0}to{opacity:1}}',
   '@keyframes awCaInner{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:blur(0)}}',
   '@media (prefers-reduced-motion: reduce){ .aw-ca *, .aw-ca *::before, .aw-ca *::after{animation:none !important;transition:none !important;} .aw-ca .aw-ca-backA,.aw-ca .aw-ca-backB,.aw-ca .aw-ca-pass,.aw-ca .aw-ca-doc,.aw-ca .aw-ca-env,.aw-ca .aw-ca-slip,.aw-ca .aw-ca-string,.aw-ca .aw-ca-mag,.aw-ca .aw-ca-redCircle,.aw-ca .aw-ca-fp,.aw-ca .aw-ca-stamp,.aw-ca .aw-ca-conf{opacity:1 !important;} }',
-  '.aw-ca-ov{position:absolute;inset:0;background:#ececea;z-index:80;overflow-y:auto;padding:10px 10px 40px;box-sizing:border-box;}',
+  '.aw-ca-ov{position:absolute;inset:0;background:#ececea;z-index:80;overflow-y:auto;padding:60px 10px 40px;box-sizing:border-box;}',
   '.aw-ca-ovbar{display:flex;gap:8px;align-items:center;margin-bottom:6px;}',
   '.aw-ca-ovbar button{border:1px solid #b08d3e;background:#fffdf7;color:#7a4a28;font-size:13px;font-weight:700;border-radius:4px;padding:7px 12px;cursor:pointer;}',
   '.aw-lib-row{display:flex;justify-content:space-between;align-items:center;background:#fffdf7;border:1px solid #e6dcc3;border-left:3px solid #b08d3e;border-radius:4px;padding:12px;margin-bottom:8px;}',

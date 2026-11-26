@@ -2455,6 +2455,7 @@ let desktopInited = false;
            let inner = '', name = id;
            try { inner = IS.renderIconInner(id); } catch(e){}
            try { name = IS.getName(id); } catch(e){}
+           if (id === 'cike' && name === '此刻') name = '模拟人生';
            return `<div class="sys-app-icon-wrapper" data-target-app="${id}">`
                 + `<div class="sys-app-icon" id="sys-icon-dyn-${id}">${inner}</div>`
                 + `<div class="sys-app-name">${name}</div></div>`;
@@ -8208,8 +8209,8 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <div class="wx-view-box wx-active" id="wx-view-sessions">
                   <div class="wx-search-bar-wrap">
                       <div class="wx-search-box">
-                          <span>🔍</span>
-                          <input type="text" placeholder="搜索聊天..." oninput="WeChatAppEngine.filterSessions(this.value)">
+                          <svg class="wx-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
+                          <input type="text" placeholder="搜索" oninput="WeChatAppEngine.filterSessions(this.value)">
                       </div>
                   </div>
                   <div id="wx-sessions-container" data-gc-stagger></div>
@@ -8243,8 +8244,8 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <!-- 联系人分组（动态从 sessions 渲染） -->
                   <div class="wx-search-bar-wrap">
                       <div class="wx-search-box">
-                          <span>🔍</span>
-                          <input type="text" placeholder="搜索联系人..." oninput="WeChatAppEngine.filterContacts(this.value)">
+                          <svg class="wx-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
+                          <input type="text" placeholder="搜索联系人" oninput="WeChatAppEngine.filterContacts(this.value)">
                       </div>
                   </div>
                   <div id="wx-contacts-dynamic"></div>
@@ -8254,7 +8255,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-cell-group" style="margin-top:15px;">
                       <div class="wx-cell" onclick="WeChatAppEngine.openMomentsPage('全部')">
                           <div class="wx-cell-left">
-                              <div class="wx-cell-icon" style="background:#ff9f00;color:#ffffff;"><svg viewBox="0 0 24 24" width="18" fill="#fff"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 17l-6.2 3.9 1.6-6.8L2.2 8.9l6.9-.6z"/></svg></div>
+                              <div class="wx-cell-icon" style="background:#ff9f00;color:#ffffff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.3"/><path d="M12 3v5.7M19.8 7.5l-5 2.8M19.8 16.5l-5-2.8M12 21v-5.7M4.2 16.5l5-2.8M4.2 7.5l5 2.8"/></svg></div>
                               <span>朋友圈</span>
                           </div>
                           <div class="wx-cell-right">
@@ -8267,31 +8268,31 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div id="wx-discover-letterbox"></div>
                   <div class="wx-cell-group">
                       <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('scan')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#10aeff;color:#fff;">⌜⌝</div><span>扫一扫</span></div>
+                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#10aeff;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M4 12h16"/></svg></div><span>扫一扫</span></div>
                           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
                       </div>
                       <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('shake')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#10aeff;color:#fff;">📳</div><span>摇一摇</span></div>
+                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#10aeff;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 6 11c-1.2-1.2.6-3 1.8-1.8l3 3-4.4-4.5c-1.2-1.2.6-3 1.8-1.8l4.2 4.2-2.7-2.8c-1.2-1.2.6-3 1.8-1.8l3.1 3.1c1.8 1.8 3 4 2.1 6.5l-1.2 3.3-3.8-1.3C10.5 16.7 9.7 15.7 9 14z"/></svg></div><span>摇一摇</span></div>
                           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
                       </div>
                   </div>
                   <div class="wx-cell-group">
                       <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('look')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#ff7a45;color:#fff;">👁</div><span>看一看</span></div>
+                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#ff7a45;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.7"/></svg></div><span>看一看</span></div>
                           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
                       </div>
                       <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('search')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#ff5a5a;color:#fff;">🔍</div><span>搜一搜</span></div>
+                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#ff5a5a;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4 4"/></svg></div><span>搜一搜</span></div>
                           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
                       </div>
                   </div>
                   <div class="wx-cell-group">
                       <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('nearby')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#07c160;color:#fff;">📍</div><span>附近的人</span></div>
+                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#07c160;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0z"/><circle cx="12" cy="10" r="2.2"/></svg></div><span>附近的人</span></div>
                           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
                       </div>
                       <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('mini')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#8a5cf6;color:#fff;">▦</div><span>小程序</span></div>
+                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#8a5cf6;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6.5a3.8 3.8 0 0 1 6 0l3 4.1a3.3 3.3 0 0 1-2.7 5.2H8.7A3.3 3.3 0 0 1 6 10.6z"/><path d="M8.5 12h7M10 18h4"/></svg></div><span>小程序</span></div>
                           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
                       </div>
                   </div>
@@ -8414,9 +8415,6 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
       </div>
   </div>
 </div>
-
-
-        </div>
               <div class="wx-tab-bar">
             <div class="wx-tab-item wx-active" onclick="WeChatAppEngine.switchTab('sessions', '微信', this)">
                 <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M8.5 17.5l-3 3v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8.5z"></path><path d="M16 14v1a2 2 0 0 1-2 2h-1.5l-2.5 2.5v-2.5H9"></path></svg></span><span class="wx-tab-label">微信</span>
@@ -34215,6 +34213,7 @@ const IconSystem = (() => {
         const asset = ASSETS[appId];
         const cz = custom[appId];
         nameNode.textContent = (cz && cz.name) || (asset && asset.name) || appId;
+        if (appId === 'cike' && nameNode.textContent === '此刻') nameNode.textContent = '模拟人生';
         nameNode.style.fontSize = NAME_MAP[cfg.nameLevel] + 'px';
     };
 

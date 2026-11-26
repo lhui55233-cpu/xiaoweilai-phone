@@ -558,7 +558,7 @@ function structureProseToVN(text, input) {
 input = input || {};
 var paras = String(text || '').split(/\n\s*\n|\n/).map(function (s) { return s.trim();}).filter(function (s) { return!!s;});
 var buildTemplate = function () {
-var vn = { id: uid3('vn'), title: String(input.title || '未命名视觉小说'), source: 'structured', scenes: [], characters: [], createdAt: Date.now()};
+  var vn = { id: uid3('vn'), title: String(input.title || '未命名视觉小说'), source: 'template', scenes: [], characters: [], createdAt: Date.now()};
 var speakers = {};
 var CHUNK = 3;
 for (var i = 0; i < paras.length; i += CHUNK) {
@@ -657,7 +657,7 @@ var host = document.querySelector('.gd-root[data-gd="script"]') || document.body
 var ov = document.getElementById('aw-vn-player');
 if (!ov) {
 ov = document.createElement('div'); ov.id = 'aw-vn-player';
-ov.style.cssText = 'position:absolute;inset:0;z-index:90;display:flex;flex-direction:column;overflow:hidden;background:#efe9dc;';
+ov.style.cssText = 'position:absolute;inset:0;z-index:90;display:flex;flex-direction:column;overflow:hidden;background:#efe9dc;box-sizing:border-box;padding-top:60px;';
 host.appendChild(ov);
 }
 var state = { vnId: vn.id, sceneIdx: 0, lineIdx: 0, log: [], snaps: [], vars: { affection: 0 }, sprites: {}, bg: '', transition: '', music: '', video: null, fx: '', nvl: false, nvlCine: false, nvlText: [], callStack: [], choicesMade: [], affectionDelta: 0, ended: false, lang: vnGetLang(), panel: '' };
@@ -940,7 +940,7 @@ return true;
 function openVNReview(result, fileName, opts) { /* [GROUP-FIX16] WENYOU2 合并：保留 opts（host/fromWenyou/win），见 FIX16-4-REBASED */
 var host = (opts && opts.host) || document.querySelector('.gd-root[data-gd="script"]') || document.body;
 var ov = document.getElementById('aw-vn-review');
-if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#f7f1e5;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
+if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#f7f1e5;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
 var vn = result.vn;
 var matches = matchVNCharacters(vn);
 var sceneCount = vn.scenes.length;
@@ -965,7 +965,7 @@ vn.scenes.forEach(function (s) {
     if (l.type === 'scene' && l.bg) addUniq(bgs, l.bg);
   });
 });
-var srcLabel = vn.source === 'sks' ? 'SKS 导入' : (vn.source === 'structured' ? '智能体整理' : '上传');
+var srcLabel = vn.source === 'sks' ? 'SKS 导入' : (vn.source === 'structured' ? '模型整理' : (vn.source === 'template' ? '模板规则整理' : '上传'));
 ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">‹ 返回</button>'
 + '<div class="aw-news-mast"><div class="aw-news-mastname">审阅视觉小说</div><div class="aw-news-mastsub">' + esc3(fileName || '') + ' · 解析结果先审阅，确认后才保存</div></div>'
 + '<div style="font-size:15px;line-height:1.9"><b>《' + esc3(vn.title) + '》</b><br>来源：' + srcLabel + ' · 场景 ' + sceneCount + ' 个' + (labelCount ? '（label ' + labelCount + ' 个）' : '') + ' · 对白/旁白 ' + dlgCount + ' 句 · 选项 ' + choiceCount + ' 处 · 结局 ' + endingCount + ' 个' + (result.via? '<br>整理方式：' + (result.via === 'model'? '模型整理' + (result.model? '（' + esc3(result.model) + '）': ''): '模板整理'): '') + '</div>'
@@ -1010,24 +1010,15 @@ try {
 var parsed = res.parsed;
 var hasDialogueOrChoice = false;
 parsed.vn.scenes.forEach(function (s) { s.lines.forEach(function (l) { if (l.type === 'dialogue' || l.type === 'choice') hasDialogueOrChoice = true;});});
-if (!hasDialogueOrChoice && /\.txt$/i.test(file.name)) {
+if (!hasDialogueOrChoice && /\.(txt|epub)$/i.test(file.name)) {
 var host = document.querySelector('.gd-root[data-gd="script"]') || document.body;
 var ov = document.getElementById('aw-vn-review');
-if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#f7f1e5;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
-ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">‹ 返回</button><div class="aw-news-mast"><div class="aw-news-mastname">这是普通小说正文</div><div class="aw-news-mastsub">没有明确对话与选项 · 可以整理成视觉小说结构</div></div>'
-+ '<div style="font-size:14px;line-height:1.9">解析只认出旁白，没有对话与选项。可以由智能体把它整理成视觉小说结构（分场景、指认说话人、提议选项点），整理结果同样先审阅再保存。</div>'
-+ '<div style="display:flex;gap:8px;margin-top:14px"><button type="button" class="aw-news-btn" data-aw-vnr="structure">智能体整理成视觉小说</button><button type="button" class="aw-news-btn ghost" data-aw-vnr="back">取消</button></div>';
+if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#f7f1e5;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
+ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">‹ 返回</button><div class="aw-news-mast"><div class="aw-news-mastname">正在整理小说正文</div><div class="aw-news-mastsub">没有识别到明确对白/选项 · 整理后仍会先审阅，不会直接保存</div></div>'
++ '<div style="font-size:14px;line-height:1.9">正在尝试把正文拆分为场景、对白、选项与结局。若已配置视觉小说模型，会优先使用模型；否则会明确标注为模板整理。</div>';
 ov.style.display = 'block';
-ov.onclick = function (ev) {
-var b = ev.target && ev.target.closest? ev.target.closest('[data-aw-vnr]'): null; if (!b) return;
-var act = b.getAttribute('data-aw-vnr');
-if (act === 'back') { ov.style.display = 'none'; return;}
-if (act === 'structure') {
-ov.innerHTML = '<div style="padding:20px;font-size:14px">整理中…</div>';
-structureProseToVN(text, { title: file.name.replace(/\.txt$/i, '')}).then(function (r) { openVNReview(r, file.name);});
-return;
-}
-};
+ov.onclick = function (ev) { var b = ev.target && ev.target.closest ? ev.target.closest('[data-aw-vnr="back"]') : null; if (b) ov.style.display = 'none'; };
+structureProseToVN(text, { title: file.name.replace(/\.(txt|epub)$/i, '') }).then(function (r) { openVNReview(r, file.name); }).catch(function (e) { toast3(e.message || '整理失败'); try { window.alert(e.message || '整理失败'); } catch (err) {} });
 return;
 }
 openVNReview(parsed, file.name + (res.encoding ? ' · ' + res.encoding : ''));
@@ -1041,7 +1032,7 @@ function ensureScriptVN(force) {
      才回来）。boot3 的 tick 继续调本函数，只清掉可能残留的旧节点，不再新建；force
      为真时（openVNReview 保存后）刷新一次剧本 app，让 VN 视图里的新条目立刻出现。 */
   try { var old = document.getElementById('aw-script-vn'); if (old && old.parentNode) old.parentNode.removeChild(old); } catch (e) {}
-  if (force) { try { if (typeof GD !== 'undefined' && GD.scriptApp && GD.scriptApp._refresh) GD.scriptApp._refresh(); } catch (e) {} }
+  if (force) { try { var gd = window.GroupD; if (gd && gd.scriptApp && gd.scriptApp._refresh) gd.scriptApp._refresh(); } catch (e) {} }
   return true;
 }
 /* ════════════════ 三、文游（文字冒险，参考应用式结构） ════════════════
@@ -2278,6 +2269,6 @@ searchAdventures: searchAdventures, exportAdventuresJSONL: exportAdventuresJSONL
 wyModelOn: wyModelOn, setWYModelOn: setWYModelOn, dmModeLabel: dmModeLabel,
 startAdventure: startAdventure, startAdventureFromTrip: startAdventureFromTrip, suggestActions: suggestActions,
 doWenyouRound: doWenyouRound, endAdventure: endAdventure, wyHiddenEvents: wyHiddenEvents,
-registerWenyouApp: registerWenyouApp, removeWenyouDesktopIcon: removeWenyouDesktopIcon, wyRenderHome: wyRenderHome, wyRenderPlay: wyRenderPlay, wyMilestoneCrossed: wyMilestoneCrossed, wyBuildMilestoneLetters: wyBuildMilestoneLetters, wyTemplateLetterText: wyTemplateLetterText, wyParseUploadFile: wyParseUploadFile, wyReadUploadedText: wyReadUploadedText, wyParseEpubBuffer: wyParseEpubBuffer, wyChaptersToVN: wyChaptersToVN, wyCoverThumbHTML: wyCoverThumbHTML, wyDecisionCardHTML: wyDecisionCardHTML
+registerWenyouApp: registerWenyouApp, removeWenyouDesktopIcon: removeWenyouDesktopIcon, wyRenderHome: wyRenderHome, wyRenderPlay: wyRenderPlay, wyMilestoneCrossed: wyMilestoneCrossed, wyBuildMilestoneLetters: wyBuildMilestoneLetters, wyTemplateLetterText: wyTemplateLetterText, wyParseUploadFile: wyParseUploadFile, wyReadUploadedText: wyReadUploadedText, wyParseEpubBuffer: wyParseEpubBuffer, wyChaptersToVN: wyChaptersToVN, wyCoverThumbHTML: wyCoverThumbHTML, wyDecisionCardHTML: wyDecisionCardHTML, openScriptCoverChooser: wyOpenCoverChooser
 });
 })();

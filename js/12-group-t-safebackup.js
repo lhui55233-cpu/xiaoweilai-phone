@@ -559,11 +559,10 @@ if (!sBox ||!sBox.parentNode) return false;
 if (document.getElementById('t-wx-search-box')) return true;
 var wrap = document.createElement('div');
 wrap.id = 't-wx-search-box';
-wrap.style.cssText = 'padding:8px 12px 4px;background:#fff;';
-wrap.innerHTML = '<input id="t-wx-search-input" placeholder="搜索全部聊天记录（关键词）" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;outline:none;" />' +
-'<div id="t-wx-search-results" style="margin-top:6px;"></div>';
+wrap.innerHTML = '<div id="t-wx-search-results"></div>';
 sBox.parentNode.insertBefore(wrap, sBox);
-var input = document.getElementById('t-wx-search-input');
+var input = document.querySelector('#wx-view-sessions .wx-search-box input');
+if (!input) { wrap.remove(); return false; }
 input.addEventListener('input', function () { renderWxSearchResults(input.value);});
 input.addEventListener('keydown', function (e) { if (e.key === 'Enter') renderWxSearchResults(input.value);});
 return true;
@@ -852,4 +851,3 @@ ensureWxSearchBox: ensureWxSearchBox, renderWxSearchResults: renderWxSearchResul
 openCenter: openCenter, closeCenter: closeCenter, _ui: _ui
 };
 })();
-

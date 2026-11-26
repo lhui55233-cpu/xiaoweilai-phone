@@ -2112,6 +2112,7 @@ var SC_CSS = '<style>'
  + '.sc-cast-card{flex:0 0 108px;scroll-snap-align:center;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:12px 8px;text-align:center;cursor:pointer;box-shadow:0 3px 10px rgba(90,75,60,.08);}'
  + '.sc-cast-card.on{border-color:#b08d3e;background:rgba(255,248,230,.85);box-shadow:0 4px 16px rgba(176,141,62,.25);}'
  + '.sc-cast-av{width:52px;height:52px;margin:0 auto 6px;border-radius:50%;background:linear-gradient(155deg,#8a7bb8,#5e4e8a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;}'
+ + '.sc-cast-av img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;}'
  + '.sc-cast-name{font-size:13px;font-weight:700;color:#2b2a28;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
  + '.sc-cast-sub{font-size:11px;color:#8a6d3b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
  + '.sc-cast-arrow{flex:0 0 auto;align-self:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.7);color:#6b5b3e;font-size:16px;cursor:pointer;}'
@@ -2120,6 +2121,49 @@ var SC_CSS = '<style>'
  + '.sc-cast-empty{background:rgba(255,255,255,.55);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.65);border-radius:16px;padding:16px 14px;text-align:center;color:#6b5b3e;font-size:13px;line-height:1.8;}'
  + '.sc-vnrow{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #f0e6cf;border-radius:16px;padding:12px 14px;margin-bottom:10px;}'
  + '.sc-glass .sc-glass-tag{font-size:11px;color:#8a6d3b;letter-spacing:2px;}'
+ + '.gd-root[data-gd="script"]{background:#f4f2ee;color:#292822;padding-bottom:calc(18px + env(safe-area-inset-bottom));}'
+ + '.gd-root[data-gd="script"] .gd-body{padding:6px 12px 24px;}'
+ + '.gd-root[data-gd="script"] .gd-note{margin:7px 12px 0;padding:7px 9px;font-size:10px;line-height:1.45;}'
+ + '.gd-root[data-gd="script"] .sc-tabrow{display:flex;gap:6px;overflow-x:auto;margin:10px 0;padding-bottom:2px;}'
+ + '.gd-root[data-gd="script"] .sc-tab{flex:0 0 auto;padding:8px 12px;border-radius:999px;font-size:12px;}'
+ + '.gd-root[data-gd="script"] .sc-wrap{padding:8px;border-radius:18px;background:#fff;box-shadow:0 5px 20px rgba(60,48,30,.08);}'
+ + '.gd-root[data-gd="script"] .sc-lamprow{min-height:18px;margin-bottom:4px;}'
+ + '.gd-root[data-gd="script"] .oa-home-machine .sc-screen{height:170px;min-height:0;border-width:4px;border-radius:13px;}'
+ + '.gd-root[data-gd="script"] .oa-home-machine .sc-stage{height:170px;}'
+ + '.gd-root[data-gd="script"] .sc-console,.gd-root[data-gd="script"] .sc-2dnote,.gd-root[data-gd="script"] .sc-3d-toggle{display:none!important;}'
+ + '.oa-cast-hero{display:flex;align-items:center;gap:11px;padding:10px 12px;background:#fff;border:1px solid #ebe7e0;border-radius:17px;box-shadow:0 3px 12px rgba(60,48,30,.05);cursor:pointer;}'
+ + '.oa-cast-portrait{width:48px;height:48px;border-radius:15px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#e7d8c5,#b79b76);color:#fff;font-size:22px;font-weight:700;}'
+ + '.oa-cast-portrait img{width:100%;height:100%;object-fit:cover;}'
+ + '.oa-cast-meta{flex:1;min-width:0;}'
+ + '.oa-cast-meta small{display:block;color:#9b927f;font-size:10px;letter-spacing:1.5px;}'
+ + '.oa-cast-meta b{display:block;margin-top:3px;color:#302a21;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
+ + '.oa-cast-actions{display:flex;flex-direction:column;gap:5px;}'
+ + '.oa-cast-actions button{border:1px solid #e8dfd0;background:#faf8f3;color:#68563b;border-radius:10px;padding:6px 8px;font-size:11px;white-space:nowrap;}'
+ + '.oa-reel-shelf{display:flex;gap:9px;overflow-x:auto;padding:8px 1px 7px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}'
+ + '.oa-reel-card{flex:0 0 82px;scroll-snap-align:center;border:1px solid #d6c9b3;border-radius:10px;padding:5px 5px 7px;background:#2f291f;color:#f5ead3;cursor:pointer;position:relative;box-shadow:0 3px 8px rgba(40,30,20,.14);}'
+ + '.oa-reel-card:before,.oa-reel-card:after{content:"●　●　●";display:block;color:#a99470;font-size:6px;letter-spacing:1px;white-space:nowrap;overflow:hidden;height:8px;line-height:8px;}'
+ + '.oa-reel-card.on{outline:2px solid #c8a35c;outline-offset:1px;background:#42341f;}'
+ + '.oa-reel-art{height:57px;border-radius:5px;background:linear-gradient(145deg,#d9c7a6,#8c6d4c);display:flex;align-items:flex-end;justify-content:center;color:#fff;font-size:10px;font-weight:700;text-align:center;overflow:hidden;text-shadow:0 1px 4px #000;padding:4px;box-sizing:border-box;}'
+ + '.oa-reel-label{font-size:10px;line-height:1.25;text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+ + '.oa-home-caption{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 4px;color:#7b6b52;font-size:11px;}'
+ + '.oa-home-actions{display:flex;gap:7px;align-items:stretch;margin-top:8px;}'
+ + '.oa-home-actions .sc-btn{flex:1;min-width:0;padding:10px 7px;font-size:12px;}'
+ + '.oa-home-modes{display:flex;gap:8px;margin-top:8px;}'
+ + '.oa-home-modes .sc-btn{flex:1;text-align:center;padding:9px 6px;font-size:12px;}'
+ + '.oa-import-note{font-size:10.5px;color:#989080;line-height:1.55;margin:7px 2px 0;}'
+ + '.oa-stage-cover{position:absolute;inset:0;background-position:center;background-size:cover;display:flex;align-items:center;justify-content:center;}'
+ + '.oa-stage-cover:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,17,13,.08),rgba(20,17,13,.64));}'
+ + '.oa-stage-cover-info{position:relative;z-index:1;text-align:center;color:#fff;padding:16px 20px;width:100%;box-sizing:border-box;text-shadow:0 2px 8px rgba(0,0,0,.55);}'
+ + '.oa-stage-cover-info h2{font-size:21px;letter-spacing:1px;margin:0 0 6px;}'
+ + '.oa-stage-cover-info p{font-size:11px;line-height:1.55;margin:0;color:rgba(255,255,255,.9);}'
+ + '.oa-cover-change{position:absolute;z-index:2;top:9px;right:9px;border:1px solid rgba(255,255,255,.65);background:rgba(20,17,13,.36);color:#fff;border-radius:999px;padding:6px 9px;font-size:10px;}'
+ + '.oa-home-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#f7ead3;padding:18px;box-sizing:border-box;}'
+ + '.oa-home-empty b{font-size:18px;margin-bottom:5px;}'
+ + '.oa-home-empty span{font-size:11px;line-height:1.6;color:#e3d2b6;}'
+ + '.oa-play-castline{display:flex;align-items:center;gap:8px;padding:7px 10px;margin-bottom:8px;background:#fff;border:1px solid #ebe7e0;border-radius:12px;color:#55472f;font-size:12px;}'
+ + '.oa-play-castline img{width:28px;height:28px;border-radius:9px;object-fit:cover;}'
+ + '.sc-standee img.oa-character-sprite{width:100%;height:100%;object-fit:contain;object-position:center bottom;}'
+ + '@media(max-width:360px){.gd-root[data-gd="script"] .gd-body{padding-left:8px;padding-right:8px;}.oa-home-actions .sc-btn{font-size:11px;padding-left:4px;padding-right:4px;}.oa-cast-actions button{font-size:10px;padding:6px;}}'
  + '</style>';
 
 /* ── 界面状态 ── */
@@ -2131,9 +2175,11 @@ var playSearch = '';
 var homeDeckDraw = null;
 var detailPlayId = null;
 var editId = null;
+var editDraft = null;
 var notice = '';
 var charName = getCharName();
 var look = getLook();
+var homeWorkSel = '';
 
 var filmStrip = function (frames, current) {
 var h = '<div class="sc-film">';
@@ -2143,11 +2189,11 @@ h += '<div class="' + cls + '" data-act="frame" data-i="' + i + '"><span class="
 });
 return h + '</div>';
 };
-var machineTop = function (inner) {
+var machineTop = function (inner, extraClass) {
 /* [GROUP-FIX9] 机器外壳：顶部是吊灯（SVG）+ 两侧转轮（CSS 辐条圆盘），底部是旋钮面板
    （三个装饰旋钮 + 机名 + 3D 开关）；[data-oa-3d] 是 3D 场景挂载点，大屏才有内容，
    画布盖在暖底上、机器面板之下，只露机器周围的环境（悬挂臂、转轮、灯晕、台面）。 */
-return '<div class="sc-wrap"><div class="sc-3d" data-oa-3d></div>'
+return '<div class="sc-wrap' + (extraClass ? ' ' + extraClass : '') + '"><div class="sc-3d" data-oa-3d></div>'
 + '<div class="sc-lamprow"><span class="sc-reel" aria-hidden="true"></span><svg width="34" height="26" viewBox="0 0 34 26" aria-hidden="true"><path d="M17 0V6" stroke="#a07d4a" stroke-width="2"/><path d="M4 24 L17 6 L30 24 Z" fill="#c9a86a" stroke="#7a5e34" stroke-width="1"/><circle cx="17" cy="24" r="3" fill="#ffe1a0"/></svg><span class="sc-reel" aria-hidden="true"></span></div>'
 + '<div class="sc-machine"><div class="sc-screen">' + inner + '</div>'
 + '<div class="sc-console"><span class="sc-knobdot"></span><span class="sc-knobdot"></span><span class="sc-knobdot"></span><span>胶片阅读机 · FILM READER</span><button type="button" class="sc-btn ghost sc-3d-toggle" data-act="3d-toggle">' + esc(oa3dLabel()) + '</button></div></div><div class="sc-2dnote">' + esc(oa3dNote()) + '</div></div>';
@@ -2188,6 +2234,41 @@ var oaSelCharId = function (real) {
   try { var AW = oaAW(); if (AW && AW.scriptCharId) { var id = AW.scriptCharId(); if (id) { var ok = false; real.forEach(function (ch) { if (ch.id === id) ok = true; }); if (ok) return id; } } } catch (e) {}
   return (real[0] && real[0].id) || '';
 };
+var OA_PORTRAIT_KEY = 'phone_script_portraits_v1';
+var oaPortraitMap = function () { try { var x = JSON.parse(localStorage.getItem(OA_PORTRAIT_KEY) || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } };
+var oaPortraitData = function (id) { if (!id) return ''; var d = oaPortraitMap()[String(id)] || ''; return /^data:image\/(png|jpeg|webp);base64,/i.test(d) ? d : ''; };
+var oaSetPortrait = function (id, data) { if (!id || !/^data:image\/png;base64,/i.test(data || '')) return false; var m = oaPortraitMap(); m[String(id)] = data; try { localStorage.setItem(OA_PORTRAIT_KEY, JSON.stringify(m)); return true; } catch (e) { return false; } };
+var oaCharById = function (id) { var out = null; oaRealChars().forEach(function (ch) { if (ch.id === id) out = ch; }); return out; };
+var oaCastAvatarHTML = function (ch, cls) { var src = oaPortraitData(ch && ch.id); if (!src && ch && /^data:image\//i.test(ch.avatar || '')) src = ch.avatar; return '<div class="' + (cls || 'sc-cast-av') + '">' + (src ? '<img src="' + esc(src) + '" alt="' + esc(ch.name || '人物立绘') + '">' : esc((ch && ch.name || '?').charAt(0))) + '</div>'; };
+var oaHomeCastHTML = function () {
+  var real = oaRealChars();
+  if (!real.length) return '<div class="oa-cast-hero"><div class="oa-cast-portrait">＋</div><div class="oa-cast-meta"><small>出演人物</small><b>还没有角色</b><small style="letter-spacing:0">先去角色库创建人物，再上传 PNG 立绘</small></div><div class="oa-cast-actions"><button type="button" data-act="cast-library">角色库</button><button type="button" data-act="cast-new">创建</button></div></div>';
+  var id = oaSelCharId(real), ch = oaCharById(id) || real[0], src = oaPortraitData(ch.id);
+  var portrait = src ? '<img src="' + esc(src) + '" alt="' + esc(ch.name) + '立绘">' : esc((ch.name || '?').charAt(0));
+  var sub = ch.occupation || ch.relationship || (ch.isMain ? '主角' : '已加入角色库');
+  return '<div class="oa-cast-hero" data-act="cast-dossier" data-id="' + esc(ch.id) + '" role="button" tabindex="0"><div class="oa-cast-portrait">' + portrait + '</div><div class="oa-cast-meta"><small>本卷出演 · 点击查看档案</small><b>' + esc(ch.name) + '</b><small style="letter-spacing:0">' + esc(sub) + '</small></div><div class="oa-cast-actions"><button type="button" data-act="portrait-pick">上传 PNG</button><button type="button" data-act="cast-library">角色库</button></div></div>';
+};
+var oaPlayCastLine = function () {
+  var real = oaRealChars(), id = oaSelCharId(real), ch = oaCharById(id); if (!ch) return '';
+  var src = oaPortraitData(ch.id);
+  return '<div class="oa-play-castline">' + (src ? '<img src="' + esc(src) + '" alt="">' : '<span class="oa-cast-portrait" style="width:28px;height:28px;border-radius:9px;font-size:13px">' + esc((ch.name || '?').charAt(0)) + '</span>') + '<span style="flex:1">出演：<b>' + esc(ch.name) + '</b></span><button type="button" class="sc-btn ghost" data-act="cast-dossier" style="padding:5px 9px;font-size:11px">查看档案</button></div>';
+};
+var oaScriptCoverKey = function (id) { return 'script:' + String(id || ''); };
+var oaWorkCoverKey = function (work) { return work && work.kind === 'vn' ? String(work.id) : oaScriptCoverKey(work && work.id); };
+var oaCoverBackground = function (bookId, title) { try { var B = window.BuCovers; if (B && B.frontBg) { var c = B.frontBg({ id: bookId, title: title || '' }, '#8b7655'); if (c && c.bg) return c.bg; } } catch (e) {} return 'linear-gradient(145deg,#9c7651,#433b36)'; };
+var oaHomeWorks = function () {
+  var out = allScripts().map(function (s) { return { key: 'script:' + s.id, kind: 'script', id: s.id, title: s.title, desc: s.desc || s.setting || '', count: (s.scenes || []).length, original: s }; });
+  try { var AW = oaAW(), vns = AW && AW.listVNs ? AW.listVNs() || [] : []; vns.forEach(function (v) { out.push({ key: 'vn:' + v.id, kind: 'vn', id: v.id, title: v.title, desc: '视觉小说 · ' + ((v.scenes || []).length) + ' 个场景', count: (v.scenes || []).length, original: v }); }); } catch (e) {}
+  return out;
+};
+var oaGetHomeWork = function (key) { var works = oaHomeWorks(), found = null; works.forEach(function (w) { if (w.key === key) found = w; }); return found; };
+var oaFilmShelfHTML = function (list, selectedKey) {
+  if (!list.length) return '<div class="oa-home-empty"><b>还没有剧本胶片</b><span>导入 TXT / EPUB，或新建一卷。导入的小说正文会自动整理成视觉小说草稿，并先让你审阅。</span></div>';
+  return '<div class="oa-reel-shelf">' + list.map(function (s, i) {
+    var cov = oaCoverBackground(oaWorkCoverKey(s), s.title), active = s.key === selectedKey;
+    return '<button type="button" class="oa-reel-card' + (active ? ' on' : '') + '" data-act="sel-home-work" data-key="' + esc(s.key) + '" aria-pressed="' + (active ? 'true' : 'false') + '"><span class="oa-reel-art" style="background:' + esc(cov) + '">' + esc(s.title || '未命名') + '</span><span class="oa-reel-label">' + (s.kind === 'vn' ? '◉ ' : '▣ ') + esc(s.title || '未命名') + '</span></button>';
+  }).join('') + '</div>';
+};
 var oaCastHTML = function () {
   var AW = oaAW();
   if (!AW || !AW.allArchiveChars) return '<div class="sc-cast-empty">人物选择器需要角色库（微信创建人物），现在读不到角色库。</div>';
@@ -2201,24 +2282,22 @@ var oaCastHTML = function () {
   var curCh = null; real.forEach(function (ch) { if (ch.id === cur) curCh = ch; });
   var cards = real.map(function (ch) {
     var sub = ch.isMain ? '主角' : (ch.occupation || ch.relationship || '联系人');
-    return '<div class="sc-cast-card' + (ch.id === cur ? ' on' : '') + '" data-act="cast-sel" data-id="' + esc(ch.id) + '" role="button" tabindex="0"><div class="sc-cast-av">' + esc((ch.name || '?').charAt(0)) + '</div><div class="sc-cast-name">' + esc(ch.name) + '</div><div class="sc-cast-sub">' + esc(sub) + '</div></div>';
+    return '<div class="sc-cast-card' + (ch.id === cur ? ' on' : '') + '" data-act="cast-sel" data-id="' + esc(ch.id) + '" role="button" tabindex="0">' + oaCastAvatarHTML(ch, 'sc-cast-av') + '<div class="sc-cast-name">' + esc(ch.name) + '</div><div class="sc-cast-sub">' + esc(sub) + '</div></div>';
   }).join('');
-  return '<div class="sc-cast"><div class="sc-cast-head"><b>出演人物</b><span>横向滑动，滑到谁选中谁</span></div>'
+  return '<div class="sc-cast"><div class="sc-cast-head"><b>切换出演角色</b><span>横向滑动选择</span></div>'
     + '<div style="display:flex;gap:6px;align-items:stretch;"><button type="button" class="sc-cast-arrow" data-act="cast-prev" aria-label="上一个人物">‹</button><div class="sc-cast-strip">' + cards
     + '<div class="sc-cast-card" data-act="cast-new" role="button" tabindex="0"><div class="sc-cast-av" style="background:linear-gradient(155deg,#c9a86a,#8a6d3b);">＋</div><div class="sc-cast-name">创建人物</div><div class="sc-cast-sub">去角色库新建</div></div></div><button type="button" class="sc-cast-arrow" data-act="cast-next" aria-label="下一个人">›</button></div>'
-    + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;"><span style="font-size:12.5px;color:#6b5b3e;flex:1;">当前出演：<b data-oa-curcast>' + esc(curCh ? curCh.name : '') + '</b></span><button type="button" class="sc-btn ghost" data-act="cast-dossier">查看档案</button><button type="button" class="sc-btn ghost" data-act="cast-library">角色库</button></div>'
-    + '<div class="sc-mode-row"><button type="button" class="sc-btn warm" data-act="mode-wenyou">文游</button><button type="button" class="sc-btn warm" data-act="mode-vn">视觉小说</button></div>'
-    + '<div style="font-size:11.5px;color:#a39a8d;margin-top:6px;">选定人物后进文游或视觉小说；档案按刑侦档案样式打开。</div></div>';
+    + '<div style="font-size:11px;color:#a39a8d;margin-top:3px;">点击顶部人物卡查看档案；PNG 立绘只保存在本机。</div></div>';
 };
 var oaVNHTML = function () {
   var AW = oaAW();
   var vns = [];
   try { if (AW && AW.listVNs) vns = AW.listVNs() || []; } catch (e) {}
   var h = '<div class="sc-card"><h3>视觉小说</h3><p>剧本以视觉小说形式演：背景场景、人物立绘、底部对话框、点按推进、选项分支、好感度、结局。演完可保存或放弃记忆。</p></div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;"><label class="sc-btn warm" style="cursor:pointer;">上传文件生成视觉小说<input type="file" accept=".sks,.txt,.json" style="display:none" data-oa-vn-upload></label><span style="font-size:12px;color:#a08a7a;">支持 .sks（SakiEngine，第一档）/ .txt / .json；超过 500KB 会提示（localStorage 装不下）。</span></div>';
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;"><label class="sc-btn warm" style="cursor:pointer;">上传文件生成视觉小说<input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload></label><span style="font-size:12px;color:#a08a7a;">支持 .sks / .txt / .json / .epub。普通小说正文会尝试用已配置模型整理；未配置时用模板规则，结果均先审阅再保存。</span></div>';
   if (!vns.length) h += '<div class="sc-card"><p>还没有视觉小说，上传一份 .txt 或 .json 剧本试试。</p></div>';
   vns.forEach(function (v) {
-    h += '<div class="sc-vnrow"><div style="flex:1;min-width:0;"><b>《' + esc(v.title) + '》</b><small style="display:block;font-size:11.5px;color:#a39a8d;margin-top:2px;">' + (v.scenes || []).length + ' 个场景 · ' + (v.source === 'structured' ? '智能体整理' : (v.source === 'sks' ? 'SKS 导入' : '上传')) + ' · ' + esc(((v.characters || []).join('、')) || '无说话人') + '</small></div><button type="button" class="sc-btn warm" data-act="vn-play" data-id="' + esc(v.id) + '">▶ 玩</button><button type="button" class="sc-btn ghost" data-act="vn-audio" data-id="' + esc(v.id) + '">♪ 音频</button><button type="button" class="sc-btn ghost" data-act="vn-del" data-id="' + esc(v.id) + '">✕</button></div>';
+    h += '<div class="sc-vnrow"><div style="flex:1;min-width:0;"><b>《' + esc(v.title) + '》</b><small style="display:block;font-size:11.5px;color:#a39a8d;margin-top:2px;">' + (v.scenes || []).length + ' 个场景 · ' + (v.source === 'structured' ? '模型整理' : (v.source === 'template' ? '模板规则整理' : (v.source === 'sks' ? 'SKS 导入' : '上传'))) + ' · ' + esc(((v.characters || []).join('、')) || '无说话人') + '</small></div><button type="button" class="sc-btn warm" data-act="vn-play" data-id="' + esc(v.id) + '">▶ 玩</button><button type="button" class="sc-btn ghost" data-act="vn-audio" data-id="' + esc(v.id) + '">♪ 音频</button><button type="button" class="sc-btn ghost" data-act="vn-del" data-id="' + esc(v.id) + '">✕</button></div>';
   });
   h += '<button type="button" class="sc-btn ghost" data-act="tab" data-v="reels">‹ 返回胶片架</button>';
   return h;
@@ -2434,12 +2513,14 @@ else if (phase === 'char') cur = { who: 'char', text: charAct };
 else if (phase === 'you') cur = scene.choice ? { who: 'narr', text: scene.choice.prompt } : { who: 'narr', text: '这一轮没有选项——由你决定怎么继续，转动转轮默认“静观其变”。' };
 else cur = { who: 'narr', text: ((session.roundLog[session.roundLog.length - 1] || {}).summary || '本轮汇总生成中……') };
 var whoLabel =!cur? '旁白': (cur.who === 'char'? charName: (cur.who === 'you'? '你': '旁白'));
+var _oaSpriteSrc = oaPortraitData(oaSelCharId(oaRealChars()));
 var stageInner = '<div class="sc-stage" style="background:' + (SCENE_BG[scene.bg] || SCENE_BG.cafe) + ';">'
 + '<div class="sc-scene-tag">' + esc(scene.title) + ' · 第' + (session.round || 1) + '轮 · ' + (AE_PHASE_NAMES[phase] || '') + '</div>'
 + '<div class="sc-aff">♥ 好感 ' + session.affection + '</div>'
-+ '<div class="sc-standee">' + charSvg(look, session.affection) + '</div>'
++ '<div class="sc-standee">' + (_oaSpriteSrc ? '<img class="oa-character-sprite" src="' + esc(_oaSpriteSrc) + '" alt="' + esc(charName) + '立绘">' : charSvg(look, session.affection)) + '</div>'
 + '<div class="sc-dialog"><div class="sc-who">' + esc(whoLabel) + '</div>'
 + '<p class="sc-line">' + (cur? esc(cur.text): (atEnd && scene.choice? esc(scene.choice.prompt): '（本幕结束，转动转轮到下一幕）')) + '</p></div></div>';
+h += oaPlayCastLine();
 h += machineTop(stageInner);
 h += (window.PhoneModel ? window.PhoneModel.statusLineHTML('scriptDm') : '');
 h += filmStrip(sc.scenes.map(function (s) { return s.title;}), session.sceneIdx);
@@ -2478,7 +2559,7 @@ h += '<div class="sc-card"><h3>这卷胶片放完了</h3><p>选「保存记忆�
 + '<button class="sc-btn danger" data-act="discard-memory">🗑 放弃记忆</button></div></div>';
 return h;
 }
-h += tabsHtml();
+if (view !== 'reels') h += tabsHtml();
 if (view === 'vn') {
 h += oaVNHTML(); /* [GROUP-FIX9] 视觉小说视图：接已有 AW.openVNPlayer，不另起播放器 */
 return h;
@@ -2573,35 +2654,37 @@ h += '<div class="sc-can" data-act="open-saved" data-id="' + esc(r.id) + '"><div
 return h;
 }
 /* 默认：胶片架（阅读机主界面） */
-var all = allScripts();
-var sel = findScript(selId) || all[0]; if (sel) selId = sel.id;
-var coverInner = sel? '<div class="sc-stage" style="background:' + SCENE_BG.dusk + ';">'
-+ '<div class="sc-screen-title"><div class="sc-cover-emoji">' + coverEmoji(sel.id) + '</div><h2>' + esc(sel.title) + '</h2>'
-+ '<p>' + esc(sel.desc || '') + '</p><p style="margin-top:8px;">' + sel.scenes.length + ' 幕 · ' + (sel.endings || []).length + ' 个结局 · 主角 ' + esc(charName) + '</p></div></div>': '';
-h += machineTop(coverInner);
-h += filmStrip(all.map(function (s) { return s.title;}), all.indexOf(sel));
-h += '<div class="sc-controls"><button class="sc-knob" data-act="prev-reel" title="旋钮：换一卷胶片">‹</button>'
-+ '<button class="sc-btn warm" data-act="play-sel" style="flex:1;">▶ 放映此卷</button>'
-+ '<button class="sc-knob" data-act="next-reel" title="旋钮：换一卷胶片">›</button></div>';
-h += '<div class="sc-ctl-note" style="color:#8a6d3b;margin-top:8px;">旋钮切换胶片 · 转轮推进回合 · 屏幕里演支线恋爱 · 演完可选归档或作废</div>';
-h += oaCastHTML(); /* [GROUP-FIX9] 出演人物选择器 + 档案 + 文游/视觉小说模式行 */
-h += '<div class="sc-glass" style="margin-top:12px;"><div class="sc-glass-tag">每日一句</div><div style="font-size:14.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeDailyQuote(new Date())) + '</div><div style="font-size:11px;color:#a39a8d;margin-top:4px;">' + esc(todayStr2()) + ' · 文案为本组新写，按日期轮换</div></div>';
-h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn ghost" data-act="deck-draw" data-kind="question">🎲 抽个怪问题</button><button class="sc-btn ghost" data-act="deck-draw" data-kind="scene">🃏 抽张场景卡</button></div>';
-var _dd0 = homeDeckDraw || (session && session.deckDraw);
-if (_dd0) h += '<div class="sc-glass" style="margin-top:10px;"><div style="font-size:13px;line-height:1.65;color:#2b2a28;">' + esc(_dd0.text) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">预置题库，非 AI 生成</div></div>';
+var works = oaHomeWorks();
+var selected = null;
+works.forEach(function (w) { if (w.key === homeWorkSel) selected = w; });
+if (!selected) { works.forEach(function (w) { if (!selected && w.kind === 'script' && w.id === selId) selected = w; }); }
+if (!selected && works.length) selected = works[0];
+homeWorkSel = selected ? selected.key : '';
+if (selected && selected.kind === 'script') selId = selected.id;
+h += oaHomeCastHTML();
+/* 首页主角卡已经能打开档案；仅在有多位人物时显示横向切换条，避免重复占用首屏。 */
+if (oaRealChars().length > 1) h += oaCastHTML();
+h += tabsHtml();
+var coverMeta = selected ? (selected.kind === 'vn' ? '视觉小说 · ' + selected.count + ' 个场景' : selected.count + ' 幕 · ' + ((selected.original.endings || []).length) + ' 个结局') : '';
+var coverInner = selected
+  ? '<div class="sc-stage"><div class="oa-stage-cover" style="background:' + esc(oaCoverBackground(oaWorkCoverKey(selected), selected.title)) + '"><div class="oa-stage-cover-info"><h2>' + esc(selected.title) + '</h2><p>' + esc(selected.desc || '把故事放进胶片，开始一场互动演绎。') + '</p><p style="margin-top:6px">' + esc(coverMeta) + ' · 出演 ' + esc(charName) + '</p></div><button type="button" class="oa-cover-change" data-act="cover-change-home">换封面</button></div></div>'
+  : '<div class="sc-stage"><div class="oa-home-empty"><b>胶片架还空着</b><span>导入 TXT / EPUB，或新建一卷故事。没有可用模型时会用模板整理，并明确标注。</span></div></div>';
+h += machineTop(coverInner, 'oa-home-machine');
+h += '<div class="oa-home-caption"><span>胶片架</span><span>' + (selected ? (selected.kind === 'vn' ? '视觉小说' : '互动剧本') + ' · ' + (works.indexOf(selected) + 1) + ' / ' + works.length : '导入或新建你的第一卷') + '</span></div>';
+h += oaFilmShelfHTML(works, homeWorkSel);
+h += '<div class="oa-home-actions"><button class="sc-btn warm" data-act="play-home-sel"' + (selected ? '' : ' disabled') + '>▶ 开始放映</button>'
++ '<button class="sc-btn ghost" data-act="cover-change-home"' + (selected ? '' : ' disabled') + '>换封面</button>'
++ '<button class="sc-btn ghost" data-act="import-vn-open">＋ 导入</button></div>';
+h += '<input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload>';
+h += '<input type="file" accept="image/png" style="display:none" data-oa-portrait-input>';
+h += '<div class="oa-home-modes"><button class="sc-btn warm" data-act="mode-wenyou">文游 · 自由演绎</button><button class="sc-btn ghost" data-act="mode-vn">视觉小说 · 分支剧情</button></div>';
+h += '<div class="oa-import-note">支持 TXT / EPUB / JSON / SKS。普通小说正文会自动尝试模型整理；未配置模型时使用模板规则。整理结果先审阅，确认后才保存为可玩视觉小说。静态 PNG 立绘不等同于 Live2D。</div>';
+if (!works.length) h += '<button class="sc-btn ghost" data-act="new-custom" style="width:100%;margin-top:8px;">✎ 新建自定义互动剧本</button>';
 if (session &&!session.ended) {
 h += '<div class="sc-card"><h3>放映进行中</h3><p>《' + esc(session.title) + '》第 ' + (session.sceneIdx + 1) + ' 幕 · 好感 ' + session.affection + '</p>'
 + '<div style="display:flex;gap:8px;margin-top:10px;"><button class="sc-btn warm" data-act="resume-play">继续放映</button>'
 + '<button class="sc-btn danger" data-act="discard-memory">放弃这卷</button></div></div>';
 }
-if (!all.length) h += '<div class="sc-card"><h3>还没有剧本</h3><p>内置剧本已清空。点上方「自定义剧本」→「＋ 新建自定义剧本」，写一卷属于你自己的胶片；演完可选归档进归巢记忆，或作废不留记录。</p></div>';
-h += '<div style="margin-top:12px;">';
-all.forEach(function (s) {
-h += '<div class="sc-card"><h3>' + coverEmoji(s.id) + ' ' + esc(s.title) + '</h3><p>' + esc(s.desc || '') + '</p>'
-+ '<div class="meta">' + s.scenes.length + ' 幕 · ' + (s.endings || []).length + ' 个结局' + (s.id.indexOf('builtin-') === 0? ' · 内置剧本': ' · 自定义') + '</div>'
-+ '<div style="margin-top:10px;"><button class="sc-btn warm" data-act="play-sel-id" data-id="' + esc(s.id) + '">▶ 放映</button></div></div>';
-});
-h += '</div>';
 return h;
 };
 var bindBody = function (win) {
@@ -2617,9 +2700,14 @@ var act = btn.getAttribute('data-act');
 var id = btn.getAttribute('data-id');
 var idx = parseInt(btn.getAttribute('data-i') || '0', 10);
 if (act === 'tab') { view = btn.getAttribute('data-v'); detailId = null; notice = ''; app._refresh();}
+else if (act === 'sel-home-work') { homeWorkSel = btn.getAttribute('data-key') || ''; var _hw = oaGetHomeWork(homeWorkSel); if (_hw && _hw.kind === 'script') selId = _hw.id; notice = ''; app._refresh();}
+else if (act === 'play-home-sel') { var _pw = oaGetHomeWork(homeWorkSel); if (_pw && _pw.kind === 'vn') { try { var _paw = oaAW(); if (_paw && _paw.openVNPlayer) _paw.openVNPlayer(_pw.id); } catch (e) {} } else if (_pw) { var _psc = findScript(_pw.id); if (_psc) startPlay(_psc); app._refresh(); } }
+else if (act === 'cover-change-home') { var _cw = oaGetHomeWork(homeWorkSel); if (_cw) { try { var _caw = oaAW(); if (_caw && _caw.openScriptCoverChooser) _caw.openScriptCoverChooser(oaWorkCoverKey(_cw), _cw.title, function () { app._refresh(); }); } catch (e) { notice = '封面组件暂不可用，请稍后再试。'; app._refresh(); } } }
+else if (act === 'import-vn-open') { try { var _fi = win.querySelector('[data-oa-vn-upload]'); if (_fi) _fi.click(); } catch (e) {} }
 else if (act === 'cast-sel') { try { var AW9a = oaAW(); if (AW9a && AW9a.setScriptChar) AW9a.setScriptChar(id); } catch (e) {} notice = ''; app._refresh();}
 else if (act === 'cast-prev' || act === 'cast-next') { try { var AW9b = oaAW(); var _real = oaRealChars(); if (_real.length) { var _cur = oaSelCharId(_real); var _i = 0; _real.forEach(function (ch, j) { if (ch.id === _cur) _i = j; }); _i = (_i + (act === 'cast-next' ? 1 : -1) + _real.length) % _real.length; if (AW9b && AW9b.setScriptChar) AW9b.setScriptChar(_real[_i].id); } } catch (e) {} app._refresh(); try { var _card = win.querySelector('.sc-cast-card.on'); if (_card && _card.scrollIntoView) _card.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}}
-else if (act === 'cast-dossier') { try { var AW9c = oaAW(); var _rid = oaSelCharId(oaRealChars()); if (AW9c && AW9c.openArchive && _rid) AW9c.openArchive(_rid); } catch (e) {}}
+else if (act === 'cast-dossier') { try { var AW9c = oaAW(); var _rid = id || oaSelCharId(oaRealChars()); if (AW9c && AW9c.openArchive && _rid) AW9c.openArchive(_rid); } catch (e) {}}
+else if (act === 'portrait-pick') { try { var _hero = btn.closest('.oa-cast-hero'); var _pid = _hero && _hero.getAttribute('data-id') || oaSelCharId(oaRealChars()); var _pi = win.querySelector('[data-oa-portrait-input]'); if (_pi && _pid) { _pi.dataset.charId = _pid; _pi.click(); } } catch (e) {} }
 else if (act === 'cast-library') { try { var AW9d = oaAW(); if (AW9d && AW9d.openCharLibrary) AW9d.openCharLibrary(); } catch (e) {}}
 else if (act === 'cast-new') { try { var AW9e = oaAW(); if (AW9e && AW9e.openCreateChar) AW9e.openCreateChar(); else if (AW9e && AW9e.openCharLibrary) AW9e.openCharLibrary(); } catch (e) {}}
 else if (act === 'mode-wenyou') { try { if (typeof AppManager !== 'undefined' && AppManager.launch) AppManager.launch('wenyou'); } catch (e) {}}
@@ -2680,6 +2768,34 @@ editDraft = null; view = 'editorList'; notice = '剧本「' + sc.title + '」已
 /* [GROUP-FIX9] VN 上传接线 + 人物条滑动选中 + 3D 初始化（每次 renderBody 重绘后
    bindBody 都会跑，节点是新造的，不会重复绑；滑动选中只在真有横向溢出时才生效）。 */
 try { var _oaUp = win.querySelector('[data-oa-vn-upload]'); if (_oaUp) _oaUp.addEventListener('change', function (ev) { var f = ev.target && ev.target.files && ev.target.files[0]; if (!f) return; try { var AW9u = oaAW(); if (AW9u && AW9u.handleVNFile) AW9u.handleVNFile(f); } catch (e) {} }); } catch (e) {}
+try {
+  var _oaPortraitInput = win.querySelector('[data-oa-portrait-input]');
+  if (_oaPortraitInput) _oaPortraitInput.addEventListener('change', function (ev) {
+    var f = ev.target && ev.target.files && ev.target.files[0], cid = _oaPortraitInput.dataset.charId || oaSelCharId(oaRealChars());
+    if (!f || !cid) return;
+    if (!(f.type === 'image/png' || /\.png$/i.test(f.name)) || f.size > 8 * 1024 * 1024) { window.alert('请选择 8MB 以内的 PNG 图片。'); _oaPortraitInput.value = ''; return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        try {
+          var scale = Math.min(1, 520 / (im.naturalWidth || im.width), 720 / (im.naturalHeight || im.height));
+          var cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round((im.naturalWidth || im.width) * scale)); cv.height = Math.max(1, Math.round((im.naturalHeight || im.height) * scale));
+          var cx = cv.getContext('2d'); cx.clearRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+          var data = cv.toDataURL('image/png');
+          if (data.length > 2100000) { window.alert('这张 PNG 仍然太大，请换一张较小的透明立绘。'); return; }
+          if (!oaSetPortrait(cid, data)) { window.alert('保存失败：本机存储空间不足，请先移除较大的本地图片。'); return; }
+          app._refresh();
+        } catch (e) { window.alert('PNG 处理失败，请尝试另一张图片。'); }
+        finally { _oaPortraitInput.value = ''; }
+      };
+      im.onerror = function () { window.alert('无法读取这张 PNG 图片。'); _oaPortraitInput.value = ''; };
+      im.src = String(rd.result || '');
+    };
+    rd.onerror = function () { window.alert('读取图片失败。'); _oaPortraitInput.value = ''; };
+    rd.readAsDataURL(f);
+  });
+} catch (e) {}
 try { var _oaStrip = win.querySelector('.sc-cast-strip'); if (_oaStrip) _oaStrip.addEventListener('scroll', function () { try { if (_oaStrip.scrollWidth <= _oaStrip.clientWidth + 4) return; if (_oaStrip._oaT) clearTimeout(_oaStrip._oaT); _oaStrip._oaT = setTimeout(function () { var cards = _oaStrip.querySelectorAll('.sc-cast-card[data-id]'); if (!cards.length) return; var mid = _oaStrip.scrollLeft + _oaStrip.clientWidth / 2; var best = null, bestD = 1e9; for (var i = 0; i < cards.length; i++) { var c = cards[i]; var cc = c.offsetLeft + c.offsetWidth / 2; var d = Math.abs(cc - mid); if (d < bestD) { bestD = d; best = c; } } if (!best) return; var bid = best.getAttribute('data-id'); var AW9h = oaAW(); var cur = ''; try { cur = AW9h.scriptCharId(); } catch (e) {} if (bid && bid !== cur) { try { AW9h.setScriptChar(bid); } catch (e) {} var all = _oaStrip.querySelectorAll('.sc-cast-card'); for (var j = 0; j < all.length; j++) all[j].classList.toggle('on', all[j] === best); var lab = win.querySelector('[data-oa-curcast]'); if (lab) lab.textContent = best.querySelector('.sc-cast-name').textContent; } }, 140); } catch (e) {} }, { passive: true }); } catch (e) {}
 try { oaEnsure3D(win); } catch (e) {}
 };
@@ -3429,4 +3545,3 @@ window.HabitCore = HabitCore;
 /* ── 对外出口 ── */
 window.GroupD = GD;
 })();
-
