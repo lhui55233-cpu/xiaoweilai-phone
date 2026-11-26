@@ -1,0 +1,24 @@
+
+
+.gm-desk-pet { position:absolute; right:14px; bottom:118px; width:52px; height:62px; z-index:30; pointer-events:auto;} /* GROUP-FIX2: 宠物盒 64x78 -> 52x62 */ /* GROUP-PET: 容器恢复可点——点按/拖动都走容器；内层 .gm-pet-char 本来就是 auto */
+.gm-desk-pet.gm-pet-char { width:52px; height:62px; cursor:pointer; pointer-events:auto; transition:transform.3s ease; filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));} /* GROUP-FIX2: 同上 */
+.gm-desk-pet.gm-pet-char svg { width:100%; height:100%; display:block;}
+.gm-desk-pet.gm-pet-char img { width:100%; height:100%; object-fit:cover; border-radius:50%;}
+.gm-desk-pet.gm-pet-char.gm-blink svg { transform:scaleY(.92);}
+.gm-desk-pet.gm-pet-char.gm-sway { animation:gm-pet-sway.9s ease-in-out;}
+@keyframes gm-pet-sway { 0%,100% { transform:rotate(0);} 50% { transform:rotate(4deg) translateY(-2px);}}
+.gm-desk-pet.gm-sleeping.gm-pet-char { opacity:.75;}
+.gm-pet-zzz { position:absolute; top:-6px; right:-2px; font-size:13px; font-weight:800; color:#7a9cc6;}
+.gm-pet-bubble { position:absolute; right:0; bottom:82px; width:172px; background:#fff; border-radius:12px; padding:8px 10px; font-size:12px; line-height:1.5; color:#4a3226; box-shadow:0 6px 18px rgba(0,0,0,.2); pointer-events:auto; z-index:31;}
+.gm-pet-bubble::after { content:''; position:absolute; right:22px; bottom:-5px; border:5px solid transparent; border-top-color:#fff; border-bottom:0;}
+.gm-pet-bubble-btns { display:flex; gap:6px; margin-top:8px;}
+.gm-pet-bubble-btns button { flex:1; border:0; background:#f3e2d3; color:#7a4a28; font-size:11px; font-weight:700; border-radius:12px; padding:6px 4px; cursor:pointer;}
+.gm-photo-modal { position:fixed; inset:0; background:rgba(20,20,40,.55); display:flex; align-items:center; justify-content:center; z-index:9999;}
+.gm-photo-card { background:#fff; border-radius:18px; padding:16px; width:280px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.35);}
+.gm-photo-scene { height:220px; border-radius:12px; background:linear-gradient(180deg,#a8d0f0,#f7e8c8); display:flex; align-items:flex-end; justify-content:center; overflow:hidden;}
+.gm-photo-scene svg { height:200px;}
+.gm-photo-scene img { height:200px; object-fit:cover;}
+.gm-photo-cap { font-size:14px; font-weight:800; color:#3a1e14; margin-top:10px;}
+.gm-photo-sub { font-size:12px; color:#8a6a52; margin-top:4px; line-height:1.6;}
+.gm-photo-close { margin-top:12px; border:0; background:#c87a5a; color:#fff; font-size:13px; font-weight:700; border-radius:16px; padding:8px 18px; cursor:pointer;}
+

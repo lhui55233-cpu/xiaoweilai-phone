@@ -1,0 +1,44 @@
+
+/* GROUP-AY2 · A5/A3/A8/A9/A10 补做（只借思路，代码全部自写；来源见脚本注释） */
+#aw-pc-grid .aw-pc{touch-action:pan-y}
+.ay2-pc-ctl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ay2-btn{border:1px solid #b08d3e;background:#b08d3e;color:#fffdf7;font-size:13px;font-weight:700;border-radius:4px;padding:8px 12px;cursor:pointer;font-family:inherit}
+.ay2-btn.ghost{background:transparent;color:#b08d3e}
+.ay2-pc-leaving{transition:transform .45s cubic-bezier(.2,.7,.3,1),opacity .45s ease!important;transform:translateY(-72px) rotate(-6deg) scale(.96)!important;opacity:0!important;pointer-events:none!important}
+@keyframes ay2-rise{from{transform:translateY(10px) scale(.94);opacity:.4}to{transform:none;opacity:1}}
+.ay2-pc-rise{animation:ay2-rise .35s cubic-bezier(.2,.7,.3,1)}
+.ay2-pc-collage{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px;margin-top:4px}
+.ay2-polaroid{position:relative;background:#fffdf7;border:1px solid #e6dcc3;padding:8px 8px 10px;box-shadow:0 2px 8px rgba(138,109,43,.12);cursor:pointer}
+.ay2-polaroid .ay2-polaroid-cap{font-family:"Songti SC","Noto Serif SC",STSong,serif;font-style:italic;font-size:12px;line-height:1.7;color:#4a3226;margin-top:6px}
+.ay2-polaroid .ay2-polaroid-meta{font-size:11px;color:#a08a7a;line-height:1.6;margin-top:4px}
+.ay2-tape{position:absolute;width:64px;height:18px;background:rgba(232,214,160,.78);border-left:1px dashed rgba(138,109,43,.35);border-right:1px dashed rgba(138,109,43,.35);box-shadow:0 1px 2px rgba(0,0,0,.08);pointer-events:none;z-index:5}
+.ay2-tape-corner{top:-9px;left:18px;transform:rotate(-4deg)}
+.ay2-stamp{display:inline-block;border:1.5px solid #a34a4e;color:#a34a4e;border-radius:3px;padding:2px 6px;font-size:10px;letter-spacing:1px;transform:rotate(-6deg);opacity:.75;font-family:"Songti SC","Noto Serif SC",STSong,serif}
+.ay2-spark{position:absolute;width:6px;height:6px;border-radius:50%;background:#e8b64c;box-shadow:0 0 6px #e8b64c;pointer-events:none;z-index:6}
+.aw-ca.ay2-flip{perspective:1000px;transform-style:preserve-3d}
+.aw-ca.ay2-flip .aw-ca-pageTwo{transform-origin:left center;transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .8s cubic-bezier(.2,.7,.3,1)!important;opacity:1!important;visibility:visible!important;pointer-events:none!important}
+.aw-ca.ay2-flip.page-two .aw-ca-pageTwo{transform:rotateY(0deg)!important;pointer-events:auto!important}
+.ay2-ca-crease{position:absolute;left:0;top:0;bottom:0;width:0;border-left:2px dashed #b3543f;z-index:26;pointer-events:none}
+.ay2-ca-crease-label{position:absolute;left:8px;bottom:56px;font-size:6px;letter-spacing:.08em;color:#a34a4c;z-index:26;pointer-events:none}
+.ay2-ca-stamp{position:absolute;left:24px;bottom:64px;z-index:26;pointer-events:none}
+.ay2-expand-ov{position:absolute;inset:0;background:#f7f1e5;z-index:80;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;font-family:"Songti SC","Noto Serif SC",STSong,serif;color:#2b2620}
+.ay2-expand-card{position:absolute;background:#fffdf7;border:1px solid #e6dcc3;border-radius:6px;padding:14px;box-sizing:border-box;transition:left .3s cubic-bezier(.2,.7,.3,1),top .3s cubic-bezier(.2,.7,.3,1),width .3s cubic-bezier(.2,.7,.3,1),opacity .3s ease;overflow:hidden}
+.ay2-expand-card.ay2-expand-open{left:0!important;top:0!important;width:100%!important}
+.ay2-expand-close{border:0;background:none;color:#7a4a28;font-size:15px;font-weight:700;cursor:pointer;padding:6px 0;font-family:inherit}
+.ay2-expand-card h2{font-size:20px;line-height:1.5;margin:4px 0 8px}
+.ay2-expand-meta{font-size:11px;color:#8a6a52;border-top:1px solid #e6dcc3;border-bottom:1px solid #e6dcc3;padding:8px 0;line-height:1.8}
+.ay2-expand-body{font-size:14.5px;line-height:2;padding:14px 2px;white-space:pre-wrap}
+.ay2-lazy-pending{opacity:.45}
+.ay2-lazy-in{opacity:1;transition:opacity .3s ease}
+.ay2-img-fallback{display:block;background:#f0e8da;color:#8a6a52;font-size:12px;line-height:1.7;padding:18px 10px;text-align:center;border:1px dashed #d9c48a;border-radius:6px;box-sizing:border-box}
+#aw-news-ov.ay2-paper-dots{background-image:radial-gradient(rgba(176,141,62,.16) 1px,transparent 1.4px)!important;background-size:14px 14px!important}
+.ay2-lv-tabs{position:relative;display:flex;border-bottom:2px solid #e6dcc3;margin:8px 0 0}
+.ay2-lv-tab{flex:1;background:none;border:0;padding:10px 0;font-size:14px;font-weight:700;color:#8a6a52;cursor:pointer;font-family:inherit}
+.ay2-lv-tab.on{color:#7a4a28}
+.ay2-lv-ind{position:absolute;bottom:-2px;left:0;height:2px;width:50%;background:#a34a4e;transition:left .3s cubic-bezier(.34,1.56,.64,1),width .3s cubic-bezier(.34,1.56,.64,1)}
+.ay2-lv-viewport{overflow:hidden}
+.ay2-lv-track{display:flex;width:200%;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.ay2-lv-panel{width:50%;flex:none;box-sizing:border-box}
+.ay2-wb-expand{position:absolute;top:8px;right:8px;z-index:30;border:1px solid #b08d3e;background:#fffdf7;color:#7a4a28;font-size:12px;font-weight:700;border-radius:4px;padding:6px 10px;cursor:pointer;font-family:inherit}
+.ay2-wb-note{font-size:12px;color:#8a6a52;line-height:1.8;margin:8px 0}
+@media (prefers-reduced-motion:reduce){.ay2-pc-leaving,.ay2-pc-rise,.aw-ca.ay2-flip .aw-ca-pageTwo,.ay2-lv-track,.ay2-lv-ind,.ay2-expand-card,.ay2-lazy-in{transition:none!important;animation:none!important}}

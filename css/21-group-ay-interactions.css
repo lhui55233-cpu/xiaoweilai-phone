@@ -1,0 +1,103 @@
+
+/* GROUP-AY-INTERACTIONS · 8 仓库调研 A 清单（只借思路，自写实现；来源见各条注释） */
+.wx-ps-stack{perspective:1000px}
+.wx-ps-layer{transform-style:preserve-3d}
+/* A3 统一 0.8s 翻折：塔罗翻牌 0.7s -> 0.8s（减弱动效时不覆盖 .01ms 规则） */
+@media (prefers-reduced-motion: no-preference){
+  .tarot-ax-flipper{transition-duration:.8s !important}
+}
+/* A3 共享翻折工具：perspective 1000 / preserve-3d / 背面 rotateY 180 / backface-hidden / 0.8s */
+.ay-flip{perspective:1000px}
+.ay-flip-inner{position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.7,.3,1)}
+.ay-flip.ay-flipped .ay-flip-inner{transform:rotateY(180deg)}
+.ay-flip-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.ay-flip-face.ay-back{position:absolute;inset:0;transform:rotateY(180deg)}
+/* A4 牌堆展开：小角度 rotateX/Y + Z 拉开 + stagger 6ms（3DStack 思路，自写数值） */
+.tarot-ax-stack{perspective:1000px}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer{transition-delay:calc(var(--li,0)*6ms)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(1){transform:translate(-58px,-34px) rotate(-14deg) rotateX(8deg) translateZ(10px)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(2){transform:translate(52px,-42px) rotate(12deg) rotateX(6deg) translateZ(20px)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(3){transform:translate(-64px,26px) rotate(-9deg) rotateX(4deg) translateZ(30px)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(4){transform:translate(60px,32px) rotate(16deg) rotateX(7deg) translateZ(40px)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(5){transform:translate(-26px,-52px) rotate(-5deg) rotateX(5deg) translateZ(50px)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(6){transform:translate(30px,46px) rotate(7deg) rotateX(6deg) translateZ(60px)}
+.tarot-ax-stack.ay-stack-open .tarot-ax-stack-layer:nth-child(7){transform:translate(0,-62px) rotate(0deg) rotateX(10deg) translateZ(70px)}
+/* A4 扇形档位（Origamio 档位思路，数值按手机视觉重调；默认 --ay-fan-step:7deg） */
+.tarot-ax-fan{--ay-fan-step:7deg}
+.tarot-ax-fan.tarot-ax-open .tarot-ax-fan-card{transform:rotate(calc((var(--i,0) - 5) * var(--ay-fan-step))) translateX(calc((var(--i,0) - 5) * 22px))}
+/* A2 揉纸团：1.15s easeOutCubic 揉皱到 0.82 倍（paper-crumple 时间线心智模型，只留数值） */
+.ay-crumpling{transition:transform 1.15s cubic-bezier(.215,.61,.355,1),border-radius 1.15s cubic-bezier(.215,.61,.355,1),box-shadow 1.15s ease !important;transform:scale(.82) rotate(var(--ay-rot,4deg)) !important;border-radius:46% 54% 52% 48%/52% 46% 54% 48% !important;box-shadow:0 10px 24px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.06) !important;background-image:radial-gradient(circle at 30% 25%,rgba(0,0,0,.07) 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,rgba(0,0,0,.06) 0 3px,transparent 4px),radial-gradient(circle at 45% 80%,rgba(0,0,0,.05) 0 2px,transparent 3px) !important}
+.ay-crumpled-ball{cursor:grab;touch-action:none;user-select:none}
+.ay-wrinkled{border-radius:18px !important;box-shadow:0 4px 14px rgba(0,0,0,.16),inset 0 0 0 1px rgba(0,0,0,.05) !important;background-image:radial-gradient(circle at 30% 25%,rgba(0,0,0,.05) 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,rgba(0,0,0,.04) 0 3px,transparent 4px) !important}
+/* A10 纸纹三选一（纯 CSS 渐变，Scrapbook 思路，自写实现） */
+.ay-paper-dots{background-image:radial-gradient(rgba(0,0,0,.08) 1px,transparent 1.4px);background-size:14px 14px}
+.ay-paper-grid{background-image:linear-gradient(rgba(0,0,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.06) 1px,transparent 1px);background-size:18px 18px}
+.ay-paper-lines{background-image:repeating-linear-gradient(0deg,transparent 0 22px,rgba(0,0,0,.06) 22px 23px)}
+.ay-tape{position:absolute;width:74px;height:22px;background:rgba(255,244,180,.75);border-left:1px dashed rgba(0,0,0,.08);border-right:1px dashed rgba(0,0,0,.08);box-shadow:0 1px 3px rgba(0,0,0,.12);transform:rotate(-4deg);pointer-events:none;z-index:5}
+.ay-tape-corner{top:-9px;left:50%;margin-left:-37px}
+.ay-date-stamp{display:inline-block;border:1.5px solid #b3543f;color:#b3543f;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;letter-spacing:.08em;transform:rotate(-3deg)}
+.ay-sticky-note{background:#fff7c2;border:1px solid #f0df9a;box-shadow:0 3px 8px rgba(0,0,0,.12);border-radius:2px;padding:8px 10px;font-size:13px;line-height:1.6;color:#4a3a1a}
+.ay-paper-host{position:relative}
+/* A3 红折痕图例（写信心路/档案页折痕示意，纯 SVG/CSS） */
+.ay-crease-legend{display:flex;align-items:center;gap:8px;margin:10px 4px 0;font-size:11px;color:#8a6d3b}
+.ay-crease-legend svg{flex:0 0 auto}
+/* A6/A8/A9 拼贴页、FLIP 展开、标签弹簧 */
+.ay-collage-ov{position:fixed;inset:0;z-index:9999;background:rgba(37,38,42,.45);display:flex;flex-direction:column}
+.ay-collage-top{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-bottom:1px solid #ececef}
+.ay-collage-top .ay-back{border:0;background:none;font-size:16px;font-weight:700;color:#25262a;cursor:pointer;padding:4px 8px}
+.ay-collage-top .ay-title{flex:1;font-size:15px;font-weight:700;color:#25262a;border:0;outline:none;background:transparent;min-width:0}
+.ay-collage-bar{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;background:#fff;border-bottom:1px solid #ececef}
+.ay-collage-bar button{border:1px solid #ececef;background:#f7f7f8;border-radius:999px;padding:5px 10px;font-size:12px;color:#25262a;cursor:pointer}
+.ay-collage-bar button:disabled{opacity:.4}
+.ay-collage-bar .ay-count{margin-left:auto;font-size:11px;color:#8a8a90;align-self:center}
+.ay-collage-scroll{flex:1;overflow:auto;padding:14px;display:flex;justify-content:center;background:#f3efe9}
+.ay-clg-canvas{position:relative;width:340px;min-height:480px;background:#fffdf6;border:1px solid #e8e0d0;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.18);overflow:hidden;flex:0 0 auto;touch-action:none}
+.ay-clg-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;line-height:1.8;color:#9a8a76;pointer-events:none;padding:20px}
+.ay-clg-el{position:absolute;box-sizing:border-box;cursor:grab;touch-action:none}
+.ay-clg-el.ay-selected{outline:2px dashed #c9a06f;outline-offset:2px}
+.ay-clg-el.ay-locked{cursor:not-allowed}
+.ay-clg-el .ay-lock-chip{position:absolute;right:-6px;top:-24px;background:#fff;border:1px solid #ececef;border-radius:999px;font-size:11px;padding:2px 8px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:9}
+.ay-clg-note{background:#fff7c2;border:1px solid #f0df9a;box-shadow:0 3px 8px rgba(0,0,0,.12);padding:10px;font-size:13px;line-height:1.6;color:#4a3a1a;overflow:hidden}
+.ay-clg-text{background:transparent;padding:6px;font-size:14px;line-height:1.8;color:#25262a;overflow:hidden;outline:none}
+.ay-clg-stamp{display:flex;align-items:center;justify-content:center}
+.ay-clg-tape-el{background:rgba(255,244,180,.8);border-left:1px dashed rgba(0,0,0,.1);border-right:1px dashed rgba(0,0,0,.1);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.ay-clg-photo{background:#fff;padding:6px 6px 22px;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.ay-clg-photo img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.ay-clg-photo .ay-cap{font-size:10px;color:#8a8a90;text-align:center;margin-top:4px}
+.ay-clg-hl{background:linear-gradient(transparent 55%,rgba(255,235,120,.85) 55%,rgba(255,235,120,.85) 95%,transparent 95%);background-repeat:no-repeat}
+.ay-img-fallback{display:flex;align-items:center;justify-content:center;background:#f7f7f8;color:#8a8a90;font-size:12px;text-align:center;padding:8px;min-height:60px}
+.ay-ctx-menu{position:fixed;z-index:10000;background:#fff;border:1px solid #ececef;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;min-width:150px}
+.ay-ctx-menu button{display:block;width:100%;border:0;background:none;text-align:left;padding:8px 10px;font-size:13px;color:#25262a;cursor:pointer}
+.ay-scrub-row{display:flex;gap:8px;align-items:center;padding:8px 12px;background:#fff;border-bottom:1px solid #ececef;font-size:12px;color:#55555c}
+.ay-scrub-row input[type=range]{flex:1}
+.ay-scrub-row select{border:1px solid #ececef;border-radius:8px;padding:4px}
+.ay-expand-ov{position:fixed;inset:0;z-index:10001;background:rgba(37,38,42,.5);display:flex;align-items:flex-end;justify-content:center}
+.ay-expand-card{width:100%;max-width:430px;max-height:88%;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:14px 16px 24px;box-sizing:border-box;will-change:transform}
+.ay-expand-close{border:0;background:#f7f7f8;border-radius:999px;padding:6px 14px;font-size:14px;font-weight:700;color:#25262a;cursor:pointer}
+.ay-expand-title{font-size:16px;font-weight:800;color:#25262a;margin:10px 0 6px}
+.ay-expand-body{font-size:14px;line-height:1.8;color:#3a3a40;white-space:pre-wrap;word-break:break-word}
+.sc-tabrow,.tarot-ax-chip-row{position:relative}
+.ay-tab-indicator{position:absolute;bottom:-2px;height:3px;border-radius:3px;background:#c9a06f;transition:left .3s cubic-bezier(.34,1.56,.64,1),width .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:2}
+.ay-panel-slide-in{animation:ay-slide-in .3s cubic-bezier(.34,1.3,.64,1)}
+@keyframes ay-slide-in{from{transform:translateX(18px);opacity:.4}to{transform:translateX(0);opacity:1}}
+/* A11 单摆小玩具（点一下摆动、阻尼停；牵绳拉紧时加粗变色） */
+.ay-pendulum{position:absolute;right:10px;top:6px;width:54px;height:86px;z-index:6;cursor:pointer;text-align:center}
+.ay-pendulum .ay-pend-string{display:block;width:2px;height:52px;background:#8a6d3b;margin:0 auto;transform-origin:top center}
+.ay-pendulum.ay-taut .ay-pend-string{width:4px;background:#c98a2e}
+.ay-pendulum .ay-pend-bob{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f6d789,#c9a06f);margin:0 auto;box-shadow:0 3px 6px rgba(0,0,0,.25)}
+.ay-pendulum .ay-pend-label{font-size:9px;color:#8a6d3b;margin-top:2px}
+.ay-burst-p{position:fixed;width:6px;height:6px;border-radius:50%;background:#f6c453;pointer-events:none;z-index:10002}
+.ay-drop-hint{position:fixed;border:2px dashed #c9a06f;border-radius:50%;pointer-events:none;z-index:9998;display:none}
+.ay-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:10003;background:#25262a;color:#fff;border-radius:999px;padding:8px 14px;font-size:13px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.ay-toast button{border:0;background:none;color:#fff;font-size:14px;cursor:pointer}
+/* A6 记忆树进入时一次轻展（禁止滚动全程联动） */
+.gm-mt-tree.ay-mt-enter .gm-plank{animation:ay-mt-in .45s ease both}
+.gm-mt-tree.ay-mt-enter .gm-plank:nth-child(2){animation-delay:.06s}
+.gm-mt-tree.ay-mt-enter .gm-plank:nth-child(3){animation-delay:.12s}
+.gm-mt-tree.ay-mt-enter .gm-plank:nth-child(4){animation-delay:.18s}
+@keyframes ay-mt-in{from{transform:translateY(8px) scale(.96);opacity:.4}to{transform:translateY(0) scale(1);opacity:1}}
+/* A12 减弱动效：直接切最终态 */
+@media (prefers-reduced-motion: reduce){
+  .ay-panel-slide-in,.gm-mt-tree.ay-mt-enter .gm-plank{animation-duration:.01ms !important}
+  .ay-tab-indicator{transition-duration:.01ms !important}
+}

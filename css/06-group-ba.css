@@ -1,0 +1,218 @@
+
+/* A组：微信仿真覆盖层（位于归巢覆盖层之后、同等权重后来者胜；再以 [data-app-sandbox="wechat"] 提权，不改归巢层本身） */
+.sys-app-window[data-app-sandbox="wechat"] .wx-tab-bar{background:#ffffff !important;border-top:1px solid #e5e5e5 !important;height:calc(54px + 30px) !important;padding-bottom:30px !important;} /* [AT] tab 内容抬出 Home Indicator 热区（壳底 8–30px） */
+.sys-app-window[data-app-sandbox="wechat"] .wx-tab-item{color:#7a7a7a !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-tab-item.wx-active{color:#07C160 !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-header{background:#ededed !important;border-bottom:1px solid #d9d9d9 !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-header-title,.sys-app-window[data-app-sandbox="wechat"] .wx-header-left,.sys-app-window[data-app-sandbox="wechat"] .wx-header-right{color:#000000 !important;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-sessions,.sys-app-window[data-app-sandbox="wechat"] #wx-view-contacts{background:#ffffff !important;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-discover,.sys-app-window[data-app-sandbox="wechat"] #wx-view-me{background:#ededed !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-cell-group{border-radius:0 !important;border-left:none !important;border-right:none !important;margin-top:8px !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-cell-group-title{background:#ededed !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-avatar-wrapper,.sys-app-window[data-app-sandbox="wechat"] .wx-me-header-avatar{border-radius:6px !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-session-item.wx-pinned{background:#f0f0f0 !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-badge{background:#fa5151 !important;min-width:18px;height:18px;line-height:18px;padding:0 5px;font-size:11px;border-radius:9px;text-align:center;box-sizing:border-box;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-mute-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#c9c9c9;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-msg-stream{background-color:#ededed !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-input-bar{background:#f7f7f7 !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-send-btn{background:#07C160 !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-search-bar-wrap{background:#ededed !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-search-box{background:#ffffff !important;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-contact-group{font-size:11px;color:#888888;padding:6px 15px;background:#ededed;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-discover-letterbox:empty{display:none;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-discover-overlay{position:absolute;inset:0;background:#ededed;z-index:400;display:flex;flex-direction:column;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-discover-overlay .wx-header{position:relative !important;height:48px !important;padding-top:0 !important;flex-shrink:0;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-session-menu{position:absolute;left:12px;right:12px;bottom:64px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:500;overflow:hidden;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-session-menu button{display:block;width:100%;padding:13px 16px;background:#fff;border:none;border-bottom:1px solid #eee;font-size:15px;text-align:left;color:#111;cursor:pointer;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-session-menu button:last-child{border-bottom:none;color:#888;text-align:center;}
+/* ══ F组：聊天页 ••• 扇形菜单 + 乙游模式（3D立体书之家为枢纽）+ 日记阅读器 ══
+   作用域：仅微信 [data-app-sandbox="wechat"] 内，不污染其他应用。
+   3D家参考：Dksie09/unfold (MIT) 立体书折叠房子的思路——房间绕书脊扇形展开、
+   等距纸卡家具；仅借鉴做法，未复制其代码。InternalBeyond (Sui-IB) 仅借鉴
+   “房间+故事+赠礼”做法，未复制代码（其许可不明）。 */
+/* —— ••• 扇形菜单：平时收在右上角 ••• 处，点开后三个小圆钮扇形散开 —— */
+.sys-app-window[data-app-sandbox="wechat"] #wx-chat-more-btn{transition:transform .25s;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-chat-more-btn.ot-open{transform:rotate(90deg);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-scrim{position:absolute;inset:0;z-index:650;display:none;background:rgba(0,0,0,.18);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-scrim.ot-show{display:block;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan{position:absolute;top:calc(116px + 8px);right:10px;width:56px;height:56px;z-index:660;pointer-events:none;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan-btn{position:absolute;top:0;right:0;width:56px;height:56px;border-radius:50%;border:0;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;opacity:0;transform:translate(0,0) scale(.4);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .22s;pointer-events:none;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan-btn .ot-fan-ico{font-size:20px;line-height:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan-btn .ot-fan-lab{font-size:10px;color:#333;line-height:1;white-space:nowrap;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open{pointer-events:auto;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open .ot-fan-btn{opacity:1;pointer-events:auto;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open .ot-fan-btn:nth-child(1){transform:translate(-4px,68px) scale(1);transition-delay:.02s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open .ot-fan-btn:nth-child(2){transform:translate(-68px,98px) scale(1);transition-delay:.07s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open .ot-fan-btn:nth-child(3){transform:translate(-136px,68px) scale(1);transition-delay:.12s;}
+/* J组 · 扇形菜单第 4 个按钮“TA的位置”，沿扇形继续向左上方散开（真机上需用户确认不遮挡） */
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open .ot-fan-btn:nth-child(4){transform:translate(-198px,20px)}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan-btn:active{transform:scale(.92) !important;}
+/* GROUP-BA · BA-2 聊天页 ••• 改为微信式下拉菜单（白底圆角浮层，三项）：
+   旧扇形 5 颗小圆钮（第 4/5 颗飞到标题区）在真机上难命中、易被当作没展开；
+   新菜单沿用 #ot-fan-menu/.ot-fan/.ot-open（AT 返回先收菜单的判定不动），
+   只改形态：三行列表，点按态 + 一次性 0.18s 展开动效。 */
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu{width:172px;height:auto;top:calc(116px + 8px);right:12px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.22);overflow:hidden;opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease,visibility .18s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu.ot-open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu .ot-fan-btn{position:static;width:100%;height:auto;min-height:48px;border-radius:0;box-shadow:none;display:flex;flex-direction:row;align-items:center;gap:10px;padding:12px 16px;font-size:15px;color:#111;text-align:left;background:#fff;transform:none !important;opacity:1;pointer-events:auto;transition:background .12s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu .ot-fan-btn + .ot-fan-btn{border-top:1px solid #f0f0f0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu .ot-fan-btn:active{transform:none !important;background:#f2f2f2;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu .ot-fan-ico{font-size:18px;line-height:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ba-wx-menu .ot-fan-lab{font-size:15px;color:#111;line-height:1.3;white-space:nowrap;}
+/* —— F组浮层：长在聊天页内的子页面（.wx-subpage-box 参与系统返回栈） —— */
+.sys-app-window[data-app-sandbox="wechat"] .ot-overlay{position:absolute;inset:0;z-index:600;background:#ededed;}
+/* GROUP-BA · BA-1 TA主页/日记浮层：wx-active 时真的显示。
+   修前只有 #wx-otome-home 有 .wx-active{display:flex} 规则，
+   #wx-otome-profile/#wx-otome-diary 只有 .wx-subpage-box{display:none}，
+   点菜单项加了类也看不见（实测 display 仍为 none）。 */
+.sys-app-window[data-app-sandbox="wechat"] .ot-overlay.wx-active{display:flex;flex-direction:column;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-scroll{padding-top:calc(48px + var(--sys-island-safe-top,62px));}
+.sys-app-window[data-app-sandbox="wechat"] .ot-card{background:#fff;border-radius:12px;margin:12px;padding:14px;box-sizing:border-box;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-muted{color:#888;font-size:12px;line-height:1.7;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:9px;background:#fef3c7;color:#92400e;margin-left:6px;vertical-align:1px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-tag-real{background:#dcfce7;color:#166534;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-btn{display:inline-block;background:#07c160;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-btn-ghost{background:#fff;color:#333;border:1px solid #ddd;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-btn:active{opacity:.75;}
+/* —— TA主页 —— */
+.sys-app-window[data-app-sandbox="wechat"] .ot-prof-head{display:flex;gap:14px;align-items:center;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-prof-av{width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#e2e2e2;display:flex;align-items:center;justify-content:center;font-size:30px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-prof-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0;font-size:14px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-prof-row:last-child{border-bottom:0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-mom{padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px;line-height:1.6;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-mom:last-child{border-bottom:0;}
+/* —— 日记阅读器 —— */
+.sys-app-window[data-app-sandbox="wechat"] .ot-diary-item{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid #f0f0f0;padding:14px 4px;font-size:15px;cursor:pointer;color:#111;}
+/* GROUP-MERGEDIARY · D · 日记书架样式（CSS 3D 翻开近似，自写；只挂三个容器前缀，无裸 .ds-，无 !important） */
+#wx-otome-diary .ds-shelf, #ck-sub-area .ds-shelf, #wechat-modal-diary .ds-shelf { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; padding:16px 12px 6px; }
+#wx-otome-diary .ds-shelf-board, #ck-sub-area .ds-shelf-board, #wechat-modal-diary .ds-shelf-board { height:8px; margin:0 8px 12px; border-radius:4px; background:linear-gradient(180deg,#b98d5e,#8a6a44); box-shadow:0 3px 6px rgba(0,0,0,.18); }
+#wx-otome-diary .ds-book, #ck-sub-area .ds-book, #wechat-modal-diary .ds-book { width:64px; height:92px; border:0; border-radius:3px 6px 6px 3px; background:var(--ds-cloth,#7a4a2b); color:#fdf8ec; cursor:pointer; display:flex; flex-direction:column; justify-content:center; gap:6px; padding:8px 6px; text-align:center; box-shadow:2px 3px 6px rgba(0,0,0,.25); transform:rotate(-1deg); transition:transform .18s ease; }
+#wx-otome-diary .ds-book:active, #ck-sub-area .ds-book:active, #wechat-modal-diary .ds-book:active { transform:translateY(-4px) rotate(0deg); }
+#wx-otome-diary .ds-book-spine, #ck-sub-area .ds-book-spine, #wechat-modal-diary .ds-book-spine { display:block; width:4px; align-self:stretch; background:rgba(0,0,0,.25); border-radius:2px; }
+#wx-otome-diary .ds-book-label, #ck-sub-area .ds-book-label, #wechat-modal-diary .ds-book-label { font-size:13px; font-weight:700; }
+#wx-otome-diary .ds-book-sub, #ck-sub-area .ds-book-sub, #wechat-modal-diary .ds-book-sub { font-size:10px; opacity:.85; line-height:1.4; }
+#wx-otome-diary .ds-book-blank, #ck-sub-area .ds-book-blank, #wechat-modal-diary .ds-book-blank { background:#f3ede0; color:#8a6d3b; border:1px dashed #c9b48a; box-shadow:none; }
+#wx-otome-diary .ds-empty, #ck-sub-area .ds-empty, #wechat-modal-diary .ds-empty { width:100%; text-align:center; color:#8a8a8a; font-size:13px; line-height:1.8; padding:28px 0; }
+#wx-otome-diary .ds-digest, #ck-sub-area .ds-digest, #wechat-modal-diary .ds-digest { background:#fff; border-radius:12px; padding:14px; margin:0 12px 12px; }
+#wx-otome-diary .ds-digest-title, #ck-sub-area .ds-digest-title, #wechat-modal-diary .ds-digest-title { font-size:13px; font-weight:700; margin-bottom:6px; }
+#wx-otome-diary .ds-digest-line, #ck-sub-area .ds-digest-line, #wechat-modal-diary .ds-digest-line { font-size:13px; line-height:1.7; color:#444; }
+#wx-otome-diary .ds-digest-note, #ck-sub-area .ds-digest-note, #wechat-modal-diary .ds-digest-note { font-size:11px; color:#999; margin-top:6px; }
+#wx-otome-diary .ds-open, #ck-sub-area .ds-open, #wechat-modal-diary .ds-open { padding:12px; perspective:900px; }
+#wx-otome-diary .ds-open-cover, #ck-sub-area .ds-open-cover, #wechat-modal-diary .ds-open-cover { background:var(--ds-cloth,#7a4a2b); color:#fdf8ec; border-radius:6px; padding:16px; text-align:center; transform-origin:left center; animation:ds-open-turn .45s ease; }
+@keyframes ds-open-turn { from { transform:rotateY(-70deg); opacity:.4; } to { transform:rotateY(0deg); opacity:1; } }
+#wx-otome-diary .ds-open-title, #ck-sub-area .ds-open-title, #wechat-modal-diary .ds-open-title { font-size:15px; font-weight:700; }
+#wx-otome-diary .ds-open-mood, #ck-sub-area .ds-open-mood, #wechat-modal-diary .ds-open-mood { font-size:12px; opacity:.85; margin-top:4px; }
+#wx-otome-diary .ds-open-hint, #ck-sub-area .ds-open-hint, #wechat-modal-diary .ds-open-hint { font-size:11px; opacity:.6; margin-top:8px; }
+#wx-otome-diary .ds-open-page, #ck-sub-area .ds-open-page, #wechat-modal-diary .ds-open-page { background:#fffef8; border-radius:4px; padding:18px 16px; line-height:2; font-size:15px; color:#2d2010; min-height:220px; margin-top:10px; white-space:pre-wrap; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+#wx-otome-diary .ds-open-pager, #ck-sub-area .ds-open-pager, #wechat-modal-diary .ds-open-pager { display:flex; justify-content:space-between; align-items:center; padding:10px 4px; font-size:13px; }
+#wx-otome-diary .ds-close, #ck-sub-area .ds-close, #wechat-modal-diary .ds-close { display:block; width:100%; padding:10px; border:1px solid #e5e5e5; border-radius:8px; background:#fff; font-size:14px; cursor:pointer; }
+#wx-otome-diary .ds-editor, #ck-sub-area .ds-editor, #wechat-modal-diary .ds-editor { padding:14px; display:flex; flex-direction:column; gap:10px; }
+#wx-otome-diary .ds-editor-title, #ck-sub-area .ds-editor-title, #wechat-modal-diary .ds-editor-title { font-size:15px; font-weight:700; }
+#wx-otome-diary .ds-editor-row, #ck-sub-area .ds-editor-row, #wechat-modal-diary .ds-editor-row { font-size:13px; color:#555; display:flex; gap:8px; align-items:center; }
+#wx-otome-diary .ds-editor input, #ck-sub-area .ds-editor input, #wechat-modal-diary .ds-editor input { flex:1; border:1px solid #ddd; border-radius:6px; padding:6px 8px; font-size:13px; }
+#wx-otome-diary .ds-editor textarea, #ck-sub-area .ds-editor textarea, #wechat-modal-diary .ds-editor textarea { min-height:160px; border:1px solid #ddd; border-radius:6px; padding:10px; font-size:14px; line-height:1.9; resize:vertical; }
+#wx-otome-diary .ds-editor-err, #ck-sub-area .ds-editor-err, #wechat-modal-diary .ds-editor-err { color:#ef4444; font-size:12px; }
+#wx-otome-diary .ds-editor-btns, #ck-sub-area .ds-editor-btns, #wechat-modal-diary .ds-editor-btns { display:flex; gap:10px; }
+#wx-otome-diary .ds-editor-btns button, #ck-sub-area .ds-editor-btns button, #wechat-modal-diary .ds-editor-btns button { flex:1; padding:10px; border-radius:8px; border:1px solid #e5e5e5; background:#fff; font-size:14px; cursor:pointer; }
+
+.sys-app-window[data-app-sandbox="wechat"] .ot-diary-page{background:#fffef8;border-radius:4px;padding:18px 16px;line-height:2;font-size:15px;color:#2d2010;min-height:220px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pager{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pager button{border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 16px;font-size:14px;cursor:pointer;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pager button:disabled{opacity:.4;}
+/* —— 乙游·3D家主场景 —— */
+.sys-app-window[data-app-sandbox="wechat"] #wx-otome-home{background:linear-gradient(180deg,#fdf6ec 0%,#fbeee2 55%,#f7e4d4 100%);display:none;flex-direction:column;overflow:hidden;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-otome-home.wx-active{display:flex;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-home-top{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--sys-island-safe-top,62px) + 8px) 12px 8px;box-sizing:border-box;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-home-top .ot-back{font-size:15px;cursor:pointer;color:var(--app-text, #3a1e14);flex-shrink:0;} /* [AT] */
+.sys-app-window[data-app-sandbox="wechat"] .ot-home-top .ot-title{font-size:15px;font-weight:700;color:var(--app-text, #3a1e14);flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;} /* [AT] */
+.sys-app-window[data-app-sandbox="wechat"] .ot-aff-pill{background:rgba(255,255,255,.9);border-radius:16px;padding:5px 10px;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12);color:#b3375a;font-weight:700;flex-shrink:0;} /* [AT] */
+.sys-app-window[data-app-sandbox="wechat"] .ot-stage{position:relative;flex:1;min-height:0;overflow:hidden;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book{position:absolute;left:12px;right:12px;top:6px;height:46%;perspective:900px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-spine{position:absolute;left:-4px;top:8px;bottom:8px;width:8px;border-radius:4px;background:linear-gradient(180deg,#a9714b,#7a4a28);box-shadow:2px 0 6px rgba(0,0,0,.2);z-index:5;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-rooms{position:absolute;inset:0 0 26px 10px;display:flex;gap:7px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room{flex:1;position:relative;border-radius:14px;padding:8px 6px;box-sizing:border-box;cursor:pointer;box-shadow:0 8px 18px rgba(120,70,40,.18),0 0 0 1.5px rgba(255,255,255,.8);transform:rotateY(42deg) translateY(16px) scale(.94);transform-origin:center center;transition:transform .55s cubic-bezier(.34,1.3,.64,1),box-shadow .3s;overflow:hidden;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book.ot-open .ot-room{transform:rotateY(-5deg) translateY(0) scale(1);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book.ot-open .ot-room:nth-child(1){transition-delay:.05s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book.ot-open .ot-room:nth-child(2){transition-delay:.14s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book.ot-open .ot-room:nth-child(3){transition-delay:.23s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book.ot-open .ot-room:nth-child(4){transition-delay:.32s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room.ot-focused{box-shadow:0 12px 26px rgba(120,70,40,.3),0 0 0 2.5px #c87a5a;transform:rotateY(0deg) scale(1.05) !important;z-index:6;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room-living{background:linear-gradient(160deg,#f6d9c4,#eec39f);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room-bed{background:linear-gradient(160deg,#dfe8f5,#c3d4ee);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room-kitchen{background:linear-gradient(160deg,#f9eec8,#f3df9e);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room-balcony{background:linear-gradient(160deg,#d8ecdd,#b7dcc2);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room-name{font-size:13px;font-weight:800;color:#3a1e14;text-align:center;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-room-en{font-size:8px;letter-spacing:2px;color:rgba(58,30,20,.55);text-align:center;margin-bottom:6px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-furn{display:flex;flex-direction:column;align-items:center;gap:1px;width:100%;background:rgba(255,255,255,.55);border:0;border-radius:9px;padding:6px 2px;margin-top:6px;cursor:pointer;font-size:11px;color:#4a3226;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-furn .ot-furn-ico{font-size:19px;line-height:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-furn:active{transform:scale(.94);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-book-base{position:absolute;left:6px;right:6px;bottom:0;height:26px;background:linear-gradient(180deg,#e8c39a,#c89a6a);border-radius:6px;transform:perspective(500px) rotateX(38deg);transform-origin:bottom;box-shadow:0 6px 14px rgba(120,70,40,.25);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-ground{position:absolute;left:0;right:0;bottom:0;height:47%;background:linear-gradient(180deg,#f3e2c8 0%,#ecd3ac 60%,#e2c491 100%);border-top:2px solid rgba(255,255,255,.7);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-ground-hint{position:absolute;top:6px;left:0;right:0;text-align:center;font-size:10px;color:#a08050;letter-spacing:1px;pointer-events:none;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-me{position:absolute;width:34px;height:44px;z-index:8;transition:left .6s ease-in-out,top .6s ease-in-out;pointer-events:none;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-me svg{width:100%;height:100%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));}
+.sys-app-window[data-app-sandbox="wechat"] .ot-me-tag{position:absolute;left:50%;transform:translateX(-50%);top:-14px;font-size:9px;background:rgba(255,255,255,.9);border-radius:8px;padding:1px 6px;color:#7a4a28;white-space:nowrap;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pet{position:absolute;width:30px;height:30px;font-size:26px;z-index:8;cursor:pointer;transition:left .6s ease-in-out,top .6s ease-in-out;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pet:active{transform:scale(1.25);}
+/* —— Live2D风格人物（自绘SVG立绘，非Cubism模型） —— */
+.sys-app-window[data-app-sandbox="wechat"] .ot-char{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:150px;height:196px;z-index:9;cursor:pointer;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));overflow:visible;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-bubble{position:absolute;left:50%;transform:translateX(-50%);top:-6px;background:#fff;border-radius:12px;padding:6px 10px;font-size:12px;color:#5a3a28;box-shadow:0 4px 12px rgba(0,0,0,.18);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:10;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-bubble.ot-show{opacity:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-hop svg{animation:otHop .5s ease;}
+@keyframes otHop{0%{transform:translateY(0);}35%{transform:translateY(-14px) scale(1.04);}100%{transform:translateY(0);}}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-blush{opacity:0;transition:opacity .3s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="shy"] .ot-blush,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="happy"] .ot-blush{opacity:.9;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-mouth{transition:opacity .12s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="happy"] .ot-mouth-smile{opacity:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="happy"] .ot-mouth-flat,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="happy"] .ot-mouth-sad,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="happy"] .ot-mouth-open{opacity:0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="sad"] .ot-mouth-sad{opacity:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="sad"] .ot-mouth-flat,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="sad"] .ot-mouth-smile,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="sad"] .ot-mouth-open{opacity:0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="normal"] .ot-mouth-flat{opacity:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="normal"] .ot-mouth-smile,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="normal"] .ot-mouth-sad,.sys-app-window[data-app-sandbox="wechat"] .ot-char[data-expr="normal"] .ot-mouth-open{opacity:0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-talking[data-expr="normal"] .ot-mouth-open,.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-talking[data-expr="happy"] .ot-mouth-open,.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-talking[data-expr="shy"] .ot-mouth-open{opacity:1;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-talking[data-expr="normal"] .ot-mouth-flat,.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-talking[data-expr="happy"] .ot-mouth-smile,.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-talking[data-expr="shy"] .ot-mouth-flat{opacity:0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-eye{transition:transform .12s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char.ot-blink .ot-eye{transform:scaleY(.12);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-caption{position:absolute;left:12px;right:12px;bottom:8px;z-index:11;text-align:center;font-size:12px;color:#7a5a40;background:rgba(255,252,248,.88);border-radius:12px;padding:7px 10px;line-height:1.5;box-shadow:0 3px 10px rgba(0,0,0,.1);pointer-events:none;}
+/* —— 对话框 —— */
+.sys-app-window[data-app-sandbox="wechat"] .ot-dialog{flex-shrink:0;margin:0 12px 8px;background:rgba(255,255,255,.96);border-radius:14px;box-shadow:0 6px 18px rgba(90,50,20,.2);padding:12px 14px;box-sizing:border-box;cursor:pointer;min-height:86px;display:none;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-dialog.ot-show{display:block;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-dialog-name{font-size:12px;font-weight:800;color:#b3375a;margin-bottom:4px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-dialog-text{font-size:14px;line-height:1.8;color:#2c2018;min-height:44px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-dialog-hint{text-align:right;font-size:11px;color:#aaa;margin-top:2px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-choices{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-choice{border:1px solid #e8c9a8;background:#fff8f0;border-radius:10px;padding:10px 12px;font-size:14px;cursor:pointer;text-align:left;color:#5a3a28;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-choice:active{background:#fbeed9;}
+/* —— 底部操作栏 + 滑出面板 —— */
+.sys-app-window[data-app-sandbox="wechat"] .ot-bar{flex-shrink:0;display:flex;gap:6px;padding:0 12px calc(14px + 30px);box-sizing:border-box;} /* [AT] 底部按钮抬出 Home Indicator 热区 */
+.sys-app-window[data-app-sandbox="wechat"] .ot-bar button{flex:1;border:0;background:rgba(255,255,255,.92);border-radius:12px;padding:9px 0;font-size:12px;cursor:pointer;color:#5a3a28;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-bar button.ot-on{background:#3a1e14;color:#ffe9c9;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-bar button:active{transform:scale(.96);}
+.sys-app-window[data-app-sandbox="wechat"] .ot-panel{position:absolute;left:0;right:0;bottom:0;z-index:20;max-height:62%;overflow-y:auto;background:#fffdf9;border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.25);padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;display:none;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-panel.ot-show{display:block;animation:otSlideUp .25s ease;}
+@keyframes otSlideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.sys-app-window[data-app-sandbox="wechat"] .ot-panel h3{margin:2px 0 10px;font-size:16px;color:#3a1e14;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-panel .ot-close{float:right;border:0;background:none;font-size:18px;cursor:pointer;color:#999;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-aff-bar{height:10px;background:#f0e2d2;border-radius:5px;overflow:hidden;margin:6px 0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-aff-fill{height:100%;background:linear-gradient(90deg,#f9a8d4,#e11d48);border-radius:5px;transition:width .4s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-gift-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-gift{border:1px solid #eee0cd;border-radius:12px;padding:10px;background:#fff;cursor:pointer;text-align:left;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-gift:active{transform:scale(.97);background:#fff6e8;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-gift .ot-g-ico{font-size:22px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-gift .ot-g-name{font-size:13px;font-weight:700;color:#3a1e14;margin-top:2px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-gift .ot-g-desc{font-size:11px;color:#999;margin-top:2px;line-height:1.5;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-loc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-loc{border:1px solid #eee0cd;border-radius:12px;padding:12px 10px;background:#fff;cursor:pointer;text-align:center;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-loc .ot-l-ico{font-size:24px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-loc .ot-l-name{font-size:13px;font-weight:700;color:#3a1e14;margin-top:4px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-loc .ot-l-sub{font-size:11px;color:#999;margin-top:2px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pet-opt{display:flex;gap:8px;margin:8px 0;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pet-opt button{flex:1;border:1px solid #eee0cd;background:#fff;border-radius:12px;padding:10px 0;font-size:14px;cursor:pointer;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-toast{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:12px;border-radius:16px;padding:8px 14px;z-index:30;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-toast.ot-show{opacity:1;}
+
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-head{transform-origin:100px 96px;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-char .ot-pupil{transition:transform .15s;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-pet-opt button.ot-sel{background:#fbeed9;border-color:#e8c9a8;}
+.sys-app-window[data-app-sandbox="wechat"] .ot-bar button{font-size:11px;}
+

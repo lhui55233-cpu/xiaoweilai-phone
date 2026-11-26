@@ -1,0 +1,26 @@
+
+/* 小说 3D 书架（弧形书架 + 立体书 + 滑出），作用域与原小说样式一致 */
+.sys-app-window[data-app-sandbox="novel"] .novel3d-stage { position:relative; height:196px; perspective:760px; overflow:visible; touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:grab; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-stage:active { cursor:grabbing; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-floor { position:absolute; left:6%; right:6%; bottom:14px; height:26px; background:radial-gradient(ellipse at center, rgba(20,48,36,.28), rgba(20,48,36,0) 70%); border-radius:50%; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-row { position:absolute; inset:0; transform-style:preserve-3d; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-board { position:absolute; left:0; right:0; bottom:10px; height:8px; border-radius:4px; background:linear-gradient(180deg,#b98d5e,#8a6a45); box-shadow:0 4px 10px rgba(0,0,0,.18); }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-book { position:absolute; left:50%; top:26px; width:62px; height:92px; margin-left:-31px; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.22,.9,.3,1), opacity .45s ease; cursor:pointer; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-stage.dragging .novel3d-book { transition:none; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-box { position:absolute; inset:0; transform-style:preserve-3d; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-face { position:absolute; backface-visibility:hidden; border-radius:2px; overflow:hidden; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-front { inset:0; transform:translateZ(8px); box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; text-align:center; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-front-title { color:#fff; font-size:12px; font-weight:800; line-height:1.35; text-shadow:0 1px 3px rgba(0,0,0,.35); word-break:break-all; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-front-author { color:rgba(255,255,255,.85); font-size:9px; margin-top:5px; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-spine { top:0; left:0; width:16px; height:100%; transform:rotateY(-90deg) translateZ(8px); display:flex; align-items:flex-start; justify-content:center; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-spine span { writing-mode:vertical-rl; color:rgba(255,255,255,.94); font-size:11px; font-weight:700; letter-spacing:1px; padding-top:8px; max-height:100%; overflow:hidden; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-pages { top:0; right:0; width:16px; height:100%; transform:rotateY(90deg) translateZ(8px); background:repeating-linear-gradient(180deg,#fdfdf8 0 2px,#e8e4d8 2px 3px); }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-top { top:0; left:0; width:100%; height:16px; transform:rotateX(90deg) translateZ(8px); background:linear-gradient(90deg,#f4f1e6,#e3ddcc); }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-book.novel3d-pulled { transform:translateX(0px) translateZ(150px) translateY(-10px) scale(1.15) rotateY(0deg) !important; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-caption { text-align:center; margin-top:2px; }
+.sys-app-window[data-app-sandbox="novel"] #novel3d-cap-title { display:block; font-size:14px; font-weight:800; color:#143024; }
+.sys-app-window[data-app-sandbox="novel"] #novel3d-cap-meta { display:block; font-size:11px; color:#8fa89b; margin-top:3px; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-nav { display:flex; align-items:center; justify-content:center; gap:18px; margin-top:10px; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-arrow { width:34px; height:34px; border-radius:50%; border:1px solid #c2d6cb; background:#edf5f0; color:#143024; font-size:18px; line-height:1; cursor:pointer; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-arrow:disabled { opacity:.3; cursor:default; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-count { font-size:11px; color:#8fa89b; min-width:34px; text-align:center; }

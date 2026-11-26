@@ -1,0 +1,24 @@
+
+/* GROUP-Y-WECHAT-CIKE · Y组样式：扇形菜单第 5 个按钮、反应气泡、情绪动作、此刻 Y 面板 */
+.sys-app-window[data-app-sandbox="wechat"] .ot-fan.ot-open .ot-fan-btn:nth-child(5){transform:translate(-248px,-36px) scale(1);transition-delay:.17s;}
+#groupy-reaction{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);z-index:9999;max-width:82%;background:rgba(255,252,248,.97);border:1px solid #ead9c8;color:#5a3a22;font-size:13px;line-height:1.5;border-radius:16px;padding:8px 12px;box-shadow:0 8px 22px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;}
+#groupy-reaction.gy-show{opacity:1;transform:translateX(-50%) translateY(0);}
+#groupy-reaction .gy-emo{font-size:18px;margin-right:4px;}
+#groupy-char-stage{display:inline-block;font-size:26px;line-height:1;}
+#groupy-char-stage.gy-wave{animation:gy-wave .9s ease-in-out 2;}
+#groupy-char-stage.gy-yawn{animation:gy-yawn 1.4s ease-in-out 1;}
+#groupy-char-stage.gy-cover{animation:gy-cover .8s ease-in-out 2;}
+@keyframes gy-wave{0%,100%{transform:rotate(0deg);}25%{transform:rotate(-18deg) translateY(-2px);}75%{transform:rotate(14deg);}}
+@keyframes gy-yawn{0%{transform:scale(1);}40%{transform:scale(1.12,1.22);}100%{transform:scale(1);opacity:.85;}}
+@keyframes gy-cover{0%,100%{transform:translateY(0);}50%{transform:translateY(3px) scale(.94);}}
+.groupy-panel{background:#fffdf9;border:1px solid #efe3d3;border-radius:14px;padding:12px;margin:10px 2px 0;font-size:13px;color:#5a3a22;line-height:1.6;}
+.groupy-panel h4{margin:0 0 6px;font-size:13px;color:#3a1e14;}
+.groupy-panel .gy-muted{font-size:11px;color:#a08a76;line-height:1.5;}
+.groupy-panel .gy-row{display:flex;gap:6px;align-items:flex-start;padding:5px 0;border-top:1px dashed #f0e2d2;}
+.groupy-panel .gy-row:first-of-type{border-top:0;}
+.groupy-panel .gy-time{flex:0 0 44px;font-weight:700;color:#7a4a28;}
+.groupy-panel button{border:1px solid #e8d5c0;background:#fdf6ef;color:#7a4a28;border-radius:12px;padding:5px 9px;font-size:12px;cursor:pointer;}
+.groupy-panel button.gy-on{background:#7a4a28;color:#fff;border-color:#7a4a28;}
+.groupy-ddz-chat{border:1px solid #ead9c8;background:#fffdf9;border-radius:12px;padding:8px 10px;margin:8px 0;font-size:12px;color:#5a3a22;line-height:1.6;}
+.groupy-ddz-chat .gy-lines{max-height:96px;overflow-y:auto;margin:4px 0;}
+.groupy-away-chip{display:block;flex:0 0 78px;background:rgba(255,253,249,.95);border:1px dashed #c9a86a;border-radius:14px;padding:6px;cursor:default;text-align:center;font-size:11px;color:#7a4a28;line-height:1.5;}

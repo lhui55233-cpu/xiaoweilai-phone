@@ -1,0 +1,1143 @@
+
+/* GROUP-AA · 单文件多功能合一架构说明（只加注释，不改任何行为）
+     本文件就是“一个文件装下整部手机”的现状：一个 HTML 内并排多个 style 块与
+     多个行内 script 块，各功能模块按下面方式并排、隔离，以后加功能照此办：
+     1) 物理并排：每个功能一块 style（或一段 JS 模板字面量里的 styleBlock）
+        + 一个 script（IIFE），按“系统 → 微信 → 此刻 → 乙游 → 阅读 → 剧本 →
+        设置 …”顺序排列；新功能追加到 body 尾之前的新 script，不插队改旧块。
+     2) 命名空间隔离：JS 用 IIFE + window 上的单一出口（如 window.GroupN、
+        window.GroupM、window.NovelCoread、window.HeatmapData、window.AppTheme），
+        内部变量不挂全局；CSS 类/id 一律加功能前缀（wx- / ck- / ot- / novel- /
+        gm- / ipb-），互不撞名；共享的桥只走约定的 window 出口，不直接改对方闭包。
+     3) 数据隔离：localStorage 按域前缀分组（见 GROUP-AA key 审计注释与
+        window.AppKeyAudit），一功能只读写自己域的键；跨功能只读复用（如剧本读
+        guichao.memories.v1、热力图读 read_stats_v1/focus_log_v1），不改对方结构；
+        新键一律用“域前缀_xxx_v1”的清晰新名字，旧键只读/复用、绝不改名。
+     4) 主题收敛：:root 里的 --app-* 是全手机唯一主题变量源（见下）；各功能只
+        读变量、不再各写一套色值；例外：微信仿真绿 #07C160 与此刻立体书
+        （暖色渐变/房间配色）按各自视觉走，不收进 --app-*。
+     5) 标记惯例：每组改动留 GROUP-<组>- 标记（如 GROUP-Q-REALFLIP、GROUP-AA），
+        便于审计与回滚；补丁只改副本、assert 锚点恰好出现一次、打过拒绝重打。
+     6) 命名空间（T 组 A20 已合入）：角色归属数据用 char:/char_ 前缀，系统数据
+        用 phone_/cike_/wx_/iconsystem/guichao. 等前缀；旧键不动、不迁移。
+        键清单见 window.AppKeyAudit（GROUP-AA 审计：123 个既有键 + 本组新增 1 个）。
+*/
+/* ━━━━━━━━━━━━━━━━━━ 1. 系统全局变量与 Z-index 规范 ━━━━━━━━━━━━━━━━━━ */
+    :root {
+        --sys-zi-lockscreen: 500;
+        --sys-zi-desktop: 1000;
+        --sys-zi-app: 2000;
+        --sys-zi-system: 9999; /* 提升层级至绝对最高，防止被应用覆盖 */
+        --sys-zi-modal: 10000;
+        --sys-zi-notif: 10001;
+
+        --sys-bg-color: #000000;
+        --sys-gray-glass: rgba(150, 150, 150, 0.35);
+        --sys-border: rgba(255, 255, 255, 0.2);
+        --sys-glass-blur: blur(15px);
+        
+        /* 全局统一状态栏高度：兼容刘海屏与打孔屏 */
+--sys-status-bar-height: var(--sys-statusbar-autoh, 40px);
+
+        /* ★ 等比缩放体系:关键尺寸响应 viewport 宽度,有上下限,小屏不挤大屏不空 */
+        --sys-icon-size: clamp(54px, 14.5vw, 70px);
+        --sys-island-w: clamp(96px, 26vw, 140px);
+        --sys-island-h: clamp(28px, 7.6vw, 38px);
+        --sys-island-top: var(--sys-island-auto-top, 10px);
+        --sys-island-radius: 999px;
+        --sys-island-offset-x: 0px; /* 水平偏移,正值右移 */
+        --sys-statusbar-pad-x: clamp(22px, 9vw, 56px);
+
+        /* GROUP-AA · 全手机共用主题变量（唯一来源；V 组主题的写入点是
+           phone_ui_prefs_v1（T 组 A22 已合入的形状：theme: 'light'|'dark'|'auto'，
+           themeCustom: {c1, c2}），window.AppTheme.apply() 读它并改写下面这组
+           变量；V 组未合入时默认就是下面这套浅色值，与旧外观一致。
+           GROUP-FIX13：maison-des-mots 规范色板（--mdm-*）是纸感主题的唯一色板来源，--app-* 按主题从它映射。
+           例外不收敛：微信仿真绿 #07C160、此刻立体书暖色渐变与房间配色。） */
+        --app-bg: #ffffff;
+        --app-surface: #f7f7f8;
+        --app-card: #ffffff;
+        --app-text: #25262a;
+        --app-muted: #8a8b91;
+        --app-line: #ececef;
+        --app-accent: #34363b;
+        --app-accent-soft: #a8d8b9;
+        --app-radius: 12px;
+        /* GROUP-FIX13 · maison-des-mots-skill（MIT）规范色板：全手机纸感主题的唯一
+           色板来源；--app-* 按主题从它映射（BP 块 / AppTheme 表 / BU 表 / FIX2 表），
+           默认归巢白仍是上面这套浅色值。数值由用户定下，不改数字。 */
+        --mdm-ink:#1e2748; --mdm-ink-soft:#46536f; --mdm-fog:#5c6884; --mdm-fog-light:#a9b3cc;
+        --mdm-silver:#bfc8e0; --mdm-silver-light:#dce2f1; --mdm-paper:#fbf9f4;
+        --mdm-paper-light:#fffdf8; --mdm-paper-deep:#eef0f5; --mdm-lotus:#e8c9d0;
+        --mdm-line:rgba(30,39,72,.42); --mdm-hairline:rgba(30,39,72,.16);
+        --mdm-paper-shadow:0 0 0 3px rgba(255,255,255,.88),0 0 0 4px rgba(30,39,72,.12),0 16px 30px rgba(30,39,72,.14);
+        --mdm-soft-shadow:0 2px 6px rgba(30,39,72,.14);
+        --mdm-title:'Cormorant Garamond','Noto Serif SC',Georgia,'Songti SC',serif;
+        --mdm-serif-zh:'Noto Serif SC','Songti SC',serif;
+        --mdm-letter:'LXGW WenKai','Kaiti SC',serif;
+        --mdm-script:'Pinyon Script',cursive;
+        --mdm-note:'Special Elite','Courier New',monospace;
+        --mdm-sans:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+        /* GROUP-IB · 语义 token（Internal Beyond 的做法：语义角色 + 别名回退；
+           底色取 maison-des-mots-skill 的 --mdm-*（FIX-13），未合入时回退到同组
+           maison 数值；新代码走 --ib-token-*，旧代码不用改，不另起色板）。
+           设计与样式参考 Sui 的 Internal Beyond（github.com/Sui-IB/InternalBeyond），
+           PolyForm Noncommercial 1.0.0 / CC BY-NC-SA 4.0，已按本项目修改。 */
+        --ib-token-canvas: var(--mdm-paper, #fbf9f4);
+        --ib-token-content-primary: var(--mdm-ink, #1e2748);
+        --ib-token-content-secondary: var(--mdm-ink-soft, #46536f);
+        --ib-token-content-muted: var(--mdm-fog, #5c6884);
+        --ib-token-accent-brand: var(--mdm-fog, #5c6884);
+        --ib-token-accent-action: var(--mdm-ink-soft, #46536f);
+        --ib-token-boundary-subtle: rgba(30,39,72,.12);
+        --ib-token-boundary-default: rgba(30,39,72,.16);
+        --ib-token-boundary-strong: rgba(30,39,72,.42);
+        --ib-token-surface: var(--mdm-paper-light, #fffdf8);
+        --ib-token-surface-interactive: var(--mdm-paper-deep, #eef0f5);
+        --ib-token-surface-selected: var(--mdm-silver-light, #dce2f1);
+        --ib-token-surface-elevated: var(--mdm-paper-light, #fffdf8);
+        --ib-token-overlay: rgba(10,15,24,.46);
+        --ib-token-status-ok: #6f9f83;
+        --ib-token-status-info: #5080b0;
+        --ib-token-status-warn: #b58a55;
+        --ib-token-status-bad: #c78282;
+        --ib-token-radius-sm: 10px;
+        --ib-token-radius-md: 12px;
+        --ib-token-radius-lg: 16px;
+        --ib-motion-micro: 160ms;
+        --ib-motion-fast: .2s;
+        --ib-motion-normal: .35s;
+        --ib-motion-structural: 280ms;
+        --ib-ease: cubic-bezier(0.4,0,0.2,1);
+        --ib-moon-lit-1: #f4f6fb;
+        --ib-moon-lit-2: #dce2f1;
+        --ib-moon-lit-3: #bfc8e0;
+        --ib-moon-dark-1: #46536f;
+        --ib-moon-dark-2: #5c6884;
+        --ib-moon-dark-3: #1e2748;
+        --ib-moon-edge: rgba(30,39,72,.42);
+        --ib-moon-glow: rgba(191,200,224,.55);
+
+    }
+    /* ━━━━━━━━━━━━━━━━━━ 2. 全局重置与系统物理层 ━━━━━━━━━━━━━━━━━━ */
+    * {
+        margin: 0; padding: 0; box-sizing: border-box;
+        user-select: none; -webkit-user-select: none;
+        -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+        width: 100%; height: 100%; background-color: #111111; margin: 0; padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+        overflow: hidden; position: fixed; inset: 0;
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: auto;
+        touch-action: manipulation;
+    }
+/* ━━━━━━━━━━━━━━━━━━ 系统物理层与外壳 ━━━━━━━━━━━━━━━━━━ */
+    #sys-shell {
+        position: fixed;
+        inset: 0;
+        width: 100%; height: 100%;
+        max-width: 100%; max-height: 100%;
+        background-color: #ffffff;
+        background-image: linear-gradient(160deg, #ffffff 0%, #fdfcf9 55%, #f7f3ec 100%);
+        background-size: cover; background-position: center; background-repeat: no-repeat;
+        border-radius: 0; overflow: hidden; border: none; box-shadow: none;
+        transition: background-image 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        overscroll-behavior: contain;
+    }
+
+    .sys-float-ball {
+        position: absolute; right: 10px; top: 55%;
+        width: 48px; height: 48px; border-radius: 13px;
+        background: rgba(60, 60, 67, 0.42);
+        backdrop-filter: blur(8px) saturate(140%); -webkit-backdrop-filter: blur(8px) saturate(140%);
+        z-index: 99998; cursor: pointer;
+        display: none; align-items: center; justify-content: center;
+        transition: opacity 0.25s, transform 0.15s;
+        opacity: 0.55;
+    }
+    .sys-float-ball.sys-ball-on { display: flex; }
+    .sys-float-ball:active { opacity: 1; transform: scale(0.9); }
+    .sys-float-ball.sys-ball-dragging { opacity: 1; transition: none; }
+    /* iOS AssistiveTouch 同心圆：外圆环 + 中圆 + 内核 */
+    .sys-float-ball .sys-ball-ring {
+        width: 30px; height: 30px; border-radius: 9px;
+        background: rgba(255,255,255,0.30);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .sys-float-ball .sys-ball-mid {
+        width: 19px; height: 19px; border-radius: 6px;
+        background: rgba(255,255,255,0.55);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .sys-float-ball .sys-ball-core {
+        width: 9px; height: 9px; border-radius: 3px;
+        background: rgba(255,255,255,0.95);
+    }
+
+    .sys-app-icon.sys-custom-shape {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+    .sys-app-icon.sys-custom-shape img, 
+    .sys-app-icon.sys-custom-shape svg {
+        width: 100% !important; height: 100% !important;
+        object-fit: contain !important;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━ 桌面与 Dock 布局 ━━━━━━━━━━━━━━━━━━ */
+    .sys-dock-container { position: relative; margin: 0 14px 16px; height: 86px; display: flex; align-items: center; }
+    .sys-dock-bg {
+        position: absolute; width: 100%; height: 100%; border-radius: 34px;
+        background: rgba(255,255,255,0.16); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 15px 40px rgba(0,0,0,0.45); z-index: 1;
+    }
+    .sys-dock-apps { width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 0 8px; z-index: 2; }
+    .sys-dock-apps .sys-app-name { display: none; }
+
+    /* 图层通用绝对定位 */
+    .sys-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    /* ━━━━━━━━━━━━━━━━━━ 3. 系统级 UI 样式 (严格命名空间化) ━━━━━━━━━━━━━━━━━━ */
+    /* --- 顶栏 UI --- */
+   #sys-status-bar {
+        position: fixed; top: 0; left: 0; width: 100%;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: var(--sys-statusbar-autopad, 14px) var(--sys-statusbar-pad-x) 0; 
+        height: var(--sys-status-bar-height); 
+        z-index: var(--sys-zi-system);
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        pointer-events: none;
+        background: transparent;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    }
+   /* 新增：供下拉触发的绝对隐形热区 */
+   .sys-status-hit-zone { position: absolute; top: 0; left: 0; width: 100%; height: 50px; z-index: calc(var(--sys-zi-system) + 1); pointer-events: auto; }
+   
+   .sys-status-icons { display: flex; align-items: center; gap: 4px; }
+   .sys-icon-signal { display: block; fill: currentColor; opacity: 0.95; }
+   .sys-icon-net { font-size: 11px; font-weight: 600; color: currentColor; letter-spacing: 0.4px; opacity: 0.95; }
+   .sys-icon-wifi { width: 14px; height: 14px; fill: currentColor; opacity: 0.95; }
+   .sys-battery-wrapper { display: flex; align-items: center; gap: 3px; opacity: 0.92; }
+   .sys-battery-pct { font-size: 11.5px; font-weight: 600; color: currentColor; letter-spacing: 0.2px; }
+   .sys-battery-body { width: 23px; height: 11px; border: 1px solid currentColor; border-radius: 3.5px; padding: 1.3px; position: relative; }
+   .sys-battery-level { width: 100%; height: 100%; background: currentColor; border-radius: 1.5px; }
+   .sys-battery-cap { width: 1.8px; height: 4px; background: currentColor; border-radius: 0 2px 2px 0; opacity: 0.55; margin-left: 1px; }
+   /* ★ 小屏下隐藏 Wi-Fi 图标(蜂窝信号已表达连接状态),腾出灵动岛两侧空间避免视觉拥挤 */
+   @media (max-width: 380px) {
+       .sys-icon-wifi { display: none; }
+   }
+
+   /* --- 下拉控制中心 (全局生态兼容版) --- */
+   #sys-control-center {
+       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+       background: rgba(28, 28, 33, 0.55);
+       backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
+       z-index: calc(var(--sys-zi-system) + 10);
+       transform: translateY(-100%); transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease;
+       display: flex; flex-direction: column; padding: calc(var(--sys-island-auto-top, 40px) + var(--sys-island-auto-h, 36px) + 30px) 20px 20px;
+       box-sizing: border-box; will-change: transform; pointer-events: none; opacity: 0;
+   }
+   #sys-control-center.sys-active { transform: translateY(0); pointer-events: auto; opacity: 1; }
+   .sys-cc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+   .sys-cc-module {
+       background: rgba(255,255,255,0.14);
+       border-radius: 22px;
+       padding: 15px;
+       border: 1px solid rgba(255,255,255,0.10);
+       box-shadow:
+           inset 0 1px 0 rgba(255,255,255,0.22),
+           inset 0 -1px 0 rgba(0,0,0,0.10),
+           0 8px 20px rgba(0,0,0,0.25),
+           0 1px 2px rgba(0,0,0,0.15);
+       display: flex; flex-direction: column; justify-content: space-between;
+   }
+   .sys-cc-row { display: flex; gap: 15px; margin-top: 15px; }
+   .sys-cc-slider-box {
+       flex: 1; background: rgba(255,255,255,0.14); border-radius: 22px;
+       height: 140px;
+       display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+       padding-bottom: 20px;
+       border: 1px solid rgba(255,255,255,0.10);
+       box-shadow:
+           inset 0 1px 0 rgba(255,255,255,0.22),
+           inset 0 -1px 0 rgba(0,0,0,0.10),
+           0 8px 20px rgba(0,0,0,0.25);
+       position: relative; overflow: hidden; transform: translateZ(0);
+   }
+   .sys-cc-slider-fill {
+       position: absolute; bottom: 0; left: 0; width: 100%;
+       background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,1) 100%);
+       box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+       transition: height 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+       pointer-events: none;
+   }
+   .sys-cc-icon {
+       width: 44px; height: 44px; border-radius: 50%;
+       background: rgba(255,255,255,0.18);
+       border: 1px solid rgba(255,255,255,0.08);
+       box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+       display: flex; justify-content: center; align-items: center;
+       color: white; cursor: pointer;
+       transition: background 0.18s ease, transform 0.15s ease, box-shadow 0.2s ease;
+   }
+   .sys-cc-icon:active { transform: scale(0.88); }
+   .sys-cc-icon.active {
+       background: linear-gradient(180deg, #2a90ff 0%, #007aff 100%);
+       color: white;
+       border-color: rgba(255,255,255,0.18);
+       box-shadow: inset 0 1px 0 rgba(255,255,255,0.32), 0 2px 8px rgba(0,122,255,0.4);
+   }
+   .sys-cc-icon svg { width: 20px; height: 20px; fill: currentColor; }
+   .sys-cc-label { color: rgba(255,255,255,0.78); font-size: 11px; margin-top: 6px; font-weight: 600; text-align: center; pointer-events: none; position: relative; z-index: 2; letter-spacing: 0.2px; }
+   .sys-cc-handle { width: 38px; height: 5px; background: rgba(255,255,255,0.35); border-radius: 3px; position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); cursor: pointer; }
+
+    /* --- 硬件 UI (动态岛与返回条) --- */
+    #sys-hardware-layer { z-index: 10002; pointer-events: none; }
+   #sys-dynamic-island {
+        position: absolute;
+        top: var(--sys-island-top);
+        left: 50%; transform: translateX(calc(-50% + var(--sys-island-offset-x)));
+        width: var(--sys-island-w);
+        height: var(--sys-island-h);
+        background-color: #000000; border-radius: var(--sys-island-radius);
+        pointer-events: auto; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.25s ease, height 0.25s ease, top 0.25s ease, border-radius 0.25s ease;
+        will-change: transform; z-index: 99990;
+    }
+.sys-home-indicator {
+        position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+        touch-action: none;
+        width: 135px; height: 22px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; pointer-events: auto;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .sys-home-indicator::after {
+        content: ''; display: block;
+        width: 135px; height: 5px;
+        background-color: #ffffff; border-radius: 10px;
+        mix-blend-mode: difference;
+        transition: background-color 0.1s;
+    }
+    .sys-home-indicator:active::after {
+        background-color: rgba(255,255,255,0.9);
+    }
+    /* --- 锁屏视图 --- */
+      #sys-lockscreen-layer {
+        z-index: var(--sys-zi-lockscreen);
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.3s ease; 
+        display: flex; flex-direction: column; justify-content: space-between;
+        background: transparent;
+    }
+    #sys-lockscreen-layer.sys-active { opacity: 1; pointer-events: auto; }
+    .sys-lock-main { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
+   .sys-lock-time-box {
+        position: absolute;
+        top: 15%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: var(--sys-zi-lockscreen);
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .sys-lock-date {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+        text-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.38),
+            0 0 18px rgba(255, 255, 255, 0.06);
+    }
+
+    /* iOS26 风格锁屏时钟：半透明磨砂玻璃质感 */
+    .sys-lock-time {
+        font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 26vw;
+        font-weight: 600;
+        letter-spacing: -0.5vw;
+        line-height: 1.0;
+        color: rgba(255, 255, 255, 0.28);
+        text-align: center;
+        -webkit-text-stroke: 0.6px rgba(255, 255, 255, 0.62);
+        text-shadow:
+            0 1px 1px rgba(255, 255, 255, 0.48),
+            0 -1px 2px rgba(255, 255, 255, 0.28),
+            0 4px 14px rgba(0, 0, 0, 0.32),
+            0 14px 32px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+    .sys-lock-widgets {
+        margin-top: 16px;
+        font-size: 18px;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        opacity: 0.92;
+    }
+    .sys-lock-widgets span {
+        line-height: 1;
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+    }
+    .sys-lock-footer {
+        position: absolute;
+        bottom: 38px;
+        width: 100%;
+        padding: 0 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: opacity 0.25s ease;
+    }
+    .sys-quick-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.32);
+        backdrop-filter: blur(20px) saturate(160%);
+        -webkit-backdrop-filter: blur(20px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.18),
+            0 6px 14px rgba(0, 0, 0, 0.28);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.18s ease, background 0.2s ease;
+    }
+    .sys-quick-btn:active { transform: scale(0.86); background: rgba(0, 0, 0, 0.5); }
+.sys-quick-btn.active { background: rgba(255,255,255,0.45); }
+    .sys-quick-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: rgba(255, 255, 255, 0.94);
+        opacity: 1;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+    }
+    .sys-signature {
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.94);
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        text-shadow:
+            0 1px 4px rgba(0, 0, 0, 0.50),
+            0 0 14px rgba(0, 0, 0, 0.25);
+        outline: none;
+        letter-spacing: 0.3px;
+        transition: opacity 0.2s ease;
+    }
+    .sys-signature:focus { opacity: 0.72; }
+
+    /* --- 密码中枢 UI --- */
+    .sys-en-trans { font-size: 10px; opacity: 0.45; font-weight: 400; line-height: 0.9; display: block; }
+    .sys-passcode-box {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.34); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+        padding: 85px 25px 65px; z-index: 10; opacity: 0; pointer-events: none; transform: scale(1.05);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .sys-passcode-box.sys-active { opacity: 1; pointer-events: auto; transform: scale(1); }
+    .sys-passcode-title { color: #fff; font-size: 17px; font-weight: 500; text-align: center; margin-bottom: 22px; }
+    .sys-passcode-dots { display: flex; gap: 20px; height: 16px; align-items: center; justify-content: center; width: 100%; }
+    .sys-passcode-dots .sys-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.2px solid rgba(255, 255, 255, 0.8); transition: background 0.08s ease; }
+    .sys-passcode-dots .sys-dot.sys-filled { background: #fff; border-color: #fff; }
+    .sys-passcode-dots.sys-shake { animation: sysPasscodeShake 0.35s both; }
+    @keyframes sysPasscodeShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-15px); }
+        40%, 80% { transform: translateX(15px); }
+    }
+    .sys-keypad { display: flex; flex-direction: column; gap: 14px; width: 236px; }
+    .sys-keypad-row { display: flex; justify-content: space-between; }
+    .sys-keypad .sys-key {
+        width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.1);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #fff; cursor: pointer; transition: background 0.1s ease;
+    }
+    .sys-keypad .sys-key:active { background: rgba(255, 255, 255, 0.3); }
+    .sys-keypad .sys-key .sys-num { font-size: 30px; font-weight: 300; line-height: 1.05; }
+    .sys-keypad .sys-key .sys-sub { font-size: 9px; font-weight: 700; letter-spacing: 1px; opacity: 0.4; line-height: 0.85; }
+    .sys-keypad .sys-key.sys-empty { background: transparent; pointer-events: none; }
+    .sys-passcode-footer { width: 100%; display: flex; justify-content: space-between; padding: 0 10px; }
+    .sys-footer-btn { color: #fff; font-size: 14px; text-align: center; cursor: pointer; opacity: 0.85; }
+    .sys-footer-btn:active { opacity: 0.4; }
+
+    /* --- 桌面视图 --- */
+    #sys-desktop-layer {
+        z-index: var(--sys-zi-desktop); display: flex; flex-direction: column; justify-content: space-between;
+        padding-top: calc(var(--sys-island-auto-top, 10px) + var(--sys-island-auto-h, 36px) + 20px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #sys-shell.sys-unlocked #sys-desktop-layer { opacity: 1; pointer-events: auto; }
+    .sys-desktop-paging { display: flex; width: 200%; flex: 1; min-height: 0; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; }
+    .sys-desktop-page { width: 50%; height: 100%; padding: 0 18px 150px; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; } /* GROUP-FIX2: 页底留 150px 给桌宠活动区，内容可滚动到活动区之上，不再被桌宠/气泡盖住 */
+    .sys-desktop-page::-webkit-scrollbar { display: none; }
+    /* ★ iOS 风桌面小组件:Token头像 + 日记 (纵向堆叠,可删除) */
+    .sys-widget-row { display: flex; flex-direction: column; gap: 12px; margin: 2px 0 8px; position: relative; } /* GROUP-FIX2: 小组件行与图标区之间收紧 */
+    .sys-widget-row:empty { display: none; }
+    /* 删除角标(编辑态显示) */
+    .sys-widget-host { position: relative; }
+    .sys-widget-del {
+        position: absolute; top: -8px; left: -8px;
+        width: 24px; height: 24px; border-radius: 50%;
+        background: rgba(20,20,20,0.88); color: #fff;
+        display: none; align-items: center; justify-content: center;
+        font-size: 17px; font-weight: 700; line-height: 1;
+        border: 1.5px solid rgba(255,255,255,0.55);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        z-index: 50; cursor: pointer; user-select: none;
+    }
+    #sys-shell.is-edit-mode .sys-widget-del { display: flex; }
+    #sys-shell.is-edit-mode .sys-widget-host { animation: isWiggle 0.32s ease-in-out infinite; }
+    #sys-shell.is-edit-mode .sys-widget-host:nth-child(2n) { animation-delay: -0.16s; }
+    /* 通用卡片底纹 */
+    .sys-widget {
+        width: 100%;
+        border-radius: 28px;
+        padding: 16px;
+        position: relative;
+        overflow: hidden;
+        background: rgba(255,255,255,0.36);
+        backdrop-filter: blur(28px) saturate(170%);
+        -webkit-backdrop-filter: blur(28px) saturate(170%);
+        border: 1px solid rgba(255,255,255,0.55);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.55),
+            0 8px 22px rgba(0,0,0,0.10);
+        color: #3a3a3a;
+        cursor: pointer;
+        box-sizing: border-box;
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .sys-widget:active { transform: scale(0.98); }
+
+    /* ── 时钟 widget（直接搬运自文件2，无卡片包装，原样保留） ── */
+    /* host 容器：移除卡片底纹，让组件直接显示在壁纸上 */
+    .sys-widget-host[data-widget-host="clock"] .sys-widget {
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+    }
+    /* 以下为文件2 .datetime-container / .date / .time / .widgets 原样照抄 */
+    .sys-w-clock-container {
+        padding-top: 20px;
+        text-align: center;
+        color: #333333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .sys-w-clock-date {
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+        opacity: 0.8;
+    }
+    .sys-w-clock-time {
+        font-size: 82px;
+        font-weight: 700;
+        letter-spacing: -2px;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        color: #222222;
+    }
+    .sys-w-clock-emoji {
+        margin-top: 10px;
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        opacity: 0.8;
+    }
+
+    /* ── Token 头像 widget ── */
+    .sys-w-token { padding: 18px 14px 14px; }
+    .sys-w-token-hero { position: relative; display: flex; justify-content: center; padding-bottom: 8px; }
+    .sys-w-token-hero-img {
+        width: 90px; height: 90px; border-radius: 50%; overflow: hidden;
+        background: linear-gradient(155deg,#FAFAFA,#E8E8EC);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        position: relative; z-index: 2;
+    }
+    .sys-w-token-hero-img img { width: 100%; height: 100%; object-fit: cover; }
+    .sys-w-token-hero-ph { font-size: 32px; color: #BFBFBF; }
+    /* 头像光环 */
+    .sys-w-token-halo {
+        position: absolute; left: 50%; top: -2px; transform: translateX(-50%);
+        width: 56px; height: 22px; border: 2px solid #E8E2D8; border-radius: 50%;
+        background: transparent; opacity: 0.78; z-index: 3; pointer-events: none;
+    }
+    .sys-w-token-halo::after {
+        content:''; position:absolute; inset: -3px; border-radius:50%;
+        border: 1px solid rgba(255,255,255,0.6);
+    }
+    /* 两侧翅膀 */
+    .sys-w-token-wing { position: absolute; top: 22px; width: 28px; height: 22px; z-index: 1; }
+    .sys-w-token-wing.left { left: calc(50% - 78px); transform: scaleX(-1); }
+    .sys-w-token-wing.right { right: calc(50% - 78px); }
+    .sys-w-token-wing svg { width: 100%; height: 100%; }
+    /* 左上3心 */
+    .sys-w-token-hearts {
+        position: absolute; left: 6px; top: 2px;
+        display: flex; gap: 4px; font-size: 13px; color: #E8B5B5;
+        z-index: 4; text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+    }
+    /* 右上文字气泡 */
+    .sys-w-token-bubble {
+        position: absolute; right: 4px; top: -2px;
+        background: rgba(255,255,255,0.85); color: #6a6a6a;
+        font-size: 11px; padding: 4px 10px; border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        font-family: 'SF Pro','Hiragino Sans',serif; z-index: 4;
+        letter-spacing: 0.5px;
+    }
+    /* 用户名行 */
+    .sys-w-token-name {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        margin-top: 4px; font-size: 14px; color: #4a4a4a;
+        font-family: -apple-system,'PingFang SC',sans-serif;
+    }
+    .sys-w-token-name-text { font-weight: 500; }
+    .sys-w-token-name-edit {
+        background: rgba(255,255,255,0.7); color: #6a6a6a;
+        font-size: 10px; padding: 2px 8px; border-radius: 9px;
+        border: 0.5px solid rgba(0,0,0,0.05);
+    }
+    /* 数据条 */
+    .sys-w-token-stats {
+        display: flex; align-items: center; justify-content: space-around;
+        gap: 6px; margin-top: 10px; padding: 6px 4px;
+        background: rgba(255,255,255,0.45); border-radius: 16px;
+        font-size: 11.5px; color: #5a5a5a;
+        border: 0.5px solid rgba(255,255,255,0.6);
+    }
+    .sys-w-token-stat { display: flex; align-items: center; gap: 4px; }
+    .sys-w-token-stat svg { width: 13px; height: 13px; }
+    .sys-w-token-stat-val { font-variant-numeric: tabular-nums; font-weight: 600; color: #3a3a3a; }
+    /* 操作按钮 */
+    .sys-w-token-actions {
+        display: flex; justify-content: space-around; gap: 4px;
+        margin-top: 10px; padding-top: 8px;
+        border-top: 0.5px solid rgba(0,0,0,0.05);
+    }
+    .sys-w-token-act {
+        flex: 1; text-align: center; font-size: 11px; color: #6a6a6a;
+        padding: 4px 0; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .sys-w-token-act:active { background: rgba(0,0,0,0.04); }
+    .sys-w-token-act svg { width: 12px; height: 12px; opacity: 0.7; }
+
+    /* ── 日记 widget ── */
+    .sys-w-diary {
+        padding: 0; overflow: hidden;
+        background: rgba(252,250,247,0.62);
+    }
+    .sys-w-diary-hero {
+        position: relative; height: 158px; overflow: hidden;
+        background: linear-gradient(135deg,#E8E2DC,#D8CFC4);
+    }
+    .sys-w-diary-hero img {
+        width: 100%; height: 100%; object-fit: cover; opacity: 0.85;
+        filter: blur(0.5px);
+    }
+    /* 笔记本环装饰 */
+    .sys-w-diary-rings {
+        position: absolute; top: 8px; left: 0; right: 0; display: flex;
+        justify-content: space-evenly; pointer-events: none;
+    }
+    .sys-w-diary-rings span {
+        width: 10px; height: 14px; background: #4a4a4a;
+        border-radius: 3px; opacity: 0.55;
+    }
+    /* 日记主人 + 联络方式 */
+    .sys-w-diary-info {
+        position: absolute; left: 14px; bottom: 14px; right: 14px;
+        display: flex; flex-direction: column; gap: 6px;
+    }
+    .sys-w-diary-pill {
+        background: rgba(255,255,255,0.78); color: #4a4a4a;
+        font-size: 12px; padding: 5px 12px; border-radius: 14px;
+        align-self: flex-start; max-width: 70%;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        font-family: 'Hiragino Mincho','Noto Serif',serif;
+    }
+    /* 头部条:bear オタク日记 ♥ */
+    .sys-w-diary-header {
+        display: flex; align-items: center; gap: 8px;
+        padding: 12px 16px 10px; background: rgba(255,255,255,0.5);
+    }
+    .sys-w-diary-header-av {
+        width: 28px; height: 28px; border-radius: 50%; overflow: hidden;
+        background: #F8E5E8; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+    }
+    .sys-w-diary-header-title {
+        flex: 1; font-size: 12px; color: #4a4a4a; letter-spacing: 0.5px;
+        font-family: 'Hiragino Mincho',serif; font-weight: 500;
+    }
+    .sys-w-diary-header-hearts { color: #C9B5B5; font-size: 13px; letter-spacing: 2px; }
+    /* 装饰内容区 */
+    .sys-w-diary-content {
+        padding: 14px 16px 18px;
+        background: rgba(255,255,255,0.42);
+        position: relative; min-height: 110px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        align-items: center;
+    }
+    .sys-w-diary-deco-row {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 11px; color: #999;
+    }
+    .sys-w-diary-stamp {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 24px; height: 24px; border: 1px dashed #C0B5A5;
+        font-size: 12px; color: #8a8a8a; border-radius: 4px;
+        font-family: 'Hiragino Mincho',serif;
+    }
+    .sys-w-diary-stamp.solid {
+        background: #4a4a4a; color: #fff; border: none;
+        font-size: 14px; font-weight: 600;
+    }
+    .sys-w-diary-bday {
+        text-align: center; padding: 6px 8px;
+        background: rgba(255,255,255,0.6); border-radius: 50%;
+        width: 78px; height: 78px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        margin-left: auto;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        clip-path: path('M 39 8 C 22 -4 0 8 0 26 C 0 48 39 70 39 70 C 39 70 78 48 78 26 C 78 8 56 -4 39 8 Z');
+    }
+    .sys-w-diary-bday-label { font-size: 9px; color: #888; font-family: 'Hiragino Mincho',serif; }
+    .sys-w-diary-bday-num { font-size: 13px; font-weight: 700; color: #4a4a4a; font-variant-numeric: tabular-nums; }
+    .sys-w-diary-bday-unit { font-size: 9px; color: #888; }
+    /* 编辑按钮 */
+    .sys-w-diary-edit {
+        position: absolute; top: 10px; right: 10px;
+        background: rgba(255,255,255,0.85); color: #5a5a5a;
+        font-size: 10px; padding: 3px 9px; border-radius: 10px;
+        z-index: 5; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .sys-w-diary-edit:active { background: rgba(255,255,255,1); }
+    /* 添加widget按钮 */
+    .sys-widgets-add {
+        margin: 6px auto;
+        background: rgba(255,255,255,0.5);
+        color: #5a5a5a; font-size: 12px;
+        padding: 8px 16px; border-radius: 16px;
+        border: 1px dashed rgba(255,255,255,0.8);
+        display: none; align-items: center; justify-content: center; gap: 6px;
+        backdrop-filter: blur(12px);
+        cursor: pointer;
+    }
+    #sys-shell.is-edit-mode .sys-widgets-add { display: inline-flex; }
+    /* 没有任何 widget 时,也允许添加(不需要进入编辑态) */
+    .sys-widget-row.sys-widgets-empty .sys-widgets-add { display: inline-flex; }
+
+    /* ━━━━━━━━━━━━━━━━━━ A-Hui 精致白灰组件样式 ━━━━━━━━━━━━━━━━━━ */
+    /* 顶部状态条 */
+    .ahw-top-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        border-radius: 40px; padding: 8px 16px 8px 8px;
+        margin: 4px 0 8px;
+        background: #fff;
+        border: 2px solid rgba(255,255,255,0.55);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06), inset 0 0 0 2px rgba(255,255,255,0.8);
+        backdrop-filter: blur(12px);
+    }
+    .ahw-top-bar .ahw-avatar {
+        width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+        background: rgba(200,200,200,0.3);
+    }
+    .ahw-top-bar .ahw-center {
+        flex: 1; display: flex; flex-direction: column; align-items: center; margin: 0 8px;
+    }
+    .ahw-top-bar .ahw-time-row {
+        font-size: 26px; font-weight: 700; color: #b0b0b0;
+        display: flex; align-items: center; gap: 6px; letter-spacing: 2px;
+    }
+    .ahw-top-bar .ahw-time-row span { font-size: 18px; opacity: 0.6; }
+    .ahw-top-bar .ahw-quote {
+        font-size: 10px; color: #a0a0a0; margin-top: 3px;
+        background: #f8f8f8; padding: 3px 10px; border-radius: 10px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
+    }
+    .ahw-top-bar .ahw-battery {
+        width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(200,200,200,0.5);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-size: 10px; color: #a0a0a0; flex-shrink: 0;
+        background: rgba(255,255,255,0.7);
+    }
+    .ahw-top-bar .ahw-battery span:first-child { font-size: 13px; margin-bottom: -2px; }
+
+    /* 笔记本组件 */
+    .ahw-notebook {
+        display: flex; align-items: stretch; height: 150px;
+        margin: 0 0 8px; width: 100%; position: relative;
+    }
+    .ahw-nb-page {
+        flex: 1; background: rgba(255,255,255,0.88); border: 2px solid rgba(240,240,240,0.7);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    }
+    .ahw-nb-page.left {
+        border-radius: 14px 0 0 14px; border-right: none;
+        display: flex; flex-direction: column; justify-content: center;
+        align-items: center; gap: 9px; padding: 8px;
+    }
+    .ahw-nb-page.right {
+        border-radius: 0 14px 14px 0; border-left: none;
+        display: flex; justify-content: center; align-items: center; padding: 8px;
+    }
+    .ahw-pill {
+        background: rgba(255,255,255,0.9); border: 1px solid rgba(240,240,240,0.8);
+        padding: 5px 12px; border-radius: 16px; font-size: 11px; color: #999;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        display: flex; align-items: center; gap: 5px;
+        width: 82%; justify-content: center; white-space: nowrap;
+    }
+    .ahw-polaroid {
+        background: #fff; padding: 6px 6px 16px;
+        border: 1px solid #eee; box-shadow: 2px 4px 10px rgba(0,0,0,0.06);
+        border-radius: 6px; transform: rotate(3deg);
+        width: 82%; height: 80%;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ahw-polaroid img {
+        width: 100%; height: 100%; object-fit: cover; border-radius: 3px;
+    }
+    .ahw-spiral {
+        width: 18px; background: transparent; position: relative; z-index: 10;
+        display: flex; flex-direction: column; justify-content: space-evenly;
+        align-items: center; margin: 0 -9px;
+    }
+    .ahw-ring {
+        width: 22px; height: 9px; background: rgba(220,220,220,0.8); border-radius: 5px;
+        box-shadow: inset 0 -2px 3px rgba(0,0,0,0.08), 0 2px 3px rgba(0,0,0,0.04);
+    }
+
+    /* 底部浮动卡片组件 */
+    .ahw-bottom-card {
+        background: rgba(255,255,255,0.88); border: 2px solid rgba(240,240,240,0.7);
+        border-radius: 18px; padding: 12px 14px; margin: 0 0 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        backdrop-filter: blur(10px);
+    }
+    .ahw-bc-head {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .ahw-bc-head .sparkle { font-size: 16px; color: rgba(255,255,255,0.5); }
+    .ahw-bc-head img {
+        width: 52px; height: 52px; border-radius: 50%;
+        border: 2.5px solid rgba(255,255,255,0.8);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.06); object-fit: cover;
+        background: rgba(200,200,200,0.2);
+    }
+    .ahw-bc-cute { font-size: 11px; font-weight: 700; color: #888; }
+    .ahw-bc-time {
+        display: flex; align-items: center; justify-content: space-between;
+        width: 100%; color: #aaa;
+    }
+    .ahw-bc-time .ahw-tc { display: flex; flex-direction: column; align-items: center; }
+    .ahw-bc-time .ahw-tc .t1 { font-size: 15px; color: #777; }
+    .ahw-bc-time .ahw-tc .t2 { font-size: 10px; }
+    .ahw-bc-status { display: flex; gap: 14px; font-size: 12px; opacity: 0.55; }
+
+    /* ━━━━━━━━━━━━━━━━━━ 拖拽调位系统样式 ━━━━━━━━━━━━━━━━━━ */
+    /* 小组件拖拽 */
+    .sys-widget-host.wdrag-active {
+        opacity: 0.6; transform: scale(0.97);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.22) !important;
+        z-index: 999; transition: none;
+    }
+    .sys-widget-host.wdrag-placeholder {
+        height: 10px; background: rgba(255,255,255,0.2);
+        border-radius: 6px; border: 2px dashed rgba(255,255,255,0.4);
+        overflow: hidden; transition: height 0.2s;
+    }
+    /* 拖拽提示条(编辑态) */
+    #wdrag-hint {
+        text-align: center; font-size: 11px; color: rgba(255,255,255,0.55);
+        padding: 3px 0 5px; display: none; letter-spacing: 0.3px;
+    }
+    #sys-shell.is-edit-mode #wdrag-hint { display: block; }
+
+    /* APP图标自由拖拽 */
+    .sys-app-icon-wrapper.fdrag-float {
+        position: fixed !important; z-index: 99990;
+        transform: scale(1.15); pointer-events: none;
+        transition: none; opacity: 0.92;
+        filter: drop-shadow(0 12px 20px rgba(0,0,0,0.4));
+    }
+
+    .sys-app-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 76px; gap: 10px 12px; justify-items: center; } /* GROUP-FIX2: 图标行收紧，减少空白 */
+    .sys-app-icon-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: var(--sys-icon-size); }
+    .sys-app-icon-wrapper:active .sys-app-icon { transform: scale(0.88); filter: brightness(0.85); }
+.sys-app-icon {
+        width: var(--sys-icon-size); 
+        aspect-ratio: 1 / 1;
+        height: auto;
+        border-radius: 22.5%;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        color: white; 
+        font-size: 24px; 
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .sys-app-icon img, 
+    .sys-app-icon svg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+}
+    .sys-app-name { color: white; font-size: 11px; font-weight: 400; text-shadow: 0 1px 2px rgba(0,0,0,0.6); white-space: nowrap; }
+    .sys-page-indicator { display: flex; justify-content: center; gap: 6px; margin-bottom: 5px; }
+    .sys-page-indicator .sys-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
+    .sys-page-indicator .sys-dot.sys-active { background: white; width: 12px; border-radius: 3px; }
+    .sys-dock-bg {
+        position: absolute; width: 100%; height: 100%; border-radius: 26px;
+        background: rgba(255,255,255,0.15); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 1;
+    }
+    .sys-dock-apps { width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 2; }
+    .sys-dock-apps .sys-app-name { display: none; }
+
+    /* ━━━━━━━━━━━━━━━━━━ 4. 真·多窗口运行池载体架构 ━━━━━━━━━━━━━━━━━━ */
+    #sys-app-host { z-index: var(--sys-zi-app); pointer-events: none; }
+    .sys-app-window {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: var(--sys-bg-color); z-index: 1;
+        transform: translateY(100%); transition: transform var(--gc-trans-dur, .3s) var(--gc-trans-ease, cubic-bezier(.32, .72, 0, 1)), opacity var(--gc-trans-dur, .3s) var(--gc-trans-ease, cubic-bezier(.32, .72, 0, 1));
+        overflow-y: auto; pointer-events: auto; display: none;
+    }
+    /* 激活态窗口挂载显示并滑入 */
+    .sys-app-window.sys-active { display: block; transform: translateY(0); z-index: 10; }
+    /* 后台静默挂载态（保留 DOM 缓存但不可见） */
+    .sys-app-window.sys-cached { display: block; transform: translateY(100%); z-index: 1; }
+
+    /* 系统级弹窗容器 */
+    #sys-modal-container { z-index: var(--sys-zi-modal); pointer-events: none; display: flex; justify-content: center; align-items: center; }
+    .sys-crash-dialog {
+        background: rgba(30,30,30,0.95); border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 20px; padding: 20px; width: 260px; color: white; pointer-events: auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8); transform: scale(0.9); animation: sysPop 0.2s forwards ease-out;
+    }
+    @keyframes sysPop { to { transform: scale(1); } }
+    .sys-crash-dialog h3 { color: #ff453a; font-size: 16px; margin-bottom: 10px; }
+    .sys-crash-dialog p { font-size: 12px; color: #ccc; margin-bottom: 15px; word-break: break-all; }
+.sys-crash-btn { background: #007aff; color: white; border: none; padding: 8px; border-radius: 8px; width: 100%; cursor: pointer; font-size: 13px; }
+
+#sys-splash-screen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #000000;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+}
+
+.sys-splash-logo {
+    width: 68px; height: 68px;
+    margin-bottom: 24px;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: sysSplashLogoIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    filter: drop-shadow(0 0 14px rgba(255,255,255,0.35));
+}
+
+.sys-splash-title {
+    font-size: 15px; font-weight: 600;
+    letter-spacing: 3px;
+    color: #f2f2f2;
+    margin-bottom: 6px;
+    opacity: 0;
+    animation: sysSplashFadeIn 0.6s forwards 0.35s ease-out;
+}
+
+.sys-splash-subtitle {
+    font-size: 9px; font-weight: 400;
+    letter-spacing: 2.5px;
+    color: #6a6a6a;
+    opacity: 0;
+    animation: sysSplashFadeIn 0.6s forwards 0.55s ease-out;
+}
+
+@keyframes sysSplashLogoIn {
+    0%   { opacity: 0; transform: scale(0.85); filter: drop-shadow(0 0 2px rgba(255,255,255,0.1)); }
+    60%  { opacity: 1; }
+    100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 14px rgba(255,255,255,0.45)); }
+}
+
+@keyframes sysSplashFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }
+}
+
+#sys-splash-screen.sys-fade-out {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+}
+
+#sys-splash-screen::after {
+    content: '';
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    width: 50px;
+    height: 1px;
+    transform: translateX(-50%) scaleX(0);
+    background: rgba(255,255,255,0.28);
+    opacity: 0;
+    animation: sysSplashLine 2.0s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+}
+@keyframes sysSplashLine {
+    0%   { opacity: 0; transform: translateX(-50%) scaleX(0); }
+    35%  { opacity: 1; transform: translateX(-50%) scaleX(1); }
+    100% { opacity: 0.55; transform: translateX(-50%) scaleX(1); }
+}
+
+/* ━━━ 性能优化：减少卡顿 ━━━ */
+/* ★ 美化助手"关闭页面切换动画"开关:抑制 APP 切换 / 控制中心 / 锁屏的 transition */
+html.sys-reduce-motion .sys-app-window,
+html.sys-reduce-motion #sys-control-center,
+html.sys-reduce-motion #sys-lockscreen-layer,
+html.sys-reduce-motion .sys-desktop-paging,
+html.sys-reduce-motion .b-page-view {
+    transition: none !important;
+    animation-duration: 0.001s !important;
+}/* 滚动容器开启 GPU 合成层，滚动更流畅 */
+.wx-scroll-view, .wx-msg-stream, .wx-view-box, .b-sandbox-core,
+.st-root, .sc-notif-list, #wx-sessions-container {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+/* APP 窗口与桌面层提升为合成层，切换不卡（图标 wrapper 不加，否则拖拽定位会乱）*/
+.sys-app-window, #sys-desktop-layer {
+    transform: translateZ(0);
+}
+/* 减少非激活子页面的重绘：隐藏时不参与渲染 */
+.wx-subpage-box:not(.wx-active) { content-visibility: auto; }
+.b-page-view:not(.active) { content-visibility: auto; }
+/* 降低重度模糊的开销（保留观感的同时减负） */
+@media (max-width: 9999px) {
+    .sc-notif, .sc-control { will-change: transform; }
+}
+/* 卡顿优化 II：列表/消息项启用 GPU 合成，长列表滚动更顺 */
+.wx-session-item, .wx-msg-row, .sc-notif-card, .st-row, .bi-grid-cell {
+    transform: translateZ(0);
+}
+/* 图片渲染优化：头像/缩略图用 GPU 解码 */
+.wx-avatar-wrapper img, .wx-feed-img, .sys-app-icon img {
+    transform: translateZ(0);
+    image-rendering: auto;
+}
+/* 非激活 APP 窗口完全不渲染，省大量重绘 */
+.sys-app-window:not(.sys-active) {
+    content-visibility: auto;
+}
+/* 动画用合成层属性，避免触发 layout/paint */
+.wx-typing, .sys-passcode-box, .sys-app-window {
+    will-change: transform, opacity;
+}
+/* ★ 卡顿优化 III：页面切到后台时暂停所有动画，大幅降低发热 */
+body.app-hidden *, body.app-hidden *::before, body.app-hidden *::after {
+    animation-play-state: paused !important;
+    transition: none !important;
+}
+/* 降低系统级动画的开销 */
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+/* 全局 APP 返回按钮 */
+.sys-app-backbtn {
+    position: absolute;
+    top: calc(var(--sys-island-safe-top, 62px) + 4px);
+    left: 12px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.32);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 99992; cursor: pointer;
+    pointer-events: auto;
+    transition: transform .12s, background .2s;
+}
+.sys-app-backbtn:active { transform: scale(0.88); background: rgba(0,0,0,0.5); }
+/* [D] 子页面自带返回时隐藏注入的全局返回钮，避免一屏两个返回 / 互相遮挡 */
+.sys-app-window[data-app-sandbox="beautify"]:has(.b-page-view.b-sub.active) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="novel"]:has(#novel-reader-view[style*="flex"]) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="novel"]:has(#novel-cover-modal[style*="flex"]) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="forum"]:has(.fm-detail.show) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="nobeidanci"]:has(.nb-sub-view.show) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="TarotDivine"]:has(.tarot-sub-header) .sys-app-backbtn { display: none !important; }
+/* [AT GROUP-AT-BACK-DEDUP] 沿用同一 :has() 机制补齐去重：app 自己有返回键时隐藏注入的全局返回钮 */
+.sys-app-window:has(.gd-head) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="cike"]:has(.ck-sub.show) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="cinema"]:has([data-cx="lib"]) .sys-app-backbtn,
+.sys-app-window[data-app-sandbox="novel"]:has(.novel-modal-wrapper.show) .sys-app-backbtn { display: none !important; }
+/* [AT] 乙游底部面板打开时，隐藏其下的“‹ 返回聊天”，面板自己的 ✕ 为唯一关闭 */
+#wx-otome-home:has(.ot-panel.ot-show) .ot-back { visibility: hidden !important; }
+/* [AT GROUP-AT-BACK-DEDUP] 信箱详情页只留内容区“‹ 返回信件列表”：有 #gB-back-list 时隐藏头栏 ‹；回列表后自动恢复 */
+.gB-ov:has(#gB-back-list) .gB-back { visibility: hidden !important; }
+/* [AT] 桌面编辑态不叠注入返回键（AK 组桌面编辑未合入本版，此规则为其留接线） */
+#sys-shell.is-edit-mode .sys-app-backbtn { display: none !important; }
+
+/* ━━━ 全局灵动岛安全区:确保所有 APP 顶部留出灵动岛+状态栏空间 ━━━ */
+/* CSS 变量:灵动岛底部距顶端的距离 = env-safe-top + 3px(顶距) + island高度(38px) + 8px(余量) */
+:root {
+    --sys-island-safe-top: calc(var(--sys-island-auto-top, 10px) + var(--sys-island-auto-h, 36px) + 6px);
+}
+/* ★ 所有内部滚动容器禁止滚动链传播到外层 */
+.sys-desktop-page, .sys-app-window, .wx-scroll-view, .wx-msg-stream,
+.wx-view-box, .b-sandbox-core, .st-root, .sc-notif-list {
+    overscroll-behavior: contain;
+}

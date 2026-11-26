@@ -1,0 +1,24 @@
+
+/* GROUP-FIX2: 桌面英雄小组件 + 桌宠像素画布 + 心情小字条。
+   主题变量（--fix2-w-*）由 FIX2 脚本写在 #sys-desktop-layer 上，跟随 BU/特里亚农主题切换。 */
+/* GROUP-WIDGET（第 7 项）：#fix2-hero 容器已随 5 张卡移入目录而移除，此规则不再命中任何元素，删除。 */
+.fix2-w{display:block;width:100%;box-sizing:border-box;text-align:left;font-family:inherit;background:var(--fix2-w-bg,rgba(255,253,248,.78));border:1px solid var(--fix2-w-line,rgba(30,39,72,.16));border-radius:var(--fix2-w-radius,16px);padding:10px 12px;color:var(--fix2-w-ink,#1e2748);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;}
+.fix2-w.span2{grid-column:span 2;}
+.fix2-w .lb{font-size:10px;letter-spacing:.1em;color:var(--fix2-w-muted,#46536f);font-weight:700;}
+.fix2-w .big{font-size:20px;font-weight:700;line-height:1.25;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fix2-w .sub{font-size:12px;color:var(--fix2-w-muted,#46536f);margin-top:2px;line-height:1.5;}
+.fix2-w .t{font-size:34px;font-weight:700;line-height:1.05;letter-spacing:.02em;margin-top:2px;}
+.fix2-w .empty{font-size:12px;color:var(--fix2-w-muted,#46536f);border:1px dashed var(--fix2-w-line,rgba(30,39,72,.16));border-radius:10px;padding:8px;text-align:center;margin-top:6px;line-height:1.5;}
+.fix2-cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px;}
+.fix2-cal-day{text-align:center;font-size:11px;padding:5px 0;border-radius:8px;color:var(--fix2-w-muted,#46536f);}
+.fix2-cal-day .wd{display:block;font-size:9px;opacity:.8;}
+.fix2-cal-day.today{background:var(--fix2-w-accent,#5c6884);color:#fff;font-weight:700;}
+.fix2-photo .ph{background:#fff;padding:6px 6px 8px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.12);transform:rotate(-.6deg);}
+.fix2-photo img{width:100%;height:118px;object-fit:cover;border-radius:2px;display:block;background:#eee;}
+.fix2-photo .cap{font-size:11px;color:#6d6862;text-align:center;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fix2-pixel{image-rendering:pixelated;display:block;}
+#desk-pet .gm-pet-char canvas.fix2-pixel{width:100%;height:auto;}
+#desk-pet .gw-skin-overlay canvas.fix2-pixel{width:100%;height:auto;margin:0 auto;}
+/* GROUP-FIX · 18(b)：#gm-ab-mood 已删除（见 refreshOverlay）；本规则兜底隐藏任何残留标签，杜绝残字压 Dock。 */
+#desk-pet .gm-ab-mood{display:none !important;}
+.af-sr-item.fix2-quick{width:100%;text-align:left;}

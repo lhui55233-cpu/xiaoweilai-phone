@@ -1,0 +1,244 @@
+
+/* GROUP-AL-THEME-WIDGETS · AL 组：主题 token/切换 + 小组件样式 + 微交互
+   只借做法、自己写代码；归巢色板 #fff/#f7f7f8/#ececef/#25262a/#34363b，
+   圆角 12px；无外链图片/音频，无 CDN，无渐变发光选中态，无 :hover 触发。 */
+@layer al-baseline;
+/* ── 1. 语义 token：浅/深只换值，不改组件样式 ── */
+:root {
+  --al-fg: #25262a; --al-bg: #ffffff; --al-border: #ececef; --al-muted: #8a857e;
+  --al-subtle: #f7f7f8; --al-focus: #34363b; --al-danger: #b3261e; --al-success: #2f6b2a;
+  --al-radius: 12px; --al-bw: 1px;
+  --al-font-body: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --al-font-ui: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --al-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"], html[data-theme-resolved="dark"] {
+  color-scheme: dark;
+  --al-fg: #f5f5f7; --al-bg: #232326; --al-border: #3a3a3c; --al-muted: #9a9aa0;
+  --al-subtle: #2c2c2e; --al-focus: #e5e5ea; --al-danger: #ff8a80; --al-success: #8fce8f;
+}
+/* ── 2. 色温变体：warm/cold 只换 token 值（默认不设变体 = 归巢中性） ── */
+html[data-theme-variant="warm"]:not([data-theme="dark"]):not([data-theme-resolved="dark"]) {
+  --al-bg: #fffdf9; --al-subtle: #faf6f1; --al-border: #efe9e2; --al-muted: #93897e;
+}
+html[data-theme-variant="cold"]:not([data-theme="dark"]):not([data-theme-resolved="dark"]) {
+  --al-bg: #fbfcfe; --al-subtle: #f4f7f9; --al-border: #e6ebef; --al-muted: #7e8a94;
+}
+html[data-theme-variant="warm"][data-theme-resolved="dark"], html[data-theme-variant="warm"][data-theme="dark"] {
+  --al-bg: #262220; --al-subtle: #2e2825; --al-border: #403834;
+}
+html[data-theme-variant="cold"][data-theme-resolved="dark"], html[data-theme-variant="cold"][data-theme="dark"] {
+  --al-bg: #20242a; --al-subtle: #282e36; --al-border: #363e48;
+}
+/* ── 3. 深色 opt-in：color-scheme + light-dark()，不支持时靠 data-theme 选择器降级 ── */
+@supports (color: light-dark(#ffffff, #232326)) {
+  html[data-theme="auto"] {
+    --al-bg: light-dark(#ffffff, #232326);
+    --al-fg: light-dark(#25262a, #f5f5f7);
+    --al-border: light-dark(#ececef, #3a3a3c);
+    --al-subtle: light-dark(#f7f7f8, #2c2c2e);
+  }
+}
+/* ── 7. 字体三角色：圆体只覆盖界面字体一个 token ── */
+#sys-shell { font-family: var(--al-font-body); }
+#sys-shell button, #sys-shell input, #sys-shell select, #sys-shell textarea { font-family: var(--al-font-ui); }
+#sys-shell code, #sys-shell .al-mono { font-family: var(--al-font-mono); }
+html[data-al-round-font="on"] { --al-font-ui: "ZCOOL KuaiLe", -apple-system, "PingFang SC", sans-serif; }
+/* ── 4. 级联层基线：层内写基线，归巢覆盖写在层外（层外胜出，解决样式打架）── */
+@layer al-baseline {
+  #sys-shell button, #sys-shell input, #sys-shell select, #sys-shell textarea {
+    box-sizing: border-box; border-radius: var(--al-radius);
+  }
+  #sys-shell input, #sys-shell select, #sys-shell textarea {
+    border: var(--al-bw) solid var(--al-border); background: var(--al-bg); color: var(--al-fg);
+  }
+  #sys-shell ul.al-list, #sys-shell ol.al-list { list-style: none; margin: 0; padding: 0; }
+  #sys-shell .al-list > li { border-bottom: var(--al-bw) solid var(--al-border); padding: 10px 12px; }
+}
+/* ── 5. 壁纸：可选极淡单色剪影线条（内联 SVG 数据 URI，无外链）；默认纯白不变 ── */
+#sys-shell[data-al-wall="waves"] #sys-desktop-layer {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='430' height='200' viewBox='0 0 430 200'%3E%3Cg fill='none' stroke='%23c9c9ce' stroke-width='1.5'%3E%3Cpath d='M0 60 Q 60 30 120 60 T 240 60 T 360 60 T 480 60'/%3E%3Cpath d='M0 110 Q 60 80 120 110 T 240 110 T 360 110 T 480 110'/%3E%3Cpath d='M0 160 Q 60 130 120 160 T 240 160 T 360 160 T 480 160'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center bottom; background-size: 430px 200px;
+}
+#sys-shell[data-al-wall="mountains"] #sys-desktop-layer {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='430' height='200' viewBox='0 0 430 200'%3E%3Cg fill='none' stroke='%23c9c9ce' stroke-width='1.5'%3E%3Cpath d='M0 200 L80 90 L150 160 L230 60 L310 150 L370 100 L430 200'/%3E%3Cpath d='M0 200 L60 140 L120 200'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center bottom; background-size: 430px 200px;
+}
+#sys-shell[data-al-wall="forest"] #sys-desktop-layer {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='430' height='200' viewBox='0 0 430 200'%3E%3Cg fill='none' stroke='%23c9c9ce' stroke-width='1.5'%3E%3Cpath d='M40 200 L70 120 L100 200 Z'/%3E%3Cpath d='M70 200 L70 175'/%3E%3Cpath d='M150 200 L185 100 L220 200 Z'/%3E%3Cpath d='M185 200 L185 170'/%3E%3Cpath d='M280 200 L310 130 L340 200 Z'/%3E%3Cpath d='M310 200 L310 178'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center bottom; background-size: 430px 200px;
+}
+#sys-shell[data-al-wall="desert"] #sys-desktop-layer {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='430' height='200' viewBox='0 0 430 200'%3E%3Cg fill='none' stroke='%23c9c9ce' stroke-width='1.5'%3E%3Ccircle cx='330' cy='55' r='26'/%3E%3Cpath d='M0 140 Q 110 100 220 140 T 430 140'/%3E%3Cpath d='M0 175 Q 140 140 280 175 T 430 175'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center bottom; background-size: 430px 200px;
+}
+/* ── 6. 主题切换动效：太阳/月亮变形 + 圆环揭示，轻、短、一次 ── */
+.al-theme-toggle { display: inline-flex; align-items: center; gap: 6px; border: var(--al-bw) solid var(--al-border);
+  background: var(--al-bg); color: var(--al-fg); border-radius: 999px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+.al-theme-toggle .al-ico { display: inline-block; transition: transform .25s ease, opacity .25s ease; }
+html[data-theme-resolved="dark"] .al-theme-toggle .al-ico-sun { opacity: .35; transform: rotate(90deg) scale(.8); }
+html[data-theme-resolved="light"] .al-theme-toggle .al-ico-moon, html:not([data-theme-resolved]) .al-theme-toggle .al-ico-moon { opacity: .35; }
+@keyframes al-reveal { from { transform: scale(.6); opacity: .5; } to { transform: scale(1); opacity: 0; } }
+.al-theme-reveal { position: fixed; left: 50%; top: 50%; width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax;
+  border-radius: 50%; border: 2px solid var(--al-focus); pointer-events: none; z-index: 10002;
+  animation: al-reveal .35s ease-out 1 forwards; }
+/* ── 9. 小组件仓库选中态：柔和单色细边，不用渐变发光（覆盖 AC 的蓝色填充）── */
+.ac-store-item .ac-si-sizes button.ac-on, .ac-w-move button.ac-on {
+  background: var(--al-subtle); color: var(--al-fg); border: var(--al-bw) solid var(--al-focus);
+}
+.ac-store-item[data-state="selected"], .ac-store-item.ac-selected {
+  border: var(--al-bw) solid var(--al-focus); box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+/* ── 10. 卡片轻抬只在点按/选中时短暂抬升，不用悬停触发 ── */
+.ac-store-item:active, .ac-widget:active, .al-card:active {
+  transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+/* ── 11. 淡入显现（小组件上屏、列表切换），JS 可选加 .al-fade-in ── */
+@keyframes al-fade-in { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+.al-fade-in { animation: al-fade-in .25s ease both; }
+/* ── 12. 骨架屏：代替空白等待 ── */
+.al-skeleton { position: relative; overflow: hidden; background: var(--al-subtle); border-radius: 8px; min-height: 14px; margin: 6px 0; }
+.al-skeleton::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(128,128,128,.14), transparent);
+  animation: al-shimmer 1.2s ease-in-out infinite; }
+@keyframes al-shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+/* ── 13/14. 桌面搜索（Cmd-K 结构）与商店搜索框 ── */
+#al-desk-search { position: relative; margin: 10px 16px 0; z-index: 60; }
+#al-desk-input { width: 100%; box-sizing: border-box; border: var(--al-bw) solid var(--al-border); border-radius: var(--al-radius);
+  padding: 10px 12px; font-size: 14px; background: var(--al-bg); color: var(--al-fg); outline: none; }
+#al-desk-input:focus { border-color: var(--al-focus); }
+.al-search-results { position: absolute; left: 0; right: 0; top: calc(100% + 6px); background: var(--al-bg);
+  border: var(--al-bw) solid var(--al-border); border-radius: var(--al-radius); box-shadow: 0 10px 30px rgba(0,0,0,.14);
+  max-height: 320px; overflow-y: auto; z-index: 70; }
+.al-search-results[hidden] { display: none; }
+.al-sr-group { font-size: 11px; font-weight: 700; color: var(--al-muted); padding: 10px 12px 4px; }
+.al-sr-item { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: var(--al-bw) solid var(--al-border);
+  padding: 10px 12px; cursor: pointer; font-size: 14px; color: var(--al-fg); }
+.al-sr-item:last-child { border-bottom: 0; }
+.al-sr-item:active { background: var(--al-subtle); }
+.al-sr-type { font-size: 11px; color: var(--al-muted); margin-right: 6px; }
+.al-sr-sub { font-size: 12px; color: var(--al-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.al-sr-empty { padding: 14px; font-size: 13px; color: var(--al-muted); }
+.al-store-search { margin: 0 0 10px; }
+.al-store-search input { width: 100%; box-sizing: border-box; border: var(--al-bw) solid var(--al-border); border-radius: var(--al-radius);
+  padding: 9px 10px; font-size: 13px; background: var(--al-bg); color: var(--al-fg); outline: none; }
+.al-store-suggest { font-size: 12px; color: var(--al-muted); padding: 6px 2px 0; }
+.al-store-suggest button { border: 0; background: var(--al-subtle); color: var(--al-fg); border-radius: 999px;
+  padding: 3px 8px; margin: 2px 4px 2px 0; font-size: 12px; cursor: pointer; }
+/* ── 15. Modal / Toast 行为约定 ── */
+.al-modal-mask { position: fixed; inset: 0; background: rgba(20,20,24,.45); z-index: 10001;
+  display: flex; align-items: flex-end; justify-content: center; }
+.al-modal-mask[data-state="closed"] { display: none; }
+.al-modal-card { background: var(--al-bg); color: var(--al-fg); border-radius: 18px 18px 0 0; width: 100%;
+  max-width: 430px; max-height: 86vh; overflow-y: auto; padding: 16px; box-sizing: border-box; }
+#al-toast-wrap { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 10003;
+  display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none; }
+.al-toast { background: var(--al-fg); color: var(--al-bg); border-radius: 999px; padding: 8px 14px;
+  font-size: 13px; max-width: 86vw; box-sizing: border-box; animation: al-fade-in .2s ease both; }
+.al-toast[data-state="success"] { box-shadow: inset 3px 0 0 var(--al-success); }
+.al-toast[data-state="error"] { box-shadow: inset 3px 0 0 var(--al-danger); }
+.al-toast[data-state="warning"] { box-shadow: inset 3px 0 0 var(--al-muted); }
+.al-toast[data-state="info"] { box-shadow: inset 3px 0 0 var(--al-focus); }
+/* ── 16/19. 涟漪只用于主按钮（#34363b 低透明度改淡）；点赞迸发、复制对勾 ── */
+.al-ripple { position: relative; overflow: hidden; }
+.al-ripple-ink { position: absolute; border-radius: 50%; background: rgba(52,54,59,.14); pointer-events: none;
+  transform: scale(0); animation: al-ripple .45s ease-out forwards; }
+@keyframes al-ripple { to { transform: scale(1); opacity: 0; } }
+@keyframes al-burst { 0% { opacity: 1; transform: translate(0,0) scale(1); } 100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, -24px)) scale(.4); } }
+.al-burst-bit { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--al-focus);
+  pointer-events: none; animation: al-burst .6s ease-out 1 forwards; }
+.al-copied::after { content: " ✓ 已复制"; color: var(--al-success); font-size: 12px; }
+/* ── 18. 统一按压手感：:active 轻微缩放/变暗，松开恢复 ── */
+#sys-shell button:active, #sys-shell [role="button"]:active, #sys-shell .sys-app-icon:active,
+#sys-shell .wx-send-btn:active, #sys-shell .al-segmented button:active {
+  transform: scale(.97); filter: brightness(.96);
+  transition: transform .12s ease, filter .12s ease;
+}
+/* 微信发送键只加按压手感，颜色仍是微信绿，不动 */
+.sys-app-window[data-app-sandbox="wechat"] .wx-send-btn { background: #07C160; }
+/* ── 20. 单次确认反馈：脉冲角标、轻微抖动（归巢灰阶，一次）── */
+@keyframes al-pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(52,54,59,.35); } 100% { box-shadow: 0 0 0 6px rgba(52,54,59,0); } }
+.al-badge-pulse { animation: al-pulse-ring .8s ease-out 1; }
+@keyframes al-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.al-shake { animation: al-shake .25s ease 1; }
+/* ── 21/22. 底部抽屉、动作面板、拖动视觉层（AK 未合入：只有视觉层，无拖拽机制）── */
+.al-bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--al-bg); color: var(--al-fg);
+  border-radius: 18px 18px 0 0; border: var(--al-bw) solid var(--al-border); padding: 16px 16px 32px; z-index: 10001; /* GROUP-BM BM-2：底垫 16px→32px，避开 Home 条 */
+  transform: translateY(105%); transition: transform .25s ease; }
+.al-bottom-sheet[data-state="open"] { transform: translateY(0); }
+.al-action-panel { background: var(--al-bg); border: var(--al-bw) solid var(--al-border); border-radius: var(--al-radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,.14); padding: 6px; }
+.al-dragging { transform: scale(1.08); opacity: .6; z-index: 5; }
+.al-drop-gap { outline: 2px dashed var(--al-focus); outline-offset: 2px; border-radius: var(--al-radius); min-height: 54px; }
+#al-trash-zone { position: fixed; left: 16px; right: 16px; bottom: 24px; z-index: 10001; text-align: center;
+  padding: 12px; border-radius: var(--al-radius); border: var(--al-bw) dashed var(--al-border);
+  background: var(--al-bg); color: var(--al-muted); font-size: 13px; }
+#al-trash-zone[data-state="hot"] { background: var(--al-subtle); border-color: var(--al-focus); color: var(--al-fg); }
+.al-swipe-item[data-state="delete-armed"] { transform: translateX(-64px); transition: transform .2s ease; }
+/* ── 23. 流式小圆点、思考微光、模式徽标、停止按钮 ── */
+.al-typing-dots { display: inline-flex; gap: 4px; align-items: center; vertical-align: middle; }
+.al-typing-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--al-muted); display: block;
+  animation: al-dot-bounce 1s ease-in-out infinite; }
+.al-typing-dots i:nth-child(2) { animation-delay: .15s; }
+.al-typing-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes al-dot-bounce { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-4px); opacity: 1; } }
+@keyframes al-thinking { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+.al-thinking-shimmer { animation: al-thinking 1.2s ease-in-out infinite; }
+.al-mode-badge { font-size: 10px; color: var(--al-muted); border: var(--al-bw) solid var(--al-border);
+  border-radius: 999px; padding: 1px 6px; margin-left: 6px; white-space: nowrap; }
+.al-mode-badge[data-mode="model"] { color: var(--al-fg); border-color: var(--al-focus); }
+.al-stop-btn { border: var(--al-bw) solid var(--al-border); background: var(--al-bg); color: var(--al-fg);
+  border-radius: 999px; padding: 3px 10px; font-size: 12px; margin-left: 8px; cursor: pointer; }
+/* ── 24. 异步加载态（接模型测试连接按钮的行为层）── */
+@keyframes al-spin { to { transform: rotate(360deg); } }
+.al-spinner { display: inline-block; width: 12px; height: 12px; vertical-align: -2px;
+  border: 2px solid var(--al-border); border-top-color: var(--al-focus); border-radius: 50%;
+  animation: al-spin .7s linear infinite; }
+[data-state="loading"] .al-spinner { display: inline-block; }
+/* ── 25. 开关、分段控制器、星级（星级只作显示，不改数值）── */
+.al-switch { width: 44px; height: 26px; border-radius: 999px; background: #d9d9de; border: 0; position: relative;
+  cursor: pointer; padding: 0; flex: none; }
+.al-switch::after { content: ""; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .18s ease; }
+.al-switch[data-state="on"] { background: var(--al-focus); }
+.al-switch[data-state="on"]::after { transform: translateX(18px); }
+.al-segmented { display: inline-flex; border: var(--al-bw) solid var(--al-border); border-radius: 999px; overflow: hidden; }
+.al-segmented button { border: 0; background: var(--al-bg); color: var(--al-fg); padding: 6px 12px; font-size: 12px; cursor: pointer; }
+.al-segmented button[data-state="active"] { background: var(--al-focus); color: var(--al-bg); }
+.al-stars { color: var(--al-focus); letter-spacing: 2px; font-size: 14px; pointer-events: none; }
+/* ── 26. 仅读屏可见文本 ── */
+.al-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* ── 27. 高对比聚焦环只在键盘操作时显示 ── */
+#sys-shell :focus-visible { outline: 2px solid var(--al-focus); outline-offset: 2px; border-radius: 6px; }
+/* ── 28. 链接下划线：平时细、聚焦时加粗 ── */
+#sys-shell a[data-al-link], #sys-shell .al-doc a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+#sys-shell a[data-al-link]:focus-visible, #sys-shell .al-doc a:focus-visible { text-decoration-thickness: 2px; }
+/* ── 29. 状态脉冲：char 在线/忙碌/睡觉 ── */
+.al-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #9a958f; display: inline-block; flex: none; }
+.al-status-dot[data-status="online"] { background: var(--al-success); animation: al-pulse-ring 1.6s ease-out infinite; }
+.al-status-dot[data-status="busy"] { background: var(--al-focus); }
+.al-status-dot[data-status="sleeping"] { background: #c9c9ce; }
+/* ── 30. 空状态动画 + 纸屑（纯 CSS/JS，不外链）── */
+@keyframes al-empty-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.al-empty { animation: al-empty-in .3s ease both; text-align: center; color: var(--al-muted); font-size: 13px; padding: 18px 12px; }
+.al-confetti-piece { position: absolute; top: -10px; width: 6px; height: 10px; border-radius: 1px; pointer-events: none;
+  animation: al-confetti-fall 1.2s ease-in 1 forwards; }
+@keyframes al-confetti-fall { to { transform: translateY(220px) rotate(540deg); opacity: 0; } }
+/* ── 32. 数据属性驱动状态 ── */
+[data-state="completed"] .al-step-mark { color: var(--al-success); }
+.al-wizard-step[data-state="active"] { display: block; }
+.al-wizard-step:not([data-state="active"]) { display: none; }
+/* ── 34. 平滑滚动只用于页内跳转 ── */
+.al-scroll-smooth { scroll-behavior: smooth; }
+/* ── 31. 动效总原则 + prefers-reduced-motion：动画中和 ── */
+@media (prefers-reduced-motion: reduce) {
+  #sys-shell .al-fade-in, #sys-shell .al-empty, #sys-shell .al-toast, #sys-shell .al-theme-reveal,
+  #sys-shell .al-typing-dots i, #sys-shell .al-skeleton::after, #sys-shell .al-status-dot[data-status="online"],
+  #sys-shell .al-spinner, #sys-shell .al-confetti-piece, #sys-shell .al-badge-pulse, #sys-shell .al-shake,
+  #sys-shell .al-thinking-shimmer, #sys-shell .al-ripple-ink, #sys-shell .al-burst-bit {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important;
+  }
+  #sys-shell .al-scroll-smooth { scroll-behavior: auto; }
+}

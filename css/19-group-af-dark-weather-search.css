@@ -1,0 +1,51 @@
+
+/* GROUP-AF-DARK-WEATHER-SEARCH · AF 组 7 项补丁样式（自写，未复制任何项目代码）
+   深色主题两套：Gruvbox 深色（背景 #282828）/ 归巢深色；默认白色归巢风不动。 */
+/* ── 3. 桌面搜索 ── */
+.af-search{position:relative;margin:12px 18px 0;z-index:60;}
+.af-search input{width:100%;box-sizing:border-box;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:11px 14px;font-size:15px;background:rgba(255,255,255,.92);color:#1c1c1e;outline:none;}
+.af-search input:focus{border-color:#8e8e93;}
+.af-search-results{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-height:320px;overflow-y:auto;z-index:70;}
+.af-sr-item{display:block;width:100%;text-align:left;background:#fff;border:none;border-bottom:1px solid #f0f0f0;padding:11px 14px;cursor:pointer;font-size:14px;color:#1c1c1e;}
+.af-sr-item:last-child{border-bottom:none;}
+.af-sr-item:active{background:#f7f7f8;}
+.af-sr-type{font-size:11px;color:#8e8e93;margin-right:6px;}
+.af-sr-sub{font-size:12px;color:#8e8e93;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.af-sr-empty{padding:14px;font-size:13px;color:#8e8e93;}
+/* ── 1. 深色主题 ── */
+html[data-af-theme="gruvbox-dark"]{--af-bg:#282828;--af-panel:#3c3836;--af-text:#ebdbb2;--af-muted:#a89984;--af-line:#504945;--af-accent:#d65d0e;}
+html[data-af-theme="guichao-dark"]{--af-bg:#19191c;--af-panel:#232327;--af-text:#e8e8ea;--af-muted:#9a9aa2;--af-line:#2e2e33;--af-accent:#d8d8de;}
+html[data-af-theme] #sys-shell{background-color:var(--af-bg) !important;}
+html[data-af-theme] #sys-shell::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);pointer-events:none;z-index:0;}
+html[data-af-theme] #sys-desktop-layer{background:rgba(0,0,0,.18);}
+html[data-af-theme] .sys-app-name{color:var(--af-text);}
+html[data-af-theme] .sys-app-window{background:var(--af-bg) !important;color:var(--af-text);}
+html[data-af-theme] .sys-dock-bg{background:rgba(255,255,255,.08) !important;}
+html[data-af-theme] .st-root{background:#1c1c1e !important;color:#e8e8ea;}
+html[data-af-theme="gruvbox-dark"] .st-root{background:#282828 !important;color:#ebdbb2;}
+html[data-af-theme] .gd-root{background:var(--af-bg) !important;color:var(--af-text);}
+html[data-af-theme] .gd-card{background:var(--af-panel) !important;color:var(--af-text);border-color:var(--af-line);}
+/* ── 5. 滚动反应气泡 ── */
+/* GROUP-FIX3 · FIX3-4(a) 旧气泡定位已移至 fix3-group-style（右上角顶栏下方 + 碰撞避让），此处删除。 */
+/* ── 7. 一起听：本地/在线切换 ── */
+.af-duet-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 4px;}
+.af-duet-bar .af-duet-label{font-size:12px;color:#8a8580;}
+.af-duet-bar button{border:1px solid #ddd;border-radius:999px;background:#fff;padding:6px 12px;font-size:13px;cursor:pointer;color:#333;}
+.af-duet-bar button.af-on{background:#1c1c1e;color:#fff;border-color:#1c1c1e;}
+.af-duet-bar button:disabled{opacity:.45;cursor:not-allowed;}
+.af-duet-note{font-size:12px;color:#8a8580;line-height:1.6;}
+.af-duet-yt{margin-top:8px;}
+.af-duet-yt iframe{width:100%;height:220px;border:none;border-radius:10px;background:#000;}
+/* ── 1. 深色主题选择浮层 ── */
+#af-theme-chooser{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;}
+#af-theme-chooser .af-theme-sheet{width:100%;background:#f2f2f7;border-radius:14px 14px 0 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom,16px));}
+#af-theme-chooser .af-theme-opt{display:block;width:100%;background:#fff;border:none;border-bottom:1px solid #eee;padding:15px;font-size:16px;text-align:left;cursor:pointer;color:#1c1c1e;}
+#af-theme-chooser .af-theme-opt.af-cur{color:#007aff;font-weight:600;}
+#af-theme-chooser .af-theme-note{text-align:center;font-size:12px;color:#8e8e93;padding:10px 4px 2px;line-height:1.6;}
+/* ── 2. 天气实时块 ── */
+#af-weather-live .af-wx-src{font-size:12px;color:#8a8580;margin-top:6px;line-height:1.7;}
+#af-weather-live .af-wx-note{font-size:12px;color:#8a8580;margin-top:8px;line-height:1.7;}
+#af-weather-live input{flex:1;min-width:0;border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:14px;}
+#af-weather-live button{border:1px solid #ddd;border-radius:8px;background:#fff;padding:8px 10px;font-size:13px;cursor:pointer;}
+/* ── 6. 圆体字体（仅当开关开启时生效，默认关闭） ── */
+html.af-round-font body, html.af-round-font body *{font-family:'ZCOOL KuaiLe',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;}

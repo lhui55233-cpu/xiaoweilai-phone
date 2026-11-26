@@ -1,0 +1,24 @@
+
+/* GROUP-AN-THIRD-BATCH · 归巢配色覆盖（只追加，不改原有样式） */
+/* GROUP-WECHAT · 第 22 项：此处原 4 条 AN 层气泡规则（#34363b/#f7f7f8、12px、72%）已删除——
+   与用户最终定稿 docx §3（#95ec69/#ffffff、4px、68%）冲突，且只命中聊天室气泡；见 GROUP-WECHAT_说明.md。 */
+.an-bubble-ts { display: block; font-size: 10px; color: #9a958f; margin-top: 3px; line-height: 1.2; }
+.wx-msg-row.wx-self .an-bubble-ts { text-align: right; }
+.an-typing-dots { display: inline-flex; gap: 4px; align-items: center; padding: 10px 12px; background: #f7f7f8; border-radius: 12px; }
+.an-typing-dots i { width: 7px; height: 7px; border-radius: 50%; background: #8a857e; display: inline-block; animation: an-dot-bounce 1.2s ease-in-out infinite; }
+.an-typing-dots i:nth-child(1) { animation-delay: 0s; }
+.an-typing-dots i:nth-child(2) { animation-delay: .2s; }
+.an-typing-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes an-dot-bounce { 0%,60%,100% { transform: translateY(0); opacity: .55; } 30% { transform: translateY(-5px); opacity: 1; } }
+#wx-msg-input.an-focused { border-color: #34363b !important; box-shadow: 0 0 0 3px rgba(52,54,59,.14) !important; outline: none; }
+#wx-send-btn-el:active { transform: scale(.93); }
+.an-scroll-thin { scrollbar-width: thin; scrollbar-color: #c9c4bd transparent; }
+.an-scroll-thin::-webkit-scrollbar { width: 4px; }
+.an-scroll-thin::-webkit-scrollbar-thumb { background: #c9c4bd; border-radius: 4px; }
+.an-status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.an-dot-engaged { background: #5b8c5a; } .an-dot-idle { background: #c9a86a; } .an-dot-dormant { background: #9a958f; } .an-dot-dream { background: #8a7ca8; }
+.an-celebrate { display: inline-block; animation: an-pop .5s ease; }
+@keyframes an-pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+.an-ring-wrap { display: inline-flex; align-items: center; gap: 8px; }
+.an-toast-ok { color: #5b8c5a; } .an-toast-warn { color: #b08968; }
+@media (prefers-reduced-motion: reduce) { .an-typing-dots i { animation: none; } .an-celebrate { animation: none; } }

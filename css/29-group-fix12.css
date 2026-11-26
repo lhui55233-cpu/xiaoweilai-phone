@@ -1,0 +1,18 @@
+
+/* GROUP-FIX12 · 胖猫跑酷 overlay（黑白包豪斯：#111111/#333333/#777777/#BEB8AD/#E4E1D7/#F6F4EE） */
+#fix12-fatcat-overlay{position:fixed;inset:0;z-index:9999;background:#F6F4EE;color:#111111;
+  display:flex;flex-direction:column;font-family:-apple-system,"PingFang SC",sans-serif;}
+#fix12-fatcat-overlay .fc-head{display:flex;align-items:center;gap:10px;padding:14px 16px 8px;}
+#fix12-fatcat-overlay .fc-title{font-size:17px;font-weight:700;letter-spacing:2px;}
+#fix12-fatcat-overlay .fc-sub{font-size:12px;color:#777777;}
+#fix12-fatcat-overlay .fc-close{margin-left:auto;border:1px solid #111111;background:#F6F4EE;color:#111111;
+  border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;}
+#fix12-fatcat-overlay .fc-hud{display:flex;align-items:center;gap:12px;padding:0 16px 8px;font-size:12px;}
+#fix12-fatcat-overlay .fc-bar{flex:1;height:10px;border:1px solid #111111;border-radius:999px;overflow:hidden;background:#E4E1D7;}
+#fix12-fatcat-overlay .fc-fill{display:block;height:100%;background:#111111;}
+#fix12-fatcat-overlay canvas{flex:1;width:100%;display:block;background:#F6F4EE;touch-action:none;}
+#fix12-fatcat-overlay .fc-ctl{display:flex;gap:8px;padding:10px 16px 18px;}
+#fix12-fatcat-overlay .fc-ctl button{flex:1;border:1px solid #111111;border-radius:12px;padding:12px 0;
+  font-size:14px;cursor:pointer;background:#111111;color:#F6F4EE;}
+#fix12-fatcat-overlay .fc-ctl button.fc-ghost{background:#F6F4EE;color:#111111;}
+#fix12-fatcat-overlay .fc-msg{padding:0 16px 6px;font-size:13px;color:#333333;min-height:20px;}

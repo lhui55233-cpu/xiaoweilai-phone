@@ -1,0 +1,114 @@
+
+/* GROUP-AP-TRANSITIONS-LOADERS · AP 组：转场与加载（只借做法，自己写代码）
+   出处：PageTransitions（配对与守卫思路，CSS 文本未复制，许可未注明）、SpinKit /
+   Whirl / css-spinner（CC0 加载器文件）/ loading-animations-gallery（MIT）、
+   Transition-kit（MIT，圆形展开思路）、microinteractions-showcase（未注明许可，
+   只借数字翻动与错峰淡入的思路）。25-unique-loaders 许可说法不一致，只借思路，
+   绝不复制其代码、着色器或单个加载器实现。全部动画只用 transform/opacity，
+   只在交互时触发一次；循环加载动画只在“正在等”时出现，等完就停。 */
+:root{
+  --gc-trans-dur:.3s;            /* 转场时长统一 0.25–0.35s */
+  --gc-trans-fast:.25s;
+  --gc-trans-ease:cubic-bezier(.32,.72,0,1);
+  --gc-loader-ink:var(--app-text,#34363b);   /* 加载态走归巢 token，深色主题自动跟随 */
+  --gc-loader-track:var(--app-line,#ececef);
+  --gc-skeleton:var(--app-surface,#f0f0f0);
+  --gc-ripple:rgba(52,54,59,.08);            /* 主题扩散：很淡的灰 */
+}
+/* ── 5 对转场（其余一律淡入 .gc-t-fade）──
+   1 详情入场：右滑入  2 详情出场：左滑出  3 App 入场：上滑  4 App 出场：下滑
+   5 弹窗：淡入缩放（scale .96→1，transform-origin center） */
+.gc-t-detail-in{animation:gc-detail-in var(--gc-trans-dur) var(--gc-trans-ease) both;}
+.gc-t-detail-out{animation:gc-detail-out var(--gc-trans-dur) var(--gc-trans-ease) both;}
+@keyframes gc-detail-in{from{transform:translateX(100%);opacity:.35}to{transform:translateX(0);opacity:1}}
+@keyframes gc-detail-out{from{transform:translateX(0);opacity:1}to{transform:translateX(-100%);opacity:.35}}
+.sys-app-window.gc-t-app-in{transform:translateY(100%) !important;opacity:.55;transition:none !important;}
+.sys-app-window.gc-t-app-out{transform:translateY(100%) !important;opacity:.55;}
+.gc-t-modal{animation:gc-modal-in var(--gc-trans-fast) ease-out both;transform-origin:center;}
+@keyframes gc-modal-in{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.gc-t-fade{animation:gc-fade var(--gc-trans-fast) ease both;}
+@keyframes gc-fade{from{opacity:0}to{opacity:1}}
+/* 列表项错峰淡入：只在打开列表时播一次，一档小延迟（≤100ms 阶梯），总时长短 */
+.gc-stagger-play>*{animation:gc-fade-up var(--gc-trans-dur) ease both;}
+.gc-stagger-play>*:nth-child(1){animation-delay:0ms}
+.gc-stagger-play>*:nth-child(2){animation-delay:25ms}
+.gc-stagger-play>*:nth-child(3){animation-delay:50ms}
+.gc-stagger-play>*:nth-child(4){animation-delay:75ms}
+.gc-stagger-play>*:nth-child(n+5){animation-delay:100ms}
+@keyframes gc-fade-up{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* 数字翻动：单次短促（translateY 滚动 + opacity） */
+.gc-flip{display:inline-block;animation:gc-flip-num .28s ease-out both;}
+@keyframes gc-flip-num{0%{transform:translateY(6px);opacity:0}100%{transform:translateY(0);opacity:1}}
+/* 主题切换圆心扩散：以点按位置为圆心的 clip-path: circle() 一次展开，很淡、很短 */
+.gc-theme-ripple{position:fixed;inset:0;z-index:99997;pointer-events:none;background:var(--gc-ripple);will-change:clip-path,opacity;}
+/* ── 加载：全手机只定 1 款主加载器（细线圆环）+ 1 款输入中圆点（三点）── */
+.gc-loader{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 12px;color:var(--gc-loader-ink);}
+.gc-loader-copy{font-size:12px;color:var(--app-muted,#8a8b91);text-align:center;}
+/* 细线圆环：空 div + ::after 伪元素画弧，几乎不增加 DOM；只用 transform 旋转，等完销毁 */
+.gc-ring{width:28px;height:28px;position:relative;flex:0 0 auto;}
+.gc-ring::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--gc-loader-track);border-top-color:var(--gc-loader-ink);animation:gc-spin .8s linear infinite;}
+@keyframes gc-spin{to{transform:rotate(360deg)}}
+/* 输入中三点 / 追逐圆点：同一关键帧、animation-delay 错峰；回复一到就停 */
+.gc-typing{display:inline-flex;gap:3px;align-items:center;height:16px;vertical-align:middle;margin-left:4px;}
+.gc-typing i{width:5px;height:5px;border-radius:50%;background:var(--gc-loader-ink);animation:gc-dot-bounce 1s ease-in-out infinite;}
+.gc-typing i:nth-child(2){animation-delay:.2s}
+.gc-typing i:nth-child(3){animation-delay:.4s}
+.gc-chase{display:inline-flex;gap:5px;align-items:center;height:20px;}
+.gc-chase i{width:6px;height:6px;border-radius:50%;background:var(--gc-loader-ink);animation:gc-dot-bounce 1s ease-in-out infinite;}
+.gc-chase i:nth-child(2){animation-delay:.15s}
+.gc-chase i:nth-child(3){animation-delay:.3s}
+.gc-chase i:nth-child(4){animation-delay:.45s}
+.gc-chase i:nth-child(5){animation-delay:.6s}
+@keyframes gc-dot-bounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-3px);opacity:1}}
+/* 单点脉冲：仅等待期间 */
+.gc-pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--gc-loader-ink);animation:gc-pulse 1.2s ease-out infinite;}
+@keyframes gc-pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.6);opacity:0}100%{transform:scale(1.6);opacity:0}}
+/* 骨架屏：一次短暂淡入占位（灰色圆角块，圆角 12px），数据一到就替换，不持续闪烁 */
+.gc-skeleton{display:flex;flex-direction:column;gap:10px;padding:16px;animation:gc-fade var(--gc-trans-fast) ease both;}
+.gc-skeleton-row{height:14px;border-radius:12px;background:var(--gc-skeleton);}
+/* 状态按钮：按钮内细进度线 + 文案切换，期间禁用重复点击 */
+.gc-status-btn{position:relative;overflow:hidden;}
+.gc-status-btn .gc-btn-spin{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid rgba(0,122,255,.25);border-top-color:#007AFF;animation:gc-spin .7s linear infinite;vertical-align:-2px;margin-right:6px;}
+.gc-status-btn .gc-btn-line{position:absolute;left:0;bottom:0;height:2px;width:30%;background:#007AFF;animation:gc-btn-line 1.2s ease-in-out infinite alternate;}
+@keyframes gc-btn-line{from{left:0;width:30%}to{left:70%;width:30%}}
+.gc-status-btn.gc-ok{border-color:#34C759 !important;color:#34C759 !important;}
+.gc-status-btn.gc-fail{border-color:#FF3B30 !important;color:#FF3B30 !important;}
+/* 按压反馈统一 140ms 按压缩放（:active 缩放），不加悬停特效；
+   现有 :hover 规则只有背景色变化、无悬停抬升/缩放，故无需再剥离 */
+#sys-shell button:active:not([data-gc-no-press]),
+#sys-shell [role="button"]:active:not([data-gc-no-press]),
+#sys-shell .sys-app-icon:active:not([data-gc-no-press]){transform:scale(.97);transition:transform 140ms ease-out;}
+/* ── 与 AL 组统一（AL 已合入：GROUP-AL-THEME-WIDGETS）──
+   AL 的骨架屏 / 输入中圆点 / 状态按钮转圈 / 按压，与本补丁同名不同款时，
+   以 gc 这一款为准统一（只改样式，不动 AL 的 JS 与调用点）：
+   - 骨架屏：AL 的 .al-skeleton::after 是 1.2s 无限扫光，改成一次淡入占位、
+     圆角 12px，不持续闪烁；数据一到由各自的替换逻辑换掉。
+   - 输入中圆点：AL 的 .al-typing-dots 已由 MutationObserver 挂进微信状态条，
+     统一样式为 5px、归巢深灰、同一关键帧 gc-dot-bounce、错峰 0.2s/0.4s、
+     高 16px；本补丁不在状态条里另加静态 gc-typing，避免两套圆点并存。
+   - 状态按钮转圈：AL 的 wireAgTestButton 也会往测试按钮里插 .al-spinner；
+     在 gc-status-btn 内把它隐藏，只留 gc 一款转圈；其余位置的 .al-spinner
+     也改成与 gc 细线圆环同一规格。
+   - 按压：AL 的 :active 是 scale(.97) + 120ms；本补丁同选择器在后，
+     以 140ms 为准统一（transform 同值，filter 亮度仍保留 AL 的）。 */
+.al-skeleton{border-radius:12px;animation:gc-fade var(--gc-trans-fast) ease both;}
+.al-skeleton::after{animation:none;opacity:0;}
+.al-typing-dots{display:inline-flex;gap:3px;align-items:center;height:16px;vertical-align:middle;margin-left:4px;}
+.al-typing-dots i{width:5px;height:5px;border-radius:50%;background:var(--gc-loader-ink);animation:gc-dot-bounce 1s ease-in-out infinite;}
+.al-typing-dots i:nth-child(2){animation-delay:.2s}
+.al-typing-dots i:nth-child(3){animation-delay:.4s}
+.gc-status-btn .al-spinner{display:none;}
+.al-spinner{width:14px;height:14px;border:2px solid var(--gc-loader-track);border-top-color:var(--gc-loader-ink);animation:gc-spin .7s linear infinite;}
+/* 减弱动效：瞬间切换、不报错、不卡住；加载器变静态（圆环变整圈、三点静止） */
+@media (prefers-reduced-motion: reduce){
+  .sys-app-window{transition:none !important;}
+  .gc-t-detail-in,.gc-t-detail-out,.gc-t-modal,.gc-t-fade,.gc-stagger-play>*,.gc-flip{animation:none !important;}
+  .gc-ring::after,.gc-typing i,.gc-chase i,.gc-pulse-dot,.gc-status-btn .gc-btn-spin,.gc-status-btn .gc-btn-line{animation:none !important;}
+  .gc-ring::after{border-top-color:var(--gc-loader-track);}
+  .gc-theme-ripple{display:none !important;}
+}
+html.sys-reduce-motion .sys-app-window{transition:none !important;}
+html.sys-reduce-motion .gc-t-detail-in,html.sys-reduce-motion .gc-t-detail-out,html.sys-reduce-motion .gc-t-modal,html.sys-reduce-motion .gc-t-fade,html.sys-reduce-motion .gc-stagger-play>*,html.sys-reduce-motion .gc-flip{animation:none !important;}
+html.sys-reduce-motion .gc-ring::after,html.sys-reduce-motion .gc-typing i,html.sys-reduce-motion .gc-chase i,html.sys-reduce-motion .gc-pulse-dot,html.sys-reduce-motion .gc-status-btn .gc-btn-spin,html.sys-reduce-motion .gc-status-btn .gc-btn-line{animation:none !important;}
+html.sys-reduce-motion .gc-ring::after{border-top-color:var(--gc-loader-track);}
+html.sys-reduce-motion .gc-theme-ripple{display:none !important;}

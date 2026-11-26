@@ -1,0 +1,150 @@
+
+/* ══════════════════════════════════════════════════════════════
+   D组 · Muse 风格软化覆盖层（纯视觉层 · 不改功能逻辑）
+   在归巢 token 基础上调：圆角加大、边框更淡、字重间距更松、
+   阴影更柔更轻、对比更柔、整体更暖更圆润。
+   排除：微信内部 [data-app-sandbox="wechat"] 与此刻小世界
+   [data-app-sandbox="cike"]（A/C 组区域一律不碰）。
+   插入位置：文件末尾 </body> 之前，后来者胜。
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 0. 归巢 token 微调（只改值，不动归巢覆盖层本身） ── */
+#sys-shell{
+  --gc-radius:16px;
+  --gc-soft:#faf9f7;
+  --gc-line:#efedeb;
+  --gc-muted:#9a978f;
+}
+
+/* ── 1. 桌面图标：更圆、更柔的阴影 ── */
+#sys-shell .sys-app-icon{
+  border-radius:22px !important;
+  box-shadow:0 4px 14px rgba(90,75,60,.10), 0 1px 3px rgba(90,75,60,.06) !important;
+}
+#sys-shell .sys-app-name{
+  font-weight:500 !important;
+  letter-spacing:.4px;
+  color:#3d3a36 !important;
+  text-shadow:0 1px 2px rgba(255,255,255,.75);
+}
+
+/* ── 2. Dock：更透更柔 ── */
+#sys-shell .sys-dock-bg{
+  background:rgba(255,255,255,.55) !important;
+  border:1px solid rgba(255,255,255,.65) !important;
+  border-radius:26px !important;
+  box-shadow:0 8px 24px rgba(90,75,60,.10) !important;
+  backdrop-filter:blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%) !important;
+}
+
+/* ── 3. 锁屏：时钟更轻，字距更松 ── */
+#sys-lockscreen-layer{
+  font-weight:400;
+  letter-spacing:.5px;
+}
+#sys-lockscreen-layer .sys-lock-clock,
+#sys-lockscreen-layer [class*="lock-clock"],
+#sys-lockscreen-layer [class*="clock"]{
+  font-weight:300 !important;
+  letter-spacing:2px !important;
+}
+#sys-shell .sys-passcode-box{
+  border-radius:24px !important;
+}
+#sys-shell .sys-passcode-footer .sys-footer-btn{
+  border-radius:14px !important;
+  font-weight:500 !important;
+}
+
+/* ── 4. 旧控制中心：圆角加大、描边更淡 ── */
+#sys-control-center{
+  border-radius:28px 28px 0 0 !important;
+}
+#sys-control-center .sys-cc-module,
+#sys-control-center .sys-cc-slider-box{
+  border-radius:20px !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+  box-shadow:0 6px 18px rgba(60,50,40,.10) !important;
+}
+#sys-control-center .sys-cc-icon{
+  border-radius:50% !important;
+  box-shadow:0 3px 10px rgba(60,50,40,.12) !important;
+}
+#sys-control-center .sys-cc-handle{
+  border-radius:3px !important;
+  background:rgba(255,255,255,.65) !important;
+}
+
+/* ── 5. 新控制中心 / 通知中心（SystemCenter 面板）：更柔 ── */
+#sys-shell .sc-panel .sc-cc-tile,
+#sys-shell .sc-panel .sc-cc-square,
+#sys-shell .sc-panel .sc-cc-slider{
+  border-radius:20px !important;
+  box-shadow:0 6px 18px rgba(40,35,30,.10) !important;
+}
+#sys-shell .sc-panel .sc-notif-card{
+  border-radius:18px !important;
+  border:1px solid rgba(255,255,255,.5) !important;
+  box-shadow:0 4px 14px rgba(40,35,30,.08) !important;
+}
+#sys-shell .sc-panel .sc-cc-btn-ico{
+  box-shadow:0 3px 10px rgba(40,35,30,.14) !important;
+}
+
+/* ── 6. 各应用通用（排除微信与此刻）：卡片更圆、描边更淡、阴影更轻 ── */
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]){
+  background-color:#fffdfb !important;
+}
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="card"],
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="tile"],
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="module"],
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="panel"]{
+  border-radius:18px !important;
+  border-color:rgba(60,50,40,.07) !important;
+  box-shadow:0 4px 16px rgba(90,75,60,.06) !important;
+}
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) button,
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="btn"]{
+  border-radius:16px !important;
+  font-weight:500 !important;
+}
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) input,
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) textarea,
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) select{
+  border-radius:14px !important;
+  border-color:rgba(60,50,40,.09) !important;
+}
+/* 应用内返回键更圆润 */
+#sys-shell .sys-app-backbtn{
+  border-radius:50% !important;
+  box-shadow:0 3px 12px rgba(90,75,60,.12) !important;
+  background:rgba(255,255,255,.88) !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+}
+
+/* ── 7. 系统弹窗 / 崩溃提示：更圆更轻 ── */
+#sys-modal-container .sys-crash-dialog,
+#sys-shell [class*="sys-dialog"],
+#sys-shell [class*="dialog"]{
+  border-radius:20px !important;
+  box-shadow:0 12px 32px rgba(60,50,40,.14) !important;
+}
+
+/* ── 8. 桌面小组件与悬浮球：描边更淡 ── */
+#sys-shell [class*="widget"]{
+  border-radius:18px !important;
+  border-color:rgba(60,50,40,.06) !important;
+  box-shadow:0 4px 16px rgba(90,75,60,.07) !important;
+}
+#sys-shell .sys-float-ball{
+  box-shadow:0 4px 14px rgba(90,75,60,.14) !important;
+}
+
+/* ── 9. 顶部状态栏与 Home 指示条：更柔 ── */
+#sys-shell .sys-home-indicator{
+  border-radius:3px !important;
+  background:rgba(255,255,255,.75) !important;
+}
+

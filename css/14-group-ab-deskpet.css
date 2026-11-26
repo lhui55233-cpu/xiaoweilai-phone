@@ -1,0 +1,34 @@
+
+#desk-pet.gm-ab-collapsed{width:38px !important;height:38px !important;}
+#desk-pet.gm-ab-collapsed .gm-pet-char{width:38px !important;height:38px !important;}
+#desk-pet.gm-ab-collapsed .gm-pet-bubble,#desk-pet.gm-ab-collapsed .gm-pet-zzz{display:none !important;}
+.gm-ab-burst{position:absolute;left:50%;top:-6px;transform:translateX(-50%);font-size:22px;color:#f5a623;pointer-events:none;z-index:33;animation:ab-burst .9s ease-out forwards;}
+@keyframes ab-burst{0%{opacity:0;transform:translateX(-50%) scale(.4) rotate(0deg);}30%{opacity:1;transform:translateX(-50%) scale(1.25) rotate(20deg);}100%{opacity:0;transform:translateX(-50%) translateY(-18px) scale(1.4) rotate(45deg);}}
+.gm-ab-ball{position:absolute;left:50%;bottom:-4px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffb3a0,#e07856);box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none;z-index:29;}
+/* 语义/一次性动画只作用在内层形象（svg/img）上，绝不碰 .gm-pet-char 自身的 transform，
+   所以不与 M 组的左右移动、也不与 W 组将来的抓/扔物理打架。 */
+#desk-pet.gm-ab-o-wave .gm-pet-char>*{animation:ab-wave .9s ease;}
+#desk-pet.gm-ab-o-jump .gm-pet-char>*{animation:ab-jump .9s ease;}
+#desk-pet.gm-ab-o-celebrate .gm-pet-char>*{animation:ab-celebrate .9s ease;}
+#desk-pet.gm-ab-o-shake .gm-pet-char>*{animation:ab-shake .8s ease;}
+#desk-pet.gm-ab-o-think .gm-pet-char>*{animation:ab-think 1.2s ease;}
+#desk-pet.gm-ab-o-point .gm-pet-char>*{animation:ab-point 1.2s ease;}
+#desk-pet.gm-ab-p-sleep .gm-pet-char>*{opacity:.85;}
+@keyframes ab-wave{0%,100%{transform:rotate(0);}25%{transform:rotate(-6deg);}75%{transform:rotate(6deg);}}
+@keyframes ab-jump{0%,100%{transform:translateY(0);}40%{transform:translateY(-12px);}60%{transform:translateY(-6px);}}
+@keyframes ab-celebrate{0%,100%{transform:translateY(0) scale(1);}30%{transform:translateY(-8px) scale(1.08);}60%{transform:translateY(0) scale(1.02);}}
+@keyframes ab-shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+@keyframes ab-think{0%,100%{transform:rotate(0);}50%{transform:rotate(-5deg) translateY(1px);}}
+@keyframes ab-point{0%,100%{transform:translateX(0);}50%{transform:translateX(4px) rotate(2deg);}}
+.ab-focus-sec{margin-top:12px;border:1px solid #ececef;border-radius:12px;padding:10px;background:#fff;background-size:cover;}
+.ab-focus-sec button{border:0;background:#f3e2d3;color:#7a4a28;font-size:12px;font-weight:700;border-radius:10px;padding:6px 10px;cursor:pointer;margin:2px;}
+.ab-focus-sec input[type=text],.ab-focus-sec input[type=number],.ab-focus-sec input:not([type]){border:1px solid #ddd;border-radius:8px;padding:5px 8px;font-size:12px;margin:2px;}
+.ab-focus-title{font-weight:800;font-size:14px;color:#3a1e14;margin-bottom:6px;}
+.ab-focus-mood{font-size:12px;color:#7a5a40;line-height:1.6;margin-bottom:6px;}
+.ab-focus-hist{font-size:12px;color:#4a3226;line-height:1.7;}
+.ab-set-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eee;}
+.ab-set-row label{flex:0 0 90px;font-size:13px;color:#333;}
+.ab-set-row input[type=range]{flex:1;}
+.ab-set-val{flex:0 0 44px;text-align:right;font-size:12px;color:#666;}
+.ab-chip-btn{border:1px solid #ddd;background:#fff;border-radius:999px;padding:6px 12px;font-size:12px;margin:2px;cursor:pointer;}
+.ab-chip-btn.ab-active{background:#34363b;color:#fff;border-color:#34363b;}

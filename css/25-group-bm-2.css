@@ -1,0 +1,25 @@
+
+/* GROUP-BM · 全机 UI 完整性安全网（只追加，不改任何现有规则） */
+/* BM-D2 图片失败占位：破图不再是白洞；空 src 先隐藏，等真的 src 到了再显示 */
+.sys-app-window img{background:#ececef;}
+.sys-app-window img[src=""],.sys-app-window img:not([src]){opacity:0;}
+/* BM-D4 长文本安全网：窗口级继承 + 气泡/卡片/会话预览不断行溢出 */
+.sys-app-window{overflow-wrap:break-word;}
+.sys-app-window .wx-bubble,.sys-app-window .wx-msg-text,.sys-app-window .wx-session-preview,
+.sys-app-window .ck-gen-text,.sys-app-window .ck-anec-body,.sys-app-window .gd-bubble,
+.sys-app-window [class*="bubble"],.sys-app-window [class*="msg-text"]{overflow-wrap:break-word;word-break:break-word;}
+.sys-app-window pre,.sys-app-window code{white-space:pre-wrap;overflow-wrap:break-word;}
+/* BM-D5 彩色/深色按钮白字：全局 .sys-app-window button{color:#33353a}（0,1,1）会压过
+   单类规则的 color:#fff（0,1,0）：转账确认钮（绿底）、红包确认钮（红底）、
+   微信发送钮（绿底）、天气刷新钮与备忘录新建钮（.gd-btn 深灰底）、
+   剧本/影院/习惯/阅读新建钮（.sc-btn/.cx-btn/.ah-btn-pri/.nb-btn-base/
+   .bq-btn-primary 深色底）实测都是深灰字，深底深字对比度不足；用 0,2,0 夺回来 */
+.sys-app-window .av-confirm-btn,.sys-app-window .wx-send-btn,
+.sys-app-window .wx-native-btn,.sys-app-window .gc-btn-line,
+.sys-app-window .gd-btn,.sys-app-window .sc-btn,.sys-app-window .cx-btn,
+.sys-app-window .ah-btn-pri,.sys-app-window .nb-btn-base,
+.sys-app-window .bq-btn-primary{color:#fff;}
+/* BM-D3 iframe 兜底层：平时被加载成功的 iframe 盖住，只有加载失败/超时才露出来 */
+.bm-iframe-fallback{position:absolute;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#f5f6f8;color:#8e8e93;font-size:13px;line-height:1.8;text-align:center;padding:24px;box-sizing:border-box;}
+.bm-iframe-fallback button{border:1px solid #d9d9de;background:#fff;border-radius:10px;padding:9px 18px;font-size:14px;color:#34363b;cursor:pointer;}
+.bm-iframe-fallback button:active{opacity:.7;}

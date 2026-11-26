@@ -1,0 +1,20 @@
+
+/* GROUP-BS · 回应 chips / act 小卡 / 回应选择器（只借 Tidal_Echo 设计思路，实现自写） */
+.bs-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;align-items:center;}
+.bs-react-chip{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:2px 8px;font-size:12px;line-height:1.5;color:#333;cursor:pointer;}
+.bs-react-chip.bs-react-mine{background:#e7f8ee;border-color:#07c160;}
+.bs-react-add{background:transparent;border:1px dashed #d9d9d9;border-radius:12px;padding:2px 8px;font-size:12px;line-height:1.5;color:#999;cursor:pointer;}
+.bs-act-card{margin:2px 0;max-width:86%;background:#fff;border:1px solid #e8e8e8;border-left:3px solid #07c160;border-radius:10px;padding:10px 12px;cursor:pointer;box-sizing:border-box;}
+.bs-act-card.bs-act-running{border-left-color:#999;}
+.bs-act-card.bs-act-failed{border-left-color:#ff5b60;}
+.bs-act-head{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#222;}
+.bs-act-chev{margin-left:auto;color:#999;font-weight:400;}
+.bs-act-summary{font-size:12px;color:#666;margin-top:4px;line-height:1.6;}
+.bs-act-detail{font-size:12px;color:#444;margin-top:6px;white-space:pre-wrap;line-height:1.7;border-top:1px solid #f0f0f0;padding-top:6px;}
+#bs-reaction-picker{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:9999;background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);display:none;max-width:86%;box-sizing:border-box;}
+#bs-reaction-picker.bs-show{display:block;}
+#bs-reaction-picker .bs-rp-emo{font-size:24px;background:none;border:none;cursor:pointer;padding:6px;line-height:1;}
+#bs-reaction-picker .bs-rp-custom{display:flex;gap:6px;margin-top:8px;}
+#bs-reaction-picker .bs-rp-custom input{flex:1;min-width:0;border:1px solid #e5e5e5;border-radius:8px;padding:8px;font-size:14px;outline:none;}
+#bs-reaction-picker .bs-rp-custom button{border:none;border-radius:8px;background:#07c160;color:#fff;padding:8px 12px;font-size:14px;cursor:pointer;}
+#bs-reaction-picker .bs-rp-close{width:100%;margin-top:8px;border:none;background:#f2f2f2;border-radius:8px;padding:8px 0;font-size:13px;color:#666;cursor:pointer;}

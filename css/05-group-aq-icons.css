@@ -1,0 +1,334 @@
+
+/* ══════════════════════════════════════════════════════════════
+   归巢风格 UI 覆盖层（纯视觉层 · 不改功能逻辑）
+   来源：归巢 V0.1 日记版视觉规范
+   token：--bg #fff / --soft #f7f7f8 / --line #ececef /
+          --text #25262a / --muted #85868d / --accent #34363b /
+          --radius 12px / 主按钮 #292b30 底白字
+   插入位置：第一个 script 标签之前（在全部原有 style 块之后，
+   同等权重下后来者胜；视觉属性上必要时用 !important）。
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 0. 归巢 token 与字体（挂在整机壳上；应用内衬线阅读字体不强制覆盖） ── */
+#sys-shell{
+  --gc-bg:#ffffff; --gc-panel:#ffffff; --gc-soft:#f7f7f8; --gc-line:#ececef;
+  --gc-text:#25262a; --gc-muted:#85868d; --gc-accent:#34363b; --gc-radius:12px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+
+/* ── 1. 桌面：白底干净感 ───────────────────────────────
+   壁纸不强制抹掉（用户仍可在美化里换壁纸，JS 仍写入内联样式），
+   只在桌面层盖一层 82% 白 veil：花哨渐变被柔化，内容区回到归巢白底。
+   注意：不用 backdrop-filter，避免 fixed 拖拽定位受影响。 */
+#sys-desktop-layer{ background:rgba(255,255,255,.82); }
+
+/* GROUP-AQ-ICONS · 图标 tile 与 Liquid Glass 可选风格（纯 CSS，无真折射；默认不启用玻璃） */
+.aq-tile{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:var(--app-surface,#f7f7f8);color:var(--app-text,#25262a);border:1px solid var(--app-border,#ececef);flex:none}
+.aq-tile svg{display:block}
+.aq-tile-sm{width:32px;height:32px;border-radius:9px}
+.aq-glass{border:0;border-radius:28%;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.14) 45%,rgba(0,0,0,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(255,255,255,.25),inset 0 -1px 0 rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.12);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3)}
+.aq-glass-soft{background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,.2) 50%,rgba(255,255,255,.05));backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
+.aq-glass-clear{background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.08) 45%,rgba(0,0,0,.03));backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3)}
+.aq-glass-frost{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.4) 50%,rgba(255,255,255,.18));box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.1);backdrop-filter:blur(12px) saturate(1.1);-webkit-backdrop-filter:blur(12px) saturate(1.1)}
+.aq-glass-tint{background:linear-gradient(180deg,rgba(255,240,224,.62),rgba(255,238,224,.28) 50%,rgba(255,220,200,.12));backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4)}
+.aq-wall-demo{background:linear-gradient(135deg,#ffd9e8,#cfe8ff 55%,#e6ffe9);padding:12px;border-radius:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.aq-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.aq-ico-btn{border:1px solid #ececef;background:#fff;border-radius:12px;padding:8px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#25262a;cursor:pointer}
+.aq-ico-btn.on{outline:2px solid #007AFF;outline-offset:-1px}
+.aq-ico-btn .aq-tile{width:36px;height:36px;border:0;background:transparent}
+.aq-seg{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.aq-seg button{border:1px solid #e8ddd2;background:#fff;border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer;color:#25262a}
+.aq-seg button.on{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+.aq-seg button:disabled{opacity:.45;cursor:default}
+.aq-moji-btn{font-size:26px;line-height:1;border:1px solid #ececef;background:#fff;border-radius:12px;padding:8px 4px;cursor:pointer}
+.aq-moji-btn.on{outline:2px solid #007AFF;outline-offset:-1px}
+.aq-note{font-size:12px;color:#8E8E93;line-height:1.7;margin-top:8px}
+/* ── 2. 桌面图标（IconSystem 驱动，JS/布局数据一律不动） ──
+   只做 CSS 覆盖：统一圆角 14px、细线描边、柔和阴影；
+   用 filter 整体降饱和提亮，彩色渐变底向归巢柔和配色靠拢；
+   自定义形状图标（.sys-custom-shape 自带 border-radius:0 !important）
+   因权重更高而不受影响，原样保留。 */
+.sys-app-icon{
+  border-radius:14px !important;
+  border:1px solid rgba(37,38,42,.10) !important;
+  box-shadow:0 2px 8px rgba(37,38,42,.10) !important;
+  filter:saturate(.6) brightness(1.06);
+}
+.sys-app-name{
+  color:#25262a !important; font-weight:500;
+  text-shadow:none !important;
+}
+/* 桌面分页点：白底上用深灰 */
+.sys-page-indicator .sys-dot{ background:rgba(37,38,42,.25) !important; }
+.sys-page-indicator .sys-dot.sys-active{ background:#34363b !important; }
+/* 桌面小组件卡片：白底 + 细线 + 12px 圆角（时钟 widget 例外，见下） */
+.sys-widget{
+  background:rgba(255,255,255,.92) !important;
+  border:1px solid #ececef !important;
+  border-radius:12px !important;
+  box-shadow:0 4px 16px rgba(37,38,42,.08) !important;
+  color:#25262a !important;
+}
+/* 时钟 widget 原本就是去卡片化、直接显示在壁纸上，恢复其透明无卡片外观 */
+.sys-widget-host[data-widget-host="clock"] .sys-widget{
+  background:transparent !important; border:none !important;
+  box-shadow:none !important; border-radius:0 !important; padding:0 !important;
+}
+/* 悬浮球：白底细线，深灰内核 */
+.sys-float-ball{
+  background:rgba(255,255,255,.88) !important;
+  border:1px solid #ececef !important;
+  box-shadow:0 4px 14px rgba(37,38,42,.14) !important;
+}
+.sys-float-ball .sys-ball-ring{ background:rgba(37,38,42,.12) !important; }
+.sys-float-ball .sys-ball-mid{ background:rgba(37,38,42,.28) !important; }
+.sys-float-ball .sys-ball-core{ background:#34363b !important; }
+
+/* ── 3. Dock ── */
+.sys-dock-bg{
+  background:rgba(255,255,255,.88) !important;
+  border:1px solid #ececef !important;
+  border-radius:22px !important;
+  box-shadow:0 8px 24px rgba(37,38,42,.10) !important;
+}
+
+/* ── 4. 状态栏 ──
+   原为白字（配深色壁纸）。用 mix-blend-mode:difference 让它自适应：
+   白底桌面/应用内显示为深灰字，锁屏深色壁纸上仍显示为白字。 */
+#sys-status-bar{
+  color:#ffffff; text-shadow:none !important;
+  mix-blend-mode:difference;
+}
+
+/* ── 5. 控制中心 ── */
+#sys-control-center{
+  background:rgba(255,255,255,.72) !important;
+  backdrop-filter:blur(30px) saturate(160%) !important;
+  -webkit-backdrop-filter:blur(30px) saturate(160%) !important;
+}
+#sys-control-center .sys-cc-module,
+#sys-control-center .sys-cc-slider-box{
+  background:#ffffff !important;
+  border:1px solid #ececef !important;
+  border-radius:12px !important;
+  box-shadow:0 4px 16px rgba(37,38,42,.08) !important;
+}
+#sys-control-center .sys-cc-icon{
+  background:#f7f7f8 !important;
+  border:1px solid #ececef !important;
+  color:#34363b !important;
+  box-shadow:none !important;
+}
+#sys-control-center .sys-cc-icon.active{
+  background:#292b30 !important; color:#ffffff !important;
+  border-color:#292b30 !important;
+}
+#sys-control-center .sys-cc-module span{ color:#85868d !important; }
+#sys-control-center .sys-cc-module span.sys-cc-label{ color:#25262a !important; }
+#sys-control-center .sys-cc-slider-fill{
+  background:#34363b !important; box-shadow:none !important;
+}
+#sys-control-center .sys-cc-handle{ background:rgba(37,38,42,.25) !important; }
+
+/* ── 6. 锁屏 ──
+   有意基本不动：白色大时钟与白字在深色壁纸上才可读，强制变白会
+   导致锁屏不可读。只把密码框底色向归巢中性灰靠拢。 */
+.sys-passcode-box{ background:rgba(37,38,42,.42) !important; }
+
+/* ── 7. 开屏 ── */
+#sys-splash-screen{ background-color:#ffffff !important; }
+#sys-splash-screen .sys-splash-logo{ color:#34363b !important; }
+#sys-splash-screen .sys-splash-title{ color:#25262a !important; }
+#sys-splash-screen .sys-splash-subtitle{ color:#85868d !important; }
+#sys-splash-screen::after{ background:rgba(37,38,42,.25) !important; }
+
+/* ── 8. 应用返回按钮 ── */
+.sys-app-backbtn{
+  background:rgba(255,255,255,.92) !important;
+  color:#34363b !important;
+  border:1px solid #ececef !important;
+  box-shadow:0 2px 8px rgba(37,38,42,.12) !important;
+}
+.sys-app-backbtn:active{ background:#f7f7f8 !important; }
+
+/* ── 9. 应用窗口通用底色 ── */
+.sys-app-window{
+  background-color:#ffffff !important;
+  color:#25262a;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+/* 应用内通用文字按钮：只统一字色与字体，不动背景/圆角（圆形图标按钮等不受影响） */
+.sys-app-window button{ font-family:inherit; color:#33353a; }
+
+/* ── 10. 应用内输入框 ── */
+.sys-app-window input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.sys-app-window textarea,
+.sys-app-window select{
+  background:#ffffff !important;
+  border:1px solid #e2e3e6 !important;
+  border-radius:9px !important;
+  color:#292a2e !important;
+  box-shadow:none !important;
+}
+.sys-app-window input:focus,
+.sys-app-window textarea:focus,
+.sys-app-window select:focus{
+  border-color:#b7b9bf !important; outline:none !important;
+}
+
+/* ── 11. 已知主/次按钮 ──
+   微信原生主按钮（绿）→ 归巢主按钮深灰底白字；危险按钮保持白底红字。 */
+.sys-app-window .wx-native-btn{
+  background:#292b30 !important; color:#ffffff !important;
+  border:1px solid #292b30 !important; border-radius:9px !important;
+}
+.sys-app-window .wx-native-btn.wx-btn-danger{
+  background:#ffffff !important; color:#ff3b30 !important;
+  border:1px solid #e5e5e5 !important;
+}
+/* 此刻（cike）主/幽灵按钮：陶土渐变 → 深灰主按钮 / 白底细线次按钮 */
+.sys-app-window .ck-btn-main{
+  background:#292b30 !important; color:#ffffff !important;
+  border:1px solid #292b30 !important; border-radius:9px !important;
+}
+.sys-app-window .ck-btn-ghost{
+  background:#ffffff !important; color:#34363b !important;
+  border:1px solid #dedfe2 !important; border-radius:9px !important;
+}
+.sys-app-window .ck-btn{ border-radius:9px !important; }
+
+/* ── 12. 微信：页头 / 列表行 / 单元格 / 底部栏 ── */
+.sys-app-window .wx-header{
+  background:#ffffff !important; border-bottom:1px solid #ececef !important;
+}
+.sys-app-window .wx-header-title,
+.sys-app-window .wx-header-left,
+.sys-app-window .wx-header-right{ color:#25262a !important; }
+.sys-app-window .wx-scroll-view,
+.sys-app-window .wx-view-box,
+.sys-app-window .wx-subpage-box{ background-color:#ffffff !important; }
+.sys-app-window .wx-session-item{
+  background-color:#ffffff !important; border-bottom:1px solid #ececef !important;
+}
+.sys-app-window .wx-session-item:active{ background:#f7f7f8 !important; }
+.sys-app-window .wx-session-item.wx-pinned{ background:#f7f7f8 !important; }
+.sys-app-window .wx-tab-bar{
+  background:#ffffff !important; border-top:1px solid #ececef !important;
+}
+.sys-app-window .wx-me-header{
+  background-color:#ffffff !important; border-bottom:1px solid #ececef !important;
+}
+.sys-app-window .wx-cell-group{
+  background-color:#ffffff !important;
+  border:1px solid #ececef !important; border-radius:11px !important;
+  overflow:hidden;
+}
+.sys-app-window .wx-cell-group-title{
+  background-color:#ffffff !important; color:#85868d !important;
+}
+.sys-app-window .wx-cell{ border-bottom-color:#ececef !important; }
+.sys-app-window .wx-avatar-wrapper,
+.sys-app-window .wx-me-header-avatar{ border-radius:9px !important; }
+/* 微信深色抽屉菜单 → 白底卡片 */
+.sys-app-window .wx-plus-drawer{
+  background:#ffffff !important; border:1px solid #ececef !important;
+  border-radius:12px !important;
+  box-shadow:0 12px 32px rgba(37,38,42,.14) !important;
+}
+.sys-app-window .wx-drawer-item{
+  color:#25262a !important; border-bottom-color:#ececef !important;
+}
+.sys-app-window .wx-drawer-item:hover{ background:#f7f7f8 !important; }
+
+/* ── 13. 设置类应用（st-）：分组与行 ── */
+.sys-app-window .st-group{
+  background:#ffffff !important; border:1px solid #ececef !important;
+  border-radius:12px !important;
+}
+.sys-app-window .st-row{ border-bottom:1px solid #ececef !important; }
+.sys-app-window .st-row:active{ background:#f7f7f8 !important; }
+.sys-app-window .st-foot{ color:#85868d !important; }
+
+/* ── 14. 美化助手（b-）：子页面与页头 ── */
+.sys-app-window .b-page-view,
+.sys-app-window .b-sub-content,
+.sys-app-window .b-sub-view{ background:#ffffff !important; }
+.sys-app-window .b-sub-bar{
+  background:#ffffff !important; border-bottom:1px solid #ececef !important;
+}
+.sys-app-window .b-sub-title{ color:#25262a !important; }
+.sys-app-window .b-home-row{ border-bottom-color:#ececef !important; }
+.sys-app-window .b-rail-tab{ color:#85868d !important; }
+.sys-app-window .b-rail-tab.active{
+  color:#25262a !important; background:#f1f1f2 !important;
+}
+
+/* ── 15. 通用卡片 ──
+   排除项：封面（cover）、主题（theme）、风格预览（style）、标题（title），
+   这些元素的背景色/背景图是内容本身，不能抹白。 */
+.sys-app-window [class*="card"]:not([class*="cover"]):not([class*="theme"]):not([class*="style"]):not([class*="title"]){
+  background:#ffffff !important;
+  border:1px solid #ececef !important;
+  border-radius:11px !important;
+  box-shadow:0 2px 10px rgba(37,38,42,.06) !important;
+}
+
+/* ── 16. 弹窗 / 遮罩 ── */
+.sys-crash-dialog{
+  background:#ffffff !important; color:#25262a !important;
+  border:1px solid #e5e5e8 !important; border-radius:14px !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.12) !important;
+}
+.sys-crash-dialog h3{ color:#25262a !important; }
+.sys-crash-dialog p{ color:#85868d !important; }
+.sys-crash-btn{
+  background:#292b30 !important; color:#ffffff !important;
+  border-radius:9px !important;
+}
+.sys-app-window .wx-overlay,
+.sys-app-window .wx-rec-overlay{
+  background:rgba(0,0,0,.32) !important;
+}
+.sys-app-window .novel-cover-modal{
+  background:#ffffff !important; border:1px solid #e5e5e8 !important;
+  border-radius:14px !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.12) !important;
+}
+.sys-app-window dialog{
+  border:1px solid #e5e5e8 !important; border-radius:14px !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.12) !important;
+}
+
+/* ── 17. 空态 ──
+   颜色不用 !important：带内联红色（如生成失败提示）时保留原色警示。 */
+.sys-app-window [class*="empty"]{
+  border:1px dashed #dedfe2 !important;
+  border-radius:11px !important;
+  background:#ffffff !important;
+  color:#999ba1;
+  padding:24px 16px !important; text-align:center;
+}
+
+/* ── 18. 徽章 / 标签（胶囊）──
+   微信未读红点 .wx-badge 是语义色，保持原样。 */
+.sys-app-window [class*="badge"]:not(.wx-badge),
+.sys-app-window [class*="tag"]:not([class*="stage"]){
+  border-radius:20px !important;
+  border:1px solid #ececef !important;
+  background:#ffffff !important;
+  color:#85868d !important;
+}
+
+/* ── 19. 小说 3D 书架（上一轮新功能，只微调配色，不碰结构与 3D 逻辑） ──
+   书脊/封面配色全部保留；只改说明文字与翻页箭头向归巢靠拢，
+   地面阴影由墨绿改为中性灰。 */
+.sys-app-window[data-app-sandbox="novel"] #novel3d-cap-title{ color:#25262a !important; }
+.sys-app-window[data-app-sandbox="novel"] #novel3d-cap-meta{ color:#85868d !important; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-count{ color:#85868d !important; }
+.sys-app-window[data-app-sandbox="novel"] .novel3d-arrow{
+  background:#ffffff !important; border:1px solid #ececef !important;
+  color:#34363b !important;
+}
+.sys-app-window[data-app-sandbox="novel"] .novel3d-floor{
+  background:radial-gradient(ellipse at center, rgba(37,38,42,.16), rgba(37,38,42,0) 70%) !important;
+}

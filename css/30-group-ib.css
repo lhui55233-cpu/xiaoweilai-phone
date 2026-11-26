@@ -1,0 +1,86 @@
+
+/* ══════════ GROUP-IB · Internal Beyond 融合层 ══════════
+   设计与样式参考 Sui 的 Internal Beyond（github.com/Sui-IB/InternalBeyond），
+   PolyForm Noncommercial 1.0.0 / CC BY-NC-SA 4.0，已按本项目修改。
+   Required Notice: Copyright © 2025–2026 Sui. Internal Beyond (https://github.com/Sui-IB/InternalBeyond)
+   仅个人非商业使用；公开分享改编部分时按 CC BY-NC-SA 4.0 相同方式共享。
+   只借思路、自己写代码，未复制原仓库代码、美术与演示数据。 */
+/* 玻璃四档阶梯：ambient / surface / elevated / floating / modal（模糊 8/16/24/40px） */
+.ib-glass-ambient{ background:rgba(250,253,255,.10); backdrop-filter:blur(8px) saturate(1.08); -webkit-backdrop-filter:blur(8px) saturate(1.08); border:1px solid rgba(165,188,230,.20); border-radius:var(--ib-token-radius-lg); box-shadow:0 1px 4px rgba(30,39,72,.06), inset 0 1px 0 rgba(255,255,255,.76); }
+.ib-glass-surface{ background:rgba(250,253,255,.58); backdrop-filter:blur(16px) saturate(1.12); -webkit-backdrop-filter:blur(16px) saturate(1.12); border:1px solid rgba(165,188,230,.20); border-radius:var(--ib-token-radius-lg); box-shadow:0 2px 10px rgba(30,39,72,.08), inset 0 1px 0 rgba(255,255,255,.76); }
+.ib-glass-elevated{ background:rgba(250,253,255,.72); backdrop-filter:blur(24px) saturate(1.16); -webkit-backdrop-filter:blur(24px) saturate(1.16); border:1px solid rgba(165,188,230,.20); border-radius:var(--ib-token-radius-lg); box-shadow:0 6px 20px rgba(30,39,72,.10), inset 0 1px 0 rgba(255,255,255,.76); }
+.ib-glass-floating{ background:rgba(250,253,255,.84); backdrop-filter:blur(24px) saturate(1.20); -webkit-backdrop-filter:blur(24px) saturate(1.20); border:1px solid rgba(165,188,230,.20); border-radius:var(--ib-token-radius-lg); box-shadow:0 10px 28px rgba(30,39,72,.12), inset 0 1px 0 rgba(255,255,255,.76); }
+.ib-glass-modal{ background:rgba(250,253,255,.92); backdrop-filter:blur(40px) saturate(1.22); -webkit-backdrop-filter:blur(40px) saturate(1.22); border:1px solid rgba(165,188,230,.20); border-radius:var(--ib-token-radius-lg); box-shadow:0 16px 40px rgba(30,39,72,.16), inset 0 1px 0 rgba(255,255,255,.76); }
+/* 铁律：嵌套卡片不再叠玻璃 —— 内层只留 surface 底 + 1px 发丝线，不加模糊与投影 */
+.ib-card .ib-glass-ambient, .ib-card .ib-glass-surface, .ib-card .ib-glass-elevated, .ib-card .ib-glass-floating, .ib-card .ib-glass-modal,
+.ib-glass-surface .ib-glass-ambient, .ib-glass-surface .ib-glass-surface, .ib-glass-elevated .ib-glass-surface, .ib-glass-floating .ib-glass-surface,
+.ib-card .ib-card{ backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:none; background:var(--ib-token-surface); border:1px solid var(--ib-token-boundary-subtle); }
+/* 动效分档与按下反馈（统一缓动；按下：下沉 1px + 缩 0.94，0.08s 内完成） */
+.ib-press{ transition:transform var(--ib-motion-micro) var(--ib-ease); }
+.ib-press:active{ transform:translateY(1px) scale(.94); transition-duration:.08s; }
+.ib-fade-in{ animation:ib-fade-in var(--ib-motion-structural) var(--ib-ease) both; }
+@keyframes ib-fade-in{ from{ opacity:0; } to{ opacity:1; } }
+/* 静谧模式 body.quiet：关背景动效、玻璃模糊、长过渡（设置里持久化） */
+body.quiet *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+body.quiet .ib-glass-ambient, body.quiet .ib-glass-surface, body.quiet .ib-glass-elevated, body.quiet .ib-glass-floating, body.quiet .ib-glass-modal,
+body.quiet .sys-float-ball, body.quiet [class*="glass"]{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+body.quiet .echo-record, body.quiet .echo-record-wrap{ animation-play-state:paused !important; }
+/* 朋友圈九宫格：1 张大图 / 2–4 网格 / 5+ 九宫格（最宽 320px） */
+.ib-mgrid{ display:grid; gap:4px; max-width:320px; margin-top:8px; }
+.ib-mgrid.n1{ grid-template-columns:1fr; }
+.ib-mgrid.n1 img{ width:100%; max-width:320px; aspect-ratio:auto; }
+.ib-mgrid.n2, .ib-mgrid.n3, .ib-mgrid.n4{ grid-template-columns:repeat(2,1fr); }
+.ib-mgrid.n9{ grid-template-columns:repeat(3,1fr); }
+.ib-mgrid-cell{ position:relative; display:block; }
+.ib-mgrid img{ width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; cursor:pointer; display:block; }
+.ib-mgrid-more{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,15,24,.46); color:#fff; font-size:18px; font-weight:600; border-radius:6px; }
+/* @提及 */
+.ib-mention{ color:#576b95; font-weight:600; }
+.ib-mention-pop{ position:absolute; left:12px; right:12px; bottom:64px; z-index:50; background:var(--ib-token-surface); border:1px solid var(--ib-token-boundary-default); border-radius:var(--ib-token-radius-md); box-shadow:0 8px 24px rgba(30,39,72,.16); overflow:hidden; }
+.ib-mention-pop button{ display:block; width:100%; text-align:left; border:0; background:transparent; padding:10px 14px; font-size:14px; color:var(--ib-token-content-primary); cursor:pointer; }
+.ib-mention-pop button:hover, .ib-mention-pop button.ib-on{ background:var(--ib-token-surface-selected); }
+/* 音乐 48 频段波形 */
+.ib-wave{ display:block; width:100%; max-width:620px; height:44px; margin:10px auto 4px; }
+.ib-wave-note{ font-size:11px; color:var(--ib-token-content-muted); text-align:center; }
+/* 诊断页药丸：正常绿 / 注意黄 / 故障红 / 可选灰 / 检查中 */
+.ib-pill{ display:inline-block; border-radius:999px; padding:3px 10px; font-size:12px; font-weight:600; border:1px solid; }
+.ib-pill.ok{ color:#3d6b4f; border-color:rgba(111,159,131,.45); background:rgba(111,159,131,.12); }
+.ib-pill.warn{ color:#8a6a35; border-color:rgba(181,138,85,.45); background:rgba(181,138,85,.12); }
+.ib-pill.bad{ color:#9a4a4a; border-color:rgba(199,130,130,.45); background:rgba(199,130,130,.12); }
+.ib-pill.opt{ color:#5c6884; border-color:rgba(92,104,132,.45); background:rgba(92,104,132,.10); }
+.ib-pill.check{ color:#8a8b91; border-color:rgba(138,139,145,.45); background:rgba(138,139,145,.08); }
+.ib-diag-card{ border:1px solid var(--ib-token-boundary-subtle); border-radius:var(--ib-token-radius-md); padding:12px 14px; background:var(--ib-token-surface); }
+.ib-diag-card .ib-diag-note{ font-size:13px; color:var(--ib-token-content-secondary); margin-top:6px; line-height:1.55; }
+/* 日历悬浮窗 + 挂历 */
+.ib-cal-float{ position:fixed; z-index:9500; width:min(360px,92vw); background:rgba(250,253,255,.84); backdrop-filter:blur(24px) saturate(1.20); -webkit-backdrop-filter:blur(24px) saturate(1.20); border:1px solid rgba(165,188,230,.20); border-radius:16px; box-shadow:0 10px 28px rgba(30,39,72,.12), inset 0 1px 0 rgba(255,255,255,.76); overflow:hidden; }
+.ib-cal-head{ display:flex; align-items:center; gap:8px; padding:10px 12px; cursor:grab; touch-action:none; user-select:none; }
+.ib-cal-head:active{ cursor:grabbing; }
+.ib-cal-title{ flex:1; font-family:"Cormorant Garamond","Noto Serif SC",serif; font-size:18px; letter-spacing:.14em; color:var(--ib-token-content-primary); }
+.ib-cal-btn{ border:1px solid var(--ib-token-boundary-default); background:var(--ib-token-surface); color:var(--ib-token-content-primary); border-radius:8px; padding:5px 9px; font-size:12px; cursor:pointer; }
+.ib-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; padding:0 10px 12px; }
+.ib-cal-wd{ text-align:center; font-size:11px; color:var(--ib-token-content-muted); padding:4px 0; letter-spacing:.1em; }
+.ib-cal-day{ position:relative; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:8px; font-size:13px; color:var(--ib-token-content-primary); border:1px solid transparent; }
+.ib-cal-day:hover{ border-color:var(--ib-token-boundary-default); background:var(--ib-token-surface-interactive); }
+.ib-cal-day.out{ color:var(--ib-token-content-muted); opacity:.45; }
+.ib-cal-day.today{ border-color:var(--ib-token-boundary-strong); font-weight:700; }
+.ib-cal-day .ib-dot{ width:4px; height:4px; border-radius:50%; background:var(--ib-token-accent-brand); margin-top:2px; }
+.ib-cal-day .ib-moon{ font-size:9px; color:var(--ib-moon-dark-2); line-height:1; margin-top:1px; }
+.ib-cal-foot{ padding:0 12px 12px; font-size:12px; color:var(--ib-token-content-muted); line-height:1.6; }
+/* 挂历：左侧装订环 + 打孔 + 书脊 1px 线 */
+.ib-cal-wall .ib-cal-body{ border-left:1px solid var(--ib-token-boundary-strong); margin-left:14px; padding-left:8px; position:relative; }
+.ib-cal-wall .ib-cal-body::before{ content:""; position:absolute; left:-9px; top:8px; bottom:8px; width:4px; background:radial-gradient(circle at 50% 12%, transparent 2px, var(--ib-token-boundary-strong) 2.5px, transparent 3px) 0 0/4px 34px repeat-y; }
+.ib-cal-mini{ position:fixed; z-index:9500; left:12px; bottom:86px; padding:8px 12px; border-radius:999px; background:rgba(250,253,255,.84); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(165,188,230,.20); box-shadow:0 6px 18px rgba(30,39,72,.12); font-size:13px; color:var(--ib-token-content-primary); cursor:pointer; }
+/* Role DM 观察页：行是扁平的（发丝线分隔 + hover tint，不用玻璃），无消息输入框 */
+.ib-roledm-row{ display:flex; gap:10px; padding:10px 2px; border-bottom:1px solid var(--ib-token-boundary-subtle); }
+.ib-roledm-row:hover{ background:var(--ib-token-surface-interactive); }
+.ib-roledm-av{ width:34px; height:34px; border-radius:50%; background:var(--ib-token-surface-selected); color:var(--ib-token-content-primary); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.ib-roledm-body{ flex:1; min-width:0; }
+.ib-roledm-meta{ font-size:12px; color:var(--ib-token-content-muted); margin-bottom:2px; }
+.ib-roledm-text{ font-size:14px; line-height:1.6; color:var(--ib-token-content-primary); white-space:pre-wrap; overflow-wrap:anywhere; }
+.ib-roledm-scene{ border:1px solid var(--ib-token-boundary-subtle); border-radius:var(--ib-token-radius-md); padding:12px 14px; background:var(--ib-token-surface); margin-bottom:12px; }
+.ib-roledm-scene h3{ margin:0 0 6px; font-size:15px; }
+.ib-roledm-scene p{ margin:0; font-size:13px; color:var(--ib-token-content-secondary); line-height:1.6; }
+@media (prefers-reduced-motion: reduce){
+  .ib-fade-in{ animation:none; }
+  .echo-record{ animation:none !important; }
+}

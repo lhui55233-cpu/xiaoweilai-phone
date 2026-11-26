@@ -1,0 +1,87 @@
+
+/* GROUP-FIX13 · 特里亚农 · 洛可可主题层（maison-des-mots-skill 美术方向落地；
+   色板/字体/纸感/动效规则取自 github.com/BaxterL/maison-des-mots-skill（MIT），
+   实现自写；只取美术方向，不搬该项目的一屏一本结构。旧 BP 色板 token 与旧自编
+   色值已全部删除，改走 :root 的 --mdm-*。
+   深色变体已删：特里亚农是浅色纸主题，不做大面积深色底。 */
+html[data-phone-theme="trianon"]{
+  --app-bg:var(--mdm-paper) !important; --app-surface:var(--mdm-paper-light) !important; --app-card:var(--mdm-paper-light) !important;
+  --app-text:var(--mdm-ink) !important; --app-muted:var(--mdm-ink-soft) !important; --app-line:var(--mdm-hairline) !important;
+  --app-accent:var(--mdm-fog) !important; --app-accent-soft:var(--mdm-silver-light) !important; --app-radius:16px !important;
+  --al-fg:var(--mdm-ink) !important; --al-bg:var(--mdm-paper) !important; --al-border:var(--mdm-hairline) !important;
+  --al-muted:var(--mdm-ink-soft) !important; --al-subtle:var(--mdm-paper-light) !important; --al-focus:var(--mdm-fog) !important;
+  --gv-soft:var(--mdm-paper) !important; --gv-accent:var(--mdm-fog) !important;
+  --sys-theme-color:var(--mdm-fog) !important; --wx-theme-color:var(--mdm-fog) !important;
+  color-scheme:light;
+}
+/* ── 整机底色与 app 窗口（只换主题层，布局不动）── */
+html[data-phone-theme="trianon"] #sys-shell{background-color:var(--mdm-paper) !important;color:var(--mdm-ink);}
+html[data-phone-theme="trianon"] #sys-desktop-layer{background-color:var(--mdm-paper) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window{background:var(--mdm-paper-light) !important;color:var(--mdm-ink);border-color:var(--mdm-hairline);}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window h1,html[data-phone-theme="trianon"] #sys-shell .sys-app-window h2,html[data-phone-theme="trianon"] #sys-shell .sys-app-window h3,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-bigtitle,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-header-title{font-family:var(--mdm-title);color:var(--mdm-ink);}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gd-root{background:var(--mdm-paper-light) !important;color:var(--mdm-ink) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .ck-root{background:var(--mdm-paper) !important;color:var(--mdm-ink);}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .cx-root,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wy-root{background:var(--mdm-paper-light) !important;color:var(--mdm-ink);}
+/* ── 桌面图标：模切吊牌（小圆孔 + 银绳细线，选中微倾；只改外观，拖拽/长按不动）── */
+html[data-phone-theme="trianon"] #sys-shell .sys-app-icon-wrapper{position:relative;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-icon-wrapper::before{content:"";position:absolute;top:-7px;left:50%;width:1px;height:8px;background:var(--mdm-silver);pointer-events:none;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-icon{position:relative;border-radius:14px 14px 16px 16px !important;background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;box-shadow:var(--mdm-soft-shadow) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-icon::before{content:"";position:absolute;top:4px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--mdm-paper);border:1px solid var(--mdm-silver);pointer-events:none;z-index:1;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-icon-wrapper:active .sys-app-icon{transform:rotate(-2deg) scale(.98) !important;box-shadow:var(--mdm-paper-shadow) !important;}
+html[data-phone-theme="trianon"] #sys-shell.is-edit-mode .sys-app-icon{transform:rotate(-2deg);}
+/* ── 卡片与列表行（卡片共用一套纸感阴影 --mdm-paper-shadow）── */
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gd-card,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .sc-notif-card,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wy-card,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gv-sprout,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-bc-card{background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;border-radius:16px !important;box-shadow:var(--mdm-paper-shadow) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-cell,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-session-item{background:var(--mdm-paper-light) !important;border-color:var(--mdm-hairline) !important;color:var(--mdm-ink) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-row{color:var(--mdm-ink) !important;border-color:var(--mdm-hairline) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gv-theme-btn-on{border-color:var(--mdm-fog) !important;}
+/* ── 设置页：卷宗（纸夹卡片 + 顶部银夹）── */
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-group{background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;border-radius:16px !important;box-shadow:var(--mdm-paper-shadow) !important;position:relative;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-group::before{content:"";position:absolute;top:0;left:20px;width:36px;height:9px;background:var(--mdm-silver);border-radius:0 0 6px 6px;}
+/* ── 微信：变量收敛（手机主题优先于微信自选主题；切回默认即恢复）── */
+html[data-phone-theme="trianon"] #wx-app-root{--wx-accent:#5c6884 !important;--wx-theme-color:#5c6884 !important;--wx-bg:#fbf9f4 !important;--wx-bg-page:#fffdf8 !important;--wx-bg-card:#fffdf8 !important;--wx-text:#1e2748 !important;--wx-dim:#46536f !important;--wx-line:rgba(30,39,72,.16) !important;--wx-chat-bg:#fbf9f4 !important;--wx-bg-self:#dce2f1 !important;--wx-bg-friend:#fffdf8 !important;--wx-bubble-self-bg:#dce2f1 !important;--wx-bubble-friend-bg:#fffdf8 !important;--wx-bubble-self-color:#1e2748 !important;--wx-bubble-friend-color:#1e2748 !important;--wx-bubble-radius:14px !important;}
+/* ── 微信气泡：信笺纸（细横线 + 衬线；自己发的用雾蓝信笺）
+   气泡底色/字色/圆角不由本规则写死：它走 --wx-bubble-self-bg/--wx-bubble-friend-bg/
+   --wx-bubble-self-color/--wx-bubble-friend-color/--wx-bubble-radius 变量（美化器
+   通用覆盖层以 #wx-app-root (1,3,0) !important 读这组变量，本主题已在上节把
+   五个变量覆写为雾蓝/信笺纸/墨蓝/14px；只写 --wx-bg-self/--wx-bg-friend 不够，
+   那组变量在该层之下会被 background 简写盖掉）。注意：美化器里用户自选的
+   气泡色（BStore 的 !important 注入样式，(0,3,0)）打不过该 (1,3,0) 变量层，
+   故主题开启时气泡色以主题为准，切回默认后自选色恢复；本规则只加信笺纹、
+   衬线、描边。── */
+html[data-phone-theme="trianon"] #wx-app-root .wx-bubble,.wx-app-root[data-wx-theme="trianon"] .wx-bubble{background-image:repeating-linear-gradient(transparent 0 21px,rgba(30,39,72,.16) 21px 22px) !important;color:#1e2748 !important;border:1px solid rgba(30,39,72,.16) !important;border-radius:14px !important;font-family:var(--mdm-title);line-height:22px;}
+/* ── 票根：微信 + 菜单与美化卡片（齿孔虚线边）── */
+html[data-phone-theme="trianon"] #wx-plus-drawer{background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;border-radius:14px !important;box-shadow:var(--mdm-paper-shadow) !important;}
+html[data-phone-theme="trianon"] #wx-plus-drawer>*:not(:last-child){border-bottom:1px dashed var(--mdm-silver) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-bc-card,.wx-app-root[data-wx-theme="trianon"] .wx-bc-card{border:1px dashed #bfc8e0 !important;position:relative;}
+/* ── 火漆印章（一次性盖章动效 .35s；主题行与美化卡片上的 ✦ 封印）── */
+html[data-phone-theme="trianon"] .bp-wax-seal{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#dce2f1,#5c6884 70%);color:#fbf9f4;font-size:14px;line-height:1;box-shadow:var(--mdm-soft-shadow);vertical-align:middle;animation:bp-stamp .35s ease both;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-bc-card[data-wx-bc-theme="trianon"].wx-bc-active::after,.wx-app-root[data-wx-theme="trianon"] .wx-bc-card[data-wx-bc-theme="trianon"].wx-bc-active::after{content:"✦";position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#dce2f1,#5c6884 70%);color:#fbf9f4;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:var(--mdm-soft-shadow);}
+@keyframes bp-stamp{0%{transform:scale(1.6);opacity:0;}60%{transform:scale(.94);opacity:1;}100%{transform:scale(1);opacity:1;}}
+/* ── 拱窗框：此刻立体书 / 影院银幕 / 阅读页 / 锁屏 / 发现信箱（开场淡入一次 .45s）
+   此刻根容器是 .ck-root（旧名 .ck-container 已不存在，见探针 2026-11-26）。
+   发现信箱是“信”内容，用文楷（--mdm-letter）；其它标题用衬线，表单/状态仍用清晰字体。── */
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .ck-root{border-radius:120px 120px 16px 16px !important;border:1px solid var(--mdm-hairline);animation:bp-arch-in .45s ease both;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .cx-screen{border-radius:90px 90px 14px 14px !important;border:1px solid var(--mdm-hairline);animation:bp-arch-in .45s ease both;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .ipb-page{border-radius:48px 48px 12px 12px !important;border:1px solid var(--mdm-hairline);animation:bp-arch-in .45s ease both;}
+html[data-phone-theme="trianon"] #sys-lock-main{border-radius:120px 120px 16px 16px !important;border:1px solid var(--mdm-hairline);}
+html[data-phone-theme="trianon"] #wx-discover-letterbox{border-radius:90px 90px 14px 14px !important;border:1px solid var(--mdm-hairline);background:var(--mdm-paper-light) !important;font-family:var(--mdm-letter);}
+@keyframes bp-arch-in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+/* ── 塔罗牌背：雾蓝 + 银色 ✦ 纹
+   注：归巢覆盖层有一条 .sys-app-window [class*="card"]{background:#fff !important}
+   （GroupD 软风层，:not 提权到 (0,4,0)），故本规则用 #sys-shell 提权到 (1,3,1)。── */
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .tarot-card-back-pattern{background:linear-gradient(135deg,#dce2f1 0%,#bfc8e0 100%) !important;border:1px solid var(--mdm-silver) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .tarot-card-back-pattern::before{content:"✦" !important;color:#5c6884 !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .tarot-card-back-pattern::after{color:#46536f !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .tarot-card-node{border-color:var(--mdm-silver) !important;box-shadow:var(--mdm-paper-shadow) !important;}
+/* ── 通知 / 提示：审批便条（纸色 + 左侧银蓝批线）── */
+html[data-phone-theme="trianon"] .al-toast{background:var(--mdm-paper-light) !important;color:var(--mdm-ink) !important;border:1px solid var(--mdm-hairline) !important;border-left:3px solid var(--mdm-fog) !important;border-radius:10px !important;box-shadow:var(--mdm-paper-shadow) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .sc-notif-card{border-left:3px solid var(--mdm-fog) !important;}
+/* ── 锁屏 ── */
+html[data-phone-theme="trianon"] #sys-lockscreen-layer{background-color:var(--mdm-paper) !important;}
+html[data-phone-theme="trianon"] #sys-lock-time,html[data-phone-theme="trianon"] #sys-lock-date{color:var(--mdm-ink) !important;font-family:var(--mdm-title);}
+/* ── 动效铁律：减弱动效时全部静止（直接显示终态）── */
+@media (prefers-reduced-motion: reduce){
+  html[data-phone-theme="trianon"] .bp-wax-seal,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .ck-root,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .cx-screen,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .ipb-page{animation:none !important;}
+  html[data-phone-theme="trianon"] #sys-shell .sys-app-icon-wrapper:active .sys-app-icon{transform:none !important;}
+}
+

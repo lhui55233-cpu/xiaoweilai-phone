@@ -1,0 +1,23 @@
+
+/* GROUP-FIX3 · FIX3-2(a) “我”页行高被 flex 挤压裁切的根因修复：
+   #wx-view-me 是定高 column flex 滚动容器，.wx-cell-group 默认 flex-shrink:1 且
+   overflow:hidden（自动最小尺寸为 0），内容超高时分组被压扁、行被裁掉。
+   子项与行一律 flex-shrink:0，恢复“超高就滚动、不压扁”；标题/右侧说明单行省略。 */
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me>.wx-me-header,
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me>.wx-cell-group{flex-shrink:0;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me .wx-cell{flex-shrink:0;min-height:54px;height:auto;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me .wx-cell-left{flex:1 1 auto;min-width:0;overflow:hidden;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me .wx-cell:not(.wx-cell-no-icon) .wx-cell-left>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me .wx-cell-right{flex:0 0 auto;min-width:0;}
+.sys-app-window[data-app-sandbox="wechat"] #wx-view-me .wx-cell-right span{max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* GROUP-FIX3 · FIX3-1（CSS 侧）：头像容器底色去灰；兜底态头像 <img> 底色透明 */
+.sys-app-window[data-app-sandbox="wechat"] .wx-me-header-avatar{background:#ffe3c4;}
+.sys-app-window img[data-fix3-avatar]{background:transparent;}
+/* GROUP-FIX3 · FIX3-4(a) 偷看气泡改停右上角顶栏下方（原 bottom:96px 居中大黑气泡正压表单） */
+#af-scroll-bubble{position:fixed;top:calc(48px + var(--sys-island-safe-top,62px) + 10px);right:12px;left:auto;bottom:auto;transform:translateY(-4px);background:rgba(30,30,30,.92);color:#fff;padding:7px 11px;border-radius:16px;font-size:12px;line-height:1.5;opacity:0;pointer-events:auto;transition:opacity .25s,transform .25s;z-index:99999;max-width:min(62vw,260px);box-sizing:border-box;}
+#af-scroll-bubble.show{opacity:1;transform:translateY(0);}
+#af-scroll-bubble .af-scroll-bubble-x{display:inline-block;margin-left:8px;cursor:pointer;opacity:.7;font-size:13px;line-height:1;vertical-align:middle;}
+#af-scroll-bubble.af-scroll-bubble-min{max-width:34px;min-width:34px;height:34px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;white-space:nowrap;}
+#af-scroll-bubble.af-scroll-bubble-min .af-scroll-bubble-txt{display:none;}
+#af-scroll-bubble.af-scroll-bubble-min .af-scroll-bubble-x{display:none;}
+#af-scroll-bubble.af-scroll-bubble-min::after{content:"\1F4AC";font-size:16px;line-height:1;}

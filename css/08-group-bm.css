@@ -1,0 +1,11 @@
+
+/* J组 · 位置底部选择页 + 位置大图浮层（微信绿 #07C160，白底；未被归巢软化层改动） */
+.wx-loc-sheet-mask{position:absolute;inset:0;z-index:3499;background:rgba(0,0,0,.45);}
+.wx-loc-sheet{position:absolute;left:0;right:0;bottom:0;z-index:3500;background:#fff;border-radius:16px 16px 0 0;padding:14px 16px 32px;box-shadow:0 -6px 24px rgba(0,0,0,.18);box-sizing:border-box;} /* GROUP-BM BM-2：底垫 22px→32px，避开 Home 条 */
+.wx-loc-sheet-title{font-size:16px;font-weight:700;color:#111;text-align:center;}
+.wx-loc-sheet-sub{font-size:12px;color:#888;text-align:center;margin-top:4px;line-height:1.6;}
+.wx-loc-opt{display:block;width:100%;text-align:left;padding:12px 10px;margin-top:8px;border:1px solid #e8e8e8;border-radius:10px;background:#f7f7f7;font-size:14px;color:#111;cursor:pointer;box-sizing:border-box;}
+.wx-loc-opt small{display:block;font-size:11px;color:#888;margin-top:2px;}
+.wx-loc-opt.wx-loc-primary{background:#07C160;color:#fff;border-color:#07C160;}
+.wx-loc-opt.wx-loc-primary small{color:rgba(255,255,255,.85);}
+.wx-loc-map-overlay{position:absolute;inset:0;z-index:3500;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}

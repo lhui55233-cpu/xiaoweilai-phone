@@ -1,0 +1,21 @@
+
+/* GROUP-BG · 相机/麦克风浮层样式（自写） */
+#bg-cam-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;}
+.bg-cam-box{width:min(92vw,420px);background:#111;border-radius:14px;padding:14px;color:#fff;}
+.bg-cam-title{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;margin-bottom:10px;}
+.bg-cam-x{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;flex:none;}
+#bg-cam-video{width:100%;border-radius:10px;background:#000;aspect-ratio:4/3;object-fit:cover;}
+.bg-cam-why{font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;margin:10px 0;}
+.bg-cam-row{display:flex;gap:8px;margin-top:8px;}
+.bg-cam-err{font-size:12px;color:#ff9a9a;min-height:16px;margin-top:6px;}
+.bg-btn{flex:1;border:1px solid #ddd;background:#fff;border-radius:20px;padding:9px 10px;font-size:13px;cursor:pointer;color:#333;}
+.bg-btn-pri{background:#07c160;border-color:#07c160;color:#fff;}
+#bg-perm-sheet,#bg-avatar-sheet{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;}
+.bg-sheet{background:#fff;border-radius:16px 16px 0 0;width:min(100vw,480px);padding:18px 16px 22px;}
+.bg-sheet-title{font-size:16px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.bg-sheet-body{font-size:13px;color:#666;line-height:1.7;}
+.bg-sheet-row{display:flex;gap:8px;margin-top:14px;}
+#bg-memo-overlay{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;}
+.bg-memo-sheet{max-height:82vh;overflow-y:auto;}
+.bg-memo-item{display:flex;gap:8px;align-items:flex-start;border-top:1px solid #eee;padding:10px 0;}
+.bg-toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;font-size:13px;padding:10px 16px;border-radius:20px;z-index:99999;max-width:86vw;text-align:center;}
