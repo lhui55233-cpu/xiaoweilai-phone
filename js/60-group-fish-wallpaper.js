@@ -189,7 +189,8 @@ class World {
     seed() {
         const { width: W, height: H } = this;
         const minSide = Math.min(W, H);
-        const baseLength = clamp(minSide * 0.44, 170, 430) * 1.2;
+        // Phone-sized fish: the original desktop demo was much too large here.
+        const baseLength = clamp(minSide * 0.26, 75, 150);
         const sharkCount = this.sharkSpecs.length;
         this.sharks = [];
         for (let i = 0; i < sharkCount; i++) {
@@ -1103,7 +1104,8 @@ class AsciiRenderer {
         this.width = width;
         this.height = height;
         this.dpr = dpr;
-        this.cw = clamp(Math.round(width / 124), 8, 13);
+        // A slightly finer character grid keeps the smaller silhouettes legible.
+        this.cw = clamp(Math.round(width / 100), 5, 10);
         this.ch = Math.round(this.cw * 1.45);
         this.cols = Math.ceil(width / this.cw);
         this.rows = Math.ceil(height / this.ch);
@@ -1145,9 +1147,34 @@ class AsciiRenderer {
             return;
         const { width: W, height: H, dpr, cw, ch } = this;
         g.setTransform(dpr, 0, 0, dpr, 0, 0);
-        // Phone wallpaper: the background IS the user-chosen colour (flat fill).
-        g.fillStyle = (this.pal && this.pal.bg) || "#ffffff";
+        // Only the untouched white preset gets our soft ocean treatment. Other
+        // chosen colours remain exactly as selected in the wallpaper settings.
+        const bg = (this.pal && this.pal.bg) || "#ffffff";
+        const isDefaultWhite = bg.toLowerCase() === "#ffffff";
+        if (isDefaultWhite) {
+            const water = g.createLinearGradient(0, 0, W * 0.7, H);
+            water.addColorStop(0, "#f8fcfc");
+            water.addColorStop(0.42, "#e9f3f5");
+            water.addColorStop(0.75, "#d8e9ec");
+            water.addColorStop(1, "#edf4f3");
+            g.fillStyle = water;
+        } else g.fillStyle = bg;
         g.fillRect(0, 0, W, H);
+        if (isDefaultWhite) {
+            // Quiet, hand-drawn caustics: they sit behind the animated fish.
+            g.save();
+            g.strokeStyle = "rgba(255,255,255,.38)";
+            g.lineWidth = 1;
+            for (let i = 0; i < 9; i++) {
+                const y = H * (0.09 + i * 0.105);
+                g.beginPath();
+                g.moveTo(-W * .1, y);
+                g.bezierCurveTo(W * .22, y - 30, W * .38, y + 27, W * .68, y - 7);
+                g.bezierCurveTo(W * .83, y - 25, W * 1.02, y + 10, W * 1.1, y - 5);
+                g.stroke();
+            }
+            g.restore();
+        }
         if (this.mode !== "type")
             paintGrid(g, W, H, cw, ch, dpr, !!(this.pal && this.pal.light));
     }
@@ -2152,11 +2179,10 @@ var FISH_MODES = [
     { id: "lines", label: "LINES", name: "线条编织", desc: "线条沿鱼身方向排列，像游动的编织线稿。" },
     { id: "hanzi", label: "HANZI", name: "汉字艺术", desc: "一、十、川、水、魚、鯊，以笔画疏密表现层次。" }
 ];
-/* Default roster: the demo's mixed set (app.ts), 5 big fish of different kinds. */
+/* A quieter phone-scale roster: three different silhouettes rather than five giants. */
 var FISH_ROSTER = [
-    { kind: "whaleshark", size: 1 }, { kind: "manta", size: 0.83 },
-    { kind: "hammerhead", size: 0.86 },
-    { kind: "sunfish", size: 0.64 }, { kind: "classic", size: 0.78 }
+    { kind: "whaleshark", size: 1 }, { kind: "manta", size: 0.76 },
+    { kind: "sunfish", size: 0.66 }
 ];
 var FISH_BG_PRESETS = [
     { id: "#ffffff", name: "白" },
@@ -2303,6 +2329,7 @@ var FishWallpaper = {
             show = true;
         }
         if (this.shell) this.shell.classList.toggle("fish-on", show);
+        if (this.shell) this.shell.classList.toggle("fish-ocean-default", show && fishEffectiveBg(p).toLowerCase() === "#ffffff");
         if (show) {
             var bg = fishEffectiveBg(p);
             if (bg !== this.lastBg) {

@@ -1,0 +1,55 @@
+/* [OCEAN-ISLAND] soft ice-blue hand-drawn sandbox; all rules are intentionally scoped. */
+#xwl-ocean-island-launcher,
+#xwl-ocean-island-panel { box-sizing: border-box; }
+#xwl-ocean-island-launcher *,
+#xwl-ocean-island-panel * { box-sizing: border-box; }
+#xwl-ocean-island-launcher { position: relative; display: inline-flex; align-items: center; gap: 7px; min-height: 36px; margin: 4px 0 12px; padding: 7px 13px; border: 1px solid rgba(255,255,255,.78); border-radius: 999px; color: #28546a; background: rgba(247,253,253,.86); box-shadow: 0 5px 16px rgba(48,102,124,.12), inset 0 1px rgba(255,255,255,.9); font: 600 12px/1.1 system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; letter-spacing: .04em; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+#xwl-ocean-island-launcher:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 11px 30px rgba(48,102,124,.27); }
+#xwl-ocean-island-launcher:active { transform: translateY(1px) scale(.97); }
+#xwl-ocean-island-launcher:focus-visible, #xwl-ocean-island-panel button:focus-visible, #xwl-ocean-island-panel [tabindex="0"]:focus-visible { outline: 3px solid rgba(53,151,183,.55); outline-offset: 3px; }
+.xwl-ocean-island__launcher-mark { display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; color: #fff; background: #68abc0; font-size: 13px; }
+#xwl-ocean-island-panel { position: fixed; inset: 0; z-index: 2147482999; overflow: hidden; color: #28546a; font-family: system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
+#xwl-ocean-island-panel[hidden] { display: none; }
+.xwl-ocean-island__backdrop { position: absolute; inset: 0; background: rgba(32,72,88,.2); backdrop-filter: blur(8px); opacity: 0; transition: opacity .18s ease; }
+.xwl-ocean-island__dialog { position: absolute; left: 50%; top: 50%; width: min(94vw, 860px); max-height: min(92vh, 760px); overflow: auto; border: 1px solid rgba(255,255,255,.92); border-radius: 28px; background: linear-gradient(145deg, rgba(249,255,255,.96), rgba(225,245,247,.96)); box-shadow: 0 24px 80px rgba(26,78,99,.28), inset 0 1px rgba(255,255,255,.95); transform: translate(-50%,-47%) scale(.97); opacity: 0; transition: transform .22s ease, opacity .18s ease; }
+#xwl-ocean-island-panel.is-open .xwl-ocean-island__backdrop { opacity: 1; }
+#xwl-ocean-island-panel.is-open .xwl-ocean-island__dialog { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+.xwl-ocean-island__header { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 22px 0; }
+.xwl-ocean-island__eyebrow { margin: 0 0 3px; color: #68a9bb; font: 700 10px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .18em; }
+.xwl-ocean-island__header h2 { margin: 0; color: #28546a; font: 700 25px/1.1 "LXGW WenKai", "PingFang SC", serif; letter-spacing: .08em; }
+.xwl-ocean-island__hint { margin: 5px 0 0; color: #6593a2; font-size: 12px; }
+.xwl-ocean-island__close { width: 34px; height: 34px; border: 1px solid rgba(105,168,184,.28); border-radius: 50%; color: #5c94a5; background: rgba(255,255,255,.5); font-size: 24px; line-height: 1; cursor: pointer; touch-action: manipulation; }
+.xwl-ocean-island__scene { margin: 6px 12px 0; border-radius: 22px; overflow: hidden; background: linear-gradient(135deg,#effbfc,#c8e8ed); }
+.xwl-ocean-island__svg { display: block; width: 100%; height: auto; min-height: 280px; }
+.xwl-ocean-island__status { min-height: 18px; margin: 0; padding: 2px 24px 18px; color: #528397; font-size: 13px; text-align: center; }
+.xwl-ocean-island__water { fill: url(#xwl-ocean-water); stroke: #8fcbd7; stroke-width: 3; }
+.xwl-ocean-island__water-line, .xwl-ocean-island__wave { fill: none; stroke: rgba(255,255,255,.7); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 3 12; }
+.xwl-ocean-island__island { fill: url(#xwl-ocean-sand); stroke: #a7d1d2; stroke-width: 4; }
+.xwl-ocean-island__island-shadow, .xwl-ocean-island__landmark-shadow { fill: rgba(43,105,122,.18); filter: url(#xwl-ocean-shadow); }
+.xwl-ocean-island__island-edge { fill: none; stroke: rgba(255,255,255,.85); stroke-width: 4; stroke-linecap: round; }
+.xwl-ocean-island__landmark { cursor: pointer; outline: none; transform-box: fill-box; transform-origin: center bottom; transition: filter .2s ease, transform .2s ease; }
+.xwl-ocean-island__landmark:hover, .xwl-ocean-island__landmark:focus-visible, .xwl-ocean-island__landmark.is-selected { filter: brightness(1.12) drop-shadow(0 7px 5px rgba(70,145,161,.18)); transform: translateY(-7px); }
+.xwl-ocean-island__face { fill: #f9ffff; stroke: #77b3c0; stroke-width: 3; stroke-linejoin: round; }
+.xwl-ocean-island__side { fill: #b7dce2; stroke: #77b3c0; stroke-width: 3; stroke-linejoin: round; }
+.xwl-ocean-island__cap, .xwl-ocean-island__roof { fill: #d9f1f2; stroke: #77b3c0; stroke-width: 3; stroke-linejoin: round; }
+.xwl-ocean-island__stripe { fill: #aad5dc; }
+.xwl-ocean-island__glow, .xwl-ocean-island__star { fill: #ffe7a6; stroke: #d59e58; stroke-width: 2; stroke-linejoin: round; }
+.xwl-ocean-island__door { fill: #78abba; stroke: #568e9e; stroke-width: 2; }
+.xwl-ocean-island__cat-ear { fill: none; stroke: #568e9e; stroke-width: 3; stroke-linecap: round; }
+.xwl-ocean-island__shell { fill: #f6d4d0; stroke: #bd8f9a; stroke-width: 3; }
+.xwl-ocean-island__shell-line { fill: none; stroke: #d9a8ab; stroke-width: 2; }
+.xwl-ocean-island__hub, .xwl-ocean-island__shell-line { stroke-linecap: round; }
+.xwl-ocean-island__hub { fill: none; stroke: #c79b67; stroke-width: 4; }
+.xwl-ocean-island__hub-dot { fill: #ffe8a7; stroke: #b78a59; stroke-width: 2; }
+.xwl-ocean-island__arch { fill: url(#xwl-ocean-ice); stroke: #6eafc2; stroke-width: 3; }
+.xwl-ocean-island__arch-side { fill: #9ccfda; stroke: #6eafc2; stroke-width: 3; }
+.xwl-ocean-island__pool { fill: #8bcbd8; stroke: #5ea5b7; stroke-width: 3; }
+.xwl-ocean-island__bubble { fill: rgba(255,255,255,.7); }
+.xwl-ocean-island__dust { fill: #fff0b9; opacity: .75; animation: xwl-ocean-island-light-dust 4.8s ease-in-out infinite; }
+.xwl-ocean-island__dust:nth-child(2) { animation-delay: -1.8s; }
+.xwl-ocean-island__dust:nth-child(3) { animation-delay: -3.2s; }
+.xwl-ocean-island__dust:nth-child(4) { animation-delay: -2.4s; }
+.xwl-ocean-island__light-ray { fill: none; stroke: rgba(255,255,255,.32); stroke-width: 8; stroke-linecap: round; }
+@keyframes xwl-ocean-island-light-dust { 0%,100% { opacity: .18; transform: translate(0,4px) scale(.8); } 50% { opacity: .9; transform: translate(7px,-8px) scale(1.25); } }
+@media (max-width: 600px) { .xwl-ocean-island__dialog { width: 100%; max-height: 100%; border-radius: 24px 24px 0 0; top: auto; bottom: 0; transform: translate(-50%, 8%) scale(.98); } #xwl-ocean-island-panel.is-open .xwl-ocean-island__dialog { transform: translate(-50%, 0) scale(1); } .xwl-ocean-island__scene { margin: 4px 7px 0; } .xwl-ocean-island__header { padding: 17px 18px 0; } .xwl-ocean-island__status { padding-bottom: max(17px, env(safe-area-inset-bottom)); } }
+@media (prefers-reduced-motion: reduce) { .xwl-ocean-island__backdrop, .xwl-ocean-island__dialog, .xwl-ocean-island__landmark, #xwl-ocean-island-launcher { transition: none; } .xwl-ocean-island__dust { animation: none; opacity: .55; } }

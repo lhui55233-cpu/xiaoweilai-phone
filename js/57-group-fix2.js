@@ -207,6 +207,8 @@ var repaintIcons = function () {
       var appId = w.getAttribute('data-target-app');
       var node = w.querySelector('.sys-app-icon');
       if (!appId || !node) continue;
+      // 默认猫咪图标包优先；用户自定义图标及其他图标风格仍走原有逻辑。
+      if (window.IconSystem && window.IconSystem.siameseIcons && window.IconSystem.siameseIcons.isActive(appId)) continue;
       if (node.querySelector('.is-icon-img')) continue;
       if (custom && custom[appId] && custom[appId].img) continue;
       var pick = null;

@@ -1,0 +1,38 @@
+/* [OCEAN-DESKTOP] Pure CSS, scoped to the built-in fish wallpaper. */
+#sys-shell.fish-ocean-default #sys-desktop-layer {
+  background: linear-gradient(180deg, rgba(247,252,252,.14), rgba(236,246,247,.10)) !important;
+}
+#sys-shell.fish-ocean-default .sys-desktop-page { padding-left: 20px; padding-right: 20px; }
+#sys-shell.fish-ocean-default .sys-app-grid { gap: 12px 10px; }
+#sys-shell.fish-ocean-default .sys-app-name {
+  color: #385463 !important;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(255,255,255,.9) !important;
+}
+#sys-shell.fish-ocean-default .sys-widget:not(.sys-widget-host[data-widget-host="clock"] .sys-widget) {
+  background: rgba(250,254,254,.73) !important;
+  border: 1px solid rgba(255,255,255,.84) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 24px rgba(64,114,126,.10), inset 0 1px rgba(255,255,255,.8) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+#sys-shell.fish-ocean-default .sys-dock-bg {
+  background: rgba(245,252,252,.72) !important;
+  border-color: rgba(255,255,255,.8) !important;
+  box-shadow: 0 8px 28px rgba(64,114,126,.14) !important;
+}
+#sys-shell.fish-ocean-default .sys-page-indicator .sys-dot { background: rgba(68,111,126,.28) !important; }
+#sys-shell.fish-ocean-default .sys-page-indicator .sys-dot.sys-active { background: #648d9c !important; }
+
+/* Keep lock-screen text readable on the light built-in ocean wallpaper. */
+#sys-shell.fish-ocean-default .sys-lock-time {
+  color: rgba(44, 83, 99, .88) !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: 0 2px 12px rgba(255, 255, 255, .8) !important;
+}
+#sys-shell.fish-ocean-default .sys-lock-date,
+#sys-shell.fish-ocean-default .sys-signature {
+  color: #365e6e !important;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, .9) !important;
+}
