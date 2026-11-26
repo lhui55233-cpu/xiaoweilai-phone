@@ -653,6 +653,7 @@ function vnLoadGame(vnId, slot) {
 }
 function openVNPlayer(vnId, save) {
 var vn = getVN(vnId); if (!vn) { toast3('找不到这部视觉小说'); return false;}
+var hasScriptSprites = vn.scenes.some(function (sc) { return (sc.lines || []).some(function (l) { return l.type === 'show' || l.type === 'hide'; }); });
 var host = document.querySelector('.gd-root[data-gd="script"]') || document.body;
 var ov = document.getElementById('aw-vn-player');
 if (!ov) {
@@ -765,11 +766,22 @@ var spriteHTML = function (sp) {
   var ch = charOf(sp.char);
   var left = sp.at === 'left' ? '170px' : (sp.at === 'right' ? '1110px' : '640px');
   var inner = '';
-  if (ch && ch.avatar) inner = '<img src="' + esc3(ch.avatar) + '" style="height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.25))">';
+  var custom = null;
+  try { if (window.VNCharacterAssets && window.VNCharacterAssets.forSprite) custom = window.VNCharacterAssets.forSprite(vn.id, sp.char); } catch (e) {}
+  var baseImage = custom && custom.faces ? (custom.faces.base || '') : '';
+  if (custom && custom.mode === 'model' && custom.modelId) {
+    var fallbackImg = baseImage || (ch && ch.avatar ? ch.avatar : '');
+    var fallback = fallbackImg ? '<img class="vnca-model-fallback" src="' + esc3(fallbackImg) + '" alt="">' : '<div class="vnca-model-fallback" style="display:flex;align-items:center;justify-content:center;font-size:120px;color:#fff;background:#8a7bb8">' + esc3((sp.char || '?').charAt(0)) + '</div>';
+    inner = '<div class="vnca-model-stage">' + fallback + '<canvas class="vnca-model-canvas" data-vnca-canvas="1" data-vnca-model-id="' + esc3(custom.modelId) + '" aria-label="' + esc3(sp.char) + ' 的 3D 角色"></canvas><div class="vnca-model-note" hidden></div></div>';
+  } else if (custom && baseImage) {
+    inner = '<div class="vnca-face-wrap" data-vnca-expr="' + esc3(sp.expr || '') + '"><img class="vnca-face vnca-face-on" data-vnca-face="base" src="' + esc3(baseImage) + '" alt="' + esc3(sp.char) + '">'
+      + (custom.faces.blink ? '<img class="vnca-face" data-vnca-face="blink" data-vnca-ready="1" src="' + esc3(custom.faces.blink) + '" alt="">' : '')
+      + (custom.faces.smile ? '<img class="vnca-face" data-vnca-face="smile" src="' + esc3(custom.faces.smile) + '" alt="">' : '') + '</div>';
+  } else if (ch && ch.avatar) inner = '<img src="' + esc3(ch.avatar) + '" style="height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.25))">';
   else if (ch && ch.avatarSvg) inner = '<div style="height:100%">' + ch.avatarSvg + '</div>';
   else inner = '<div style="width:100%;height:100%;border-radius:12px;background:#8a7bb8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:180px">' + esc3((sp.char || '?').charAt(0)) + '</div>';
   var tag = esc3(sp.char) + (sp.pose ? ' · ' + esc3(sp.pose) : '') + (sp.expr ? ' · ' + esc3(sp.expr) : '') + (sp.expr2 ? ' + ' + esc3(sp.expr2) : '');
-  return '<div data-vn="sprite" data-vn-anim="' + esc3(sp.anim || '') + '" style="position:absolute;left:' + left + ';bottom:0;transform:translateX(-50%);height:76%;width:320px;">' + inner
+  return '<div data-vn="sprite" data-vn-char="' + esc3(sp.char) + '" data-vn-anim="' + esc3(sp.anim || '') + '" style="position:absolute;left:' + left + ';bottom:0;transform:translateX(-50%);height:76%;width:320px;">' + inner
     + '<div style="position:absolute;left:50%;transform:translateX(-50%);bottom:6px;white-space:nowrap;font-size:22px;color:#fff;background:rgba(0,0,0,.45);padding:2px 12px;border-radius:20px">' + tag + '</div></div>';
 };
 var render = function () {
@@ -779,6 +791,16 @@ var render = function () {
   if (!scene || state.sceneIdx >= vn.scenes.length) { endVN('end'); return; }
   var line = scene.lines[state.lineIdx];
   if (!line) { endVN('end'); return; }
+  // TXT and simple JSON stories have no show/hide directives: display a
+  // speaking character only when a custom portrait or model was supplied.
+  if (!hasScriptSprites && line.type === 'dialogue' && line.speaker) {
+    var autoAsset = null;
+    try { autoAsset = window.VNCharacterAssets && window.VNCharacterAssets.forSprite(vn.id, line.speaker); } catch (e) {}
+    state.sprites = {};
+    if (autoAsset && (autoAsset.faces.base || (autoAsset.mode === 'model' && autoAsset.modelId))) {
+      state.sprites[line.speaker] = { char: line.speaker, at: 'center', expr: line.expr || '' };
+    }
+  }
   var langBtns = VN_LANGS.map(function (l) {
     return '<button type="button" data-aw-vn="lang:' + l + '" style="padding:4px 8px;border:1px solid ' + (state.lang === l ? '#b08d3e' : '#d8cdb4') + ';border-radius:14px;background:' + (state.lang === l ? '#f3e6c8' : '#fff') + ';font-size:12px;cursor:pointer">' + VN_LANG_NAMES[l] + '</button>';
   }).join('');
@@ -793,7 +815,11 @@ var render = function () {
     + '<button type="button" data-aw-vn="close" style="padding:4px 10px;border:0;border-radius:14px;background:#efe9dc;font-size:12px;cursor:pointer">✕ 退出</button></div>';
   var bgCSS = vnSceneBgCSS(state.bg || scene.bg || scene.title);
   var sprites = '';
-  Object.keys(state.sprites).forEach(function (k) { sprites += spriteHTML(state.sprites[k]); });
+  Object.keys(state.sprites).forEach(function (k) {
+    var sp = state.sprites[k];
+    if (line.type === 'dialogue' && line.speaker === sp.char && line.expr) sp = Object.assign({}, sp, { expr: line.expr });
+    sprites += spriteHTML(sp);
+  });
   var chips = '<div style="position:absolute;top:10px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">' + esc3(scene.title) + ' · ' + (state.sceneIdx + 1) + '/' + vn.scenes.length + '</div>';
   if (state.music) chips += '<div style="position:absolute;top:44px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">♪ 音乐：' + esc3(state.music) + '（本地音频：上传同名文件后自动播）</div>';
   if (state.video) chips += '<div style="position:absolute;top:' + (state.music ? 78 : 44) + 'px;left:12px;font-size:12px;color:#7a4a28;background:rgba(255,248,230,.92);padding:4px 10px;border-radius:20px">🎬 ' + esc3(state.video.note) + '（' + esc3(state.video.src) + '）</div>';
@@ -841,9 +867,12 @@ var render = function () {
       + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">' + (isSave ? '💾 存档（3 个槽位）' : '📂 读档') + '</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
       + slotHtml + '</div>';
   }
+  var vncaKeep = null;
+  try { if (window.VNCharacterAssets && window.VNCharacterAssets.beforeRender) vncaKeep = window.VNCharacterAssets.beforeRender(ov); } catch (e) {}
   ov.innerHTML = toolbar + stage + dlg + panel;
   try { if (window.XWLAudio) window.XWLAudio.syncVNMusic(vn.id, state.music); } catch (e) {}
   vnFitStage();
+  try { if (window.VNCharacterAssets && window.VNCharacterAssets.afterRender) window.VNCharacterAssets.afterRender(ov, vn.id, vncaKeep); } catch (e) {}
   vnApplyTransition();
   try {
     var animEls = ov.querySelectorAll('[data-vn-anim]');
@@ -867,6 +896,7 @@ state.lineIdx++; render();
 var endVN = function (how) {
 state.ended = true;
 try { if (window.XWLAudio) window.XWLAudio.stopAll(); } catch (e) {}
+try { if (window.VNCharacterAssets && window.VNCharacterAssets.onPlayerEnd) window.VNCharacterAssets.onPlayerEnd(); } catch (e) {}
 var review = '一共 ' + state.log.length + ' 句对白/旁白，走了 ' + (state.sceneIdx + 1) + ' 个场景，做了 ' + state.choicesMade.length + ' 次选择' + (state.affectionDelta? '，好感变化 ' + (state.affectionDelta > 0? '+': '') + state.affectionDelta: '，好感没有变化') + '。';
 ov.innerHTML = '<div style="flex:1;overflow-y:auto;padding:20px 16px 30px;background:#f7f1e5;font-family:serif;color:#2b2620">'
 + '<div style="text-align:center;font-size:22px;letter-spacing:4px">复盘</div>'

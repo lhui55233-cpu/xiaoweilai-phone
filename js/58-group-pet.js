@@ -156,6 +156,7 @@ function adopt(modelId) {
 /* ── 2. three.js 懒加载（只在用户点 3D 功能时联网，绝不阻塞开机） ── */
 var _threeBasePromise = null;
 var _threeVrmPromise = null;
+var _modernVRMPromise = null;
 var _threeError = '';
 function ensureThree(withVRM) {
   if (!withVRM) {
@@ -182,12 +183,34 @@ function ensureThree(withVRM) {
       var timer = setTimeout(function () { _threeError = '加载超时（可能没联网）'; resolve(null); }, THREE_TIMEOUT_MS);
       loadScriptOnce(CDN.threeVrm).catch(function () { return loadScriptOnce(CDN.threeVrmAlt); }).then(function () {
         clearTimeout(timer);
-        resolve(T.VRMLoaderPlugin ? T : null);
-        if (!T.VRMLoaderPlugin) _threeError = '运行库已加载，但缺少 VRM 解析插件';
+        var legacy = window.THREE_VRM && window.THREE_VRM.VRM;
+        var available = !!(T.VRMLoaderPlugin || (legacy && typeof legacy.from === 'function'));
+        if (!available) _threeError = '运行库已加载，但缺少 VRM 解析器';
+        resolve(available ? T : null);
       }).catch(function (err) { clearTimeout(timer); _threeError = (err && err.message) || '加载失败'; resolve(null); });
     });
   });
   return _threeVrmPromise;
+}
+// The visual-novel stage needs VRM 1.0 support. Keep this ESM runtime
+// isolated from the existing global THREE used by the desktop and rooms.
+function ensureModernVRM() {
+  if (_modernVRMPromise) return _modernVRMPromise;
+  if (!isOnline()) return Promise.resolve(null);
+  var timeout;
+  var imports = Promise.all([
+    import('https://esm.sh/three@0.169.0'),
+    import('https://esm.sh/three@0.169.0/examples/jsm/loaders/GLTFLoader.js'),
+    import('https://esm.sh/@pixiv/three-vrm@3.1.0?deps=three@0.169.0')
+  ]).then(function (m) {
+    return Object.assign({}, m[0], { GLTFLoader: m[1].GLTFLoader, VRMLoaderPlugin: m[2].VRMLoaderPlugin, VRMUtils: m[2].VRMUtils });
+  });
+  _modernVRMPromise = Promise.race([imports, new Promise(function (_, reject) {
+    timeout = setTimeout(function () { reject(new Error('VRM 运行库加载超时')); }, THREE_TIMEOUT_MS);
+  })]).then(function (runtime) { clearTimeout(timeout); return runtime; }, function () {
+    clearTimeout(timeout); _modernVRMPromise = null; return null;
+  });
+  return _modernVRMPromise;
 }
 function threeError() { return _threeError; }
 
@@ -195,7 +218,7 @@ function threeError() { return _threeError; }
 function listStoredModels() {
   if (!window.XWLDB) return Promise.resolve([]);
   return window.XWLDB.getAll('vrm_models').then(function (rows) {
-    return (rows || []).map(function (r) {
+    return (rows || []).filter(function (r) { return r && r.source !== 'vn-character'; }).map(function (r) {
       return { id: r.id, name: r.name, source: r.source, license: r.license, credit: r.credit, size: r.size, createdAt: r.createdAt, hasBlob: !!r.blob };
     });
   }).catch(function () { return []; });
@@ -250,9 +273,10 @@ function _vrmSetExpr(name, v) {
   try {
     var vrm = _vrmStage.vrm;
     if (!vrm) return;
-    if (vrm.expressionManager && vrm.expressionManager.setValue) { vrm.expressionManager.setValue(name, v); return; }
+    if (vrm.expressionManager && vrm.expressionManager.setValue) { vrm.expressionManager.setValue(name === 'A' ? 'aa' : name.toLowerCase(), v); return; }
     if (vrm.blendShapeProxy && vrm.blendShapeProxy.setValue) {
-      var preset = (window.THREE && window.THREE.VRMBlendShapePresetName) || {};
+      var schema = (window.THREE_VRM && window.THREE_VRM.VRMSchema) || (window.THREE && window.THREE.VRMSchema) || {};
+      var preset = schema.BlendShapePresetName || (window.THREE && window.THREE.VRMBlendShapePresetName) || {};
       var key = preset[name] || name;
       vrm.blendShapeProxy.setValue(key, v);
     }
@@ -262,7 +286,8 @@ function _vrmBone(name) {
   try {
     var vrm = _vrmStage.vrm;
     if (!vrm || !vrm.humanoid || !vrm.humanoid.getBoneNode) return null;
-    var bones = (window.THREE && window.THREE.VRMSchema && window.THREE.VRMSchema.HumanoidBoneName) || {};
+    var schema = (window.THREE_VRM && window.THREE_VRM.VRMSchema) || (window.THREE && window.THREE.VRMSchema) || {};
+    var bones = schema.HumanoidBoneName || {};
     var key = bones[name];
     if (!key) return null;
     return vrm.humanoid.getBoneNode(key);
@@ -301,16 +326,25 @@ function _startVRMStage(canvas, T, gltf, modelId) {
     var box = new T.Box3().setFromObject(root);
     var center = box.getCenter(new T.Vector3());
     var size = box.getSize(new T.Vector3());
-    root.position.x -= center.x;
-    root.position.z -= center.z;
-    root.position.y -= box.min.y;
     var s = 1.5 / Math.max(size.y || 1, 0.001);
     root.scale.setScalar(s);
+    root.position.x -= center.x * s;
+    root.position.z -= center.z * s;
+    root.position.y -= box.min.y * s;
+    if (canvas.hasAttribute('data-vnca-canvas')) {
+      var aspect = Math.max(w / h, 0.01);
+      var fitHeight = Math.max(size.y * s, size.x * s / aspect);
+      var distance = fitHeight / (2 * Math.tan(30 * Math.PI / 360)) * 1.12 + size.z * s / 2;
+      cam.position.set(0, size.y * s / 2, Math.max(2.4, distance));
+      cam.lookAt(0, size.y * s / 2, 0);
+    }
   } catch (e) {}
   scene.add(root);
   _vrmStage.renderer = renderer; _vrmStage.vrm = vrm; _vrmStage.scene = root;
   _vrmStage.canvas = canvas; _vrmStage.modelId = modelId;
   _vrmStage.nextBlinkAt = Date.now() + 2400;
+  var baseY = root.position.y;
+  var baseRotY = root.rotation.y;
   var last = Date.now();
   var tick = function () {
     if (_vrmStage.disposed || !canvas.isConnected) return;
@@ -321,8 +355,8 @@ function _startVRMStage(canvas, T, gltf, modelId) {
     try {
       if (vrm && vrm.update) vrm.update(dt);
       /* 待机呼吸：全身轻摆 + 轻微上下浮动（Hanami 待机做法的程序化版）。 */
-      root.rotation.y = Math.sin(t * 0.4) * 0.06;
-      root.position.y = Math.sin(t * 1.2) * 0.01;
+      root.rotation.y = baseRotY + Math.sin(t * 0.4) * 0.06;
+      root.position.y = baseY + Math.sin(t * 1.2) * 0.01;
       /* 眨眼：每 2.4–4.8 秒闭眼约 120 毫秒。 */
       if (now >= _vrmStage.nextBlinkAt) { _vrmStage.blinkUntil = now + 120; _vrmStage.nextBlinkAt = now + 2400 + Math.random() * 2400; }
       _vrmSetExpr('Blink', now < _vrmStage.blinkUntil ? 1 : 0);
@@ -336,7 +370,7 @@ function _startVRMStage(canvas, T, gltf, modelId) {
             var b = _vrmBone(bn);
             if (b) { b.rotation.set(0, 0, 0); }
           });
-          root.position.y = Math.sin(t * 1.2) * 0.01;
+          root.position.y = baseY + Math.sin(t * 1.2) * 0.01;
         } else {
           var env = Math.sin(Math.PI * p);
           if (g === 'wave') {
@@ -347,7 +381,7 @@ function _startVRMStage(canvas, T, gltf, modelId) {
             var spine = _vrmBone('Spine');
             if (spine) spine.rotation.x = 0.45 * env;
           } else if (g === 'jump') {
-            root.position.y = 0.25 * Math.sin(Math.PI * p);
+            root.position.y = baseY + 0.25 * Math.sin(Math.PI * p);
           } else if (g === 'greet') {
             var head = _vrmBone('Head'), arm2 = _vrmBone('RightUpperArm');
             if (head) head.rotation.x = 0.2 * env;
@@ -368,7 +402,8 @@ function loadVRMInto(canvas, modelId) {
   if (!window.XWLDB) return Promise.resolve({ ok: false, reason: 'no-idb', message: '本机没有 IndexedDB，模型存不下来，已回落像素猫。', fallback: 'pixel' });
   return window.XWLDB.get('vrm_models', modelId).then(function (rec) {
     if (!rec || !rec.blob) return { ok: false, reason: 'no-model', message: '库里没有这个模型文件，先下载 Seed-san 或导入自己的 .vrm。', fallback: 'pixel' };
-    return ensureThree(true).then(function (T) {
+    var runtime = canvas.hasAttribute('data-vnca-canvas') ? ensureModernVRM().then(function (T) { return T || ensureThree(true); }) : ensureThree(true);
+    return runtime.then(function (T) {
       if (!T) return { ok: false, reason: 'three-unavailable', message: 'VRM 运行库没加载上（' + (_threeError || '可能没联网') + '），已回落像素猫。', fallback: 'pixel' };
       return rec.blob.arrayBuffer().then(function (buf) {
         return new Promise(function (resolve) {
@@ -377,10 +412,18 @@ function loadVRMInto(canvas, modelId) {
           if (T.VRMLoaderPlugin && typeof loader.register === 'function') {
             try { loader.register(function (p) { return new T.VRMLoaderPlugin(p); }); hasPlugin = true; } catch (e) {}
           }
-          if (!hasPlugin) { resolve({ ok: false, reason: 'no-vrm-plugin', message: '运行库里没有 VRM 解析插件，已回落像素猫。', fallback: 'pixel' }); return; }
+          var legacy = window.THREE_VRM && window.THREE_VRM.VRM;
+          if (!hasPlugin && !(legacy && typeof legacy.from === 'function')) { resolve({ ok: false, reason: 'no-vrm-plugin', message: '运行库里没有 VRM 解析器，已回落像素猫。', fallback: 'pixel' }); return; }
           loader.parse(buf, '', function (gltf) {
-            try { resolve(_startVRMStage(canvas, T, gltf, modelId)); }
-            catch (e) { resolve({ ok: false, reason: 'render-failed', message: 'VRM 渲染失败：' + (e.message || '未知错误') + '，已回落像素猫。', fallback: 'pixel' }); }
+            var converted = hasPlugin ? Promise.resolve(gltf.userData && gltf.userData.vrm) : legacy.from(gltf);
+            Promise.resolve(converted).then(function (vrm) {
+              if (!vrm) throw new Error('文件不包含可识别的 VRM 模型');
+              if (!canvas.isConnected || canvas._vncaDiscarded) { resolve({ ok: false, reason: 'cancelled' }); return; }
+              if (T.VRMUtils && T.VRMUtils.rotateVRM0) T.VRMUtils.rotateVRM0(vrm);
+              gltf.userData = gltf.userData || {};
+              gltf.userData.vrm = vrm;
+              resolve(_startVRMStage(canvas, T, gltf, modelId));
+            }).catch(function (e) { resolve({ ok: false, reason: 'render-failed', message: 'VRM 渲染失败：' + (e.message || '未知错误') + '，已回落图片立绘。', fallback: 'pixel' }); });
           }, function () { resolve({ ok: false, reason: 'parse-failed', message: '模型解析失败，已回落像素猫。', fallback: 'pixel' }); });
         });
       });

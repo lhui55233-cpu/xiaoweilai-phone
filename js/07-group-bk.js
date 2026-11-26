@@ -2129,6 +2129,9 @@ var SC_CSS = '<style>'
  + '.gd-root[data-gd="script"] .sc-tab{flex:0 0 auto;padding:8px 12px;border-radius:999px;font-size:12px;}'
  + '.gd-root[data-gd="script"] .sc-wrap{padding:8px;border-radius:18px;background:#fff;box-shadow:0 5px 20px rgba(60,48,30,.08);}'
  + '.gd-root[data-gd="script"] .sc-lamprow{min-height:18px;margin-bottom:4px;}'
+ + '.gd-root[data-gd="script"] .oa-home-machine{background:radial-gradient(ellipse at 50% 10%,rgba(160,112,57,.34),transparent 62%),linear-gradient(150deg,#211a18,#34261f 70%,#171311);box-shadow:0 5px 20px rgba(45,29,17,.24);}'
+ + '.gd-root[data-gd="script"] .oa-home-machine .sc-lamprow{justify-content:space-around;}'
+ + '.gd-root[data-gd="script"] .oa-home-machine .sc-machine{background:linear-gradient(180deg,#76552d,#352719);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,226,165,.3);}'
  + '.gd-root[data-gd="script"] .oa-home-machine .sc-screen{height:170px;min-height:0;border-width:4px;border-radius:13px;}'
  + '.gd-root[data-gd="script"] .oa-home-machine .sc-stage{height:170px;}'
  + '.gd-root[data-gd="script"] .sc-console,.gd-root[data-gd="script"] .sc-2dnote,.gd-root[data-gd="script"] .sc-3d-toggle{display:none!important;}'
@@ -2152,7 +2155,7 @@ var SC_CSS = '<style>'
  + '.oa-home-modes{display:flex;gap:8px;margin-top:8px;}'
  + '.oa-home-modes .sc-btn{flex:1;text-align:center;padding:9px 6px;font-size:12px;}'
  + '.oa-import-note{font-size:10.5px;color:#989080;line-height:1.55;margin:7px 2px 0;}'
- + '.oa-stage-cover{position:absolute;inset:0;background-position:center;background-size:cover;display:flex;align-items:center;justify-content:center;}'
+ + '.oa-stage-cover{position:absolute;inset:0;background-position:center;background-size:cover;display:flex;align-items:center;justify-content:center;cursor:pointer;}'
  + '.oa-stage-cover:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,17,13,.08),rgba(20,17,13,.64));}'
  + '.oa-stage-cover-info{position:relative;z-index:1;text-align:center;color:#fff;padding:16px 20px;width:100%;box-sizing:border-box;text-shadow:0 2px 8px rgba(0,0,0,.55);}'
  + '.oa-stage-cover-info h2{font-size:21px;letter-spacing:1px;margin:0 0 6px;}'
@@ -2294,8 +2297,8 @@ var oaVNHTML = function () {
   var AW = oaAW();
   var vns = [];
   try { if (AW && AW.listVNs) vns = AW.listVNs() || []; } catch (e) {}
-  var h = '<div class="sc-card"><h3>视觉小说</h3><p>剧本以视觉小说形式演：背景场景、人物立绘、底部对话框、点按推进、选项分支、好感度、结局。演完可保存或放弃记忆。</p></div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;"><label class="sc-btn warm" style="cursor:pointer;">上传文件生成视觉小说<input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload></label><span style="font-size:12px;color:#a08a7a;">支持 .sks / .txt / .json / .epub。普通小说正文会尝试用已配置模型整理；未配置时用模板规则，结果均先审阅再保存。</span></div>';
+  var h = '<div class="sc-card"><h3>视觉小说</h3></div>';
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;"><button type="button" class="sc-btn warm" data-act="import-vn-open" aria-label="导入视觉小说" title="导入">＋</button><input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload></div>';
   if (!vns.length) h += '<div class="sc-card"><p>还没有视觉小说，上传一份 .txt 或 .json 剧本试试。</p></div>';
   vns.forEach(function (v) {
     h += '<div class="sc-vnrow"><div style="flex:1;min-width:0;"><b>《' + esc(v.title) + '》</b><small style="display:block;font-size:11.5px;color:#a39a8d;margin-top:2px;">' + (v.scenes || []).length + ' 个场景 · ' + (v.source === 'structured' ? '模型整理' : (v.source === 'template' ? '模板规则整理' : (v.source === 'sks' ? 'SKS 导入' : '上传'))) + ' · ' + esc(((v.characters || []).join('、')) || '无说话人') + '</small></div><button type="button" class="sc-btn warm" data-act="vn-play" data-id="' + esc(v.id) + '">▶ 玩</button><button type="button" class="sc-btn ghost" data-act="vn-audio" data-id="' + esc(v.id) + '">♪ 音频</button><button type="button" class="sc-btn ghost" data-act="vn-del" data-id="' + esc(v.id) + '">✕</button></div>';
@@ -2668,18 +2671,16 @@ if (oaRealChars().length > 1) h += oaCastHTML();
 h += tabsHtml();
 var coverMeta = selected ? (selected.kind === 'vn' ? '视觉小说 · ' + selected.count + ' 个场景' : selected.count + ' 幕 · ' + ((selected.original.endings || []).length) + ' 个结局') : '';
 var coverInner = selected
-  ? '<div class="sc-stage"><div class="oa-stage-cover" style="background:' + esc(oaCoverBackground(oaWorkCoverKey(selected), selected.title)) + '"><div class="oa-stage-cover-info"><h2>' + esc(selected.title) + '</h2><p>' + esc(selected.desc || '把故事放进胶片，开始一场互动演绎。') + '</p><p style="margin-top:6px">' + esc(coverMeta) + ' · 出演 ' + esc(charName) + '</p></div><button type="button" class="oa-cover-change" data-act="cover-change-home">换封面</button></div></div>'
+  ? '<div class="sc-stage"><div class="oa-stage-cover" data-act="cover-change-home" role="button" tabindex="0" aria-label="更换封面" style="background:' + esc(oaCoverBackground(oaWorkCoverKey(selected), selected.title)) + '"><div class="oa-stage-cover-info"><h2>' + esc(selected.title) + '</h2><p>' + esc(selected.desc || '把故事放进胶片，开始一场互动演绎。') + '</p><p style="margin-top:6px">' + esc(coverMeta) + ' · 出演 ' + esc(charName) + '</p></div></div></div>'
   : '<div class="sc-stage"><div class="oa-home-empty"><b>胶片架还空着</b><span>导入 TXT / EPUB，或新建一卷故事。没有可用模型时会用模板整理，并明确标注。</span></div></div>';
 h += machineTop(coverInner, 'oa-home-machine');
 h += '<div class="oa-home-caption"><span>胶片架</span><span>' + (selected ? (selected.kind === 'vn' ? '视觉小说' : '互动剧本') + ' · ' + (works.indexOf(selected) + 1) + ' / ' + works.length : '导入或新建你的第一卷') + '</span></div>';
 h += oaFilmShelfHTML(works, homeWorkSel);
 h += '<div class="oa-home-actions"><button class="sc-btn warm" data-act="play-home-sel"' + (selected ? '' : ' disabled') + '>▶ 开始放映</button>'
-+ '<button class="sc-btn ghost" data-act="cover-change-home"' + (selected ? '' : ' disabled') + '>换封面</button>'
-+ '<button class="sc-btn ghost" data-act="import-vn-open">＋ 导入</button></div>';
++ '<button class="sc-btn ghost" data-act="import-vn-open" aria-label="导入" title="导入">＋</button></div>';
 h += '<input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload>';
 h += '<input type="file" accept="image/png" style="display:none" data-oa-portrait-input>';
-h += '<div class="oa-home-modes"><button class="sc-btn warm" data-act="mode-wenyou">文游 · 自由演绎</button><button class="sc-btn ghost" data-act="mode-vn">视觉小说 · 分支剧情</button></div>';
-h += '<div class="oa-import-note">支持 TXT / EPUB / JSON / SKS。普通小说正文会自动尝试模型整理；未配置模型时使用模板规则。整理结果先审阅，确认后才保存为可玩视觉小说。静态 PNG 立绘不等同于 Live2D。</div>';
+h += '<div class="oa-home-modes"><button class="sc-btn warm" data-act="mode-wenyou">文游</button><button class="sc-btn ghost" data-act="mode-vn">视觉小说</button></div>';
 if (!works.length) h += '<button class="sc-btn ghost" data-act="new-custom" style="width:100%;margin-top:8px;">✎ 新建自定义互动剧本</button>';
 if (session &&!session.ended) {
 h += '<div class="sc-card"><h3>放映进行中</h3><p>《' + esc(session.title) + '》第 ' + (session.sceneIdx + 1) + ' 幕 · 好感 ' + session.affection + '</p>'
@@ -2694,6 +2695,11 @@ var all = allScripts(); if (!all.length) return;
 var i = all.indexOf(findScript(selId)); if (i < 0) i = 0;
 i = (i + dir + all.length) % all.length; selId = all[i].id; notice = ''; app._refresh();
 };
+var openHomeCoverChooser = function (work) {
+if (!work) return;
+try { var _caw = oaAW(); if (_caw && _caw.openScriptCoverChooser) _caw.openScriptCoverChooser(oaWorkCoverKey(work), work.title, function () { app._refresh(); }); }
+catch (e) { notice = '封面组件暂不可用，请稍后再试。'; app._refresh(); }
+};
 win.querySelectorAll('[data-act]').forEach(function (btn) {
 btn.onclick = function (ev) {
 if (ev) ev.stopPropagation();
@@ -2701,9 +2707,9 @@ var act = btn.getAttribute('data-act');
 var id = btn.getAttribute('data-id');
 var idx = parseInt(btn.getAttribute('data-i') || '0', 10);
 if (act === 'tab') { view = btn.getAttribute('data-v'); detailId = null; notice = ''; app._refresh();}
-else if (act === 'sel-home-work') { homeWorkSel = btn.getAttribute('data-key') || ''; var _hw = oaGetHomeWork(homeWorkSel); if (_hw && _hw.kind === 'script') selId = _hw.id; notice = ''; app._refresh();}
+else if (act === 'sel-home-work') { var _key = btn.getAttribute('data-key') || ''; var _hw = oaGetHomeWork(_key); if (_key === homeWorkSel) openHomeCoverChooser(_hw); else { homeWorkSel = _key; if (_hw && _hw.kind === 'script') selId = _hw.id; notice = ''; app._refresh(); } }
 else if (act === 'play-home-sel') { var _pw = oaGetHomeWork(homeWorkSel); if (_pw && _pw.kind === 'vn') { try { var _paw = oaAW(); if (_paw && _paw.openVNPlayer) _paw.openVNPlayer(_pw.id); } catch (e) {} } else if (_pw) { var _psc = findScript(_pw.id); if (_psc) startPlay(_psc); app._refresh(); } }
-else if (act === 'cover-change-home') { var _cw = oaGetHomeWork(homeWorkSel); if (_cw) { try { var _caw = oaAW(); if (_caw && _caw.openScriptCoverChooser) _caw.openScriptCoverChooser(oaWorkCoverKey(_cw), _cw.title, function () { app._refresh(); }); } catch (e) { notice = '封面组件暂不可用，请稍后再试。'; app._refresh(); } } }
+else if (act === 'cover-change-home') { openHomeCoverChooser(oaGetHomeWork(homeWorkSel)); }
 else if (act === 'import-vn-open') { try { var _fi = win.querySelector('[data-oa-vn-upload]'); if (_fi) _fi.click(); } catch (e) {} }
 else if (act === 'cast-sel') { try { var AW9a = oaAW(); if (AW9a && AW9a.setScriptChar) AW9a.setScriptChar(id); } catch (e) {} notice = ''; app._refresh();}
 else if (act === 'cast-prev' || act === 'cast-next') { try { var AW9b = oaAW(); var _real = oaRealChars(); if (_real.length) { var _cur = oaSelCharId(_real); var _i = 0; _real.forEach(function (ch, j) { if (ch.id === _cur) _i = j; }); _i = (_i + (act === 'cast-next' ? 1 : -1) + _real.length) % _real.length; if (AW9b && AW9b.setScriptChar) AW9b.setScriptChar(_real[_i].id); } } catch (e) {} app._refresh(); try { var _card = win.querySelector('.sc-cast-card.on'); if (_card && _card.scrollIntoView) _card.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}}
