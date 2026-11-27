@@ -8437,7 +8437,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-search-bar-wrap">
                       <div class="wx-search-box">
                           <svg class="wx-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
-                          <input type="text" placeholder="搜索联系人" oninput="WeChatAppEngine.filterContacts(this.value)">
+                          <input type="text" placeholder="搜索" oninput="WeChatAppEngine.filterContacts(this.value)">
                       </div>
                   </div>
                   <div id="wx-contacts-dynamic"></div>
@@ -8640,7 +8640,6 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
 
                   <div class="wx-chat-state-bar" id="wx-chat-state-bar">对方正在输入…</div>
                   <div id="wx-group-notice-bar" style="display:none;font-size:12px;color:#576b95;background:#f5f5f0;padding:6px 12px;line-height:1.5;cursor:pointer;" onclick="window.GroupBR&&window.GroupBR.openGroupProfile()">群公告</div>
-                  <div class="pm-mode-line" id="wx-pm-mode-line" style="font-size:11px;color:#8E8E93;text-align:center;padding:4px 12px 6px;background:#ededed;">模板模式</div>
                   <div class="wx-msg-stream" id="wx-msg-stream-container"></div>
                   
                   <div class="wx-at-panel" id="wx-at-panel"></div>
@@ -9218,7 +9217,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                       <div class="wx-moments-cover" onclick="WeChatAppEngine.uploadMomentsCover()">
                           <div class="wx-moments-avatar-box">
                               <span class="wx-moments-nick" id="wx-moments-wall-nick">我</span>
-                              <div class="wx-avatar-wrapper" style="width:56px;height:56px;border:2px solid #ffffff;cursor:pointer;" id="wx-moments-wall-avatar" onclick="WeChatAppEngine.uploadMomentsAvatar()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
+                              <div class="wx-avatar-wrapper" style="width:56px;height:56px;border:2px solid #ffffff;cursor:pointer;background:#e2e2e2;" id="wx-moments-wall-avatar" onclick="WeChatAppEngine.uploadMomentsAvatar()"></div>
                           </div>
                       </div>
                       <div class="wx-moments-feed" id="wx-moments-container"></div>
@@ -9233,15 +9232,15 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               
               <div class="wx-subpage-box wx-slide-right" id="wx-view-profile-page">
-                  <div class="wx-header" style="background:#ededed;">
+                  <div class="wx-header" style="background:#ffffff;">
                       <div class="wx-header-left" onclick="NavigationManager.back()">‹</div>
                       <div class="wx-header-title"></div>
                       <div class="wx-header-right" onclick="WeChatAppEngine.openProfileMore()">•••</div>
                   </div>
-                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;">
+                  <div class="wx-scroll-view" style="padding-top:0;background:#f7f7f7;">
                       <!-- 头部：头像 + 昵称 + 微信号 -->
                       <div class="wx-prof-top">
-                          <div class="wx-prof-avatar-big" id="wx-prof-avatar" style="display:flex;align-items:center;justify-content:center;background:#bbb;"><svg viewBox="0 0 24 24" width="60%" height="60%" fill="#fff" style="opacity:0.9"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg></div>
+                          <div class="wx-prof-avatar-big" id="wx-prof-avatar" style="background:#e2e2e2;"></div>
                           <div class="wx-prof-namebox">
                               <div class="wx-prof-name-big" id="wx-prof-name">夏油杰</div>
                               <div class="wx-prof-id">微信号: <span id="wx-prof-wxid">geto_suguru</span></div>
@@ -9320,7 +9319,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-rp-curved-bg">
                       <div style="position:absolute;top:15px;left:15px;font-size:15px;color:#ffffff;cursor:pointer;" onclick="NavigationManager.back()">关闭</div>
                       <div style="font-size:16px;font-weight:500;color:#ffffff;margin-top:15px;">明细</div>
-                      <div class="wx-rp-result-avatar" style="display:flex;align-items:center;justify-content:center;background:#bbb;"><svg viewBox="0 0 24 24" width="60%" height="60%" fill="#fff" style="opacity:0.9"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg></div>
+                      <div class="wx-rp-result-avatar" style="background:#e2e2e2;"></div>
                   </div>
                   <div style="margin-top:45px;font-size:14px;color:#000000;font-weight:500;" id="wx-rp-detail-greeting">大吉大利</div>
                   <div style="margin-top:15px;color:#d93b26;display:flex;align-items:baseline;gap:4px;">
@@ -9333,7 +9332,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;position:relative;z-index:1;">
                       <div style="position:relative;width:86px;height:86px;">
                           <div class="wx-call-avatar-ring"></div>
-                          <div class="wx-avatar-wrapper" style="width:86px;height:86px;font-size:44px;border-radius:18px;background:white;box-shadow:0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10);position:relative;z-index:1;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
+                          <div class="wx-avatar-wrapper" style="width:86px;height:86px;font-size:44px;border-radius:18px;background:#e2e2e2;box-shadow:0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10);position:relative;z-index:1;"></div>
                       </div>
                       <div style="font-size:20px;font-weight:500;color:#2e3d4f;letter-spacing:.8px;">模拟通话 · 对方是 AI 角色</div>
                       <div id="wx-call-status" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:300;color:#72b8a0;">呼叫中<span class="wx-call-dot-loader"><span></span><span></span><span></span></span></div>
@@ -9371,7 +9370,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <div class="wechat-modal-clean" id="wechat-modal-innervoice" onclick="NavigationManager.back()">
                   <div class="wechat-ticket-box" onclick="event.stopPropagation()">
                       <div style="height:90px;background-image:url('https://img.imgos.cn/cdn/20260505/dbcae39ea9cc856722ad97ab83e5e523.png');background-size:cover;background-position:center;position:relative;">
-                          <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
+                          <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;background:#e2e2e2;"></div>
                       </div>
                       <div style="padding:30px 15px 15px;text-align:left;font-size:13px;line-height:1.6;">
                           <div style="font-weight:bold;color:#07c160;" id="innervoice-mood">心绪：满载温柔控制</div>

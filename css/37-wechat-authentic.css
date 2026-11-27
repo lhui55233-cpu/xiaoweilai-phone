@@ -90,12 +90,13 @@
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts {
   background: #fff !important;
 }
+/* 微信式搜索：整条浅灰药丸，空时放大镜+“搜索”居中，输入时左对齐 */
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-bar-wrap,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-bar-wrap {
   position: sticky;
   top: 0;
-  padding: 10px 16px 9px !important;
-  background: #f2f2f7 !important;
+  padding: 8px 12px !important;
+  background: #fff !important;
   border: 0 !important;
   z-index: 12;
 }
@@ -105,15 +106,39 @@
   box-sizing: border-box;
   padding: 8px 12px !important;
   border: 0 !important;
-  border-radius: 6px !important;
-  background: #fff !important;
+  border-radius: 18px !important;
+  background: #f7f7f7 !important;
   color: #8e8e93 !important;
   box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box:has(input:not(:placeholder-shown)),
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box:has(input:not(:placeholder-shown)) {
+  justify-content: flex-start !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box .wx-search-icon,
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box .wx-search-icon {
+  flex-shrink: 0 !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box input {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
   color: var(--wx-auth-label) !important;
   font-size: 16px !important;
+  text-align: center !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input:not(:placeholder-shown),
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box input:not(:placeholder-shown) {
+  flex: 1 1 auto !important;
+  text-align: left !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input::placeholder,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box input::placeholder {

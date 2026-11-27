@@ -6,10 +6,10 @@ if (window.__bmUiGuard) return;
 window.__bmUiGuard = true;
 /* ── BM-D2：图片加载失败全局兜底 ── */
 var BM_IMG_PH = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90"><rect width="120" height="90" fill="#ececef"/><text x="60" y="48" font-size="11" text-anchor="middle" fill="#8e8e93">图片加载失败</text></svg>');
-/* GROUP-FIX3 · FIX3-1 头像失败占位：QQ 风自绘默认头像（满幅不透明、无文字、data: 内联）。
+/* GROUP-FIX3 · FIX3-1 头像失败占位：空白灰块（满幅不透明、无文字、无人脸、data: 内联）。
    根因：BM 原占位本身就是灰底 +“图片加载失败”文字；“我”页头像是真实 <img>（外链），
-   失败即被换上该占位。头像一律走默认头像；其余图片仍走 BM 原占位。 */
-var BM_AVATAR_PH = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="#ffe3c4"/><circle cx="60" cy="64" r="36" fill="#ffe3c4"/><path d="M25 64 Q20 18 60 16 Q100 18 95 64 Q90 34 60 32 Q30 34 25 64Z" fill="#3a2a1e"/><circle cx="47" cy="64" r="5.5" fill="#2b2b2b"/><circle cx="73" cy="64" r="5.5" fill="#2b2b2b"/><path d="M47 84 Q60 92 73 84" stroke="#b5541e" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>');
+   失败即被换上该占位。头像失败一律走空白占位；其余图片仍走 BM 原占位。 */
+var BM_AVATAR_PH = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="#e2e2e2"/></svg>');
 function bmIsAvatarImg(img) {
   try {
     if (img.id === 'wx-me-avatar-img') return true;

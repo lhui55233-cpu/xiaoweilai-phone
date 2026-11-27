@@ -600,20 +600,12 @@ return hits;
 } catch (e) { return [];}
 }
 
-/* ── 上下文仪表注入（聊天页顶部；U 组未合入时只提示 + 记账）── */
+/* ── 上下文仪表：聊天页一比一仿真，不再往聊天页顶部插仪表条；contextMeterHTML/requestCompress 仍供安全中心卡片版使用 ── */
 function ensureCtxMeter() {
 try {
-var stream = document.getElementById('wx-msg-stream-container');
-if (!stream ||!stream.parentNode) return false;
-var store = wxStore();
-if (!store ||!store.currentChatId) return false;
 var old = document.getElementById('t-ctx-meter');
-var html = contextMeterHTML(store.currentChatId);
-if (old) { old.outerHTML = html; return true;}
-var tmp = document.createElement('div');
-tmp.innerHTML = html;
-stream.parentNode.insertBefore(tmp.firstChild, stream);
-return true;
+if (old) { old.remove(); }
+return false;
 } catch (e) { return false;}
 }
 

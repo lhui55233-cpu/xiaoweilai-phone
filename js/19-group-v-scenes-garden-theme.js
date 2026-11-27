@@ -413,7 +413,7 @@ var applyRig = function () {
       else if (OtomeF.charSVG) fallback = OtomeF.charSVG((typeof OtomeF.loadLook === 'function') ? OtomeF.loadLook() : null);
     }
   } catch (e) {}
-  if (!fallback) fallback = '<div style="display:flex;align-items:center;justify-content:center;height:190px;color:#8a8f98;"><svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>';
+  if (!fallback) fallback = '<div style="height:190px;background:#f7f7f7;border-radius:8px;"></div>';
   var note = st.vrm.status === 'loaded'
     ? 'VRM 模型「' + esc(st.vrm.name || '') + '」已在 P 组预览器里加载（仅预览，不替换 live 形象）；这里显示 2D 抠图立绘兜底，完整 VRM 预览在下方设置区。'
     : st.vrm.status === 'failed'

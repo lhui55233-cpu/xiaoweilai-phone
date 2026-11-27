@@ -594,13 +594,40 @@ function ensureStyle() {
     '.aw-pc{background:#fffdf8;border:1px solid #dce2f1;border-radius:12px;overflow:hidden;cursor:pointer;}',
     '.aw-pc-meta{padding:8px 10px;font-size:11px;line-height:1.6;color:#1e2748;}',
     '.aw-pc-meta b{font-size:12px;color:#1e2748;}',
-    '#wx-view-aw-create-char{background:#ededed;z-index:3200;}',
-    '#wx-view-aw-create-char .wx-scroll-view{padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;}',
-    '.aw-cc-field{margin:0 12px 10px;background:#fff;border-radius:10px;padding:12px;}',
-    '.aw-cc-field label{display:block;font-size:12px;color:#888;margin-bottom:4px;}',
-    '.aw-cc-field input,.aw-cc-field textarea,.aw-cc-field select{width:100%;box-sizing:border-box;border:1px solid #e0e0e0;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;}',
+    '#wx-view-aw-create-char{background:#ececea;z-index:3200;}',
+    '#wx-view-aw-create-char .wx-scroll-view{padding-top:0;background:#ececea;}',
+    '.cc-doc{margin:12px 12px 10px;background:linear-gradient(115deg,#f1f1ee,#e7e8e5 48%,#e4e5e2);color:#303438;box-shadow:0 1px 2px rgba(48,52,56,.08),0 8px 24px rgba(48,52,56,.08);}',
+    '.cc-doc-in{border:1px solid rgba(76,84,85,.18);margin:14px;padding:16px 16px 18px;}',
+    '.cc-doc-small{font-size:9px;font-weight:600;letter-spacing:.2em;color:#6d7576;font-family:"Songti SC","Noto Serif SC",STSong,serif;}',
+    '.cc-doc-title{font-size:24px;font-weight:600;letter-spacing:.13em;color:#303438;font-family:"Songti SC","Noto Serif SC",STSong,serif;margin-top:8px;}',
+    '.cc-doc-title i{font-style:italic;font-size:15px;color:#848a8b;margin-left:6px;}',
+    '.cc-conf{border:1px solid #a34a4e;color:#a34a4e;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.14em;transform:rotate(6deg);flex:none;margin-top:4px;}',
+    '.cc-doc-note{font-size:13px;line-height:1.8;color:#505758;font-family:"Songti SC","Noto Serif SC",STSong,serif;margin-top:12px;}',
+    '.cc-sec{font-size:9px;font-weight:600;letter-spacing:.16em;color:#767e7e;margin:18px 0 4px;font-family:"Songti SC","Noto Serif SC",STSong,serif;}',
+    '.cc-sec::before{content:"";display:block;width:31px;height:3px;background:#a34a4c;margin-bottom:8px;}',
+    '.cc-photo-wrap{display:flex;gap:14px;margin-top:12px;}',
+    '.cc-photo{position:relative;width:120px;height:142px;flex:none;background:#dfe2df;border:1px solid #858e8e;overflow:hidden;}',
+    '.cc-photo::before,.cc-photo::after{content:"";position:absolute;width:17px;height:17px;border-color:#646d6e;border-style:solid;z-index:2;pointer-events:none;}',
+    '.cc-photo::before{left:-1px;top:-1px;border-width:2px 0 0 2px;}',
+    '.cc-photo::after{right:-1px;bottom:-1px;border-width:0 2px 2px 0;}',
+    '.cc-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;filter:grayscale(.35) contrast(1.05);display:block;}',
+    '.cc-photo-cap{font-size:9px;letter-spacing:.12em;color:#7c8383;margin-top:6px;}',
+    '.cc-photo-side{flex:1;min-width:0;}',
+    '.cc-photo-side input[type=file]{width:100%;font-size:12px;color:#505758;}',
+    '.cc-photo-note{font-size:11px;color:#888;line-height:1.7;margin-top:6px;}',
+    '.cc-row{display:flex;gap:8px;align-items:baseline;padding:10px 0;border-bottom:1px solid rgba(76,84,85,.16);}',
+    '.cc-row b{width:64px;flex:none;font-size:9px;font-weight:600;letter-spacing:.1em;color:#888f90;font-family:"Songti SC","Noto Serif SC",STSong,serif;}',
+    '.cc-row input,.cc-row select{flex:1;min-width:0;border:0;background:transparent;outline:none;font-size:14px;color:#303438;font-family:inherit;padding:0;}',
+    '.cc-p2{border-left:2px solid #a34a4c;background:repeating-linear-gradient(to bottom,transparent 0,transparent 25px,rgba(92,101,104,.13) 26px,transparent 27px);padding:12px 14px;margin-top:10px;}',
+    '.cc-p2 summary{cursor:pointer;font-weight:600;font-size:14px;color:#303438;font-family:"Songti SC","Noto Serif SC",STSong,serif;padding:2px 0;list-style:none;}',
+    '.cc-p2 summary::-webkit-details-marker{display:none;}',
+    '.cc-p2 label{display:block;font-size:11px;color:#888f90;margin:12px 0 2px;}',
+    '.cc-p2 input,.cc-p2 textarea{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid rgba(76,84,85,.28);background:transparent;padding:6px 2px;font-size:14px;font-family:inherit;color:#303438;outline:none;resize:vertical;}',
+    '.aw-cc-field{margin:0 12px 10px;background:#f1f1ee;border:1px solid rgba(76,84,85,.18);border-radius:2px;padding:12px;}',
+    '.aw-cc-field label{display:block;font-size:12px;color:#777e80;margin-bottom:4px;}',
+    '.aw-cc-field input,.aw-cc-field textarea,.aw-cc-field select{width:100%;box-sizing:border-box;border:1px solid #b9bdbb;border-radius:4px;padding:8px 10px;font-size:14px;font-family:inherit;background:#fff;}',
     '.aw-cc-field details{font-size:13px;color:#333;} .aw-cc-field summary{cursor:pointer;font-weight:700;padding:4px 0;}',
-    '.aw-warn{color:#1e2748;font-size:12px;line-height:1.6;}'
+    '.aw-warn{color:#a34a4c;font-size:12px;line-height:1.6;}'
   ].join('\n');
   document.head.appendChild(st);
 }
@@ -855,42 +882,46 @@ function handleOverlayAct(act, id, btn, ov) {
 }
 
 /* ── 微信：创建人物页 ── */
-function qqAvatarSVG(hair, eye) {
-  return '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:64px;height:64px"><circle cx="60" cy="62" r="34" fill="#ffe3c4"/><path d="M27 62 Q22 20 60 18 Q98 20 93 62 Q88 34 60 32 Q32 34 27 62Z" fill="' + esc(hair) + '"/><circle cx="48" cy="62" r="5" fill="' + esc(eye) + '"/><circle cx="72" cy="62" r="5" fill="' + esc(eye) + '"/><path d="M48 82 Q60 90 72 82" stroke="#b5541e" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
-}
 function createFormHTML(editId) {
   var ch = editId ? findChar(editId) : null;
   var v = function (k) { return ch ? esc(ch[k] || '') : ''; };
   var exText = ch ? (ch.examples || []).map(function (e) { return '问：' + e.q + ' 答：' + e.a; }).join('\n') : '';
   var list = listChars().filter(function (x) { return x.status === 'active'; });
-  return '<div class="wx-header" style="background:#ededed;"><div class="wx-header-left" data-aw-cc="back">‹</div><div class="wx-header-title">' + (ch ? '编辑人物' : '创建人物') + '</div><div class="wx-header-right"></div></div>'
-    + '<div class="wx-scroll-view"><div style="padding:12px 12px 0;font-size:13px;color:#888;line-height:1.7">通讯录 → 添加朋友就是创建人物。主 char（TA）在角色设置里配，这里创建的是其他人物（朋友 / NPC）。只填名字和头像就是普通联系人，展开人设与指令就是完整人物。</div>'
-    + '<div class="aw-cc-field"><label>头像</label><div style="display:flex;gap:10px;align-items:center"><div id="aw-cc-avatar-preview">' + (ch && ch.avatarSvg ? ch.avatarSvg : qqAvatarSVG('#3a2a1e', '#2b2b2b')) + '</div><div><input id="aw-cc-avatar-file" type="file" accept="image/*"><button type="button" onclick="window.GroupBG&&window.GroupBG.fillInputFromCamera(\'aw-cc-avatar-file\')" style="padding:6px 12px;border:1px solid #ddd;border-radius:16px;background:#fff;font-size:12px;cursor:pointer;margin-left:6px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.2"/></svg> 拍照</button><div style="font-size:11px;color:#888;margin-top:4px">上传图片：支持自动抠图成站姿立绘（OtomeF.removeBg），不支持时用原图；也可以从下面挑自画 QQ 风形象。</div></div></div>'
-    + '<div style="display:flex;gap:6px;margin-top:8px"><button type="button" class="aw-btn ghost" data-aw-cc="qq" data-hair="#3a2a1e" data-eye="#2b2b2b">深棕发</button><button type="button" class="aw-btn ghost" data-aw-cc="qq" data-hair="#b5541e" data-eye="#3a6ea5">红发蓝瞳</button><button type="button" class="aw-btn ghost" data-aw-cc="qq" data-hair="#7a9cc6" data-eye="#4a7a5a">蓝发绿瞳</button></div></div>'
-    + '<div class="aw-cc-field"><label>名字 *</label><input id="aw-cc-name" type="text" placeholder="必填" value="' + v('name') + '"><div id="aw-cc-warn" class="aw-warn"></div>'
-    + '<label>昵称</label><input id="aw-cc-nickname" type="text" value="' + v('nickname') + '">'
-    + '<label>性别</label><select id="aw-cc-gender"><option value="">—</option>' + ['女', '男', '其他'].map(function (g) { return '<option value="' + g + '"' + (ch && ch.gender === g ? ' selected' : '') + '>' + g + '</option>'; }).join('') + '</select>'
-    + '<label>年龄</label><input id="aw-cc-age" type="text" value="' + v('age') + '"><label>职业</label><input id="aw-cc-occupation" type="text" value="' + v('occupation') + '">'
-    + '<label>与你的关系</label><input id="aw-cc-relationship" type="text" placeholder="如：朋友 / 同事 / 邻居" value="' + v('relationship') + '">'
-    + '<label>生日</label><input id="aw-cc-birthday" type="text" placeholder="如：3月14日" value="' + v('birthday') + '">'
-    + '<label>备注</label><input id="aw-cc-notes" type="text" value="' + v('notes') + '"></div>'
-    + '<div class="aw-cc-field"><details' + (ch && ch.traits ? ' open' : '') + '><summary>人设（性格 / 背景 / 说话风格 / 喜欢 / 讨厌 / 习惯）</summary>'
+  var photo = (ch && ch.avatar) ? '<img src="' + esc(ch.avatar) + '" alt="">' : (ch && ch.avatarSvg ? ch.avatarSvg : '');
+  return '<div class="wx-header" style="background:#ededed;"><div class="wx-header-left" data-aw-cc="back">‹</div><div class="wx-header-title">' + (ch ? '编辑档案' : '人物档案') + '</div><div class="wx-header-right"></div></div>'
+    + '<div class="wx-scroll-view"><div class="cc-doc"><div class="cc-doc-in">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div class="cc-doc-small">PERSONNEL FILE / 人物档案</div><div class="cc-doc-title">' + (ch ? '编辑档案' : '人物档案') + ' <i>' + (ch ? 'File' : 'New File') + '</i></div></div><div class="cc-conf">CONFIDENTIAL</div></div>'
+    + '<div class="cc-doc-note">通讯录 → 添加朋友就是建档。主 char（TA）在角色设置里配，这里建档的是其他人物（朋友 / NPC）。只填名字和头像就是普通联系人，展开人设与指令就是完整人物。</div>'
+    + '<div class="cc-sec">PHOTO / 档案照片</div>'
+    + '<div class="aw-cc-field cc-photo-field" style="margin:0;background:transparent;border:0;padding:0;"><div class="cc-photo-wrap"><div><label for="aw-cc-avatar-file" style="cursor:pointer;display:block;"><div class="cc-photo" id="aw-cc-avatar-preview">' + photo + '</div></label><div class="cc-photo-cap">PHOTO / 档案照片</div></div>'
+    + '<div class="cc-photo-side"><input id="aw-cc-avatar-file" type="file" accept="image/*"><button type="button" onclick="window.GroupBG&&window.GroupBG.fillInputFromCamera(\'aw-cc-avatar-file\')" style="padding:6px 12px;border:1px solid #ddd;border-radius:16px;background:#fff;font-size:12px;cursor:pointer;margin-top:8px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.2"/></svg> 拍照</button><div class="cc-photo-note">上传图片：支持自动抠图成站姿立绘（OtomeF.removeBg），不支持时用原图。点左侧相框也可以选择图片。</div></div></div></div>'
+    + '<div class="cc-sec">IDENTIFICATION / 基本信息</div>'
+    + '<div class="cc-row"><b>NAME *</b><input id="aw-cc-name" type="text" placeholder="必填" value="' + v('name') + '"></div><div id="aw-cc-warn" class="aw-warn"></div>'
+    + '<div class="cc-row"><b>NICKNAME</b><input id="aw-cc-nickname" type="text" value="' + v('nickname') + '"></div>'
+    + '<div class="cc-row"><b>GENDER</b><select id="aw-cc-gender"><option value="">—</option>' + ['女', '男', '其他'].map(function (g) { return '<option value="' + g + '"' + (ch && ch.gender === g ? ' selected' : '') + '>' + g + '</option>'; }).join('') + '</select></div>'
+    + '<div class="cc-row"><b>AGE</b><input id="aw-cc-age" type="text" value="' + v('age') + '"></div>'
+    + '<div class="cc-row"><b>OCCUP.</b><input id="aw-cc-occupation" type="text" value="' + v('occupation') + '"></div>'
+    + '<div class="cc-row"><b>REL.</b><input id="aw-cc-relationship" type="text" placeholder="如：朋友 / 同事 / 邻居" value="' + v('relationship') + '"></div>'
+    + '<div class="cc-row"><b>BIRTHDAY</b><input id="aw-cc-birthday" type="text" placeholder="如：3月14日" value="' + v('birthday') + '"></div>'
+    + '<div class="cc-row"><b>NOTES</b><input id="aw-cc-notes" type="text" value="' + v('notes') + '"></div>'
+    + '<div class="cc-sec">INTERVIEW / 询问笔录</div>'
+    + '<div class="cc-p2"><details' + (ch && ch.traits ? ' open' : '') + '><summary>人设（性格 / 背景 / 说话风格 / 喜欢 / 讨厌 / 习惯）</summary>'
     + '<label>性格特点</label><textarea id="aw-cc-traits" rows="2">' + v('traits') + '</textarea>'
     + '<label>背景故事</label><textarea id="aw-cc-background" rows="2">' + v('background') + '</textarea>'
     + '<label>说话风格</label><input id="aw-cc-speech" type="text" value="' + v('speechStyle') + '">'
     + '<label>喜欢</label><input id="aw-cc-likes" type="text" value="' + v('likes') + '"><label>讨厌</label><input id="aw-cc-dislikes" type="text" value="' + v('dislikes') + '"><label>习惯</label><input id="aw-cc-habits" type="text" value="' + v('habits') + '"></details></div>'
-    + '<div class="aw-cc-field"><details' + (ch && ch.rules ? ' open' : '') + '><summary>指令（聊天行为规则 / 开场白 / 示例对话）</summary>'
+    + '<div class="cc-p2"><details' + (ch && ch.rules ? ' open' : '') + '><summary>指令（聊天行为规则 / 开场白 / 示例对话）</summary>'
     + '<label>行为规则（系统提示词式，如：说话简短、爱用表情包、不会主动提工作）</label><textarea id="aw-cc-rules" rows="2">' + v('rules') + '</textarea>'
     + '<label>开场白（第一条消息）</label><input id="aw-cc-greeting" type="text" value="' + v('greeting') + '">'
     + '<label>示例对话（每行一组：问：…… 答：……）</label><textarea id="aw-cc-examples" rows="3">' + esc(exText) + '</textarea></details></div>'
-    + '<div style="margin:0 12px 12px"><button class="aw-btn" type="button" data-aw-cc="save" data-id="' + (ch ? ch.id : '') + '" style="background:#07c160">保存人物</button>'
+    + '<div style="margin-top:16px"><button class="aw-btn" type="button" data-aw-cc="save" data-id="' + (ch ? ch.id : '') + '" style="background:#07c160">保存人物</button>'
     + (ch ? '<button class="aw-btn ghost" type="button" data-aw-cc="export" data-id="' + ch.id + '">导出角色卡</button><button class="aw-btn ghost" type="button" data-aw-cc="delete" data-id="' + ch.id + '">删除人物</button>' : '')
     + '<button class="aw-btn ghost" type="button" data-aw-cc="import">导入角色卡（ST v2/v3，需审阅启用）</button></div>'
+    + '</div></div>'
     + '<div class="aw-cc-field"><b style="font-size:13px">我创建的人物（' + list.length + '）</b>' + (list.length ? list.map(function (x) { return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #f0f0f0"><span>' + esc(x.name) + (x.nickname ? '（' + esc(x.nickname) + '）' : '') + ' · ' + esc(x.relationship || '联系人') + '</span><span><button type="button" class="aw-btn ghost" data-aw-cc="edit" data-id="' + x.id + '">编辑</button><button type="button" class="aw-btn ghost" data-aw-act2="chat" data-id="' + x.id + '">聊天</button></span></div>'; }).join('') : '<div class="aw-empty">还没有创建人物。</div>') + '</div>'
     + '<div class="aw-cc-field"><b style="font-size:13px">待审阅的导入（默认禁用）</b>' + (function () { var pend = listChars().filter(function (x) { return x.status === 'pending'; }); return pend.length ? pend.map(function (x) { return '<div style="padding:8px 0;border-top:1px solid #f0f0f0">' + esc(x.name) + '（导入，未启用） <button type="button" class="aw-btn ghost" data-aw-cc="enable" data-id="' + x.id + '">审阅后启用</button></div>'; }).join('') : '<div class="aw-empty">没有待审阅的导入。</div>'; })() + '</div>'
     + '<div style="height:40px"></div></div>';
-}
-function openCreateChar(editId) {
+}function openCreateChar(editId) {
   ensureStyle();
   var root = document.getElementById('wx-app-root');
   if (!root) {
@@ -928,13 +959,13 @@ function openCreateChar(editId) {
               var octx = out.getContext('2d'); octx.putImageData(new ImageData(new Uint8ClampedArray(cut.data), cv.width, cv.height), 0, 0);
               _ccAvatar = out.toDataURL('image/png');
             } catch (e) { _ccAvatar = url; }
-            var pv = document.getElementById('aw-cc-avatar-preview'); if (pv) pv.innerHTML = '<img src="' + _ccAvatar + '" style="width:64px;height:64px;border-radius:50%;object-fit:cover">';
+            var pv = document.getElementById('aw-cc-avatar-preview'); if (pv) pv.innerHTML = '<img src="' + _ccAvatar + '" alt="">';
           };
           img.src = url; return;
         }
       } catch (e) {}
       _ccAvatar = url;
-      var pv2 = document.getElementById('aw-cc-avatar-preview'); if (pv2) pv2.innerHTML = '<img src="' + url + '" style="width:64px;height:64px;border-radius:50%;object-fit:cover">';
+      var pv2 = document.getElementById('aw-cc-avatar-preview'); if (pv2) pv2.innerHTML = '<img src="' + url + '" alt="">';
     };
     reader.readAsDataURL(f);
   });
@@ -943,7 +974,6 @@ function openCreateChar(editId) {
     var act = b.getAttribute('data-aw-cc') || b.getAttribute('data-aw-act2');
     var id = b.getAttribute('data-id') || '';
     if (act === 'back') { page.classList.remove('wx-active'); return; }
-    if (act === 'qq') { _ccAvatarSvg = qqAvatarSVG(b.getAttribute('data-hair'), b.getAttribute('data-eye')); _ccAvatar = ''; var pv = document.getElementById('aw-cc-avatar-preview'); if (pv) pv.innerHTML = _ccAvatarSvg; return; }
     if (act === 'edit') { openCreateChar(id); return; }
     if (act === 'chat') { page.classList.remove('wx-active'); var c2 = findChar(id); if (c2) { var st = wxStore(); if (st) { st.currentChatId = c2.sessionId; persistWx(); } renderWx(); } return; }
     if (act === 'enable') { try { enableChar(id); toast('已启用，进通讯录和消息列表了'); openCreateChar(); } catch (e) { toast(e.message || '启用失败'); } return; }
