@@ -28,7 +28,8 @@ var MIN = 60000, HOUR = 3600000, DAY = 86400000;
 var LADDER_HOURS = [4, 10, 24, 48];
 var PRI_LABEL = { urgent: '紧急', daily: '日常', creative: '创意' };
 var STATE_LABEL = { ENGAGED: '在线聊天中', IDLE: '白天待机', DORMANT: '深夜休息', DREAM: '正在做梦' };
-var STATE_COLOR = { ENGAGED: '#34C759', IDLE: '#FF9500', DORMANT: '#8E8E93', DREAM: '#AF52DE' };
+/* 2026-11-27 设置重构：四态点只用 token 色（墨/莲/银/墨 60%），与旧 iOS 语义色断开；该常量同时用于桌面灵动灯与内心页，共用一份实现。 */
+var STATE_COLOR = { ENGAGED: '#1e2748', IDLE: '#e8c9d0', DORMANT: '#bfc8e0', DREAM: 'rgba(30,39,72,.6)' };
 var HONEST = '诚实说明：本机是模板模式（Simple）——没有接真实大模型。角色的回复由本机模板加上你注入的记忆拼出来，会从文字里猜情绪，不是真模型在思考；主动找你的每一条消息都有真实理由（承诺、日程或记忆），没有理由就不发。';
 
 function read(k, fb) { try { var r = localStorage.getItem(k); return r == null ? fb : JSON.parse(r); } catch (e) { return fb; } }
@@ -370,7 +371,7 @@ function lanternInner(now) {
   var st = currentState(now || new Date()), th = openThreads();
   return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + STATE_COLOR[st] + ';margin-right:6px;vertical-align:1px;"></span>'
     + '<span style="font-weight:700;">' + esc(st) + ' · ' + esc(STATE_LABEL[st] || st) + '</span>'
-    + '<span style="color:#8E8E93;"> · 未完 ' + th.total + ' 条（承诺 ' + th.promises + ' · 未读 ' + th.unread + '）</span>';
+    + '<span style="color:var(--st-ink-60,rgba(30,39,72,.6));"> · 未完 ' + th.total + ' 条（承诺 ' + th.promises + ' · 未读 ' + th.unread + '）</span>';
 }
 function lanternHTML(now) {
   return '<div class="groupr-lantern" data-groupr-lantern="1" style="font-size:12px;color:#3A3A3C;line-height:1.5;padding:8px 12px;">' + lanternInner(now) + '</div>';
@@ -434,12 +435,12 @@ function renderSettingsSub(act) {
     return '<div class="st-sub" id="st-sub-aboutPhone">'
       + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">关于本机</div></div>'
       + '<div class="st-bigtitle" style="padding-top:4px;">关于本机</div>'
-      + '<div class="st-group"><div class="st-row" style="display:block;padding:14px;line-height:1.7;font-size:14px;">'
-      + '<div style="font-weight:700;margin-bottom:6px;">小未来的手机 · 本地模拟手机</div>'
-      + '<div id="groupr-honest-about">' + esc(HONEST) + '</div>' + '<div style="margin-top:10px;color:#8E8E93;font-size:13px;line-height:1.7;" id="aq-about-credits">图标与许可（AQ 组精选字典，只借做法、未复制任何项目代码、未下载图标文件）：Tabler（MIT）· Phosphor（MIT）· Fluent（MIT）· Lucide（ISC）· IconPark（Apache-2.0）· OpenMoji 图形（CC BY-SA 4.0）—— All emojis designed by OpenMoji – the open-source emoji and icon project. License: CC BY-SA 4.0。桌面 app 图标（GROUP-FIX2）：取自 AQ 精选字典逐个内联的 SVG（字形来源以 Tabler MIT 为主，Phosphor MIT / Lucide ISC 为备选，见 AQ 组 SOURCES），无 CDN、无整包下载；桌宠像素皮肤取自 desksprite（MIT，github.com/welltilln/desksprite）；玻璃风格为本机纯 CSS 复现，无真折射。</div>'
-      + '<div style="margin-top:8px;color:#8E8E93;font-size:13px;">日历小组件：月历网格算法与“点日期 → 弹窗增删改查”流程借鉴 tchung1970/calendar（MIT，Copyright © 2025 Thomas Chung，github.com/tchung1970/calendar），样式、中文界面与存储本地重写；弹书小屋：立体书折叠思路借鉴 Dksie09/unfold（MIT，github.com/Dksie09/unfold），未复制其代码。两处均为借鉴做法、本地重写。</div>'
-      + '<div style="margin-top:8px;color:#8E8E93;font-size:13px;">游鱼壁纸：直接复用 jiezi1234/character-ocean（MIT，github.com/jiezi1234/character-ocean）与 stackedlol/ascii-sharks（MIT，github.com/stackedlol/ascii-sharks），按手机改写（调色板、省电门、无指针输入）。</div>'
-      + '<div style="margin-top:8px;color:#8E8E93;font-size:13px;">模式：模板模式（Simple）。没有接真实大模型，没有连任何账号；全部数据只存在本机 localStorage 里。想接真实模型是另一个决定，需要你自己在设置里填接口，本机不会替你去要密码或 Key。</div>' + '<div style="margin-top:8px;color:#8E8E93;font-size:13px;">设计与样式参考 Sui 的 Internal Beyond（github.com/Sui-IB/InternalBeyond），PolyForm Noncommercial 1.0.0 / CC BY-NC-SA 4.0，已按本项目修改。Copyright © 2025–2026 Sui. Internal Beyond (https://github.com/Sui-IB/InternalBeyond)。仅个人非商业使用；公开分享改编部分时按 CC BY-NC-SA 4.0 相同方式共享。</div>'
+      + '<div class="st-group"><div class="st-row" style="display:block;padding:12px 16px;line-height:1.5;font-size:17px;">'
+      + '<div style="font-weight:600;margin-bottom:8px;">小未来的手机 · 本地模拟手机</div>'
+      + '<div id="groupr-honest-about">' + esc(HONEST) + '</div>' + '<div style="margin-top:12px;color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;line-height:1.5;" id="aq-about-credits">图标与许可（AQ 组精选字典，只借做法、未复制任何项目代码、未下载图标文件）：Tabler（MIT）· Phosphor（MIT）· Fluent（MIT）· Lucide（ISC）· IconPark（Apache-2.0）· OpenMoji 图形（CC BY-SA 4.0）—— All emojis designed by OpenMoji – the open-source emoji and icon project. License: CC BY-SA 4.0。桌面 app 图标（GROUP-FIX2）：取自 AQ 精选字典逐个内联的 SVG（字形来源以 Tabler MIT 为主，Phosphor MIT / Lucide ISC 为备选，见 AQ 组 SOURCES），无 CDN、无整包下载；桌宠像素皮肤取自 desksprite（MIT，github.com/welltilln/desksprite）；玻璃风格为本机纯 CSS 复现，无真折射。</div>'
+      + '<div style="margin-top:8px;color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">日历小组件：月历网格算法与“点日期 → 弹窗增删改查”流程借鉴 tchung1970/calendar（MIT，Copyright © 2025 Thomas Chung，github.com/tchung1970/calendar），样式、中文界面与存储本地重写；弹书小屋：立体书折叠思路借鉴 Dksie09/unfold（MIT，github.com/Dksie09/unfold），未复制其代码。两处均为借鉴做法、本地重写。</div>'
+      + '<div style="margin-top:8px;color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">游鱼壁纸：直接复用 jiezi1234/character-ocean（MIT，github.com/jiezi1234/character-ocean）与 stackedlol/ascii-sharks（MIT，github.com/stackedlol/ascii-sharks），按手机改写（调色板、省电门、无指针输入）。</div>'
+      + '<div style="margin-top:8px;color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">模式：模板模式（Simple）。没有接真实大模型，没有连任何账号；全部数据只存在本机 localStorage 里。想接真实模型是另一个决定，需要你自己在设置里填接口，本机不会替你去要密码或 Key。</div>' + '<div style="margin-top:8px;color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">设计与样式参考 Sui 的 Internal Beyond（github.com/Sui-IB/InternalBeyond），PolyForm Noncommercial 1.0.0 / CC BY-NC-SA 4.0，已按本项目修改。Copyright © 2025–2026 Sui. Internal Beyond (https://github.com/Sui-IB/InternalBeyond)。仅个人非商业使用；公开分享改编部分时按 CC BY-NC-SA 4.0 相同方式共享。</div>'
       + '</div></div>'
       + '<div class="st-foot">微信 / 此刻 / 归巢里的角色都是机内模拟，不是真人，也不是真模型。</div>' /* GROUP-FIX7：删日程 */
       + '</div>';
@@ -453,29 +454,29 @@ function renderSettingsSub(act) {
       var open = window.CharInnerLife.getPromises().filter(function (p) { return p && p.status === 'open'; });
       promRows = open.length ? open.map(function (p) {
         var pr = p.priority || 'daily';
-        return '<div class="st-row" style="display:block;padding:12px 14px;"><div style="font-size:14px;line-height:1.5;">' + esc(p.text) + '</div>'
-          + '<div style="margin-top:8px;font-size:13px;color:#8E8E93;">优先级 <select data-groupr-pri="' + esc(p.id) + '" style="border:1px solid #E5E5EA;border-radius:8px;padding:5px 8px;font-size:14px;">'
+        return '<div class="st-row" style="display:block;padding:12px 16px;"><div style="font-size:17px;line-height:1.5;">' + esc(p.text) + '</div>'
+          + '<div style="margin-top:8px;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">优先级 <select data-groupr-pri="' + esc(p.id) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">'
           + '<option value="urgent"' + sel(pr, 'urgent') + '>紧急</option><option value="daily"' + sel(pr, 'daily') + '>日常</option><option value="creative"' + sel(pr, 'creative') + '>创意</option></select>'
           + ' · 到期 ' + esc(fmtHM(p.dueTs)) + '</div></div>';
-      }).join('') : '<div class="st-row" style="padding:14px;">暂无进行中的承诺。</div>';
+      }).join('') : '<div class="st-row" style="padding:12px 16px;">暂无进行中的承诺。</div>';
     }
-  } catch (e) { promRows = '<div class="st-row" style="padding:14px;">承诺清单暂不可读。</div>'; }
+  } catch (e) { promRows = '<div class="st-row" style="padding:12px 16px;">承诺清单暂不可读。</div>'; }
   return '<div class="st-sub" id="st-sub-proactive">'
     + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">主动消息</div></div>'
     + '<div class="st-bigtitle" style="padding-top:4px;">主动消息</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;" id="groupr-honest">' + esc(HONEST) + '</div>'
     + '<div class="st-group">'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">心跳间隔</span><div class="st-row-right"><select id="gr-heartbeat-mode" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"><option value="fixed"' + sel(cfg.heartbeatMode, 'fixed') + '>固定</option><option value="random"' + sel(cfg.heartbeatMode, 'random') + '>随机 20–45 分钟</option></select></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">固定间隔（分钟）</span><div class="st-row-right"><input id="gr-heartbeat-minutes" type="number" min="5" max="120" value="' + cfg.heartbeatMinutes + '" style="width:72px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">离场模式</span><div class="st-row-right"><select id="gr-away-mode" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"><option value="always"' + sel(cfg.awayMode, 'always') + '>每次到点都发</option><option value="taper"' + sel(cfg.awayMode, 'taper') + '>渐渐少发（翻倍）</option><option value="once"' + sel(cfg.awayMode, 'once') + '>安静后只跳一次</option></select></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">每小时最多几条</span><div class="st-row-right"><input id="gr-max-per-hour" type="number" min="1" max="6" value="' + cfg.maxPerHour + '" style="width:72px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">粘性静音（停掉全部主动消息）</span><div class="st-row-right"><input id="gr-muted" type="checkbox"' + (cfg.muted ? ' checked' : '') + ' style="width:22px;height:22px;"></div></div>'
+    + '<div class="st-row" style="padding:12px 16px;"><span class="st-label">心跳间隔</span><div class="st-row-right"><select id="gr-heartbeat-mode" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"><option value="fixed"' + sel(cfg.heartbeatMode, 'fixed') + '>固定</option><option value="random"' + sel(cfg.heartbeatMode, 'random') + '>随机 20–45 分钟</option></select></div></div>'
+    + '<div class="st-row" style="padding:12px 16px;"><span class="st-label">固定间隔（分钟）</span><div class="st-row-right"><input id="gr-heartbeat-minutes" type="number" min="5" max="120" value="' + cfg.heartbeatMinutes + '" style="width:72px;text-align:right;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></div></div>'
+    + '<div class="st-row" style="padding:12px 16px;"><span class="st-label">离场模式</span><div class="st-row-right"><select id="gr-away-mode" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"><option value="always"' + sel(cfg.awayMode, 'always') + '>每次到点都发</option><option value="taper"' + sel(cfg.awayMode, 'taper') + '>渐渐少发（翻倍）</option><option value="once"' + sel(cfg.awayMode, 'once') + '>安静后只跳一次</option></select></div></div>'
+    + '<div class="st-row" style="padding:12px 16px;"><span class="st-label">每小时最多几条</span><div class="st-row-right"><input id="gr-max-per-hour" type="number" min="1" max="6" value="' + cfg.maxPerHour + '" style="width:72px;text-align:right;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></div></div>'
+    + '<div class="st-row" style="padding:12px 16px;"><span class="st-label">粘性静音（停掉全部主动消息）</span><div class="st-row-right"><input id="gr-muted" type="checkbox"' + (cfg.muted ? ' checked' : '') + ' style="width:22px;height:22px;"></div></div>'
     + '</div>'
     + '<div class="st-foot" id="groupr-status">' + esc(statusLine(new Date())) + '</div>'
-    + '<div style="margin:12px 16px;"><button id="groupr-proactive-save" style="width:100%;border:0;background:#007AFF;color:#fff;border-radius:12px;padding:12px;font-size:16px;">保存（立即生效）</button>'
-    + '<div id="groupr-tip" style="text-align:center;font-size:13px;color:#34C759;margin-top:8px;min-height:18px;"></div></div>'
+    + '<div style="margin:12px 16px;"><button id="groupr-proactive-save" style="width:100%;border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;">保存（立即生效）</button>'
+    + '<div id="groupr-tip" style="text-align:center;font-size:13px;color:var(--st-ink,#1e2748);margin-top:8px;min-height:18px;"></div></div>'
     + '<div class="st-foot">离场“渐渐少发”：无人应答时间隔翻倍，30 分钟 → 1 小时 → 2 小时 → 4 小时……最多 16 倍，不超过 24 小时；你一回消息就清零。自发阶梯：沉默满 4 / 10 / 24 / 48 小时各发一条，共 4 条，最后一条是表示理解的便条，然后安静。</div>'
-    + '<div class="st-bigtitle" style="font-size:18px;padding-top:8px;">承诺优先级</div>'
+    + '<div class="st-bigtitle" style="font-size:20px;font-weight:600;padding-top:8px;">承诺优先级</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;">标“紧急”的到期承诺会优先提醒；改完点上面“保存”一起生效。</div>'
     + '<div class="st-group">' + promRows + '</div>'
     + '<div style="height:40px;"></div></div>';

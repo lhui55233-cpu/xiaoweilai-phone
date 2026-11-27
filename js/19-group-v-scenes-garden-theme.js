@@ -175,13 +175,13 @@ var themeSectionHTML = function () {
   var btns = THEMES.map(function (t) {
     return '<button type="button" class="gv-theme-btn' + (cur.id === t.id ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.setTheme(\'' + t.id + '\')" title="' + esc(t.desc) + '"><span class="gv-theme-sw" style="background:' + t.c1 + ';border-color:' + t.c2 + ';"></span>' + esc(t.name) + (cur.id === t.id ? ' ✓' : '') + '</button>';
   }).join('');
-  return '<div style="font-weight:700;margin:14px 0 6px;">🎨 主题</div>'
+  return '<div style="font-weight:600;margin:12px 0 8px;">主题</div>'
     + '<div class="ot-muted">当前：<span data-gv-theme-name>' + esc(cur.name) + '</span></div>'
     + '<div class="gv-theme-btns">' + btns + '</div>'
-    + '<details style="margin-top:10px;"><summary style="font-size:13px;cursor:pointer;">高级</summary>'
-    + '<div style="margin-top:8px;font-size:13px;line-height:2.4;">自定义两色：浅色 <input type="color" value="' + cur.c1 + '" onchange="window.GroupV.setCustomColor(1,this.value)"> 主色 <input type="color" value="' + cur.c2 + '" onchange="window.GroupV.setCustomColor(2,this.value)"></div>'
-    + '<div style="margin-top:8px;font-size:13px;">分享代码：<input id="gv-share-code" readonly value="' + esc(shareCode()) + '" style="width:150px;border:1px solid #ddd;border-radius:6px;padding:5px 6px;font-size:12px;"> <button class="ot-btn ot-btn-ghost" style="padding:5px 10px;" onclick="window.GroupV.copyShareCode()">复制</button></div>'
-    + '<div style="margin-top:6px;font-size:13px;">导入代码：<input id="gv-share-import" placeholder="粘贴 GV1- 开头的代码" style="width:150px;border:1px solid #ddd;border-radius:6px;padding:5px 6px;font-size:12px;"> <button class="ot-btn ot-btn-ghost" style="padding:5px 10px;" onclick="window.GroupV.importShareCodeUI()">导入</button> <span id="gv-share-msg" class="ot-muted"></span></div></details>';
+    + '<details style="margin-top:12px;"><summary style="font-size:13px;cursor:pointer;">高级</summary>'
+    + '<div style="margin-top:8px;font-size:13px;line-height:1.5;">自定义两色：浅色 <input type="color" value="' + cur.c1 + '" onchange="window.GroupV.setCustomColor(1,this.value)"> 主色 <input type="color" value="' + cur.c2 + '" onchange="window.GroupV.setCustomColor(2,this.value)"></div>'
+    + '<div style="margin-top:8px;font-size:13px;">分享代码：<input id="gv-share-code" readonly value="' + esc(shareCode()) + '" style="width:150px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.copyShareCode()">复制</button></div>'
+    + '<div style="margin-top:8px;font-size:13px;">导入代码：<input id="gv-share-import" placeholder="粘贴 GV1- 开头的代码" style="width:150px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.importShareCodeUI()">导入</button> <span id="gv-share-msg" class="ot-muted"></span></div></details>';
 };
 var refreshOtomeSettings = function () {
   try {
@@ -193,7 +193,7 @@ var openThemeSheet = function () {
   closeThemeSheet();
   var ov = document.createElement('div');
   ov.id = 'gv-theme-sheet';
-  ov.innerHTML = '<div class="gv-sheet"><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;">🎨 主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">✕</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
+  ov.innerHTML = '<div class="gv-sheet"><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">✕</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
   document.body.appendChild(ov);
   return true;
 };
@@ -686,12 +686,12 @@ var GV_CSS = [
   '.gv-pack-chip{border:1px solid #e8ddd2;background:#f7f7f7;color:#333;border-radius:12px;padding:5px 10px;font-size:12px;cursor:pointer;}',
   '.gv-pack-chip.gv-pack-on{background:#07c160;color:#fff;border-color:#07c160;}',
   '.gv-pack-send{border:0;background:#07c160;color:#fff;border-radius:12px;padding:7px 12px;font-size:12px;cursor:pointer;}',
-  '.gv-theme-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}',
-  '.gv-theme-btn{border:1px solid #ddd;background:#fff;border-radius:10px;padding:7px 10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}',
-  '.gv-theme-btn-on{border-width:2px;}',
-  '.gv-theme-sw{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #ccc;}',
+  '.gv-theme-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}',
+  '.gv-theme-btn{border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;cursor:pointer;display:flex;align-items:center;gap:8px;}',
+  '.gv-theme-btn-on{background:var(--st-paper-cool,#eef0f5);font-weight:500;}',
+  '.gv-theme-sw{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--st-silver,#bfc8e0);}',
   '#gv-theme-sheet{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:flex-end;justify-content:center;}',
-  '#gv-theme-sheet .gv-sheet{width:100%;max-width:480px;max-height:82%;overflow:auto;background:#fffdf9;border-radius:18px 18px 0 0;padding:16px;box-sizing:border-box;font-size:14px;color:#3a1e14;}',
+  '#gv-theme-sheet .gv-sheet{width:100%;max-width:480px;max-height:82%;overflow:auto;background:var(--st-paper,#fffdf8);border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-xl,14px) var(--st-radius-xl,14px) 0 0;padding:16px;box-sizing:border-box;font-size:17px;color:var(--st-ink,#1e2748);box-shadow:var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12));}',
   '.gv-garden{margin-top:12px;background:rgba(255,255,255,.82);border-radius:18px;padding:12px 14px;box-shadow:0 8px 24px rgba(160,110,80,.14),0 0 0 1px rgba(255,255,255,.9);}',
   '.gv-garden-head{font-weight:700;font-size:14px;margin-bottom:8px;}',
   '.gv-garden-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}',

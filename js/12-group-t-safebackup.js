@@ -371,9 +371,9 @@ return { sessionId: sess? sess.id: null, sessionName: sess? sess.name: '', msgCo
 }
 function contextMeterHTML(sessionId) {
 var u = contextUsage(sessionId);
-var bar = '<div style="height:6px;background:#ececef;border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + u.pct + '%;background:' + (u.needCompress? '#FF3B30': '#34C759') + ';"></div></div>';
+var bar = '<div style="height:6px;background:var(--st-silver-light,#dce2f1);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + u.pct + '%;background:' + (u.needCompress? 'var(--st-danger,#7c2d2d)': 'var(--st-ink,#1e2748)') + ';"></div></div>';
 var tip = u.needCompress? '可以压缩了（已满 100%）': '上下文 ' + u.pct + '%';
-return '<div id="t-ctx-meter" style="padding:8px 12px;background:#f7f7f8;border-bottom:1px solid #ececef;font-size:12px;color:#666;" data-pct="' + u.pct + '">' + bar + '<div style="display:flex;justify-content:space-between;margin-top:4px;"><span>' + esc(tip) + ' · 消息 ' + u.msgCount + '/' + u.msgCap + ' · 记忆 ' + u.memCount + '/' + u.memCap + '</span><span style="color:#007AFF;cursor:pointer;" onclick="window.SafeBackupT.requestCompress(\'' + esc(u.sessionId || '') + '\')">压缩</span></div></div>';
+return '<div id="t-ctx-meter" style="padding:8px 12px;background:var(--st-paper-cool,#eef0f5);border-bottom:1px solid var(--st-silver,#bfc8e0);font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));" data-pct="' + u.pct + '">' + bar + '<div style="display:flex;justify-content:space-between;margin-top:4px;"><span>' + esc(tip) + ' · 消息 ' + u.msgCount + '/' + u.msgCap + ' · 记忆 ' + u.memCount + '/' + u.memCap + '</span><span style="color:var(--st-ink,#1e2748);font-weight:500;cursor:pointer;" onclick="window.SafeBackupT.requestCompress(\'' + esc(u.sessionId || '') + '\')">压缩</span></div></div>';
 }
 function requestCompress(sessionId) {
 /* U 组压缩未合入：先提示 + 记一条，不假装已压缩。合入后这里改为调用 U 组入口。 */
@@ -442,7 +442,7 @@ try {
 var box = document.getElementById('wx-msg-stream-container');
 if (!box) return;
 var els = box.querySelectorAll('[data-msg-id="' + msgId + '"]');
-if (els.length) { els[0].scrollIntoView({ block: 'center'}); els[0].style.outline = '2px solid #007AFF'; setTimeout(function () { els[0].style.outline = '';}, 2500);}
+if (els.length) { els[0].scrollIntoView({ block: 'center'}); els[0].style.outline = '2px solid var(--st-ink,#1e2748)'; setTimeout(function () { els[0].style.outline = '';}, 2500);}
 else box.scrollTop = box.scrollHeight;
 } catch (e) {}
 }, 60);
@@ -617,15 +617,15 @@ function openCenter(tab) {
 closeCenter();
 var overlay = document.createElement('div');
 overlay.id = 't-safe-center';
-overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:99999;overflow:auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#111;';
+overlay.style.cssText = 'position:fixed;inset:0;background:var(--st-paper,#fffdf8);z-index:99999;overflow:auto;font-family:inherit;color:var(--st-ink,#1e2748);';
 overlay.innerHTML =
-'<div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">' +
-'<div style="font-size:17px;font-weight:700;">备份与安全中心</div>' +
-'<button onclick="window.SafeBackupT.closeCenter()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 12px;font-size:13px;">关闭</button></div>' +
-'<div style="display:flex;gap:6px;padding:10px 16px;flex-wrap:wrap;border-bottom:1px solid #f0f0f0;">' +
+'<div style="position:sticky;top:0;background:var(--st-paper,#fffdf8);border-bottom:1px solid var(--st-ink-20,rgba(30,39,72,.2));padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">' +
+'<div style="font-size:20px;font-weight:600;">备份与安全中心</div>' +
+'<button onclick="window.SafeBackupT.closeCenter()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">关闭</button></div>' +
+'<div style="display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));">' +
 ['backup|备份与恢复', 'import|导入旧对话', 'memory|记忆与撤销', 'ns|命名空间', 'prefs|界面偏好', 'search|聊天搜索'].map(function (t) {
 var parts = t.split('|');
-return '<button data-t-tab="' + parts[0] + '" onclick="window.SafeBackupT._ui.showTab(\'' + parts[0] + '\')" style="border:1px solid #ddd;background:' + ((tab || 'backup') === parts[0]? '#111;color:#fff': '#fff') + ';border-radius:16px;padding:6px 12px;font-size:13px;">' + parts[1] + '</button>';
+return '<button data-t-tab="' + parts[0] + '" onclick="window.SafeBackupT._ui.showTab(\'' + parts[0] + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:' + ((tab || 'backup') === parts[0]? 'var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8)': 'var(--st-paper,#fffdf8)') + ';border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">' + parts[1] + '</button>';
 }).join('') + '</div>' +
 '<div id="t-center-body" style="padding:16px;"></div>';
 document.body.appendChild(overlay);
@@ -637,7 +637,7 @@ function showTab(name) {
 var body = centerBody();
 if (!body) return;
 var btns = document.querySelectorAll('#t-safe-center [data-t-tab]');
-btns.forEach(function (b) { var on = b.getAttribute('data-t-tab') === name; b.style.background = on? '#111': '#fff'; b.style.color = on? '#fff': '#111';});
+btns.forEach(function (b) { var on = b.getAttribute('data-t-tab') === name; b.style.background = on? 'var(--st-ink,#1e2748)': 'var(--st-paper,#fffdf8)'; b.style.color = on? 'var(--st-paper,#fffdf8)': 'var(--st-ink,#1e2748)';});
 if (name === 'backup') body.innerHTML = renderBackupTab();
 else if (name === 'import') body.innerHTML = renderImportTab();
 else if (name === 'memory') body.innerHTML = renderMemoryTab();
@@ -649,70 +649,70 @@ function renderBackupTab() {
 var backs = listBackups().slice().reverse();
 var undos = listUndo().slice().reverse();
 var rows = backs.map(function (b) {
-return '<div class="t-backup-row" style="border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px;"><div style="font-size:13px;font-weight:600;">' + esc(b.label) + '</div><div style="font-size:12px;color:#888;margin:3px 0;">' + esc(b.time || '') + ' · 范围 ' + esc(b.scope) + ' · ' + (b.keys || []).length + ' 个键</div><div><button onclick="window.SafeBackupT._ui.doRestore(\'' + b.id + '\')" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:5px 10px;font-size:12px;">恢复这条（先归档当前状态）</button></div></div>';
-}).join('') || '<div style="color:#999;font-size:13px;">暂无备份归档。</div>';
+return '<div class="t-backup-row" style="border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:10px;padding:12px 16px;margin-bottom:8px;"><div style="font-size:13px;font-weight:600;">' + esc(b.label) + '</div><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:4px 0;">' + esc(b.time || '') + ' · 范围 ' + esc(b.scope) + ' · ' + (b.keys || []).length + ' 个键</div><div><button onclick="window.SafeBackupT._ui.doRestore(\'' + b.id + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:13px;">恢复这条（先归档当前状态）</button></div></div>';
+}).join('') || '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">暂无备份归档。</div>';
 var urows = undos.map(function (u) {
-return '<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f5f5f5;">' + esc(u.label) + ' · ' + esc(u.time || '') + ' <button onclick="window.SafeBackupT._ui.doUndo(\'' + u.id + '\')" style="border:1px solid #ddd;background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;">撤销</button></div>';
-}).join('') || '<div style="color:#999;font-size:13px;">暂无可撤销的编辑。</div>';
-return '<div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:12px;">安全模型：任何导出 / 导入 / 恢复都先展示会改变什么（预览 diff）→ 先把当前状态归档进备份区 → 再写 → 可撤销。恢复前一定先归档，永远有网兜。</div>' +
+return '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));">' + esc(u.label) + ' · ' + esc(u.time || '') + ' <button onclick="window.SafeBackupT._ui.doUndo(\'' + u.id + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:13px;">撤销</button></div>';
+}).join('') || '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">暂无可撤销的编辑。</div>';
+return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">安全模型：任何导出 / 导入 / 恢复都先展示会改变什么（预览 diff）→ 先把当前状态归档进备份区 → 再写 → 可撤销。恢复前一定先归档，永远有网兜。</div>' +
 '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">' +
-'<button onclick="window.SafeBackupT._ui.doExport(\'guichao\')" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">导出归巢（先归档）</button>' +
-'<button onclick="window.SafeBackupT._ui.doExport(\'phone\')" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">导出整机备份（先归档）</button>' +
-'<button onclick="window.SafeBackupT._ui.doArchiveNow()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">只归档一次（不导出）</button>' +
-'<button onclick="window.SafeBackupT._ui.openCharCard()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">导出角色卡（先归档，再开原导出弹窗）</button></div>' +
-'<div style="margin-bottom:10px;"><input id="t-backup-q" placeholder="搜索备份：标签 / 时间 / 范围，如 导出前归档" oninput="window.SafeBackupT._ui.filterBackups(this.value)" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;" /></div>' +
-'<div style="font-size:14px;font-weight:700;margin-bottom:8px;">备份归档（phone_backups_v1，最多 ' + MAX_BACKUPS + ' 条）</div>' + rows +
-'<div style="font-size:14px;font-weight:700;margin:14px 0 8px;">可撤销的编辑</div>' + urows;
+'<button onclick="window.SafeBackupT._ui.doExport(\'guichao\')" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出归巢（先归档）</button>' +
+'<button onclick="window.SafeBackupT._ui.doExport(\'phone\')" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出整机备份（先归档）</button>' +
+'<button onclick="window.SafeBackupT._ui.doArchiveNow()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">只归档一次（不导出）</button>' +
+'<button onclick="window.SafeBackupT._ui.openCharCard()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出角色卡（先归档，再开原导出弹窗）</button></div>' +
+'<div style="margin-bottom:12px;"><input id="t-backup-q" placeholder="搜索备份：标签 / 时间 / 范围，如 导出前归档" oninput="window.SafeBackupT._ui.filterBackups(this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /></div>' +
+'<div style="font-size:17px;font-weight:600;margin-bottom:8px;">备份归档（phone_backups_v1，最多 ' + MAX_BACKUPS + ' 条）</div>' + rows +
+'<div style="font-size:17px;font-weight:600;margin:12px 0 8px;">可撤销的编辑</div>' + urows;
 }
 function renderImportTab() {
-return '<div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:12px;">旧对话导入（Pulse A9：先预览、再挑、再存）。支持 ChatGPT / Claude / Markdown / 纯文本四种导出：粘贴或上传文件后先解析出对话列表预览（标题、条数、日期），勾选要导入的，清洗掉明显的系统提示词和空消息后存档。导入的对话存进微信会话（新会话，标题标【导入】），同时归档进 char:imported_chats_v1，可关键词搜索。不用向量。</div>' +
-'<textarea id="t-import-text" placeholder="粘贴 ChatGPT / Claude / Markdown / JSON 导出内容……" style="width:100%;box-sizing:border-box;height:120px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:13px;"></textarea>' +
-'<div style="display:flex;gap:8px;margin:10px 0;"><input type="file" id="t-import-file" accept=".json,.md,.txt" style="font-size:12px;" /><button onclick="window.SafeBackupT._ui.importPreview()" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">解析预览</button></div>' +
+return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">旧对话导入（Pulse A9：先预览、再挑、再存）。支持 ChatGPT / Claude / Markdown / 纯文本四种导出：粘贴或上传文件后先解析出对话列表预览（标题、条数、日期），勾选要导入的，清洗掉明显的系统提示词和空消息后存档。导入的对话存进微信会话（新会话，标题标【导入】），同时归档进 char:imported_chats_v1，可关键词搜索。不用向量。</div>' +
+'<textarea id="t-import-text" placeholder="粘贴 ChatGPT / Claude / Markdown / JSON 导出内容……" style="width:100%;box-sizing:border-box;height:120px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></textarea>' +
+'<div style="display:flex;gap:8px;margin:10px 0;"><input type="file" id="t-import-file" accept=".json,.md,.txt" style="font-size:13px;" /><button onclick="window.SafeBackupT._ui.importPreview()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">解析预览</button></div>' +
 '<div id="t-import-preview"></div>';
 }
 function renderMemoryTab() {
 var mems = getMemories();
 var idx = lsGet(INDEX_KEY, null);
 var rows = mems.slice(0, 30).map(function (m) {
-return '<div style="border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px;"><div style="font-size:12px;color:#888;">' + esc(memCat(m)) + ' · ' + esc(String(memDate(m)).slice(0, 10)) + (memFactKey(m)? ' · 事实 key：' + esc(memFactKey(m)): '') + '</div><div style="font-size:13px;margin:4px 0;">' + esc(memText(m)).slice(0, 120) + '</div><textarea id="t-mem-' + esc(String(m.id)) + '" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;" rows="2">' + esc(memText(m)) + '</textarea><button onclick="window.SafeBackupT._ui.saveMemoryEdit(\'' + esc(String(m.id)).replace(/'/g, '') + '\')" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:5px 10px;font-size:12px;margin-top:6px;">保存修改（先记撤销记录）</button></div>';
-}).join('') || '<div style="color:#999;font-size:13px;">暂无记忆。</div>';
-return '<div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:12px;">记忆索引 guichao_mem_index_v1：按事实 key / 分类 / 日期索引，不改 guichao.memories.v1 本身。共 ' + mems.length + ' 条记忆' + (mems.length > 30 ? '（下方只列出前 30 条，其余请用上方搜索查）' : '') + (idx? '，索引建于 ' + esc(idx.builtAt || ''): '，索引尚未建立') + '。</div>' +
-'<div style="display:flex;gap:8px;margin-bottom:12px;"><input id="t-mem-q" placeholder="按事实 key / 分类 / 日期查，如 喜好.咖啡" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;" /><button onclick="window.SafeBackupT._ui.searchMem()" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">查索引</button><button onclick="window.SafeBackupT._ui.rebuildIndex()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">重建索引</button></div>' +
+return '<div style="border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:10px;padding:12px 16px;margin-bottom:8px;"><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(memCat(m)) + ' · ' + esc(String(memDate(m)).slice(0, 10)) + (memFactKey(m)? ' · 事实 key：' + esc(memFactKey(m)): '') + '</div><div style="font-size:13px;margin:8px 0;">' + esc(memText(m)).slice(0, 120) + '</div><textarea id="t-mem-' + esc(String(m.id)) + '" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" rows="2">' + esc(memText(m)) + '</textarea><button onclick="window.SafeBackupT._ui.saveMemoryEdit(\'' + esc(String(m.id)).replace(/'/g, '') + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:13px;margin-top:8px;">保存修改（先记撤销记录）</button></div>';
+}).join('') || '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">暂无记忆。</div>';
+return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">记忆索引 guichao_mem_index_v1：按事实 key / 分类 / 日期索引，不改 guichao.memories.v1 本身。共 ' + mems.length + ' 条记忆' + (mems.length > 30 ? '（下方只列出前 30 条，其余请用上方搜索查）' : '') + (idx? '，索引建于 ' + esc(idx.builtAt || ''): '，索引尚未建立') + '。</div>' +
+'<div style="display:flex;gap:8px;margin-bottom:12px;"><input id="t-mem-q" placeholder="按事实 key / 分类 / 日期查，如 喜好.咖啡" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><button onclick="window.SafeBackupT._ui.searchMem()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">查索引</button><button onclick="window.SafeBackupT._ui.rebuildIndex()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">重建索引</button></div>' +
 '<div id="t-mem-hits" style="margin-bottom:12px;"></div>' + rows;
 }
 function renderNsTab() {
 var inv = namespaceInventory();
-var li = function (arr) { return arr.map(function (k) { return '<div class="t-ns-key" style="font-size:12px;padding:3px 0;border-bottom:1px solid #f5f5f5;word-break:break-all;">' + esc(k) + '</div>';}).join('') || '<div style="color:#999;font-size:12px;">（无）</div>';};
-return '<div style="margin-bottom:10px;"><input id="t-ns-q" placeholder="搜索 key 名，如 guichao / phone_" oninput="window.SafeBackupT._ui.filterNs(this.value)" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;" /></div>' +
-'<div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:12px;">' + esc(inv.doc) + '</div>' +
-'<div style="font-size:14px;font-weight:700;">属于 char（' + inv.counts.char + ' 个键）</div>' + li(inv.char) +
-'<div style="font-size:14px;font-weight:700;margin-top:14px;">属于手机系统（' + inv.counts.system + ' 个键）</div>' + li(inv.system) +
-'<div style="font-size:14px;font-weight:700;margin-top:14px;">其他（' + inv.counts.other + ' 个键）</div>' + li(inv.other);
+var li = function (arr) { return arr.map(function (k) { return '<div class="t-ns-key" style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));word-break:break-all;">' + esc(k) + '</div>';}).join('') || '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">（无）</div>';};
+return '<div style="margin-bottom:12px;"><input id="t-ns-q" placeholder="搜索 key 名，如 guichao / phone_" oninput="window.SafeBackupT._ui.filterNs(this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /></div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">' + esc(inv.doc) + '</div>' +
+'<div style="font-size:17px;font-weight:600;">属于 char（' + inv.counts.char + ' 个键）</div>' + li(inv.char) +
+'<div style="font-size:17px;font-weight:600;margin-top:12px;">属于手机系统（' + inv.counts.system + ' 个键）</div>' + li(inv.system) +
+'<div style="font-size:17px;font-weight:600;margin-top:12px;">其他（' + inv.counts.other + ' 个键）</div>' + li(inv.other);
 }
 function renderPrefsTab() {
 var p = getUiPrefs();
-return '<div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:12px;">界面偏好统一存放 phone_ui_prefs_v1（形状见模块注释；V 组主题与 W 组桌面外观按同一份形状读写）。迁移只读旧键一次，不回写旧键。</div>' +
-'<div style="font-size:13px;line-height:2;">语言 <input id="t-p-lang" value="' + esc(p.lang) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /><br/>' +
+return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">界面偏好统一存放 phone_ui_prefs_v1（形状见模块注释；V 组主题与 W 组桌面外观按同一份形状读写）。迁移只读旧键一次，不回写旧键。</div>' +
+'<div style="font-size:17px;line-height:1.5;">语言 <input id="t-p-lang" value="' + esc(p.lang) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
 '主题 <select id="t-p-theme"><option value="light"' + (p.theme === 'light'? ' selected': '') + '>light</option><option value="dark"' + (p.theme === 'dark'? ' selected': '') + '>dark</option><option value="auto"' + (p.theme === 'auto'? ' selected': '') + '>auto</option><option value="bu-spring-pink"' + (p.theme === 'bu-spring-pink'? ' selected': '') + '>春·槐花粉</option><option value="bu-autumn-red"' + (p.theme === 'bu-autumn-red'? ' selected': '') + '>秋·枫叶红</option><option value="bu-night-black"' + (p.theme === 'bu-night-black'? ' selected': '') + '>夜·蜕茧黑</option><option value="bu-winter-blue"' + (p.theme === 'bu-winter-blue'? ' selected': '') + '>冬·雪河蓝</option><option value="bu-mint"' + (p.theme === 'bu-mint'? ' selected': '') + '>薄荷绿</option><option value="bu-lavender"' + (p.theme === 'bu-lavender'? ' selected': '') + '>薰衣草紫</option><option value="bu-cream"' + (p.theme === 'bu-cream'? ' selected': '') + '>奶油黄</option><option value="bu-forest"' + (p.theme === 'bu-forest'? ' selected': '') + '>墨绿</option></select><br/>' +
-'自定义两色 <input id="t-p-c1" value="' + esc(p.themeCustom.c1) + '" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /> <input id="t-p-c2" value="' + esc(p.themeCustom.c2) + '" style="width:90px;border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /><br/>' +
-'布局 <input id="t-p-layout" value="' + esc(p.layout) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /><br/>' +
-'图标风格 <input id="t-p-icon" value="' + esc(p.iconStyle) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /><br/>' +
-'壁纸 <input id="t-p-wp" value="' + esc(p.wallpaper) + '" style="width:220px;border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /><br/>' +
+'自定义两色 <input id="t-p-c1" value="' + esc(p.themeCustom.c1) + '" style="width:90px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /> <input id="t-p-c2" value="' + esc(p.themeCustom.c2) + '" style="width:90px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
+'布局 <input id="t-p-layout" value="' + esc(p.layout) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
+'图标风格 <input id="t-p-icon" value="' + esc(p.iconStyle) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
+'壁纸 <input id="t-p-wp" value="' + esc(p.wallpaper) + '" style="width:220px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
 '桌面组件 <input id="t-p-wd" type="checkbox"' + (p.widgetsEnabled? ' checked': '') + ' /> 开启　桌面宠物 <input id="t-p-pet" type="checkbox"' + (p.petEnabled? ' checked': '') + ' /> 开启<br/>' +
-'宠物模式 <input id="t-p-petmode" value="' + esc(p.petMode) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" />　宠物大小 <input id="t-p-petsize" value="' + esc(p.petSize) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" />　宠物皮肤 <input id="t-p-petskin" value="' + esc(p.petSkin) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /><br/>' +
-'时钟样式 <input id="t-p-clock" value="' + esc(p.clockStyle) + '" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;" /></div>' +
-'<div style="display:flex;gap:8px;margin-top:12px;"><button onclick="window.SafeBackupT._ui.savePrefs()" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">保存偏好</button><button onclick="window.SafeBackupT._ui.migrateNow()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">从旧分散偏好迁移一次</button></div>' +
-'<div style="font-size:12px;color:#888;margin-top:10px;">已迁移来源：' + esc((p.migratedFrom || []).join('、') || '（无）') + '</div>';
+'宠物模式 <input id="t-p-petmode" value="' + esc(p.petMode) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" />　宠物大小 <input id="t-p-petsize" value="' + esc(p.petSize) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" />　宠物皮肤 <input id="t-p-petskin" value="' + esc(p.petSkin) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
+'时钟样式 <input id="t-p-clock" value="' + esc(p.clockStyle) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /></div>' +
+'<div style="display:flex;gap:8px;margin-top:12px;"><button onclick="window.SafeBackupT._ui.savePrefs()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">保存偏好</button><button onclick="window.SafeBackupT._ui.migrateNow()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">从旧分散偏好迁移一次</button></div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:12px;">已迁移来源：' + esc((p.migratedFrom || []).join('、') || '（无）') + '</div>';
 }
 function renderSearchTab() {
-return '<div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:12px;">本地聊天搜索：关键词搜全部会话的消息，引用原文 + 日期，点结果跳到那条消息。不改消息存储结构，不用向量。</div>' +
-'<div style="display:flex;gap:8px;"><input id="t-search-q" placeholder="输入关键词，如 明天" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;" /><button onclick="window.SafeBackupT._ui.runSearch()" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">搜索</button></div>' +
+return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">本地聊天搜索：关键词搜全部会话的消息，引用原文 + 日期，点结果跳到那条消息。不改消息存储结构，不用向量。</div>' +
+'<div style="display:flex;gap:8px;"><input id="t-search-q" placeholder="输入关键词，如 明天" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><button onclick="window.SafeBackupT._ui.runSearch()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">搜索</button></div>' +
 '<div id="t-search-results" style="margin-top:12px;"></div>';
 }
 var _ui = {
 showTab: showTab,
-filterBackups: function (q) { var needle = String(q || '').trim().toLowerCase(); var shown = 0; var rows = document.querySelectorAll('#t-safe-center .t-backup-row'); rows.forEach(function (r) { var hit = !needle || (r.textContent || '').toLowerCase().indexOf(needle) >= 0; r.style.display = hit ? '' : 'none'; if (hit) shown++; }); var empty = document.getElementById('t-backup-empty'); if (!empty) { var body = centerBody(); if (body) { empty = document.createElement('div'); empty.id = 't-backup-empty'; empty.style.cssText = 'color:#999;font-size:13px;'; empty.textContent = '没有匹配的备份，换个词试试。'; body.appendChild(empty); } } if (empty) empty.style.display = (!needle || shown) ? 'none' : ''; },
-filterNs: function (q) { var needle = String(q || '').trim().toLowerCase(); var shown = 0; var rows = document.querySelectorAll('#t-safe-center .t-ns-key'); rows.forEach(function (r) { var hit = !needle || (r.textContent || '').toLowerCase().indexOf(needle) >= 0; r.style.display = hit ? '' : 'none'; if (hit) shown++; }); var empty = document.getElementById('t-ns-empty'); if (!empty) { var body = centerBody(); if (body) { empty = document.createElement('div'); empty.id = 't-ns-empty'; empty.style.cssText = 'color:#999;font-size:13px;'; empty.textContent = '没有匹配的 key，换个词试试。'; body.appendChild(empty); } } if (empty) empty.style.display = (!needle || shown) ? 'none' : ''; },
+filterBackups: function (q) { var needle = String(q || '').trim().toLowerCase(); var shown = 0; var rows = document.querySelectorAll('#t-safe-center .t-backup-row'); rows.forEach(function (r) { var hit = !needle || (r.textContent || '').toLowerCase().indexOf(needle) >= 0; r.style.display = hit ? '' : 'none'; if (hit) shown++; }); var empty = document.getElementById('t-backup-empty'); if (!empty) { var body = centerBody(); if (body) { empty = document.createElement('div'); empty.id = 't-backup-empty'; empty.style.cssText = 'color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;'; empty.textContent = '没有匹配的备份，换个词试试。'; body.appendChild(empty); } } if (empty) empty.style.display = (!needle || shown) ? 'none' : ''; },
+filterNs: function (q) { var needle = String(q || '').trim().toLowerCase(); var shown = 0; var rows = document.querySelectorAll('#t-safe-center .t-ns-key'); rows.forEach(function (r) { var hit = !needle || (r.textContent || '').toLowerCase().indexOf(needle) >= 0; r.style.display = hit ? '' : 'none'; if (hit) shown++; }); var empty = document.getElementById('t-ns-empty'); if (!empty) { var body = centerBody(); if (body) { empty = document.createElement('div'); empty.id = 't-ns-empty'; empty.style.cssText = 'color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;'; empty.textContent = '没有匹配的 key，换个词试试。'; body.appendChild(empty); } } if (empty) empty.style.display = (!needle || shown) ? 'none' : ''; },
 doArchiveNow: function () { var bk = archiveCurrent('手动归档（全部）', 'phone'); toast('已归档：' + bk.id + '，共 ' + bk.keys.length + ' 个键。'); showTab('backup');},
 /* GROUP-STEP0b: 改为 async——整机备份要 await XWLDB.exportDump；调用处（onclick）不依赖返回值。 */
 doExport: async function (scope) {
@@ -770,19 +770,19 @@ var box = document.getElementById('t-import-preview');
 var done = function (text) {
 var parsed = parseImport(text);
 _pendingImport = parsed;
-if (!parsed.conversations.length) { box.innerHTML = '<div style="color:#c00;font-size:13px;">未能解析出对话（格式：' + esc(parsed.format) + '）。请确认是 ChatGPT / Claude / Markdown / JSON 导出。</div>'; return;}
+if (!parsed.conversations.length) { box.innerHTML = '<div style="color:var(--st-danger, #7c2d2d);font-size:13px;">未能解析出对话（格式：' + esc(parsed.format) + '）。请确认是 ChatGPT / Claude / Markdown / JSON 导出。</div>'; return;}
 box.innerHTML = '<div style="font-size:13px;margin-bottom:8px;">解析格式：' + esc(parsed.format) + '，共 ' + parsed.conversations.length + ' 个对话（已清洗系统提示词与空消息）：</div>' +
 parsed.conversations.map(function (c, i) {
-return '<label style="display:block;border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;"><input type="checkbox" data-t-imp="' + i + '" checked /> <b>' + esc(c.title) + '</b> <span style="color:#888;">' + c.count + ' 条 · ' + esc(c.date || '日期未知') + '</span><div style="color:#666;font-size:12px;margin-top:4px;">' + esc(c.messages.length? c.messages[0].text.slice(0, 60): '') + '</div></label>';
+return '<label style="display:block;border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-lg,10px);padding:12px 16px;margin-bottom:8px;font-size:17px;"><input type="checkbox" data-t-imp="' + i + '" checked /> <b>' + esc(c.title) + '</b> <span style="color:var(--st-ink-60,rgba(30,39,72,.6));">' + c.count + ' 条 · ' + esc(c.date || '日期未知') + '</span><div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;margin-top:8px;">' + esc(c.messages.length? c.messages[0].text.slice(0, 60): '') + '</div></label>';
 }).join('') +
-'<button onclick="window.SafeBackupT._ui.doImportSelected()" style="border:0;background:#111;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;">导入勾选的对话（先归档当前状态）</button>';
+'<button onclick="window.SafeBackupT._ui.doImportSelected()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导入勾选的对话（先归档当前状态）</button>';
 };
 if (fileInput && fileInput.files && fileInput.files[0]) {
 var r = new FileReader();
 r.onload = function (ev) { done(String(ev.target.result));};
 r.readAsText(fileInput.files[0]);
 } else if (ta && ta.value.trim()) done(ta.value);
-else box.innerHTML = '<div style="color:#c00;font-size:13px;">请先粘贴内容或选择文件。</div>';
+else box.innerHTML = '<div style="color:var(--st-danger, #7c2d2d);font-size:13px;">请先粘贴内容或选择文件。</div>';
 },
 doImportSelected: function () {
 if (!_pendingImport) { toast('请先解析预览。'); return;}
@@ -813,7 +813,7 @@ var box = document.getElementById('t-mem-hits');
 if (!box) return;
 if (!q.trim()) { box.innerHTML = ''; return;}
 var hits = searchMemIndex(q.trim());
-box.innerHTML = hits.length? hits.map(function (m) { return '<div style="font-size:13px;padding:6px 0;border-bottom:1px solid #f5f5f5;">[' + esc(m._hitWhy || '') + '] ' + esc(memText(m)).slice(0, 100) + ' <span style="color:#888;">· ' + esc(memCat(m)) + ' ' + esc(String(memDate(m)).slice(0, 10)) + '</span></div>';}).join(''): '<div style="color:#999;font-size:13px;">索引里没有「' + esc(q) + '」。</div>';
+box.innerHTML = hits.length? hits.map(function (m) { return '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));">[' + esc(m._hitWhy || '') + '] ' + esc(memText(m)).slice(0, 100) + ' <span style="color:var(--st-ink-60,rgba(30,39,72,.6));">· ' + esc(memCat(m)) + ' ' + esc(String(memDate(m)).slice(0, 10)) + '</span></div>';}).join(''): '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">索引里没有「' + esc(q) + '」。</div>';
 },
 rebuildIndex: function () { var idx = buildMemIndex(); toast('索引已重建，共 ' + idx.count + ' 条记忆。'); showTab('memory');},
 savePrefs: function () {
@@ -831,8 +831,8 @@ var box = document.getElementById('t-search-results');
 if (!box) return;
 var hits = searchAllChats(q.trim());
 box.innerHTML = hits.length? hits.map(function (h) {
-return '<div style="border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;" onclick="window.SafeBackupT.jumpToMessage(\'' + esc(h.sessionId).replace(/'/g, '') + '\',\'' + esc(h.msgId).replace(/'/g, '') + '\')"><div style="font-size:13px;font-weight:600;">' + esc(h.sessionName) + ' <span style="font-weight:400;color:#999;font-size:11px;">' + esc(h.date || '') + ' · ' + esc(h.source) + '</span></div><div style="font-size:12px;color:#666;margin-top:2px;">' + esc(h.quote) + '</div></div>';
-}).join(''): '<div style="color:#999;font-size:13px;">没有找到「' + esc(q) + '」。</div>';
+return '<div style="border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:10px;padding:12px 16px;margin-bottom:8px;cursor:pointer;" onclick="window.SafeBackupT.jumpToMessage(\'' + esc(h.sessionId).replace(/'/g, '') + '\',\'' + esc(h.msgId).replace(/'/g, '') + '\')"><div style="font-size:13px;font-weight:600;">' + esc(h.sessionName) + ' <span style="font-weight:400;color:var(--st-ink-60,rgba(30,39,72,.6));font-size:12px;">' + esc(h.date || '') + ' · ' + esc(h.source) + '</span></div><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:4px;">' + esc(h.quote) + '</div></div>';
+}).join(''): '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">没有找到「' + esc(q) + '」。</div>';
 }
 };
 

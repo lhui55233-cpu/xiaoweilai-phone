@@ -664,7 +664,7 @@ function journeyBoardingHTML(j) {
   var h = '';
   if (j.from || j.to) h += '<br>🎫 ' + esc(j.from || '？') + ' → ' + esc(j.to || '？') + (j.transport ? ' · ' + esc(j.transport) : '');
   if (j.stars) h += '<br>' + '★★★★★'.slice(0, j.stars) + '☆☆☆☆☆'.slice(0, 5 - j.stars) + ' · 他打了 ' + j.stars + ' 颗星';
-  if (j.comment) h += '<br><span style="color:#8a6a52;">' + esc(j.comment) + '</span>';
+  if (j.comment) h += '<br><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(j.comment) + '</span>';
   return h;
 }
 
@@ -812,33 +812,33 @@ var AH_CSS = '<style id="ah-style">'
   + '@keyframes ahDrift{0%{transform:translate(0,0);}50%{transform:translate(14px,-16px);}100%{transform:translate(-10px,8px);}}'
   + '.ah-fl-petal{background:#f6b8c8;border-radius:62% 4% 62% 4%;opacity:.85;}'
   + '.ah-fl-star{background:#f5c542;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}'
-  + '.ah-fl-snow{background:#fff;border-radius:50%;box-shadow:0 0 6px rgba(255,255,255,.9);opacity:.9;}'
+  + '.ah-fl-snow{background:var(--st-paper,#fffdf8);border-radius:50%;box-shadow:0 0 6px rgba(255,255,255,.9);opacity:.9;}'
   + '.ah-fl-firefly{background:#d8f79a;border-radius:50%;box-shadow:0 0 10px 3px rgba(216,247,154,.8);animation-name:ahDrift;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}'
   + '.ah-fl-leaf{background:#7fb069;border-radius:50% 4% 50% 4%;opacity:.85;}'
   + '.ah-fl-bubble{background:rgba(255,255,255,.25);border:1.5px solid rgba(120,180,220,.7);border-radius:50%;}'
-  + '.ah-fl-dandelion{background:#fff;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.25),0 0 12px rgba(255,255,255,.6);opacity:.9;}'
-  + '.ah-fl-rain{background:linear-gradient(#7fb8e8,rgba(127,184,232,.2));border-radius:2px;}'
+  + '.ah-fl-dandelion{background:var(--st-paper,#fffdf8);border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.25),0 0 12px rgba(255,255,255,.6);opacity:.9;}'
+  + '.ah-fl-rain{background:#7fb8e8;opacity:.55;border-radius:2px;}'
   + '.ah-fl-light{background:rgba(245,197,66,.55);border-radius:50%;filter:blur(3px);animation-name:ahDrift;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}'
   + '#ah-floaters.ah-dn-night .ah-fl{opacity:.55;}'
-  + '.ah-card{background:#fff;border-radius:12px;padding:12px;margin:0 14px 10px;font-size:13px;line-height:1.7;color:#333;}'
-  + '.ah-btn{display:inline-block;padding:8px 14px;border-radius:999px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;margin:2px 4px 2px 0;}'
-  + '.ah-btn-pri{background:#34363b;color:#fff;border-color:#34363b;}'
-  + '.ah-input{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #ddd;border-radius:10px;font-size:14px;margin:4px 0;}'
-  + '.ah-chip{display:inline-block;padding:5px 10px;border-radius:999px;border:1px solid #ddd;background:#fff;font-size:12px;margin:2px;cursor:pointer;}'
-  + '.ah-chip.on{background:#34363b;color:#fff;border-color:#34363b;}'
-  + '.ah-filelabel{display:inline-block;padding:8px 14px;border-radius:999px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;margin:2px 4px 2px 0;}'
+  + '.ah-card{background:var(--st-paper,#fffdf8);border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-lg,10px);padding:12px 16px;margin:0 16px 12px;font-size:17px;line-height:1.5;color:var(--st-ink,#1e2748);}'
+  + '.ah-btn{display:inline-block;padding:8px 16px;border-radius:var(--st-radius-md,8px);border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);font-size:17px;cursor:pointer;margin:2px 4px 2px 0;}'
+  + '.ah-btn-pri{background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-color:var(--st-ink,#1e2748);}'
+  + '.ah-input{width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);font-size:17px;margin:4px 0;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);}'
+  + '.ah-chip{display:inline-block;padding:8px 12px;border-radius:var(--st-radius-sm,6px);border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);font-size:12px;margin:2px;cursor:pointer;}'
+  + '.ah-chip.on{background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-color:var(--st-ink,#1e2748);}'
+  + '.ah-filelabel{display:inline-block;padding:8px 16px;border-radius:var(--st-radius-md,8px);border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);font-size:17px;cursor:pointer;margin:2px 4px 2px 0;}'
   + '.ah-filelabel input{position:absolute;width:1px;height:1px;opacity:0;}'
   + '.ah-whack{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0;}'
-  + '.ah-whack button{height:56px;font-size:26px;border:1px solid #eee;border-radius:12px;background:#f7f7f8;cursor:pointer;}'
+  + '.ah-whack button{height:56px;font-size:26px;border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-lg,10px);background:var(--st-paper-cool,#eef0f5);cursor:pointer;}'
   + '</style>';
 function ensureCss() { if (!document.getElementById('ah-style')) { var d = document.createElement('div'); d.innerHTML = AH_CSS; document.body.appendChild(d.firstChild); } }
 function pageShell(title, sub, bodyHtml) {
   return '<div class="st-sub show" id="ah-sub">'
     + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1" data-ah-act="close">'
-    + '<svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div>'
+    + '<svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div>'
     + '<div class="st-sub-title">' + esc(title) + '</div></div>'
     + '<div class="st-bigtitle" style="padding-top:4px;">' + esc(title) + '</div>'
-    + '<div style="padding:0 14px 6px;font-size:12px;color:#888;">' + esc(sub) + '</div>'
+    + '<div style="padding:0 16px 8px;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(sub) + '</div>'
     + '<div id="ah-body">' + bodyHtml + '</div><div style="height:40px;"></div></div>';
 }
 function navChips(cur) {
@@ -851,7 +851,7 @@ function renderPage(page) {
     var audit = read(MODELAUDIT_KEY, []);
     var last = (Array.isArray(audit) && audit.length) ? audit[audit.length - 1] : null;
     var trs = listCallTranscripts().slice(-3).reverse();
-    var feat = function (k, label) { return '<label style="display:block;padding:6px 0;"><input type="checkbox" id="ah-model-f-' + k + '"' + (c.features[k] ? ' checked' : '') + '> ' + label + '</label>'; };
+    var feat = function (k, label) { return '<label style="display:block;padding:8px 0;"><input type="checkbox" id="ah-model-f-' + k + '"' + (c.features[k] ? ' checked' : '') + '> ' + label + '</label>'; };
     return pageShell('模型连接与数据承诺', '赴约做法：家与模型连接分离；密钥只存本机。AG 组未合入，本页按任务给定形状先写。',
       navChips(page)
       + '<div class="ah-card"><b>数据承诺</b><br>' + esc(PROMISE_TEXT) + '</div>'
@@ -859,14 +859,14 @@ function renderPage(page) {
       + '<input class="ah-input" id="ah-model-base" placeholder="Base URL，如 https://api.example.com/v1" value="' + esc(c.baseUrl) + '">'
       + '<input class="ah-input" id="ah-model-key" type="password" placeholder="API Key（只存本机，导出时排除）" value="' + esc(c.apiKey) + '">'
       + '<input class="ah-input" id="ah-model-name" placeholder="模型名，如 gpt-4o-mini" value="' + esc(c.model) + '">'
-      + '<label style="display:block;padding:4px 0;">温度 <input id="ah-model-temp" type="number" step="0.1" min="0" max="2" value="' + esc(String(c.temperature)) + '" style="width:70px;"></label>'
-      + '<label style="display:block;padding:4px 0;">最大 tokens <input id="ah-model-tokens" type="number" min="128" max="8192" value="' + esc(String(c.maxTokens)) + '" style="width:90px;"></label>'
-      + '<label style="display:block;padding:6px 0;"><input type="checkbox" id="ah-model-master"' + (c.master ? ' checked' : '') + '> 总开关：允许调用模型（默认关）</label>'
+      + '<label style="display:block;padding:8px 0;">温度 <input id="ah-model-temp" type="number" step="0.1" min="0" max="2" value="' + esc(String(c.temperature)) + '" style="width:70px;"></label>'
+      + '<label style="display:block;padding:8px 0;">最大 tokens <input id="ah-model-tokens" type="number" min="128" max="8192" value="' + esc(String(c.maxTokens)) + '" style="width:90px;"></label>'
+      + '<label style="display:block;padding:8px 0;"><input type="checkbox" id="ah-model-master"' + (c.master ? ' checked' : '') + '> 总开关：允许调用模型（默认关）</label>'
       + feat('chat', '微信聊天可用模型') + feat('script', '剧本 DM 可用模型') + feat('diary', '日记生成可用模型') + feat('inner', '内心独白可用模型')
       + '<div style="margin-top:8px;"><button class="ah-btn ah-btn-pri" data-ah-act="model-save">保存</button>'
       + '<button class="ah-btn" data-ah-act="model-test">测试连接</button>'
       + '<button class="ah-btn" data-ah-act="model-clear">清除密钥</button></div>'
-      + '<div id="ah-model-tip" style="margin-top:6px;color:#666;">' + (modelReady() ? '当前状态：模型已接通' + (srAvailable() ? '，电话可走实时语音。' : '，但本设备无语音识别，电话仍为模拟（已标注）。') : '当前状态：未接模型，全部走本地模板，电话为模拟通话。') + '</div></div>'
+      + '<div id="ah-model-tip" style="margin-top:8px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (modelReady() ? '当前状态：模型已接通' + (srAvailable() ? '，电话可走实时语音。' : '，但本设备无语音识别，电话仍为模拟（已标注）。') : '当前状态：未接模型，全部走本地模板，电话为模拟通话。') + '</div></div>'
       + '<div class="ah-card"><b>最近一次模型调用（实际行为对账）</b><br>' + (last ? ('时间 ' + esc(last.time || '') + ' · ' + esc(last.kind) + ' · 发出 ' + last.sentMessages + ' 条消息 / ' + last.sentMemories + ' 条记忆（上限 ' + last.cap + '）· ' + (last.ok ? '成功' : '失败')) : '还没有调用过模型。') + '</div>'
       + '<div class="ah-card"><b>电话转写归档（最近 3 通）</b><br>' + (trs.length ? trs.map(function (t) { return '· ' + esc(t.name || '') + ' · ' + esc(t.modeLabel || t.mode || '') + ' · ' + (t.lines || []).length + ' 行转写<br>'; }).join('') : '还没有通话转写。拨号在电话 app 里；没接模型时明确标注“模拟通话”。') + '</div>');
   }
@@ -880,7 +880,7 @@ function renderPage(page) {
       + '<div style="margin-top:8px;"><button class="ah-btn ah-btn-pri" data-ah-act="mem-import-guichao">从归巢导入待审</button>'
       + '<input class="ah-input" id="ah-mem-text" placeholder="手动写一条待审记忆…"><button class="ah-btn" data-ah-act="mem-add">加入待审</button></div></div>'
       + (list.length ? list.slice().reverse().slice(0, 30).map(function (x) {
-          return '<div class="ah-card"><b>[' + esc(x.level) + ']</b> ' + esc(x.text) + '<br><span style="color:#888;">' + esc(x.category) + ' · ' + esc(x.status) + (x.enabled === false ? ' · 已停用' : '') + ' · ' + esc(x.source || '') + '</span><br>'
+          return '<div class="ah-card"><b>[' + esc(x.level) + ']</b> ' + esc(x.text) + '<br><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(x.category) + ' · ' + esc(x.status) + (x.enabled === false ? ' · 已停用' : '') + ' · ' + esc(x.source || '') + '</span><br>'
             + '<button class="ah-btn" data-ah-act="mem-act" data-op="approve" data-id="' + esc(x.id) + '">通过</button>'
             + '<button class="ah-btn" data-ah-act="mem-act" data-op="disable" data-id="' + esc(x.id) + '">停用</button>'
             + '<button class="ah-btn" data-ah-act="mem-act" data-op="enable" data-id="' + esc(x.id) + '">启用</button>'
@@ -899,7 +899,7 @@ function renderPage(page) {
       + '<div class="ah-card"><b>漂浮物（可多选叠加，纯 CSS/JS 画，不外链图片；切到后台自动暂停）</b><br>' + chips
       + '<br><button class="ah-btn ah-btn-pri" data-ah-act="float-nop">不飘（一键清空）</button></div>'
       + '<div class="ah-card"><b>重点色（六套）</b><br>' + acc + '</div>'
-      + '<div class="ah-card"><b>白天 / 黑夜（独立）</b><br>' + dn + '<br><span style="color:#888;">当前按设置是“' + (dayNightNow() === 'day' ? '白天' : '黑夜') + '”。</span></div>'
+      + '<div class="ah-card"><b>白天 / 黑夜（独立）</b><br>' + dn + '<br><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">当前按设置是“' + (dayNightNow() === 'day' ? '白天' : '黑夜') + '”。</span></div>'
       + '<div class="ah-card"><b>页面布局（三种）</b><br>' + lay + '</div>');
   }
   if (page === 'toys') {
@@ -910,11 +910,11 @@ function renderPage(page) {
       navChips(page)
       + '<div class="ah-card"><b>打地鼠</b> · 得分 <span id="ah-whack-score">0</span> · 剩余 <span id="ah-whack-time">30</span> 秒'
       + '<div class="ah-whack">' + grid + '</div>'
-      + '<button class="ah-btn ah-btn-pri" data-ah-act="toy-whack-start">开始一局（30 秒）</button><span id="ah-whack-end" style="color:#666;"></span></div>'
+      + '<button class="ah-btn ah-btn-pri" data-ah-act="toy-whack-start">开始一局（30 秒）</button><span id="ah-whack-end" style="color:var(--st-ink-60,rgba(30,39,72,.6));"></span></div>'
       + '<div class="ah-card"><b>导入单文件 HTML 小游戏</b><br>只接受单文件 HTML，不含任何外链（脚本/图片/地址）；在 <code>sandbox="allow-scripts"</code> 的 iframe 里跑，无网络、不给 allow-same-origin。<br>'
       + '<label class="ah-filelabel">选择 HTML 文件<input type="file" id="ah-toy-file" accept=".html,.htm"></label></div>'
       + (toys.length ? toys.map(function (t) {
-          return '<div class="ah-card"><b>' + esc(t.name) + '</b> <span style="color:#888;">导入于 ' + new Date(t.createdAt).toLocaleDateString() + '</span><br>'
+          return '<div class="ah-card"><b>' + esc(t.name) + '</b> <span style="color:var(--st-ink-60,rgba(30,39,72,.6));">导入于 ' + new Date(t.createdAt).toLocaleDateString() + '</span><br>'
             + '<button class="ah-btn ah-btn-pri" data-ah-act="toy-play" data-id="' + esc(t.id) + '">玩</button>'
             + '<button class="ah-btn" data-ah-act="toy-del" data-id="' + esc(t.id) + '">删除</button>'
             + '<div id="ah-toy-stage-' + esc(t.id) + '" style="margin-top:8px;"></div></div>';
@@ -926,7 +926,7 @@ function renderPage(page) {
       navChips(page)
       + '<div class="ah-card"><b>贴个链接</b><br>支持 xiaohongshu.com / github.com 的公开链接。<br>'
       + '<input class="ah-input" id="ah-watch-url" placeholder="粘贴链接…"><button class="ah-btn ah-btn-pri" data-ah-act="watch-paste">处理这条链接</button>'
-      + '<div id="ah-watch-tip" style="color:#666;margin-top:4px;">' + (modelReady() ? '模型已接：会先读标题，再让模型评论，结果写进小本本。' : '未接模型：链接会先存进待看，并写清楚“已存进待看，有网有模型时再看”。') + '</div></div>'
+      + '<div id="ah-watch-tip" style="color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">' + (modelReady() ? '模型已接：会先读标题，再让模型评论，结果写进小本本。' : '未接模型：链接会先存进待看，并写清楚“已存进待看，有网有模型时再看”。') + '</div></div>'
       + (wl.length ? wl.slice().reverse().map(function (w) {
           return '<div class="ah-card"><a href="' + esc(w.url) + '" target="_blank" rel="noopener">' + esc(w.url) + '</a><br>'
             + (w.title ? '标题：' + esc(w.title) + '<br>' : '') + '状态：' + esc(w.status) + (w.note ? ' · ' + esc(w.note) : '') + '<br>'
@@ -934,13 +934,13 @@ function renderPage(page) {
             + '<button class="ah-btn" data-ah-act="watch-retry" data-id="' + esc(w.id) + '">现在看（再试一次）</button>'
             + '<button class="ah-btn" data-ah-act="watch-del" data-id="' + esc(w.id) + '">删除</button></div>';
         }).join('') : '<div class="ah-card">待看是空的。微信里贴链接也会自动进这里（已接通微信发消息的钩子）。</div>')
-      + '<div class="ah-card" style="color:#888;">待看同时写进影院小本本 cinema_notes_v1 的“待看”栏（__watchlist__），和影院手记在一起。</div>');
+      + '<div class="ah-card" style="color:var(--st-ink-60,rgba(30,39,72,.6));">待看同时写进影院小本本 cinema_notes_v1 的“待看”栏（__watchlist__），和影院手记在一起。</div>');
   }
   if (page === 'journey') {
     var js = listJourney();
     return pageShell('旅行手记', '赴约做法：纯文字旅行手记，一句话或长笔记直接存本地，不依赖视觉模型。',
       navChips(page)
-      + '<div class="ah-card" style="font-size:12px;color:#8a6a52;">' + esc(TravelSyncAdapter.status()) + '</div>'
+      + '<div class="ah-card" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(TravelSyncAdapter.status()) + '</div>'
       + '<div class="ah-card"><b>写一则手记</b><br>'
       + '<input class="ah-input" id="ah-jr-date" type="date" value="' + dayStr() + '">'
       + '<input class="ah-input" id="ah-jr-place" placeholder="地点（可从此刻时间线取，如：雨夜咖啡馆）">'
@@ -962,9 +962,9 @@ function renderPage(page) {
       navChips(page)
       + '<div class="ah-card"><b>碰一碰</b><br>在桌面上戳一下 char，或在 3D 家里点他，他会冒一句 + 做个小动作（复用 M 组桌面宠物点按与 P 组动作台）。<br><button class="ah-btn ah-btn-pri" data-ah-act="poke">戳一下试试</button></div>'
       + '<div class="ah-card"><b>碎碎念（可上下翻）</b><br><input class="ah-input" id="ah-mumble-text" placeholder="替他写一句嘟囔…"><button class="ah-btn" data-ah-act="mumble-add">记一句</button><br>'
-      + (mb.length ? mb.map(function (m) { return '· ' + esc(m.text) + ' <span style="color:#aaa;">(' + esc(m.time || '') + ')</span><br>'; }).join('') : '还没有嘟囔。内心独白开关（mind）关着时不写。') + '</div>'
+      + (mb.length ? mb.map(function (m) { return '· ' + esc(m.text) + ' <span style="color:var(--st-ink-40,rgba(30,39,72,.4));">(' + esc(m.time || '') + ')</span><br>'; }).join('') : '还没有嘟囔。内心独白开关（mind）关着时不写。') + '</div>'
       + '<div class="ah-card"><b>装修日记（3D 家布置改动）</b><br><input class="ah-input" id="ah-decor-text" placeholder="比如：把阳台的花换成了向日葵…"><button class="ah-btn" data-ah-act="decor-add">记一笔</button><br>'
-      + (dc.length ? dc.slice().reverse().slice(0, 20).map(function (d) { return '· ' + esc(d.who) + '：' + esc(d.what) + ' <span style="color:#aaa;">(' + esc(d.time || '') + ')</span><br>'; }).join('') : '还没有布置记录。在 3D 家里第一次碰一件家具时也会自动记一笔（Z 组装修方案未合入，先记在布置入口处）。') + '</div>');
+      + (dc.length ? dc.slice().reverse().slice(0, 20).map(function (d) { return '· ' + esc(d.who) + '：' + esc(d.what) + ' <span style="color:var(--st-ink-40,rgba(30,39,72,.4));">(' + esc(d.time || '') + ')</span><br>'; }).join('') : '还没有布置记录。在 3D 家里第一次碰一件家具时也会自动记一笔（Z 组装修方案未合入，先记在布置入口处）。') + '</div>');
   }
   if (page === 'tools') {
     var sw = handsOn();
@@ -983,7 +983,7 @@ function renderPage(page) {
       navChips(page)
       + '<div class="ah-card"><b>导出外观包</b><br>包含：主题 + 漂浮物 + 布局。不含 API Key。<br><button class="ah-btn ah-btn-pri" data-ah-act="appearance-export">下载外观包 JSON</button></div>'
       + '<div class="ah-card"><b>导入外观包</b><br><label class="ah-filelabel">选择外观包 JSON<input type="file" id="ah-appearance-file" accept=".json,application/json"></label>'
-      + '<div id="ah-appearance-preview" style="color:#666;margin-top:6px;">导入前会先预览，确认后再应用。</div>'
+      + '<div id="ah-appearance-preview" style="color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">导入前会先预览，确认后再应用。</div>'
       + '<button class="ah-btn ah-btn-pri" data-ah-act="appearance-apply">确认应用</button></div>');
   }
   /* 默认：home 整屋 */
@@ -993,9 +993,9 @@ function renderPage(page) {
     + '<div class="ah-card"><b>导出整屋</b><br>包含人物、聊天、记忆、信件、空间、心情、外观等 ' + HOME_KEYS.length + ' 个键。不含模型 API Key、锁屏密码与备份归档本身。<br>'
     + '<button class="ah-btn ah-btn-pri" data-ah-act="home-export">下载整屋 JSON</button></div>'
     + '<div class="ah-card"><b>导入整屋</b><br><label class="ah-filelabel">选择整屋 JSON<input type="file" id="ah-home-file" accept=".json,application/json"></label>'
-    + '<div id="ah-home-preview" style="color:#666;margin-top:6px;">先选文件，这里会展示“会改变什么”与冲突检查；确认后再写，写前先归档当前状态。</div>'
+    + '<div id="ah-home-preview" style="color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">先选文件，这里会展示“会改变什么”与冲突检查；确认后再写，写前先归档当前状态。</div>'
     + '<button class="ah-btn ah-btn-pri" data-ah-act="home-import-confirm">确认导入</button></div>'
-    + '<div class="ah-card" style="color:#888;">幂等：同一份整屋导两次，第二次新增 0 条，不会重复。恢复走 T 组备份与安全中心（先归档、可撤销）。</div>');
+    + '<div class="ah-card" style="color:var(--st-ink-60,rgba(30,39,72,.6));">幂等：同一份整屋导两次，第二次新增 0 条，不会重复。恢复走 T 组备份与安全中心（先归档、可撤销）。</div>');
 }
 function open(page, win) {
   _currentPage = page || 'home';

@@ -389,7 +389,7 @@
   function renderDiagSub() {
     var ids = [['storage', '本机存储'], ['memory', '归巢记忆'], ['model', '模型连接'], ['backup', '备份'], ['theme', '主题与外观']];
     var cards = ids.map(function (pair) {
-      return '<div class="ib-diag-card" style="margin:0 16px 10px;"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:15px;font-weight:600;flex:1;">' + pair[1] + '</span>'
+      return '<div class="ib-diag-card" style="margin:0 16px 12px;"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:17px;font-weight:600;flex:1;">' + pair[1] + '</span>'
         + '<span class="ib-pill check" data-ib-diag="' + pair[0] + '">检查中</span></div>'
         + '<div class="ib-diag-note" data-ib-diag-note="' + pair[0] + '">正在检查……</div></div>';
     }).join('');
@@ -398,15 +398,15 @@
       + '<div class="st-bigtitle" style="padding-top:4px;">哪里不对劲，一眼看懂</div>'
       + '<div class="st-foot" style="margin-top:0;">这里只说结论：哪项正常、哪项要注意、会不会影响聊天、能不能一键恢复。技术细节收在下面，不含密钥、不含记忆正文。</div>'
       + cards
-      + '<div style="margin:4px 16px 10px;display:flex;gap:8px;"><button type="button" class="ib-press" id="ib-diag-fix" style="flex:1;border:0;background:#007AFF;color:#fff;border-radius:12px;padding:12px;font-size:16px;">一键修复</button>'
-      + '<button type="button" class="ib-press" id="ib-diag-export" style="flex:1;border:1px solid #E5E5EA;background:#fff;color:#007AFF;border-radius:12px;padding:12px;font-size:16px;">导出脱敏报告</button></div>'
-      + '<div style="margin:4px 16px 10px;"><button type="button" class="ib-press" id="ib-diag-ai" style="width:100%;border:0;background:#5856D6;color:#fff;border-radius:12px;padding:12px;font-size:16px;">AI 诊断（请模型看脱敏报告）</button></div>'
+      + '<div style="margin:4px 16px 10px;display:flex;gap:8px;"><button type="button" class="ib-press" id="ib-diag-fix" style="flex:1;border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;">一键修复</button>'
+      + '<button type="button" class="ib-press" id="ib-diag-export" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;">导出脱敏报告</button></div>'
+      + '<div style="margin:4px 16px 10px;"><button type="button" class="ib-press" id="ib-diag-ai" style="width:100%;border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;">AI 诊断（请模型看脱敏报告）</button></div>'
       + '<div class="st-foot" id="ib-diag-ai-result" style="margin-top:0;white-space:pre-wrap;"></div>'
-      + '<details style="margin:0 16px;"><summary style="font-size:14px;color:#8E8E93;cursor:pointer;">最近报错（只记最近 30 条，不联网、不上报）</summary>'
-      + '<div class="st-foot" id="ib-diag-errors-body" style="margin:4px 0 0;">还没检查。</div></details>'
+      + '<details style="margin:0 16px;"><summary style="font-size:17px;color:var(--st-ink-60,rgba(30,39,72,.6));cursor:pointer;">最近报错（只记最近 30 条，不联网、不上报）</summary>'
+      + '<div class="st-foot" id="ib-diag-errors-body" style="margin:8px 0 0;">还没检查。</div></details>'
       + '<div class="st-foot" id="ib-diag-fix-result" style="margin-top:0;"></div>'
-      + '<details style="margin:0 16px;"><summary style="font-size:14px;color:#8E8E93;cursor:pointer;">技术细节（只含条数，不含内容）</summary>'
-      + '<div class="st-foot" id="ib-diag-tech" style="margin:4px 0 0;">还没检查。</div></details>'
+      + '<details style="margin:0 16px;"><summary style="font-size:17px;color:var(--st-ink-60,rgba(30,39,72,.6));cursor:pointer;">技术细节（只含条数，不含内容）</summary>'
+      + '<div class="st-foot" id="ib-diag-tech" style="margin:8px 0 0;">还没检查。</div></details>'
       + '<div style="height:40px;"></div></div>';
   }
   function runDiag(root) {
@@ -471,8 +471,8 @@
     var list = diagErrorList();
     if (!list.length) { box.textContent = '最近没有收到报错。'; return 0; }
     box.innerHTML = list.slice().reverse().map(function (e) {
-      return '<div style="padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;line-height:1.6;"><div>' + esc(String(e.message || '未知错误')) + '</div><div style="color:#8E8E93;font-size:12px;">' + esc(String(e.at || '')) + (e.file ? ' · ' + esc(String(e.file)) + (e.line ? ':' + e.line : '') : '') + '</div></div>';
-    }).join('') + '<div style="font-size:12px;color:#8E8E93;margin-top:6px;">只记最近 30 条，只记错误信息与位置，不记记忆正文与密钥；不联网、不自动上报。</div>';
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));font-size:13px;line-height:1.5;"><div>' + esc(String(e.message || '未知错误')) + '</div><div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">' + esc(String(e.at || '')) + (e.file ? ' · ' + esc(String(e.file)) + (e.line ? ':' + e.line : '') : '') + '</div></div>';
+    }).join('') + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">只记最近 30 条，只记错误信息与位置，不记记忆正文与密钥；不联网、不自动上报。</div>';
     return list.length;
   }
   /* GROUP-CORE · AI 诊断：把 buildDiagReport 的脱敏报告发给已接好的模型。
@@ -508,8 +508,8 @@
       var html = '';
       if (!safe.length && !risky.length) html = '模型看完了脱敏报告，没给出需要修的项。';
       else {
-        if (safe.length) html += '<div style="font-weight:600;margin-bottom:4px;">可以直接修的（走现有的一键修复路径）：</div>' + safe.map(function (s, i) { return '<div style="margin:4px 0;"><button type="button" data-ib-ai-fix="' + i + '" style="border:1px solid #007AFF;background:#fff;color:#007AFF;border-radius:8px;padding:6px 10px;font-size:13px;">修：' + esc(s.title) + '</button></div>'; }).join('');
-        if (risky.length) html += '<div style="font-weight:600;margin:8px 0 4px;">先问你、不会擅自执行的：</div>' + risky.map(function (r) { return '<div style="font-size:13px;line-height:1.6;">· ' + esc(r.title) + (r.why ? ' —— ' + esc(r.why) : '') + '</div>'; }).join('');
+        if (safe.length) html += '<div style="font-weight:600;margin-bottom:4px;">可以直接修的（走现有的一键修复路径）：</div>' + safe.map(function (s, i) { return '<div style="margin:8px 0;"><button type="button" data-ib-ai-fix="' + i + '" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">修：' + esc(s.title) + '</button></div>'; }).join('');
+        if (risky.length) html += '<div style="font-weight:600;margin:8px 0;">先问你、不会擅自执行的：</div>' + risky.map(function (r) { return '<div style="font-size:13px;line-height:1.5;">· ' + esc(r.title) + (r.why ? ' —— ' + esc(r.why) : '') + '</div>'; }).join('');
       }
       if (line) line.innerHTML = html;
       if (line) {
@@ -590,13 +590,13 @@
       }).join('');
       thread = head + rows + (t.msgs.length > 60 ? '<div class="st-foot">只显示前 60 条。</div>' : '');
     } else {
-      thread = '<div class="ib-diag-card" style="margin:0 16px 10px;"><div style="font-size:15px;font-weight:600;">还没有可观察的角色私聊</div>'
+      thread = '<div class="ib-diag-card" style="margin:0 16px 12px;"><div style="font-size:17px;font-weight:600;">还没有可观察的角色私聊</div>'
         + '<div class="ib-diag-note">需要一段至少两位角色（不含你）的对话记录；有了之后这里会自动出现，不编假对话。</div></div>';
     }
-    var autoBlock = '<details style="margin:12px 16px;"><summary style="font-size:15px;font-weight:600;cursor:pointer;">自主发起</summary>'
-      + '<div style="margin-top:8px;font-size:14px;line-height:1.6;">现在是' + (auto ? '开的' : '关的') + '。'
+    var autoBlock = '<details style="margin:12px 16px;"><summary style="font-size:17px;font-weight:600;cursor:pointer;">自主发起</summary>'
+      + '<div style="margin-top:8px;font-size:17px;line-height:1.5;">现在是' + (auto ? '开的' : '关的') + '。'
       + '<span id="ib-roledm-status">（' + (auto ? '开' : '关') + '）</span></div>'
-      + '<label style="display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px;"><input type="checkbox" id="ib-roledm-auto"' + (auto ? ' checked' : '') + ' style="width:20px;height:20px;"> 允许角色自主发起私聊</label>'
+      + '<label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-size:17px;"><input type="checkbox" id="ib-roledm-auto"' + (auto ? ' checked' : '') + ' style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);"> 允许角色自主发起私聊</label>'
       + '<div class="st-foot" style="margin:8px 0 0;">开启后也只在打开手机时本地检查：一天最多 3 条，间隔至少 30 分钟，免打扰 23:00–08:00；关页后不发送（见 ActiveScheduler 接口，单文件没有后台调度）。</div></details>';
     return '<div class="st-sub" id="st-sub-ibRoleDM">'
       + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">角色私聊观察</div></div>'

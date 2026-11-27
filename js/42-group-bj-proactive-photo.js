@@ -399,15 +399,15 @@ function settingsSectionHTML() {
   var count = photosTodayCount(new Date());
   var chk = function (on) { return on ? ' checked' : ''; };
   var row = function (id, label, on) {
-    return '<div class="st-row" style="padding:12px 14px;"><span class="st-label">' + esc(label) + '</span><div class="st-row-right"><input id="' + id + '" type="checkbox"' + chk(on) + ' style="width:22px;height:22px;"></div></div>';
+    return '<div class="st-row"><span class="st-label">' + esc(label) + '</span><div class="st-row-right"><input id="' + id + '" type="checkbox"' + chk(on) + ' style="width:22px;height:22px;"></div></div>';
   };
   var rows = '';
   MSG_KEYS.forEach(function (k) { rows += row('bj-msg-' + k, MSG_LABEL[k], cfg.msg[k]); });
-  return '<div class="st-bigtitle" style="font-size:18px;padding-top:8px;">主动照片与主动消息（BJ 组）</div>'
+  return '<div class="st-bigtitle" style="padding-top:8px;">主动照片与主动消息（BJ 组）</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;">照片只用本机图片（此刻场景 / 相册 / 自拍相机 / 明信片插画），不外链、不编造；每张照片下面会标出来源。主动消息按触发种类单独开关，关掉的那类就不发。</div>'
     + '<div class="st-group">'
     + row('bj-photo-enabled', '主动照片', cfg.photo)
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">每日主动照片上限</span><div class="st-row-right"><input id="bj-photo-cap" type="number" min="0" max="5" value="' + cfg.photoDailyCap + '" style="width:72px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"> 张</div></div>'
+    + '<div class="st-row"><span class="st-label">每日主动照片上限</span><div class="st-row-right"><input id="bj-photo-cap" type="number" min="0" max="5" value="' + cfg.photoDailyCap + '" style="width:72px;height:40px;text-align:right;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:0 12px;font-size:17px;"> 张</div></div>'
     + rows
     + '</div>'
     + '<div class="st-foot" id="bj-status">今日主动照片已发 ' + count + ' / ' + cfg.photoDailyCap + ' 张。</div>';

@@ -461,43 +461,43 @@ function renderSettingsSub(act) {
   var cards = defs.map(function (d) {
     var p = getPrompt(d.id);
     var rows = (d.id === 'persona')
-      ? '<div style="font-size:12px;color:#8E8E93;line-height:1.6;">当前人设（与角色设置同一份，改这里就是改角色设置）：</div>'
+      ? '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;">当前人设（与角色设置同一份，改这里就是改角色设置）：</div>'
       : '';
-    return '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px 4px;display:flex;align-items:center;gap:8px;">'
-      + '<div style="flex:1;"><div style="font-size:16px;font-weight:700;">' + esc(d.title) + ' <span style="font-size:12px;color:#8E8E93;font-weight:400;">' + esc(d.en) + '</span></div>'
-      + '<div style="font-size:13px;color:#3A3A3C;line-height:1.6;margin-top:2px;">' + esc(d.desc) + '</div></div>'
-      + '<label style="font-size:13px;color:#3A3A3C;white-space:nowrap;">启用 <input type="checkbox" data-az-enable="' + d.id + '" ' + (p.enabled ? 'checked' : '') + ' onchange="window.GroupAZ.setEnabled(\'' + d.id + '\', this.checked)" style="width:20px;height:20px;accent-color:#007AFF;vertical-align:-4px;"></label></div>'
-      + '<div style="padding:0 14px;"><textarea id="az-prompt-' + d.id + '" ' + (p.enabled ? '' : 'disabled') + ' style="width:100%;box-sizing:border-box;min-height:110px;border:1px solid #E5E5EA;border-radius:10px;padding:10px;font-size:13px;line-height:1.6;color:#1C1C1E;background:#F7F7F8;resize:vertical;">' + esc(p.text) + '</textarea></div>'
-      + '<div style="padding:8px 14px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
-      + '<button type="button" onclick="window.GroupAZ.savePrompt(\'' + d.id + '\')" style="border:0;border-radius:8px;padding:8px 14px;font-size:14px;background:#007AFF;color:#fff;">保存</button>'
-      + '<button type="button" onclick="window.GroupAZ.resetPromptUI(\'' + d.id + '\')" style="border:0;border-radius:8px;padding:8px 14px;font-size:14px;background:#F2F2F7;color:#1C1C1E;">恢复默认</button>'
-      + '<span style="font-size:12px;color:#8E8E93;line-height:1.5;">' + esc(d.source) + '</span></div>' + rows + '</div>';
+    return '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 16px 4px;display:flex;align-items:center;gap:8px;">'
+      + '<div style="flex:1;"><div style="font-size:17px;font-weight:600;">' + esc(d.title) + ' <span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));font-weight:400;">' + esc(d.en) + '</span></div>'
+      + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-top:4px;">' + esc(d.desc) + '</div></div>'
+      + '<label style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));white-space:nowrap;">启用 <input type="checkbox" data-az-enable="' + d.id + '" ' + (p.enabled ? 'checked' : '') + ' onchange="window.GroupAZ.setEnabled(\'' + d.id + '\', this.checked)" style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);vertical-align:-4px;"></label></div>'
+      + '<div style="padding:0 16px;"><textarea id="az-prompt-' + d.id + '" ' + (p.enabled ? '' : 'disabled') + ' style="width:100%;box-sizing:border-box;min-height:110px;border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:12px;font-size:17px;line-height:1.5;color:var(--st-ink,#1e2748);background:var(--st-paper-warm,#fbf9f4);resize:vertical;">' + esc(p.text) + '</textarea></div>'
+      + '<div style="padding:8px 16px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+      + '<button type="button" onclick="window.GroupAZ.savePrompt(\'' + d.id + '\')" style="border:0;border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);">保存</button>'
+      + '<button type="button" onclick="window.GroupAZ.resetPromptUI(\'' + d.id + '\')" style="border:0;border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;background:var(--st-paper-cool,#eef0f5);color:var(--st-ink,#1e2748);">恢复默认</button>'
+      + '<span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;">' + esc(d.source) + '</span></div>' + rows + '</div>';
   }).join('');
   var beh = BEHAVIORS.filter(function (b) { return b[0] !== 'moments'; }).map(function (b) {
-    return '<div class="st-row"><span class="st-label">' + esc(b[1]) + '</span><div class="st-row-right"><input type="checkbox" ' + (s.behaviors[b[0]] ? 'checked' : '') + ' onchange="window.GroupAZ.setBehavior(\'' + b[0] + '\', this.checked)" style="width:20px;height:20px;accent-color:#007AFF;"></div></div>';
+    return '<div class="st-row"><span class="st-label">' + esc(b[1]) + '</span><div class="st-row-right"><input type="checkbox" ' + (s.behaviors[b[0]] ? 'checked' : '') + ' onchange="window.GroupAZ.setBehavior(\'' + b[0] + '\', this.checked)" style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);"></div></div>';
   }).join('');
   var prof = getProfile(charName());
-  var profHtml = '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px;"><div style="font-size:16px;font-weight:700;">人物基线档案</div>'
-    + '<div style="font-size:13px;color:#3A3A3C;line-height:1.6;margin-top:4px;">年龄、关系、熟练度在人物创建或角色设置时一次确立，持续有效；之后不再反复询问或反复声明。场景里不出现解释，只在后台按基线执行。</div>'
-    + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">'
-    + '<input id="az-base-name" placeholder="人物名字" value="' + esc(charName()) + '" style="flex:1;min-width:90px;border:1px solid #E5E5EA;border-radius:8px;padding:8px;font-size:14px;">'
-    + '<input id="az-base-age" placeholder="年龄（如 28）" value="' + esc(prof && prof.age ? prof.age : '') + '" style="width:90px;border:1px solid #E5E5EA;border-radius:8px;padding:8px;font-size:14px;">'
-    + '<input id="az-base-rel" placeholder="关系（如 恋人）" value="' + esc(prof && prof.relationship ? prof.relationship : '') + '" style="width:110px;border:1px solid #E5E5EA;border-radius:8px;padding:8px;font-size:14px;">'
-    + '<input id="az-base-prof" placeholder="熟练度（如 熟练）" value="' + esc(prof && prof.proficiency ? prof.proficiency : '') + '" style="width:110px;border:1px solid #E5E5EA;border-radius:8px;padding:8px;font-size:14px;"></div>'
-    + '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;"><button type="button" onclick="window.GroupAZ.saveBaselineFromPage()" style="border:0;border-radius:8px;padding:8px 14px;font-size:14px;background:#007AFF;color:#fff;">保存基线档案</button>'
-    + '<span id="az-base-tip" style="font-size:12px;color:#8E8E93;">' + (prof && prof.establishedAt ? ('已确立（' + new Date(prof.establishedAt).toLocaleDateString('zh-CN') + '），后续互动不再重复询问。') : '尚未确立：填好保存一次即可。') + '</span></div></div></div>';
-  var mapRows = Object.keys(CAT_MAP).map(function (k) { return '<div class="st-row" style="font-size:14px;"><span class="st-label">' + k + '</span><span style="color:#8E8E93;">→ ' + CAT_MAP[k] + '</span></div>'; }).join('');
-  var lastLog = (s.log || []).slice(0, 3).map(function (l) { return '<div style="font-size:13px;color:#3A3A3C;line-height:1.6;">· ' + esc(l.detail) + '（' + esc(l.via || '') + '）</div>'; }).join('') || '<div style="font-size:13px;color:#8E8E93;">还没有主动行为记录。</div>';
+  var profHtml = '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 16px;"><div style="font-size:17px;font-weight:600;">人物基线档案</div>'
+    + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-top:8px;">年龄、关系、熟练度在人物创建或角色设置时一次确立，持续有效；之后不再反复询问或反复声明。场景里不出现解释，只在后台按基线执行。</div>'
+    + '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'
+    + '<input id="az-base-name" placeholder="人物名字" value="' + esc(charName()) + '" style="flex:1;min-width:90px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">'
+    + '<input id="az-base-age" placeholder="年龄（如 28）" value="' + esc(prof && prof.age ? prof.age : '') + '" style="width:90px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">'
+    + '<input id="az-base-rel" placeholder="关系（如 恋人）" value="' + esc(prof && prof.relationship ? prof.relationship : '') + '" style="width:110px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">'
+    + '<input id="az-base-prof" placeholder="熟练度（如 熟练）" value="' + esc(prof && prof.proficiency ? prof.proficiency : '') + '" style="width:110px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></div>'
+    + '<div style="display:flex;gap:8px;margin-top:12px;align-items:center;"><button type="button" onclick="window.GroupAZ.saveBaselineFromPage()" style="border:0;border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);">保存基线档案</button>'
+    + '<span id="az-base-tip" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (prof && prof.establishedAt ? ('已确立（' + new Date(prof.establishedAt).toLocaleDateString('zh-CN') + '），后续互动不再重复询问。') : '尚未确立：填好保存一次即可。') + '</span></div></div></div>';
+  var mapRows = Object.keys(CAT_MAP).map(function (k) { return '<div class="st-row" style="font-size:17px;"><span class="st-label">' + k + '</span><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">→ ' + CAT_MAP[k] + '</span></div>'; }).join('');
+  var lastLog = (s.log || []).slice(0, 3).map(function (l) { return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;">· ' + esc(l.detail) + '（' + esc(l.via || '') + '）</div>'; }).join('') || '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">还没有主动行为记录。</div>';
   return '<div class="st-sub" id="st-sub-prompts">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">内置提示词</div></div>'
+    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">内置提示词</div></div>'
     + '<div class="st-bigtitle" style="padding-top:4px;">内置提示词</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;">每条提示词可看、可改、可恢复默认、可单独开关。提示词存在自己的命名空间 phone_prompts_v1 里（没有 key），随整屋备份/导出一起走。' + esc(modelStatusLine()) + '</div>'
-    + '<div id="az-tip" style="margin:0 16px 8px;font-size:13px;color:#34C759;min-height:18px;"></div>'
+    + '<div id="az-tip" style="margin:0 16px 8px;font-size:13px;color:var(--st-ink,#1e2748);min-height:18px;"></div>'
     + cards
-    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px 4px;font-size:16px;font-weight:700;">主动行为开关</div><div style="font-size:13px;color:#8E8E93;padding:0 14px 8px;line-height:1.6;">每种主动行为可单独开关。关闭“微信消息”后，主动微信消息（含 GroupR 节流门）也不再发。</div>' + beh + '</div>'
+    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 16px 4px;font-size:17px;font-weight:600;">主动行为开关</div><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 16px 8px;line-height:1.5;">每种主动行为可单独开关。关闭“微信消息”后，主动微信消息（含 GroupR 节流门）也不再发。</div>' + beh + '</div>'
     + profHtml
-    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px 4px;font-size:16px;font-weight:700;">记忆分类对照</div><div style="font-size:13px;color:#8E8E93;padding:0 14px 8px;line-height:1.6;">Memory OS 的分类作主标签，手机现有分类作展示分组，不丢数据。</div>' + mapRows + '</div>'
-    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 14px;"><div style="font-size:16px;font-weight:700;">最近的主动行为</div><div style="margin-top:6px;">' + lastLog + '</div></div></div>'
+    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 16px 4px;font-size:17px;font-weight:600;">记忆分类对照</div><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 16px 8px;line-height:1.5;">Memory OS 的分类作主标签，手机现有分类作展示分组，不丢数据。</div>' + mapRows + '</div>'
+    + '<div class="st-group" style="margin-bottom:12px;"><div style="padding:12px 16px;"><div style="font-size:17px;font-weight:600;">最近的主动行为</div><div style="margin-top:8px;">' + lastLog + '</div></div></div>'
     + '<div class="st-foot">诚实说明：未接模型时是模板按提示词规则执行，页面与内心调试页会标明“模板生成”；接模型后才由模型按提示词写，标明“模型生成”。</div>'
     + '<div style="height:40px;"></div></div>';
 }
@@ -517,10 +517,10 @@ function refreshPage() {
 function savePrompt(id) {
   var el = document.getElementById('az-prompt-' + id);
   var v = el ? el.value : '';
-  if (!v.trim()) { var tipE = document.getElementById('az-tip'); if (tipE) { tipE.style.color = '#FF3B30'; tipE.textContent = '内容是空的，没保存：提示词清空后这条规则就没了，想停用请用旁边的「启用」开关。'; } return false; }
+  if (!v.trim()) { var tipE = document.getElementById('az-tip'); if (tipE) { tipE.style.color = 'var(--st-danger, #7c2d2d)'; tipE.textContent = '内容是空的，没保存：提示词清空后这条规则就没了，想停用请用旁边的「启用」开关。'; } return false; }
   setPromptText(id, v);
   var tip = document.getElementById('az-tip');
-  if (tip) { tip.style.color = '#34C759'; tip.textContent = '已保存：' + id + '（' + (id === 'persona' ? '已同步到角色设置 char_identity_v1' : '只存在 phone_prompts_v1') + '）。'; }
+  if (tip) { tip.style.color = 'var(--st-ink,#1e2748)'; tip.textContent = '已保存：' + id + '（' + (id === 'persona' ? '已同步到角色设置 char_identity_v1' : '只存在 phone_prompts_v1') + '）。'; }
   return true;
 }
 function resetPromptUI(id) {
@@ -535,7 +535,7 @@ function saveBaselineFromPage() {
   var gv = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
   var name = gv('az-base-name') || charName();
   var ageRaw = gv('az-base-age');
-  if (ageRaw && (!/^\d+$/.test(ageRaw) || +ageRaw < 1 || +ageRaw > 150)) { var tipE = document.getElementById('az-base-tip'); if (tipE) { tipE.style.color = '#FF3B30'; tipE.textContent = '年龄要是 1–150 的数字，现在是「' + ageRaw + '」，没保存。'; } return null; }
+  if (ageRaw && (!/^\d+$/.test(ageRaw) || +ageRaw < 1 || +ageRaw > 150)) { var tipE = document.getElementById('az-base-tip'); if (tipE) { tipE.style.color = 'var(--st-danger, #7c2d2d)'; tipE.textContent = '年龄要是 1–150 的数字，现在是「' + ageRaw + '」，没保存。'; } return null; }
   var prof = setBaselineProfile(name, { age: gv('az-base-age'), relationship: gv('az-base-rel'), proficiency: gv('az-base-prof') });
   var tip = document.getElementById('az-base-tip');
   if (tip) tip.textContent = '已确立：' + name + '（年龄 ' + (prof.age || '未填') + ' · 关系 ' + (prof.relationship || '未填') + ' · 熟练度 ' + (prof.proficiency || '未填') + '），后续互动不再重复询问。';

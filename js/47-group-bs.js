@@ -397,23 +397,23 @@ function fallbackSectionHTML() {
     for (var i = 0; i < MAX_FB; i++) {
         var e = chain[i] || { id: '', name: '', baseUrl: '', model: '' };
         var hasKey = e.id ? !!getFallbackKey(e.id) : false;
-        rows += '<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:12px;" data-bs-fb="' + i + '">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid #E5E5EA;font-size:16px;color:#000;">备用模型 ' + (i + 1) + '</div>'
+        rows += '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;" data-bs-fb="' + i + '">'
+            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);">备用模型 ' + (i + 1) + '</div>'
             + '<div style="padding:4px 16px 0;">'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid #E5E5EA;"><div style="font-size:14px;color:#000;">名字</div><input id="bs-fb-name-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 备用 DeepSeek" value="' + esc(e.name || '') + '" style="width:100%;border:none;outline:none;font-size:14px;color:#333;margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid #E5E5EA;"><div style="font-size:14px;color:#000;">接口地址（base URL）</div><input id="bs-fb-base-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空表示不用这个备用位" value="' + esc(e.baseUrl || '') + '" style="width:100%;border:none;outline:none;font-size:14px;color:#333;margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid #E5E5EA;"><div style="font-size:14px;color:#000;">API key</div><input id="bs-fb-key-' + i + '" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : '只存在本机，不进备份与导出') + '" style="width:100%;border:none;outline:none;font-size:14px;color:#333;margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;"><div style="font-size:14px;color:#000;">模型名</div><input id="bs-fb-model-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 deepseek-chat" value="' + esc(e.model || '') + '" style="width:100%;border:none;outline:none;font-size:14px;color:#333;margin-top:6px;padding:0;"></div>'
-            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.GroupBS.saveFallbackFromForm(' + i + ')" style="flex:1;background:#007AFF;color:#fff;border:none;border-radius:10px;padding:11px 0;font-size:14px;">保存备用 ' + (i + 1) + '</button><button onclick="window.GroupBS.clearFallbackFromForm(' + i + ')" style="flex:1;background:#fff;color:#FF3B30;border:1px solid #FFD2D0;border-radius:10px;padding:11px 0;font-size:14px;">清除</button></div>'
-            + '<div id="bs-fb-result-' + i + '" style="font-size:13px;color:#666;padding:0 0 12px;line-height:1.7;white-space:pre-wrap;"></div>'
+            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">名字</div><input id="bs-fb-name-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 备用 DeepSeek" value="' + esc(e.name || '') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
+            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="bs-fb-base-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空表示不用这个备用位" value="' + esc(e.baseUrl || '') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
+            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><input id="bs-fb-key-' + i + '" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : '只存在本机，不进备份与导出') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
+            + '<div style="padding:8px 0;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="bs-fb-model-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 deepseek-chat" value="' + esc(e.model || '') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
+            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.GroupBS.saveFallbackFromForm(' + i + ')" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border:none;border-radius:10px;padding:11px 0;font-size:17px;">保存备用 ' + (i + 1) + '</button><button onclick="window.GroupBS.clearFallbackFromForm(' + i + ')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:11px 0;font-size:17px;">清除</button></div>'
+            + '<div id="bs-fb-result-' + i + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 0 12px;line-height:1.7;white-space:pre-wrap;"></div>'
             + '</div></div>';
     }
-    return '<div style="font-size:13px;color:#8E8E93;margin:4px 2px 8px;line-height:1.6;">备用模型（回退链）：主模型返回 401 / 403 / 429 / 5xx 时，按顺序自动切到下一个，并在聊天里写一行小字说明。备用模型的 key 只存在本机，导出时删掉并写明“key 未导出，需重填”。留空的备用位会被跳过。</div>' + rows;
+    return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:4px 2px 8px;line-height:1.6;">备用模型（回退链）：主模型返回 401 / 403 / 429 / 5xx 时，按顺序自动切到下一个，并在聊天里写一行小字说明。备用模型的 key 只存在本机，导出时删掉并写明“key 未导出，需重填”。留空的备用位会被跳过。</div>' + rows;
 }
 function fbFormVal(i, kind) { var el = document.getElementById('bs-fb-' + kind + '-' + i); return el ? String(el.value || '') : ''; }
 function fbShowResult(i, text, ok) {
     var el = document.getElementById('bs-fb-result-' + i);
-    if (el) { el.textContent = text; el.style.color = ok === true ? '#34C759' : (ok === false ? '#FF3B30' : '#666'); }
+    if (el) { el.textContent = text; el.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
 }
 function saveFallbackFromForm(i) {
     var chain = getFallbackChain();

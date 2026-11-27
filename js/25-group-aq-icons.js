@@ -236,15 +236,15 @@ const pickerBodyHTML = () => {
   const wallDemo = '<div class="aq-wall-demo">' + ['phone', 'wechat', 'guichao', 'diary', 'cike', 'checkphone'].map((slotId) => {
     const p = d.picks[slotId] || {};
     return tileHTML(p.icon, { size: 22, stroke: p.stroke || 2, filled: !!p.filled });
-  }).join('') + '<span style="font-size:12px;color:#5b5348">壁纸上的玻璃效果预览（磨砂化只在有壁纸的桌面上看得出来）</span></div>';
-  const mojiSeg = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + MOJI.map((m) =>
+  }).join('') + '<span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6))">壁纸上的玻璃效果预览（磨砂化只在有壁纸的桌面上看得出来）</span></div>';
+  const mojiSeg = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' + MOJI.map((m) =>
     '<button class="aq-moji-btn' + (d.moji === m.c ? ' on' : '') + '" data-aq-moji="' + esc(m.c) + '" title="' + esc(m.n) + '">' + esc(m.c) + '</button>').join('') + '</div>';
   return '<div class="gw-set-h">功能位</div>'
     + '<div class="aq-note" style="margin-top:0">先选一个功能位，再点下面的图标换上；桌面 app 图标即取自本字典（GROUP-FIX2）：这里换图标会同步到桌面对应 app。</div>'
     + slotSeg
     + '<div class="gw-set-row"><div class="lb">当前：' + esc(slot.l) + '<div class="sub">图标 ' + esc((BY_ID[pick.icon] || {}).n || pick.icon) + ' · 描边 ' + pick.stroke + (pick.filled ? ' · 填充' : ' · 描边') + '</div></div>' + tileHTML(pick.icon, { size: 22, stroke: pick.stroke, filled: pick.filled }) + '</div>'
     + '<div class="gw-set-h">搜图标</div>'
-    + '<input id="aq-search" type="search" placeholder="搜图标：电话、音乐、天气…" value="' + esc(_kw) + '" style="width:100%;box-sizing:border-box;border:1px solid #e8ddd2;border-radius:10px;padding:9px 12px;font-size:14px;background:#fff">'
+    + '<input id="aq-search" type="search" placeholder="搜图标：电话、音乐、天气…" value="' + esc(_kw) + '" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748)">'
     + catSeg + gridHTML()
     + '<div class="gw-set-h">变体</div>'
     + '<div class="aq-note" style="margin-top:0">同一图标 3 档描边 + 填充开关，换变体不换图标 ID，localStorage 里还是只存一个 ID。</div>'
@@ -257,7 +257,7 @@ const pickerBodyHTML = () => {
     + mojiSeg
     + '<div class="gw-set-h">来源</div>'
     + '<div class="aq-note">' + SOURCES.map((s) => esc(s.name) + '（' + esc(s.lic) + '）· ' + esc(s.role)).join('<br>') + '<br>桌面 app 图标取自本字典（GROUP-FIX2）。</div>'
-    + '<div style="margin:16px 0 30px"><button data-aq-reset="1" style="width:100%;border:1px solid #e8ddd2;background:#fff;border-radius:10px;padding:11px;font-size:14px;color:#FF3B30">恢复全部默认图标与风格</button></div>';
+    + '<div style="margin:16px 0 30px"><button data-aq-reset="1" style="width:100%;border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;color:var(--st-danger, #7c2d2d)">恢复全部默认图标与风格</button></div>';
 };
 const renderPickerBody = () => {
   const body = document.getElementById('aq-picker-body');
@@ -270,7 +270,7 @@ const openPicker = (sub) => {
     let pk = host.querySelector('#st-sub-aq-picker');
     if (pk) { renderPickerBody(); return true; }
     const tmp = document.createElement('div');
-    tmp.innerHTML = '<div class="st-sub" id="st-sub-aq-picker"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">图标挑选器</div></div><div id="aq-picker-body" style="padding:0 16px 30px"></div></div>';
+    tmp.innerHTML = '<div class="st-sub" id="st-sub-aq-picker"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">图标挑选器</div></div><div id="aq-picker-body" style="padding:0 16px 32px"></div></div>';
     pk = tmp.firstElementChild;
     host.appendChild(pk);
     pk.addEventListener('click', (e) => {

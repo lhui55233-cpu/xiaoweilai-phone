@@ -322,8 +322,8 @@ window.GroupBH = (function () {
     var builtinRows = BUILTIN.map(function (b) {
       var sel = (g.source === 'builtin' && g.id === b.id);
       return '<div class="st-row"><span class="st-label">' + esc(b.name) + ' · ' + esc(b.desc) + (sel ? ' ✓' : '') + '</span><div class="st-row-right">'
-        + '<button type="button" data-bh="pv-builtin" data-id="' + b.id + '" style="padding:7px 12px;border:1px solid #e5e5ea;border-radius:16px;background:#fff;font-size:13px;margin-right:6px;">试听</button>'
-        + '<button type="button" data-bh="set-builtin" data-id="' + b.id + '" style="padding:7px 12px;border:0;border-radius:16px;background:#007AFF;color:#fff;font-size:13px;">' + (sel ? '当前铃声' : '设为铃声') + '</button>'
+        + '<button type="button" data-bh="pv-builtin" data-id="' + b.id + '" style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);font-size:17px;color:var(--st-ink,#1e2748);margin-right:8px;">试听</button>'
+        + '<button type="button" data-bh="set-builtin" data-id="' + b.id + '" style="padding:8px 12px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);font-size:17px;">' + (sel ? '当前铃声' : '设为铃声') + '</button>'
         + '</div></div>';
     }).join('');
     var pcNames = contactNames();
@@ -331,33 +331,33 @@ window.GroupBH = (function () {
     var pcOptions = pcNames.length ? pcNames.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('') : '<option value="">（还没有联系人）</option>';
     var pcBuiltinOptions = BUILTIN.map(function (b) { return '<option value="' + b.id + '">' + esc(b.name) + '</option>'; }).join('');
     var pcList = Object.keys(st.perContact || {}).map(function (n) {
-      return '<div class="st-row"><span class="st-label">' + esc(n) + ' · ' + esc(entryLabel(st.perContact[n])) + '</span><div class="st-row-right"><button type="button" data-bh="del-pc" data-name="' + esc(n) + '" style="padding:7px 12px;border:1px solid #f3c8c8;border-radius:16px;background:#fff;color:#d33;font-size:13px;">删除</button></div></div>';
+      return '<div class="st-row"><span class="st-label">' + esc(n) + ' · ' + esc(entryLabel(st.perContact[n])) + '</span><div class="st-row-right"><button type="button" data-bh="del-pc" data-name="' + esc(n) + '" style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-danger, #7c2d2d);font-size:17px;">删除</button></div></div>';
     }).join('') || '<div class="st-foot">还没有专属铃声。</div>';
     return '<div class="st-sub" id="st-sub-bhRingtone">'
-      + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">电话铃声</div></div>'
+      + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">电话铃声</div></div>'
       + '<div class="st-bigtitle" style="padding-top:4px;">电话铃声</div>'
       + '<div class="st-foot">当前全局铃声：' + esc(globalLabel()) + '。通话是本地模拟，来电响铃用这里的铃声。</div>'
       + '<div class="st-group">' + builtinRows + '</div>'
       + '<div class="st-group">'
-      + '<div class="st-row"><span class="st-label">本地音频（上传文件作铃声）</span><div class="st-row-right"><label style="padding:7px 12px;border:1px solid #e5e5ea;border-radius:16px;background:#fff;font-size:13px;cursor:pointer;">选择文件<input id="bh-local-file" type="file" accept="audio/*" style="display:none;"></label></div></div>'
+      + '<div class="st-row"><span class="st-label">本地音频（上传文件作铃声）</span><div class="st-row-right"><label style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);font-size:17px;color:var(--st-ink,#1e2748);cursor:pointer;">选择文件<input id="bh-local-file" type="file" accept="audio/*" style="display:none;"></label></div></div>'
       + '<div class="st-row"><span class="st-label">' + (_pendingLocal ? esc(_pendingLocal.name) + ' · ' + Math.round(_pendingLocal.size / 1024) + ' KB' : '还没选文件') + '</span><div class="st-row-right">'
-      + '<button type="button" data-bh="pv-local" style="padding:7px 12px;border:1px solid #e5e5ea;border-radius:16px;background:#fff;font-size:13px;margin-right:6px;">试听</button>'
-      + '<button type="button" data-bh="set-local" style="padding:7px 12px;border:0;border-radius:16px;background:#007AFF;color:#fff;font-size:13px;">设为全局铃声</button>'
+      + '<button type="button" data-bh="pv-local" style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);font-size:17px;color:var(--st-ink,#1e2748);margin-right:8px;">试听</button>'
+      + '<button type="button" data-bh="set-local" style="padding:8px 12px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);font-size:17px;">设为全局铃声</button>'
       + '</div></div>'
       + '<div class="st-foot">本地文件存在本机（data URL），上限 2MB；超过会提示，不保存。</div>'
       + '</div>'
       + '<div class="st-group">'
-      + '<div class="st-row"><span class="st-label">音频链接</span><div class="st-row-right"><input id="bh-link-url" type="url" placeholder="https://…" value="' + esc(g.source === 'link' ? g.url : '') + '" style="width:170px;font-size:14px;padding:7px 9px;border:1px solid #e5e5ea;border-radius:8px;"></div></div>'
+      + '<div class="st-row"><span class="st-label">音频链接</span><div class="st-row-right"><input id="bh-link-url" type="url" placeholder="https://…" value="' + esc(g.source === 'link' ? g.url : '') + '" style="width:170px;font-size:17px;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></div></div>'
       + '<div class="st-row"><span class="st-label">联网时播链接，离线自动回落默认铃声</span><div class="st-row-right">'
-      + '<button type="button" data-bh="pv-link" style="padding:7px 12px;border:1px solid #e5e5ea;border-radius:16px;background:#fff;font-size:13px;margin-right:6px;">试听</button>'
-      + '<button type="button" data-bh="set-link" style="padding:7px 12px;border:0;border-radius:16px;background:#007AFF;color:#fff;font-size:13px;">设为全局铃声</button>'
+      + '<button type="button" data-bh="pv-link" style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);font-size:17px;color:var(--st-ink,#1e2748);margin-right:8px;">试听</button>'
+      + '<button type="button" data-bh="set-link" style="padding:8px 12px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);font-size:17px;">设为全局铃声</button>'
       + '</div></div>'
       + '</div>'
       + '<div class="st-group">'
-      + '<div class="st-row"><span class="st-label">专属铃声 · 联系人</span><div class="st-row-right"><select id="bh-pc-name" style="font-size:14px;padding:7px 8px;border:1px solid #e5e5ea;border-radius:8px;">' + pcOptions + '</select></div></div>'
-      + '<div class="st-row"><span class="st-label">来源</span><div class="st-row-right"><select id="bh-pc-source" style="font-size:14px;padding:7px 8px;border:1px solid #e5e5ea;border-radius:8px;"><option value="builtin">内置铃声</option><option value="local">本地音频</option><option value="link">音频链接</option></select></div></div>'
-      + '<div id="bh-pc-input"><div class="st-row"><span class="st-label">内置铃声</span><div class="st-row-right"><select id="bh-pc-builtin" style="font-size:14px;padding:7px 8px;border:1px solid #e5e5ea;border-radius:8px;">' + pcBuiltinOptions + '</select></div></div></div>'
-      + '<div class="st-row"><span class="st-label">给这个人单独设铃声</span><div class="st-row-right"><button type="button" data-bh="save-pc" style="padding:7px 12px;border:0;border-radius:16px;background:#007AFF;color:#fff;font-size:13px;">保存专属铃声</button></div></div>'
+      + '<div class="st-row"><span class="st-label">专属铃声 · 联系人</span><div class="st-row-right"><select id="bh-pc-name" style="font-size:17px;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">' + pcOptions + '</select></div></div>'
+      + '<div class="st-row"><span class="st-label">来源</span><div class="st-row-right"><select id="bh-pc-source" style="font-size:17px;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"><option value="builtin">内置铃声</option><option value="local">本地音频</option><option value="link">音频链接</option></select></div></div>'
+      + '<div id="bh-pc-input"><div class="st-row"><span class="st-label">内置铃声</span><div class="st-row-right"><select id="bh-pc-builtin" style="font-size:17px;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">' + pcBuiltinOptions + '</select></div></div></div>'
+      + '<div class="st-row"><span class="st-label">给这个人单独设铃声</span><div class="st-row-right"><button type="button" data-bh="save-pc" style="padding:8px 12px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);font-size:17px;">保存专属铃声</button></div></div>'
       + pcList
       + '</div>'
       + '<div class="st-group"><div class="st-row"><span class="st-label">来电振动</span><div class="st-row-right"><div class="bh-switch' + (st.vibrate ? ' on' : '') + '" data-bh="vibrate"><div class="bh-knob"></div></div></div></div></div>'
@@ -429,9 +429,9 @@ window.GroupBH = (function () {
     var renderPcInput = function () {
       if (!pcSource || !pcInput) return;
       var v = pcSource.value;
-      if (v === 'local') pcInput.innerHTML = '<div class="st-row"><span class="st-label">本地音频</span><div class="st-row-right"><label style="padding:7px 12px;border:1px solid #e5e5ea;border-radius:16px;background:#fff;font-size:13px;cursor:pointer;">选择文件<input id="bh-pc-file" type="file" accept="audio/*" style="display:none;"></label></div></div>';
-      else if (v === 'link') pcInput.innerHTML = '<div class="st-row"><span class="st-label">音频链接</span><div class="st-row-right"><input id="bh-pc-url" type="url" placeholder="https://…" style="width:170px;font-size:14px;padding:7px 9px;border:1px solid #e5e5ea;border-radius:8px;"></div></div>';
-      else pcInput.innerHTML = '<div class="st-row"><span class="st-label">内置铃声</span><div class="st-row-right"><select id="bh-pc-builtin" style="font-size:14px;padding:7px 8px;border:1px solid #e5e5ea;border-radius:8px;">' + pcBuiltinOptions + '</select></div></div>';
+      if (v === 'local') pcInput.innerHTML = '<div class="st-row"><span class="st-label">本地音频</span><div class="st-row-right"><label style="padding:7px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;background:var(--st-paper,#fffdf8);font-size:17px;color:var(--st-ink,#1e2748);cursor:pointer;">选择文件<input id="bh-pc-file" type="file" accept="audio/*" style="display:none;"></label></div></div>';
+      else if (v === 'link') pcInput.innerHTML = '<div class="st-row"><span class="st-label">音频链接</span><div class="st-row-right"><input id="bh-pc-url" type="url" placeholder="https://…" style="width:170px;font-size:17px;padding:7px 9px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></div></div>';
+      else pcInput.innerHTML = '<div class="st-row"><span class="st-label">内置铃声</span><div class="st-row-right"><select id="bh-pc-builtin" style="font-size:17px;padding:7px 8px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);">' + pcBuiltinOptions + '</select></div></div>';
       var pf = pcInput.querySelector('#bh-pc-file');
       if (pf) pf.addEventListener('change', function () {
         readAudioFile(pf.files && pf.files[0], function (r) {
@@ -746,9 +746,9 @@ window.GroupBH = (function () {
       '.bh-mini-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:12px auto 0;}',
       '.bh-mini-key{height:52px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;}',
       '.bh-inkeypad-display{font-size:14px;color:rgba(255,255,255,.85);min-height:20px;margin-top:8px;}',
-      '.bh-switch{width:51px;height:31px;border-radius:999px;background:#E5E5EA;position:relative;cursor:pointer;flex-shrink:0;}',
-      '.bh-switch.on{background:#34C759;}',
-      '.bh-knob{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);}',
+      '.bh-switch{width:44px;height:24px;border-radius:999px;background:var(--st-silver,#bfc8e0);position:relative;cursor:pointer;flex-shrink:0;transition:background 180ms ease-out;}',
+      '.bh-switch.on{background:var(--st-ink,#1e2748);}',
+      '.bh-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(30,39,72,.25);transition:transform 180ms ease-out;}',
       '.bh-switch.on .bh-knob{transform:translateX(20px);}'
     ].join('\n');
     (document.head || document.documentElement).appendChild(s);

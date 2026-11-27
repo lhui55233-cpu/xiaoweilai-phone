@@ -359,19 +359,19 @@ function onPomodoroDone(minutes) {
 function ruleSettingsHTML() {
   var list = ruleList();
   var rows = list.length ? list.map(function (r) {
-    return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="display:block;padding:12px 14px;">'
-      + '<div style="font-size:15px;line-height:1.5;">' + esc(r.text) + '</div>'
-      + '<div style="font-size:12px;color:#8E8E93;margin-top:6px;">' + (r.kind === 'pomodoro' ? '番茄完成后触发' : '每天 ' + esc(r.time || '') + ' 提醒') + ' · ' + (r.enabled ? '开着' : '关了') + (r.lastFired ? ' · 上次触发 ' + esc(r.lastFired) : '') + '</div>'
-      + '<div style="margin-top:8px;text-align:right;"><button data-rule-toggle="' + esc(r.id) + '" style="border:1px solid #007AFF;color:#007AFF;background:#fff;border-radius:12px;padding:5px 10px;font-size:13px;margin-right:6px;">' + (r.enabled ? '关掉' : '打开') + '</button>'
-      + '<button data-rule-del="' + esc(r.id) + '" style="border:1px solid #FF3B30;color:#FF3B30;background:#fff;border-radius:12px;padding:5px 10px;font-size:13px;">删除</button></div>'
+    return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">'
+      + '<div style="font-size:17px;line-height:1.5;">' + esc(r.text) + '</div>'
+      + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">' + (r.kind === 'pomodoro' ? '番茄完成后触发' : '每天 ' + esc(r.time || '') + ' 提醒') + ' · ' + (r.enabled ? '开着' : '关了') + (r.lastFired ? ' · 上次触发 ' + esc(r.lastFired) : '') + '</div>'
+      + '<div style="margin-top:8px;text-align:right;"><button data-rule-toggle="' + esc(r.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;margin-right:8px;">' + (r.enabled ? '关掉' : '打开') + '</button>'
+      + '<button data-rule-del="' + esc(r.id) + '" style="border:1px solid var(--st-silver,#bfc8e0);color:var(--st-danger, #7c2d2d);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">删除</button></div>'
       + '</div></div>';
-  }).join('') : '<div class="st-group"><div class="st-row" style="padding:14px;">还没有规则。写一条他每天要遵守的规则，比如 23:00 提醒睡觉。</div></div>';
+  }).join('') : '<div class="st-group"><div class="st-row" style="padding:12px 16px;">还没有规则。写一条他每天要遵守的规则，比如 23:00 提醒睡觉。</div></div>';
   return subHead('每日规则', '他每天遵守的规则：时间到了由他提醒（走主动消息同一套节流门）；番茄完成时按规则夸你。只在本机生效，不连服务器。').replace('PLACEHOLDER', 'dailyRules')
-    + '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="padding:10px 12px;gap:8px;display:block;">'
-    + '<input id="inner-rule-text" type="text" placeholder="规则，如：23:00 提醒我睡觉" style="width:100%;box-sizing:border-box;border:none;outline:none;font-size:15px;margin-bottom:8px;">'
-    + '<div style="display:flex;gap:8px;"><input id="inner-rule-time" type="time" value="23:00" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px;font-size:13px;">'
-    + '<select id="inner-rule-kind" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:7px;font-size:13px;"><option value="time">到时间提醒</option><option value="pomodoro">番茄完成后</option></select></div>'
-    + '<button id="inner-rule-add" style="width:100%;border:0;background:#007AFF;color:#fff;border-radius:12px;padding:10px;font-size:14px;margin-top:8px;">记下这条规则</button>'
+    + '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="padding:12px 16px;gap:8px;display:block;">'
+    + '<input id="inner-rule-text" type="text" placeholder="规则，如：23:00 提醒我睡觉" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);outline:none;font-size:17px;height:40px;padding:8px 12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);margin-bottom:8px;">'
+    + '<div style="display:flex;gap:8px;"><input id="inner-rule-time" type="time" value="23:00" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:7px;font-size:13px;">'
+    + '<select id="inner-rule-kind" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:7px;font-size:13px;"><option value="time">到时间提醒</option><option value="pomodoro">番茄完成后</option></select></div>'
+    + '<button id="inner-rule-add" style="width:100%;border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;margin-top:8px;">记下这条规则</button>'
     + '</div></div>' + rows + SUB_CLOSE;
 }
 
@@ -475,15 +475,15 @@ function renderSettingsSub(act) {
 if (act === 'innerDebug') {
 var log = getLog().slice().reverse();
 var rows = log.length? log.map(function (e) {
-return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="display:block;padding:12px 14px;">' +
-'<div style="font-size:12px;color:#8E8E93;">' + esc(fmtTime(e.ts)) + ' · 状态 ' + esc(e.state || '') + ' · ' + esc(e.char || '') + '</div>' +
-'<div style="font-size:15px;font-weight:600;margin:6px 0 2px;">' + esc(e.act || e.decide || '') + '</div>' +
-'<div style="font-size:13px;color:#3A3A3C;line-height:1.6;">原因：' + esc(e.appraise || '') +
+return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(fmtTime(e.ts)) + ' · 状态 ' + esc(e.state || '') + ' · ' + esc(e.char || '') + '</div>' +
+'<div style="font-size:17px;font-weight:600;margin:8px 0 4px;">' + esc(e.act || e.decide || '') + '</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;">原因：' + esc(e.appraise || '') +
 (e.memoryRef? '<br>记忆/依据：' + esc(e.memoryRef): '') +
 (e.trigger? '<br>触发条件：' + esc(e.trigger): '') + '</div></div></div>';
-}).join(''): '<div class="st-group"><div class="st-row" style="padding:14px;">还没有记录。等她主动找你、推进目标或做夜间整理后，这里会写下每一步是为什么。</div></div>';
-var mindOff = getSwitches().mind? '': '<div class="st-foot" style="margin:0 16px 8px;color:#FF3B30;">思考开关已关闭，暂停记录；打开后才会继续写原因。</div>';
-return subHead('她为什么这么做', '每条主动消息 / 决定后面跟着的原因：想起了哪条记忆、哪个状态触发的、哪个开关开着。数据直接取自内心生活日志，不另存一份。').replace('PLACEHOLDER', 'innerDebug') + mindOff + (function () { try { var _r = JSON.parse(localStorage.getItem('wb_last_injection_v1') || 'null'); var _n = (_r && typeof _r.count === 'number') ? _r.count : 0; var _t = (_r && _r.titles && _r.titles.length) ? '（' + _r.titles.map(esc).join('、') + '）' : ''; return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="display:block;padding:12px 14px;"><div style="font-size:13px;line-height:1.7;color:#3A3A3C;">本次注入世界书条目：' + _n + ' 条' + _t + '</div></div></div>'; } catch (e) { return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="padding:12px 14px;font-size:13px;">本次注入世界书条目：0 条</div></div>'; } })() + rows + SUB_CLOSE;
+}).join(''): '<div class="st-group"><div class="st-row" style="padding:12px 16px;">还没有记录。等她主动找你、推进目标或做夜间整理后，这里会写下每一步是为什么。</div></div>';
+var mindOff = getSwitches().mind? '': '<div class="st-foot" style="margin:0 16px 8px;color:var(--st-danger, #7c2d2d);">思考开关已关闭，暂停记录；打开后才会继续写原因。</div>';
+return subHead('她为什么这么做', '每条主动消息 / 决定后面跟着的原因：想起了哪条记忆、哪个状态触发的、哪个开关开着。数据直接取自内心生活日志，不另存一份。').replace('PLACEHOLDER', 'innerDebug') + mindOff + (function () { try { var _r = JSON.parse(localStorage.getItem('wb_last_injection_v1') || 'null'); var _n = (_r && typeof _r.count === 'number') ? _r.count : 0; var _t = (_r && _r.titles && _r.titles.length) ? '（' + _r.titles.map(esc).join('、') + '）' : ''; return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;"><div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">本次注入世界书条目：' + _n + ' 条' + _t + '</div></div></div>'; } catch (e) { return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="padding:12px 16px;font-size:13px;">本次注入世界书条目：0 条</div></div>'; } })() + rows + SUB_CLOSE;
 }
 if (act === 'innerPromises') {
 var list = getPromises().slice().reverse();
@@ -491,17 +491,17 @@ var rows2 = list.length? list.map(function (p) {
 var due = new Date(p.dueTs);
 var dueStr = (due.getMonth() + 1) + '月' + due.getDate() + '日';
 var stHtml = p.status === 'done'
-? '<span style="color:#34C759;">✓ 已兑现</span>'
-: '<button data-promise-done="' + esc(p.id) + '" style="border:1px solid #007AFF;color:#007AFF;background:#fff;border-radius:12px;padding:5px 10px;font-size:13px;">已兑现</button>';
-return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="display:block;padding:12px 14px;">' +
-'<div style="font-size:15px;line-height:1.5;">' + esc(p.text) + '</div>' +
-'<div style="font-size:12px;color:#8E8E93;margin-top:6px;">许下于 ' + esc(fmtTime(p.promisedTs)) + ' · 到期 ' + esc(dueStr) + (p.reminded? ' · 已提醒过': '') + ' · ' + (p.status === 'done'? '已兑现': '进行中') + '</div>' +
+? '<span style="color:var(--st-ink,#1e2748);">✓ 已兑现</span>'
+: '<button data-promise-done="' + esc(p.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">已兑现</button>';
+return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">' +
+'<div style="font-size:17px;line-height:1.5;">' + esc(p.text) + '</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">许下于 ' + esc(fmtTime(p.promisedTs)) + ' · 到期 ' + esc(dueStr) + (p.reminded? ' · 已提醒过': '') + ' · ' + (p.status === 'done'? '已兑现': '进行中') + '</div>' +
 '<div style="margin-top:8px;text-align:right;">' + stHtml + '</div></div></div>';
-}).join(''): '<div class="st-group"><div class="st-row" style="padding:14px;">还没有承诺。她在聊天里答应你的事会自动记在这里。</div></div>';
+}).join(''): '<div class="st-group"><div class="st-row" style="padding:12px 16px;">还没有承诺。她在聊天里答应你的事会自动记在这里。</div></div>';
 return subHead('承诺清单', '她许下的承诺：到期前 1 天微信提醒一次；兑现了点“已兑现”，她下次提到做到了也会自动打勾。').replace('PLACEHOLDER', 'innerPromises') +
-'<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="padding:10px 12px;gap:8px;">' +
-'<input id="inner-promise-input" type="text" placeholder="手动记一条承诺，如：明天陪我去看展" style="flex:1;border:none;outline:none;font-size:15px;min-width:0;">' +
-'<button id="inner-promise-add" style="border:0;background:#007AFF;color:#fff;border-radius:12px;padding:7px 12px;font-size:14px;flex-shrink:0;">记下</button>' +
+'<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="padding:12px 16px;gap:8px;">' +
+'<input id="inner-promise-input" type="text" placeholder="手动记一条承诺，如：明天陪我去看展" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);outline:none;font-size:17px;height:40px;box-sizing:border-box;padding:8px 12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);min-width:0;">' +
+'<button id="inner-promise-add" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;flex-shrink:0;">记下</button>' +
 '</div></div>' + rows2 + SUB_CLOSE;
 }
 if (act === 'dailyRules') {

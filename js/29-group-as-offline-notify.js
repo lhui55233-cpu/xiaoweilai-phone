@@ -606,10 +606,10 @@ function injectCSS() {
     '.as-lock-time{font-size:12px;color:rgba(255,255,255,.75);flex-shrink:0;}',
     '.as-lock-text{flex:1;font-size:13px;color:#fff;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.as-lock-go{color:rgba(255,255,255,.7);}',
-    '.as-switch{width:51px;height:31px;border-radius:16px;background:#E5E5EA;position:relative;transition:background .25s;flex-shrink:0;}',
-    '.as-switch.on{background:#34C759;}',
-    '.as-knob{width:27px;height:27px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .25s;box-shadow:0 2px 5px rgba(0,0,0,.25);}',
-    '.as-switch.on .as-knob{left:22px;}',
+    '.as-switch{width:44px;height:24px;border-radius:999px;background:var(--st-silver,#bfc8e0);position:relative;transition:background 180ms ease-out;flex-shrink:0;}',
+    '.as-switch.on{background:var(--st-ink,#1e2748);}',
+    '.as-knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 180ms ease-out;box-shadow:0 1px 3px rgba(30,39,72,.25);}',
+    '.as-switch.on .as-knob{left:20px;}',
     '.sc-notif-card.sc-notif-unread{box-shadow:inset 3px 0 0 #ff3b30;}',
     '.sc-notif-note{font-size:12px;color:rgba(255,255,255,.65);text-align:center;padding:6px 18px 18px;line-height:1.6;}'
   ].join('\n');
@@ -632,13 +632,13 @@ function renderSettingsSub() {
   rows += sw('番茄钟完成', !!st.types.focus, 'data-as-type="focus"');
   rows += sw('系统 / 剧本 / 阅读 / 影院', !!st.types.system, 'data-as-type="system"');
   return '<div class="st-sub" id="st-sub-asNotif">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">通知</div></div>'
+    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">通知</div></div>'
     + '<div class="st-bigtitle" style="padding-top:4px;">通知</div>'
     + '<div class="st-group">' + rows + '</div>'
     + '<div class="st-foot">总开关关了：只静默记进通知中心，不弹横幅、不响铃、不震动。某一类关了：这类不进中心也不弹。</div>'
     + '<div class="st-group">'
-    + '<div class="st-row"><span class="st-label">习惯提醒时间</span><div class="st-row-right"><input id="as-habit-time" type="time" value="' + esc(st.habitTime) + '" style="font-size:15px;padding:6px 8px;border:1px solid #e5e5ea;border-radius:8px;background:#fff;"><button id="as-habit-save" type="button" style="margin-left:8px;padding:7px 14px;border:none;border-radius:16px;background:#007AFF;color:#fff;font-size:14px;">保存</button></div></div>'
-    + '<div class="st-row"><span class="st-label">发送一条测试通知</span><div class="st-row-right"><button id="as-test-btn" type="button" style="padding:7px 14px;border:none;border-radius:16px;background:#34C759;color:#fff;font-size:14px;">发送</button></div></div>'
+    + '<div class="st-row"><span class="st-label">习惯提醒时间</span><div class="st-row-right"><input id="as-habit-time" type="time" value="' + esc(st.habitTime) + '" style="font-size:17px;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"><button id="as-habit-save" type="button" style="margin-left:8px;padding:8px 16px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);font-size:17px;">保存</button></div></div>'
+    + '<div class="st-row"><span class="st-label">发送一条测试通知</span><div class="st-row-right"><button id="as-test-btn" type="button" style="padding:8px 16px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-paper-cool,#eef0f5);color:var(--st-ink,#1e2748);font-size:17px;">发送</button></div></div>'
     + '</div>'
     + '<div class="st-foot" id="as-tip"></div>'
     + '<div class="st-foot">' + esc(HONEST) + '</div>'

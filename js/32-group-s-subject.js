@@ -428,8 +428,8 @@ try {
 var r = null; try { r = JSON.parse(localStorage.getItem('wb_last_injection_v1') || 'null'); } catch (e) {}
 var n = (r && typeof r.count === 'number') ? r.count : 0;
 var t = (r && r.titles && r.titles.length) ? '（' + r.titles.map(function (x) { return esc(x); }).join('、') + '）' : '';
-return '<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">世界书注入</div><div style="font-size:13px;line-height:1.7;color:#3A3A3C;">本次注入世界书条目：' + n + ' 条' + t + '</div></div>';
-} catch (e) { return '<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-size:13px;color:#3A3A3C;">本次注入世界书条目：0 条</div></div>'; }
+return '<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">世界书注入</div><div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">本次注入世界书条目：' + n + ' 条' + t + '</div></div>';
+} catch (e) { return '<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">本次注入世界书条目：0 条</div></div>'; }
 }
 function assembleFor(userText, charName, opts) {
 opts = opts || {};
@@ -466,9 +466,9 @@ function getLastAssembly() { return read(PROMPT_KEY, null);}
 
 // ── A17 驾驶舱：扩展 O 组内心调试页（四个区块）──
 function barRow(label, v) {
-return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px;"><span style="width:52px;color:#3A3A3C;">' + esc(label) + '</span>' +
-'<span style="flex:1;height:8px;border-radius:4px;background:#EFEFF4;overflow:hidden;"><span style="display:block;height:8px;background:#5856D6;width:' + clamp(v) + '%;"></span></span>' +
-'<span style="width:28px;text-align:right;color:#8E8E93;">' + clamp(v) + '</span></div>';
+return '<div style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;"><span style="width:52px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(label) + '</span>' +
+'<span style="flex:1;height:8px;border-radius:var(--st-radius-sm,6px);background:var(--st-paper-cool,#eef0f5);overflow:hidden;"><span style="display:block;height:8px;background:var(--st-ink,#1e2748);width:' + clamp(v) + '%;"></span></span>' +
+'<span style="width:28px;text-align:right;color:var(--st-ink-60,rgba(30,39,72,.6));">' + clamp(v) + '</span></div>';
 }
 function subHeadS(title, en, id) {
 return '<div class="st-sub" id="st-sub-' + esc(id) + '">' +
@@ -483,83 +483,83 @@ var tone = toneFromState(s.mood, s.rel, s.slow);
 if (act === 'subjectCockpit') {
 var decs = getDecisions().slice().reverse().slice(0, 8);
 var decHtml = decs.length? decs.map(function (d) {
-return '<div class="st-row" style="display:block;padding:12px 14px;margin-bottom:8px;"><div style="font-size:12px;color:#8E8E93;">' + esc(new Date(d.ts).toLocaleString()) + ' · ' + esc(d.rule) + ' · 语气 ' + esc(d.tone) + '</div>' +
-'<div style="font-size:15px;font-weight:600;margin:4px 0;">动作：' + esc(d.action) + '</div>' +
-'<div style="font-size:13px;color:#3A3A3C;line-height:1.6;">原因：' + esc(d.reason) + (d.text? '<br>回的话：' + esc(d.text): '') + '</div></div>';
-}).join(''): '<div class="st-group"><div class="st-row" style="padding:14px;">还没有查表记录。发一条微信给她，决策表就会在这里留下每一条决定与原因。</div></div>';
+return '<div class="st-row" style="display:block;padding:12px 16px;margin-bottom:8px;"><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(new Date(d.ts).toLocaleString()) + ' · ' + esc(d.rule) + ' · 语气 ' + esc(d.tone) + '</div>' +
+'<div style="font-size:17px;font-weight:600;margin:8px 0;">动作：' + esc(d.action) + '</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;">原因：' + esc(d.reason) + (d.text? '<br>回的话：' + esc(d.text): '') + '</div></div>';
+}).join(''): '<div class="st-group"><div class="st-row" style="padding:12px 16px;">还没有查表记录。发一条微信给她，决策表就会在这里留下每一条决定与原因。</div></div>';
 var stance = getStance().items;
 var stanceHtml = stance.length? stance.map(function (g) {
-return '<div style="font-size:13px;line-height:1.7;color:#3A3A3C;">· ' + esc(g.reason) + '（严重度 ' + g.severity + '）— ' + esc(g.status) + '</div>';
-}).join(''): '<div style="font-size:13px;color:#8E8E93;">暂无不满，账本是空的。</div>';
+return '<div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">· ' + esc(g.reason) + '（严重度 ' + g.severity + '）— ' + esc(g.status) + '</div>';
+}).join(''): '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">暂无不满，账本是空的。</div>';
 var tiers = getTieredMemories(new Date());
 return subHeadS('主体性驾驶舱', '心情 / 关系 / 立场账本 / 决策表查表记录，全部摊开。数据来自 char_subject_v1 / char_stance_v1 / char_subject_decisions_v1。', 'subjectCockpit') +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">心情向量 · 语气档：' + esc(tone.tone) + '</div>' +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">心情向量 · 语气档：' + esc(tone.tone) + '</div>' +
 barRow('烦躁', s.mood.irritated) + barRow('担忧', s.mood.worried) + barRow('孤独', s.mood.lonely) + barRow('精力', s.mood.energy) + barRow('无聊', s.mood.bored) + barRow('信任', s.mood.trust) +
-'<div style="font-size:12px;color:#8E8E93;margin-top:6px;">' + esc(tone.reason) + '；慢速层：最近总体心情 ' + s.slow.moodBaseline + ' / 亲近基线 ' + s.slow.closenessBaseline + '（每天最多动 1，更新于 ' + esc(s.slow.updatedDate || '') + '）</div></div>' +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">关系向量</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">' + esc(tone.reason) + '；慢速层：最近总体心情 ' + s.slow.moodBaseline + ' / 亲近基线 ' + s.slow.closenessBaseline + '（每天最多动 1，更新于 ' + esc(s.slow.updatedDate || '') + '）</div></div>' +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">关系向量</div>' +
 barRow('信任', s.rel.trust) + barRow('亲近', s.rel.closeness) + barRow('熟悉', s.rel.familiarity) + barRow('紧张', s.rel.tension) + '</div>' +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">立场账本</div>' + stanceHtml + '</div>' +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">记忆生命周期（归巢，只读）</div>' +
-'<div style="font-size:13px;color:#3A3A3C;">新鲜 ' + tiers.fresh.length + ' 条 · 淡化 ' + tiers.faded.length + ' 条 · 墓碑 ' + tiers.tombstone.length + ' 条（墓碑只是归档，不删除）</div></div>' +
-'<div style="font-size:12px;letter-spacing:1px;color:#8E8E93;font-weight:700;margin:4px 16px 8px;">决策表最近查表记录</div>' + decHtml + '</div>';
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">立场账本</div>' + stanceHtml + '</div>' +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">记忆生命周期（归巢，只读）</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">新鲜 ' + tiers.fresh.length + ' 条 · 淡化 ' + tiers.faded.length + ' 条 · 墓碑 ' + tiers.tombstone.length + ' 条（墓碑只是归档，不删除）</div></div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));font-weight:600;margin:8px 16px;">决策表最近查表记录</div>' + decHtml + '</div>';
 }
 if (act === 'subjectPrompt') {
 var a = getLastAssembly();
 if (!a) return subHeadS('提示词检查器', '最近一次回复的模板组装过程：用了哪个模板、填了哪些记忆/事实、语气档怎么来的，全部展开。', 'subjectPrompt') +
-'<div class="st-group"><div class="st-row" style="padding:14px;">还没有组装记录。发一条微信（走真实 API 或本地模拟都会经过门控），这里就会出现最近一次的完整组装过程。</div></div>' + bkWbLine() + '</div>';
+'<div class="st-group"><div class="st-row" style="padding:12px 16px;">还没有组装记录。发一条微信（走真实 API 或本地模拟都会经过门控），这里就会出现最近一次的完整组装过程。</div></div>' + bkWbLine() + '</div>';
 var f = a.filled || {};
-var recHtml = (f.recalled && f.recalled.length)? f.recalled.map(function (x) { return '<div style="font-size:13px;line-height:1.7;">· 「' + esc(x.text.slice(0, 30)) + '」— 分 ' + x.score + '（关键词命中 ' + x.hits + ' × 重要度 ' + x.importance + ' × 新近度 ' + x.recency + '）</div>';}).join(''): '<div style="font-size:13px;color:#8E8E93;">本轮没有关键词命中的记忆。</div>';
-var stHtml = (f.stanceOpen && f.stanceOpen.length)? f.stanceOpen.map(function (g) { return '<div style="font-size:13px;line-height:1.7;">· ' + esc(g.reason) + '（严重度 ' + g.severity + ' · ' + esc(g.status) + '）</div>';}).join(''): '<div style="font-size:13px;color:#8E8E93;">无未处理不满，门控放行。</div>';
+var recHtml = (f.recalled && f.recalled.length)? f.recalled.map(function (x) { return '<div style="font-size:13px;line-height:1.5;">· 「' + esc(x.text.slice(0, 30)) + '」— 分 ' + x.score + '（关键词命中 ' + x.hits + ' × 重要度 ' + x.importance + ' × 新近度 ' + x.recency + '）</div>';}).join(''): '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">本轮没有关键词命中的记忆。</div>';
+var stHtml = (f.stanceOpen && f.stanceOpen.length)? f.stanceOpen.map(function (g) { return '<div style="font-size:13px;line-height:1.5;">· ' + esc(g.reason) + '（严重度 ' + g.severity + ' · ' + esc(g.status) + '）</div>';}).join(''): '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">无未处理不满，门控放行。</div>';
 return subHeadS('提示词检查器', '最近一次回复的模板组装过程，全部展开。模板是本地规则组装，不是真实大模型调用；小手机诚实标注自己是 Simple 模式。', 'subjectPrompt') +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;">' +
-'<div style="font-size:13px;line-height:1.9;color:#3A3A3C;">模板：<b>' + esc(a.template) + '</b><br>时间：' + esc(new Date(a.ts).toLocaleString()) + '<br>角色：' + esc(a.charName || '') + '</div></div>' +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">语气档：' + esc(a.tone) + '</div><div style="font-size:13px;line-height:1.7;color:#3A3A3C;">' + esc(a.toneReason || '') + '<br>心情：烦躁 ' + (f.mood? f.mood.irritated: '—') + ' / 担忧 ' + (f.mood? f.mood.worried: '—') + ' / 孤独 ' + (f.mood? f.mood.lonely: '—') + ' / 精力 ' + (f.mood? f.mood.energy: '—') + ' / 无聊 ' + (f.mood? f.mood.bored: '—') + ' / 信任 ' + (f.mood? f.mood.trust: '—') + '<br>关系：信任 ' + (f.rel? f.rel.trust: '—') + ' / 亲近 ' + (f.rel? f.rel.closeness: '—') + ' / 熟悉 ' + (f.rel? f.rel.familiarity: '—') + ' / 紧张 ' + (f.rel? f.rel.tension: '—') + '<br>慢速层：总体心情 ' + (f.slow? f.slow.moodBaseline: '—') + ' / 亲近基线 ' + (f.slow? f.slow.closenessBaseline: '—') + '</div></div>' +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;">' +
+'<div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">模板：<b>' + esc(a.template) + '</b><br>时间：' + esc(new Date(a.ts).toLocaleString()) + '<br>角色：' + esc(a.charName || '') + '</div></div>' +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">语气档：' + esc(a.tone) + '</div><div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(a.toneReason || '') + '<br>心情：烦躁 ' + (f.mood? f.mood.irritated: '—') + ' / 担忧 ' + (f.mood? f.mood.worried: '—') + ' / 孤独 ' + (f.mood? f.mood.lonely: '—') + ' / 精力 ' + (f.mood? f.mood.energy: '—') + ' / 无聊 ' + (f.mood? f.mood.bored: '—') + ' / 信任 ' + (f.mood? f.mood.trust: '—') + '<br>关系：信任 ' + (f.rel? f.rel.trust: '—') + ' / 亲近 ' + (f.rel? f.rel.closeness: '—') + ' / 熟悉 ' + (f.rel? f.rel.familiarity: '—') + ' / 紧张 ' + (f.rel? f.rel.tension: '—') + '<br>慢速层：总体心情 ' + (f.slow? f.slow.moodBaseline: '—') + ' / 亲近基线 ' + (f.slow? f.slow.closenessBaseline: '—') + '</div></div>' +
 bkWbLine() +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">填进模板的记忆 / 事实</div>' +
-'<div style="font-size:13px;line-height:1.7;color:#3A3A3C;">时间事实：' + esc(f.timeFact || '') + '<br>好感度（只读）：' + (f.affectionReadOnly == null? '—': f.affectionReadOnly) + '<br>待提建议：' + esc(f.pendingSuggestion || '无') + '</div>' +
-'<div style="margin-top:6px;">' + recHtml + '</div></div>' +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">立场门控</div>' + stHtml + '</div>' +
-(a.decision? '<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">本轮决策</div><div style="font-size:13px;line-height:1.7;color:#3A3A3C;">' + esc(a.decision.rule || '') + ' → ' + esc(a.decision.action || '') + '：' + esc(a.decision.reason || '') + '</div></div>': '') +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">填进模板的记忆 / 事实</div>' +
+'<div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">时间事实：' + esc(f.timeFact || '') + '<br>好感度（只读）：' + (f.affectionReadOnly == null? '—': f.affectionReadOnly) + '<br>待提建议：' + esc(f.pendingSuggestion || '无') + '</div>' +
+'<div style="margin-top:8px;">' + recHtml + '</div></div>' +
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">立场门控</div>' + stHtml + '</div>' +
+(a.decision? '<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">本轮决策</div><div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(a.decision.rule || '') + ' → ' + esc(a.decision.action || '') + '：' + esc(a.decision.reason || '') + '</div></div>': '') +
 '</div>';
 }
 if (act === 'subjectStance') {
 var items = getStance().items.slice().reverse();
 var rows = items.length? items.map(function (g) {
 var btn = g.status === '已修复'
-? '<span style="color:#34C759;">✓ 已修复</span>'
-: '<button data-subj-repair="' + esc(g.id) + '" style="border:1px solid #007AFF;color:#007AFF;background:#fff;border-radius:12px;padding:5px 10px;font-size:13px;">已用行动补偿</button>';
-var hist = (g.history || []).map(function (h) { return '<div style="font-size:12px;color:#8E8E93;">' + esc(new Date(h.ts).toLocaleString()) + ' ' + esc(h.note || ('实际代价：' + (h.cost || ''))) + '</div>';}).join('');
-return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="display:block;padding:12px 14px;">' +
-'<div style="font-size:15px;line-height:1.5;">' + esc(g.reason) + '</div>' +
-'<div style="font-size:12px;color:#8E8E93;margin-top:6px;">严重度 ' + g.severity + ' · ' + esc(g.status) + ' · ' + esc(new Date(g.createdTs).toLocaleString()) + '</div>' + hist +
+? '<span style="color:var(--st-ink,#1e2748);">✓ 已修复</span>'
+: '<button data-subj-repair="' + esc(g.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">已用行动补偿</button>';
+var hist = (g.history || []).map(function (h) { return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(new Date(h.ts).toLocaleString()) + ' ' + esc(h.note || ('实际代价：' + (h.cost || ''))) + '</div>';}).join('');
+return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">' +
+'<div style="font-size:17px;line-height:1.5;">' + esc(g.reason) + '</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">严重度 ' + g.severity + ' · ' + esc(g.status) + ' · ' + esc(new Date(g.createdTs).toLocaleString()) + '</div>' + hist +
 '<div style="margin-top:8px;text-align:right;">' + btn + '</div></div></div>';
-}).join(''): '<div class="st-group"><div class="st-row" style="padding:14px;">账本是空的。她可以连着几轮生气，但空话哄不好——道歉没有实际代价就不变状态，有实际代价的道歉/行动才推进修复。</div></div>';
+}).join(''): '<div class="st-group"><div class="st-row" style="padding:12px 16px;">账本是空的。她可以连着几轮生气，但空话哄不好——道歉没有实际代价就不变状态，有实际代价的道歉/行动才推进修复。</div></div>';
 return subHeadS('立场账本', '不满与修复状态存在独立账本里，状态转移用确定性规则：空话道歉不修复，有实际代价才推进（未处理 → 已道歉 → 已修复）。', 'subjectStance') +
-'<div class="st-group" style="margin:0 16px 10px;"><div class="st-row" style="padding:10px 12px;gap:8px;">' +
-'<input id="subj-griev-input" type="text" placeholder="手动记一条不满，如：昨天失约了" style="flex:1;border:none;outline:none;font-size:15px;min-width:0;">' +
-'<button id="subj-griev-add" style="border:0;background:#007AFF;color:#fff;border-radius:12px;padding:7px 12px;font-size:14px;flex-shrink:0;">记下</button>' +
+'<div class="st-group" style="margin:0 16px 12px;"><div class="st-row" style="padding:12px 16px;gap:8px;">' +
+'<input id="subj-griev-input" type="text" placeholder="手动记一条不满，如：昨天失约了" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);outline:none;font-size:17px;height:40px;box-sizing:border-box;padding:8px 12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);min-width:0;">' +
+'<button id="subj-griev-add" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;flex-shrink:0;">记下</button>' +
 '</div></div>' + rows + '</div>';
 }
 if (act === 'subjectSuggestions') {
 var list = listSuggestions();
 var rows2 = list.map(function (sg) {
 var btns = sg.status === 'approved'
-? '<span style="color:#34C759;">✓ 已批准</span>'
+? '<span style="color:var(--st-ink,#1e2748);">✓ 已批准</span>'
 : sg.status === 'rejected'
-? '<span style="color:#8E8E93;">已拒绝，不再提</span>'
-: '<button data-sug-approve="' + esc(sg.id) + '" style="border:1px solid #34C759;color:#34C759;background:#fff;border-radius:12px;padding:5px 10px;font-size:13px;margin-right:6px;">批准</button>' +
-'<button data-sug-reject="' + esc(sg.id) + '" style="border:1px solid #8E8E93;color:#8E8E93;background:#fff;border-radius:12px;padding:5px 10px;font-size:13px;">拒绝</button>';
-return '<div class="st-group" style="margin-bottom:10px;"><div class="st-row" style="display:block;padding:12px 14px;">' +
-'<div style="font-size:15px;line-height:1.5;">' + esc(sg.title) + '</div>' +
-'<div style="font-size:12px;color:#8E8E93;margin-top:6px;">适合：' + esc(sg.when) + ' · 状态：' + esc(sg.status === 'pending'? '待你决定': (sg.status === 'approved'? '已批准': (sg.status === 'rejected'? '已拒绝': '未提过'))) + '</div>' +
+? '<span style="color:var(--st-ink-60,rgba(30,39,72,.6));">已拒绝，不再提</span>'
+: '<button data-sug-approve="' + esc(sg.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;margin-right:8px;">批准</button>' +
+'<button data-sug-reject="' + esc(sg.id) + '" style="border:1px solid var(--st-silver,#bfc8e0);color:var(--st-ink-60,rgba(30,39,72,.6));background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">拒绝</button>';
+return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">' +
+'<div style="font-size:17px;line-height:1.5;">' + esc(sg.title) + '</div>' +
+'<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">适合：' + esc(sg.when) + ' · 状态：' + esc(sg.status === 'pending'? '待你决定': (sg.status === 'approved'? '已批准': (sg.status === 'rejected'? '已拒绝': '未提过'))) + '</div>' +
 '<div style="margin-top:8px;text-align:right;">' + btns + '</div></div></div>';
 }).join('');
 var impr = getImpressions().slice().reverse().slice(0, 3);
-var imprHtml = impr.length? impr.map(function (im) { return '<div style="font-size:13px;line-height:1.7;color:#3A3A3C;">· ' + esc(im.date) + '：' + esc(im.text) + '</div>';}).join(''): '<div style="font-size:13px;color:#8E8E93;">还没有每周印象。满 7 天（或在驾驶舱等）会自动写一条，原始记忆一条都不删。</div>';
+var imprHtml = impr.length? impr.map(function (im) { return '<div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">· ' + esc(im.date) + '：' + esc(im.text) + '</div>';}).join(''): '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">还没有每周印象。满 7 天（或在驾驶舱等）会自动写一条，原始记忆一条都不删。</div>';
 return subHeadS('建议箱', 'char 偶尔提一个新日常/新功能建议。建议由你来决定是否做——char 不写代码、不改文件；批准的记下来，拒绝的记下来不再提。', 'subjectSuggestions') +
 rows2 +
-'<div class="st-group" style="margin:0 16px 10px;padding:12px 14px;"><div style="font-weight:700;font-size:15px;margin-bottom:6px;">每周反思印象</div>' + imprHtml +
-'<div style="margin-top:10px;"><button id="subj-reflect-now" style="border:1px solid #5856D6;color:#5856D6;background:#fff;border-radius:12px;padding:7px 12px;font-size:14px;">现在做一次每周反思</button> <span id="subj-reflect-tip" style="font-size:12px;color:#8E8E93;"></span></div></div></div>';
+'<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">每周反思印象</div>' + imprHtml +
+'<div style="margin-top:12px;"><button id="subj-reflect-now" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">现在做一次每周反思</button> <span id="subj-reflect-tip" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));"></span></div></div></div>';
 }
 return '';
 }

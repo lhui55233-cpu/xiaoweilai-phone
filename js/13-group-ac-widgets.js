@@ -328,7 +328,7 @@ const ACWidgets = (() => {
       + '<div class="ac-preview" id="ac-theme-preview"></div>'
       + '<div class="ac-store-sec">壁纸与底部栏</div>'
       + '<div class="ac-store-checks">'
-      + '<label>CSS 动画壁纸（纯渐变流动，不用外链图片）<input type="checkbox" data-ac-wall="' + (state.wallpaperAnim ? '1' : '0') + '"' + (state.wallpaperAnim ? ' checked' : '') + '></label>'
+      + '<label>CSS 动画壁纸（纯色缓缓轮替，不用外链图片）<input type="checkbox" data-ac-wall="' + (state.wallpaperAnim ? '1' : '0') + '"' + (state.wallpaperAnim ? ' checked' : '') + '></label>'
       + ['weather', 'time', 'quote', 'music'].map((k) => '<label>底部栏 · ' + ({ weather: '天气', time: '时间', quote: '一句话', music: '音乐' })[k] + '<input type="checkbox" data-ac-dock-toggle="' + k + '"' + (state.dock[k] ? ' checked' : '') + '></label>').join('')
       + '</div>'
       + '<div class="ac-store-sub">主题色同时写进 phone_ui_prefs_v1.themeCustom（T 组约定形状，T 组未合入，先按此键名与形状写，待 T 组确认后以 T 组为准）。</div>'

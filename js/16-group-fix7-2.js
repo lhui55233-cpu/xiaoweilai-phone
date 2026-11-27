@@ -783,7 +783,7 @@ function focusPanelHTML() {
   var off = C * (1 - Math.min(1, done / Math.max(1, planned)));
   var hist = fp.sessions.slice(0, 7).map(function (s) {
     return '<div>· ' + esc(s.date) + ' · ' + (s.kind === 'break' ? '休息' : '专注') + ' ' + s.minutes + ' 分钟</div>';
-  }).join('') || '<div style="color:#999;">还没有专注记录，完成一次专注后会出现在这里。</div>';
+  }).join('') || '<div style="color:var(--st-ink-40,rgba(30,39,72,.4));">还没有专注记录，完成一次专注后会出现在这里。</div>';
   var rs = reserveStatus();
   var goalHtml = rs.goal
     ? ('目标「' + esc(rs.goal.name) + '」：已预留 ' + rs.reserved + ' / ' + rs.goal.target + ' 金币' + (rs.reached ? ' · ✅ 已攒够，可以买了！' : ''))
@@ -793,22 +793,22 @@ function focusPanelHTML() {
     + '<div class="ab-focus-title">🍅 番茄猫进阶 · 今日计划</div>'
     + '<div class="ab-focus-mood">心情：' + (MOOD_EMOJI[st.mood] || '') + ' ' + (MOOD_CN[st.mood] || st.mood) + '（' + st.mood + '）· 与桌宠同一份状态<br>' + esc(cs.text) + '</div>'
     + '<div style="display:flex;gap:12px;align-items:center;">'
-    + '<svg class="ab-ring" viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="26" fill="none" stroke="#eee" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#e07856" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 32 32)"/><text x="32" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#3a1e14">' + done + '/' + planned + '</text></svg>'
-    + '<div style="flex:1;font-size:12px;line-height:1.8;color:#4a3226;">今日计划 ' + done + ' / ' + planned + ' 轮 '
+    + '<svg class="ab-ring" viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="26" fill="none" stroke="#dce2f1" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#e07856" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 32 32)"/><text x="32" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#1e2748">' + done + '/' + planned + '</text></svg>'
+    + '<div style="flex:1;font-size:13px;line-height:1.8;color:var(--st-ink,#1e2748);">今日计划 ' + done + ' / ' + planned + ' 轮 '
     + '<button type="button" onclick="window.GroupAB.focusPlanDelta(-1)">−</button><button type="button" onclick="window.GroupAB.focusPlanDelta(1)">＋</button><br>'
     + '今日完成场次：' + (fp.dailyCount || 0) + ' 场（午夜自动清零）<br>金币：' + (fp.coins || 0) + ' 🪙（专注 3 金币/分钟）</div></div>'
-    + '<div style="font-size:12px;margin-top:6px;">休息：' + (bs.active
+    + '<div style="font-size:13px;margin-top:6px;color:var(--st-ink,#1e2748);">休息：' + (bs.active
       ? ('😴 ' + (bs.kind === 'long' ? '长休' : '短休') + '中，剩约 ' + bs.leftMin + ' 分钟 <button type="button" onclick="window.GroupAB.focusEndBreak()">结束休息</button>')
       : ('<button type="button" onclick="window.GroupAB.focusStartBreak(\'short\')">短休 5 分钟</button><button type="button" onclick="window.GroupAB.focusStartBreak(\'long\')">长休 15 分钟</button>')) + '</div>'
-    + '<div style="font-size:12px;margin-top:6px;">背景：' + (fp.bg ? '已上传自定义背景 <button type="button" onclick="window.GroupAB.focusClearBg()">清除</button>' : '未上传')
+    + '<div style="font-size:13px;margin-top:6px;color:var(--st-ink,#1e2748);">背景：' + (fp.bg ? '已上传自定义背景 <button type="button" onclick="window.GroupAB.focusClearBg()">清除</button>' : '未上传')
     + ' <label class="ab-chip-btn" style="display:inline-block;">上传背景图<input type="file" accept="image/*" style="display:none" onchange="window.GroupAB._onBgFile(this)"></label></div>'
-    + '<div style="font-size:12px;margin-top:6px;">提示音：' + (fp.soundChoice === 'custom' ? ('自定义：' + esc(fp.soundName || '已上传')) : 'WebAudio 合成')
+    + '<div style="font-size:13px;margin-top:6px;color:var(--st-ink,#1e2748);">提示音：' + (fp.soundChoice === 'custom' ? ('自定义：' + esc(fp.soundName || '已上传')) : 'WebAudio 合成')
     + ' <button type="button" onclick="window.GroupAB.focusSetSoundChoice(\'webaudio\')">用 WebAudio</button><button type="button" onclick="window.GroupAB.focusSetSoundChoice(\'custom\')">用上传的</button><button type="button" onclick="window.GroupAB.focusPlayChime()">试听</button>'
     + ' <label class="ab-chip-btn" style="display:inline-block;">上传提示音<input type="file" accept="audio/*" style="display:none" onchange="window.GroupAB._onSoundFile(this)"></label></div>'
-    + '<div style="font-size:12px;margin-top:6px;">金币预留：' + goalHtml + '<br>'
+    + '<div style="font-size:13px;margin-top:6px;color:var(--st-ink,#1e2748);">金币预留：' + goalHtml + '<br>'
     + '<input id="ab-goal-name" placeholder="目标名字，如猫窝" value="' + esc(rs.goal ? rs.goal.name : '') + '"><input id="ab-goal-target" type="number" placeholder="金币数，如 100" value="' + (rs.goal ? rs.goal.target : '') + '">'
     + '<button type="button" onclick="window.GroupAB.focusSetGoal()">设为预留目标</button>' + (rs.goal ? '<button type="button" onclick="window.GroupAB.focusClearGoal()">取消预留</button>' : '') + '</div>'
-    + '<div style="font-size:12px;font-weight:700;margin-top:8px;">历史记录</div><div class="ab-focus-hist">' + hist + '</div>'
+    + '<div style="font-size:13px;font-weight:600;margin-top:8px;color:var(--st-ink,#1e2748);">历史记录</div><div class="ab-focus-hist">' + hist + '</div>'
     + '</div>';
 }
 function renderPetSettingsHTML() {
@@ -823,20 +823,20 @@ function renderPetSettingsHTML() {
     return '<button type="button" class="ab-chip-btn' + (skin.pattern === id ? ' ab-active' : '') + '" data-ab-pattern="' + id + '">' + PATTERNS[id] + '</button>';
   }).join('');
   return '<div class="st-sub" id="st-sub-petSettings">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌宠设置</div></div>'
+    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌宠设置</div></div>'
     + '<div class="st-bigtitle" style="padding-top:4px;">桌宠设置</div>'
-    + '<div style="padding:0 16px 20px;">'
-    + '<div style="font-size:12px;color:#888;line-height:1.6;margin-bottom:8px;">桌宠 char 与番茄猫是同一只宠物，共用同一份情绪状态（' + (MOOD_EMOJI[st.mood] || '') + ' ' + (MOOD_CN[st.mood] || st.mood) + '）；改这里，专注面板里的猫也会跟着变。</div>'
+    + '<div style="padding:0 16px 24px;">'
+    + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:8px;">桌宠 char 与番茄猫是同一只宠物，共用同一份情绪状态（' + (MOOD_EMOJI[st.mood] || '') + ' ' + (MOOD_CN[st.mood] || st.mood) + '）；改这里，专注面板里的猫也会跟着变。</div>'
     + '<div class="st-group"><div class="ab-set-row"><label>速度</label><input type="range" min="0.5" max="2" step="0.1" value="' + s.speed + '" data-ab-set="speed"><span class="ab-set-val">' + s.speed + '×</span></div>'
     + '<div class="ab-set-row"><label>活跃度</label><input type="range" min="0" max="1" step="0.1" value="' + s.activity + '" data-ab-set="activity"><span class="ab-set-val">' + s.activity + '</span></div>'
     + '<div class="ab-set-row"><label>跟随手指</label><input type="checkbox" ' + (s.follow ? 'checked' : '') + ' data-ab-set="follow"><span class="ab-set-val">' + (s.follow ? '开' : '关') + '</span></div></div>'
-    + '<div class="st-group"><div style="font-weight:700;font-size:13px;margin:10px 0 6px;">皮肤（切换立即生效，不用重载）</div>' + skinBtns
-    + '<div style="font-size:12px;color:#888;margin:8px 0;">发色 <input type="color" value="' + col.hair + '" data-ab-color="hair"> 瞳色 <input type="color" value="' + col.eye + '" data-ab-color="eye"></div>'
-    + '<div style="font-weight:700;font-size:13px;margin:10px 0 6px;">图案</div>' + patBtns
-    + '<div style="margin-top:8px;"><label class="ab-chip-btn" style="display:inline-block;">上传抠图立绘<input type="file" accept="image/*" style="display:none" onchange="window.GroupAB._onCustomSkinFile(this)"></label> <span id="ab-skin-status" style="font-size:12px;color:#888;">' + (skin.customImg ? '已上传抠图立绘' : '未上传抠图立绘') + '</span></div></div>'
-    + '<div class="st-group"><div class="ab-set-row"><label>行为模式</label><span id="ab-mode-label" style="flex:1;font-size:13px;">' + modeLabel(st.mode) + '</span><button type="button" class="ab-chip-btn" data-ab-mode-cycle>切换模式</button></div>'
-    + '<div class="ab-set-row"><label>收起宠物</label><span style="flex:1;font-size:12px;color:#888;">收成角落小图标，点图标恢复；位置与皮肤会记住</span><button type="button" class="ab-chip-btn" data-ab-collapse>' + (st.collapsed ? '恢复宠物' : '收起来') + '</button></div>'
-    + '<div class="ab-set-row"><label>重置</label><span style="flex:1;font-size:12px;color:#888;">把桌宠状态恢复默认</span><button type="button" class="ab-chip-btn" data-ab-reset>重置</button></div></div>'
+    + '<div class="st-group"><div style="font-weight:600;font-size:13px;margin:12px 0 8px;">皮肤（切换立即生效，不用重载）</div>' + skinBtns
+    + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:8px 0;">发色 <input type="color" value="' + col.hair + '" data-ab-color="hair"> 瞳色 <input type="color" value="' + col.eye + '" data-ab-color="eye"></div>'
+    + '<div style="font-weight:600;font-size:13px;margin:12px 0 8px;">图案</div>' + patBtns
+    + '<div style="margin-top:8px;"><label class="ab-chip-btn" style="display:inline-block;">上传抠图立绘<input type="file" accept="image/*" style="display:none" onchange="window.GroupAB._onCustomSkinFile(this)"></label> <span id="ab-skin-status" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (skin.customImg ? '已上传抠图立绘' : '未上传抠图立绘') + '</span></div></div>'
+    + '<div class="st-group"><div class="ab-set-row"><label>行为模式</label><span id="ab-mode-label" style="flex:1;font-size:17px;">' + modeLabel(st.mode) + '</span><button type="button" class="ab-chip-btn" data-ab-mode-cycle>切换模式</button></div>'
+    + '<div class="ab-set-row"><label>收起宠物</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">收成角落小图标，点图标恢复；位置与皮肤会记住</span><button type="button" class="ab-chip-btn" data-ab-collapse>' + (st.collapsed ? '恢复宠物' : '收起来') + '</button></div>'
+    + '<div class="ab-set-row"><label>重置</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">把桌宠状态恢复默认</span><button type="button" class="ab-chip-btn" data-ab-reset>重置</button></div></div>'
     + '</div></div>';
 }
 function syncSettingsUI() {
