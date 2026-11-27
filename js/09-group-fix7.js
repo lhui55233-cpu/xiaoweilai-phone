@@ -220,7 +220,7 @@ if (old) old.remove();
 var look = petLook();
 var div = document.createElement('div');
 div.id = 'gm-photo-modal'; div.className = 'gm-photo-modal';
-div.innerHTML = '<div class="gm-photo-card"><div class="gm-photo-scene">' + (look.img? '<img src="' + esc(look.img) + '" alt="char">': petSvg(look.hair, look.eye, false)) + '</div><div class="gm-photo-cap">📸 ' + esc(name) + ' 的示意自拍 · 唤醒券兑现</div><div class="gm-photo-sub">早上抽到的照片券，今天也要一起加油。</div><button type="button" class="gm-photo-close">收下 ✓</button></div>';
+div.innerHTML = '<div class="gm-photo-card"><div class="gm-photo-scene">' + (look.img? '<img src="' + esc(look.img) + '" alt="char">': petSvg(look.hair, look.eye, false)) + '</div><div class="gm-photo-cap">' + esc(name) + ' 的示意自拍 · 唤醒券兑现</div><div class="gm-photo-sub">早上抽到的照片券，今天也要一起加油。</div><button type="button" class="gm-photo-close">收下</button></div>';
 div.querySelector('.gm-photo-close').addEventListener('click', function () { div.remove();});
 div.addEventListener('click', function (e) { if (e.target === div) div.remove();});
 document.body.appendChild(div);
@@ -238,7 +238,7 @@ showPhotoVoucher(name);
 detail = '已兑现：char 的示意自拍（见弹窗，已存入信件箱）';
 try {
 var alb = lsGet('cike_album_v1', []);
-alb.unshift({ role: name, time: new Date().toLocaleString('zh-CN'), text: '📸 唤醒券兑现：char 的示意自拍。今天也要一起加油。'});
+alb.unshift({ role: name, time: new Date().toLocaleString('zh-CN'), text: '唤醒券兑现：char 的示意自拍。今天也要一起加油。'});
 lsSet('cike_album_v1', alb);
 } catch (e) {}
 } else if (rec.type === 'voice') {
@@ -359,7 +359,7 @@ var look = petLook();
 el.classList.toggle('gm-sleeping', sleeping);
 el.setAttribute('data-phase', phaseForHour(h));
 el.innerHTML = '<div class="gm-pet-char" role="button" title="桌面宠物 · 点一点我">' + (look.img? '<img src="' + esc(look.img) + '" alt="char">': petSvg(look.hair, look.eye, sleeping)) + '</div>'
-+ '<div class="gm-pet-bubble" id="gm-pet-bubble" style="display:none;"><span id="gm-pet-bubble-text"></span><div class="gm-pet-bubble-btns"><button type="button" id="gm-pet-lottery-btn">🎰 抽唤醒券</button><button type="button" id="gm-pet-hide-btn">隐藏宠物</button></div></div>'
++ '<div class="gm-pet-bubble" id="gm-pet-bubble" style="display:none;"><span id="gm-pet-bubble-text"></span><div class="gm-pet-bubble-btns"><button type="button" id="gm-pet-lottery-btn">抽唤醒券</button><button type="button" id="gm-pet-hide-btn">隐藏宠物</button></div></div>'
 + (sleeping? '<div class="gm-pet-zzz">Z z</div>': '');
 petState.sig = phaseForHour(h) + '|' + (sleeping? 'sleep': 'awake') + '|' + petLookSig();
 if (!el._gmBound) {
@@ -449,23 +449,42 @@ var days = Object.keys(map).map(function (k) { return { date: k, items: map[k], 
 days.sort(function (a, b) { return a.date < b.date? -1: 1;});
 return days.slice(-30);
 }
+/* 记忆树上方的画出来的月树（2026-11-27 第二轮）：复用归巢 sealed-days 月树挂木牌的做法，
+   全部代码画 SVG 矩形像素画：树干 + 枝 + 树冠，木牌按天挂在枝上（最多 8 块，封印的变金色）；
+   木牌列表仍在树下列出，封印/解封逻辑不动。无记忆时也画一棵空树，不编假木牌。 */
+function memtreeTreeSVG(days) {
+var canopy = '<rect x="110" y="18" width="100" height="26" fill="#5b8c5a"/><rect x="90" y="34" width="140" height="22" fill="#6a9a5a"/><rect x="130" y="6" width="60" height="16" fill="#6a9a5a"/>'
++ '<rect x="120" y="24" width="10" height="8" fill="#4e7a4e"/><rect x="180" y="40" width="10" height="8" fill="#4e7a4e"/><rect x="150" y="12" width="8" height="6" fill="#4e7a4e"/>';
+var trunk = '<g class="gm-mt-trunk"><rect x="152" y="70" width="16" height="68" fill="#7a4a28"/><rect x="120" y="60" width="36" height="6" fill="#7a4a28"/><rect x="164" y="52" width="40" height="6" fill="#7a4a28"/><rect x="140" y="44" width="16" height="8" fill="#6b4226"/><rect x="168" y="40" width="14" height="8" fill="#6b4226"/></g>';
+var hangs = '';
+(days || []).slice(0, 8).forEach(function (d, i) {
+var x = 24 + i * 34;
+var y = 78 + (i % 2) * 12;
+var col = d.sealed? '#d8a93c': '#caa06e';
+var label = String(d.date || '').slice(5) || String(d.date || '');
+hangs += '<g class="gm-mt-hang" data-gm-date="' + esc(d.date) + '"><rect x="' + (x + 14) + '" y="56" width="2" height="' + (y - 56) + '" fill="#7a4a28"/><rect x="' + x + '" y="' + y + '" width="30" height="18" fill="' + col + '"/><text x="' + (x + 15) + '" y="' + (y + 12) + '" font-size="8" fill="#fff8ea" text-anchor="middle">' + esc(label) + '</text></g>';
+});
+return '<div class="gm-mt-tree-svg"><svg class="gm-mt-tree-draw" viewBox="0 0 320 148" shape-rendering="crispEdges" aria-label="记忆树">'
++ '<rect x="0" y="138" width="320" height="10" fill="#8a5a2e"/>'
++ canopy + trunk + hangs + '</svg></div>';
+}
 function memtreeRender() {
 var root = document.getElementById('ck-memtree-root');
 if (!root) return false;
 var days = memtreeDays();
 var lot = lotteryToday();
 var lotHtml = lot
-? '<div class="gm-mt-lot">今日唤醒券：' + esc(LOTTERY_TYPES[lot.type].label) + ' · ' + esc(LOTTERY_TYPES[lot.type].desc) + ' — ' + (lot.redeemed? '已兑现 ✓': '<button type="button" data-gm-act="lottery-redeem">兑现</button>') + '</div>'
-: '<div class="gm-mt-lot">还没有抽今天的唤醒券 <button type="button" data-gm-act="lottery-draw">🎰 抽一张</button></div>';
+? '<div class="gm-mt-lot">今日唤醒券：' + esc(LOTTERY_TYPES[lot.type].label) + ' · ' + esc(LOTTERY_TYPES[lot.type].desc) + ' — ' + (lot.redeemed? '已兑现': '<button type="button" data-gm-act="lottery-redeem">兑现</button>') + '</div>'
+: '<div class="gm-mt-lot">还没有抽今天的唤醒券 <button type="button" data-gm-act="lottery-draw">抽一张</button></div>';
 var planks = days.length? days.map(function (d) {
 return '<div class="gm-plank' + (d.sealed? ' gm-sealed': '') + '" data-gm-date="' + esc(d.date) + '" role="button" title="' + (d.sealed? '已封印 · 点一下解封': '点一下封印这一天') + '">'
 + '<div class="gm-plank-date">' + esc(d.date) + '</div>'
 + '<div class="gm-plank-title">' + esc(d.items[0].title) + '</div>'
 + '<div class="gm-plank-meta">' + esc(d.items[0].source) + (d.items.length > 1? ' · 等' + d.items.length + '条': '') + '</div>'
-+ '<div class="gm-plank-seal">' + (d.sealed? '🔒 已封印': '') + '</div></div>';
++ '<div class="gm-plank-seal">' + (d.sealed? '已封印': '') + '</div></div>';
 }).join(''): '<div class="gm-mt-empty">还没有记忆。去归巢记一条，或在此时写一篇日记，木牌就会挂上来。</div>';
 /* 2026-11-27 Hub：花园已拆去自己的 #ck-garden-root 页，不再拼进记忆树。 */
-var _fix6Html = '<div class="gm-mt-head"><span>🌳 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>' + lotHtml + '<div class="gm-mt-tree">' + planks + '</div>';
+var _fix6Html = '<div class="gm-mt-head"><span>记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>' + lotHtml + memtreeTreeSVG(days) + '<div class="gm-mt-tree">' + planks + '</div>';
   /* GROUP-FIX6 · FIX6-1 记忆树去重写：内容与上次写入完全相同就不写 innerHTML。
      根因：gmInit 的 body/subtree observer 回调 memtreeRender()，无条件写
      innerHTML 又触发 observer，无限微任务乒乓饿死定时器（开此刻后 10 秒

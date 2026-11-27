@@ -437,7 +437,7 @@ var rigSectionHTML = function () {
    读同一份 guichao.memories.v1；封印状态只读 M 组的 sealed_days_v1（不写）；花园自己的状态存在新键 gv_garden_v1。
    规则：记忆 -> 可种的种子；种下 -> 幼苗；浇水每 2 次长大一级（种子/幼苗/成长/开花）；修剪 +1 水、标记已修剪。 */
 var GARDEN_KEY = 'gv_garden_v1';
-var GARDEN_STAGES = [{ ico: '🌱', name: '种子' }, { ico: '🌿', name: '幼苗' }, { ico: '🌳', name: '成长' }, { ico: '🌸', name: '开花' }];
+var GARDEN_STAGES = [{ ico: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><ellipse cx="12" cy="15" rx="6" ry="7" fill="#c9a06a"/><path d="M12 8 Q12 4 15 3" stroke="#4a7a5a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>', name: '种子' }, { ico: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 21 V11" stroke="#4a7a5a" stroke-width="2" stroke-linecap="round"/><path d="M12 11 C12 6 8 4 4 4 C4 9 8 11 12 11 Z" fill="#6aa87a"/><path d="M12 11 C12 6 16 4 20 4 C20 9 16 11 12 11 Z" fill="#7cbc8c"/></svg>', name: '幼苗' }, { ico: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="10" r="7" fill="#4a7a5a"/><rect x="10.8" y="15" width="2.4" height="6" fill="#8a6a4a"/></svg>', name: '成长' }, { ico: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="6.5" r="3" fill="#e8c9d0"/><circle cx="17.5" cy="12" r="3" fill="#e8c9d0"/><circle cx="12" cy="17.5" r="3" fill="#e8c9d0"/><circle cx="6.5" cy="12" r="3" fill="#e8c9d0"/><circle cx="12" cy="12" r="3.2" fill="#f5d90a"/></svg>', name: '开花' }];
 var gardenLoad = function () { var g = lsGet(GARDEN_KEY, null); if (!g || typeof g !== 'object' || !g.plants) return { plants: {} }; return g; };
 var gardenSave = function (g) { return lsSet(GARDEN_KEY, g); };
 var gardenMemories = function () {
@@ -471,17 +471,17 @@ var gardenHTML = function () {
   var g = gardenLoad(); var mems = gardenMemories();
   var planted = mems.filter(function (m) { return g.plants[m.id]; });
   var seeds = mems.filter(function (m) { return !g.plants[m.id]; });
-  var h = '<div class="gv-garden"><div class="gv-garden-head">🌱 记忆花园 <span class="ot-muted">记忆种成幼苗，浇水长大</span></div>';
+  var h = '<div class="gv-garden"><div class="gv-garden-head"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 21 V11" stroke="#4a7a5a" stroke-width="2" stroke-linecap="round"/><path d="M12 11 C12 6 8 4 4 4 C4 9 8 11 12 11 Z" fill="#6aa87a"/><path d="M12 11 C12 6 16 4 20 4 C20 9 16 11 12 11 Z" fill="#7cbc8c"/></svg> 记忆花园 <span class="ot-muted">记忆种成幼苗，浇水长大</span></div>';
   if (!mems.length) h += '<div class="ot-muted">还没有记忆。去归巢记一条，回来就能种下它。</div>';
   if (planted.length) {
     h += '<div class="gv-garden-grid">' + planted.map(function (m) {
       var p = g.plants[m.id]; var st = GARDEN_STAGES[gardenStageOf(p)];
-      return '<div class="gv-sprout"><div class="gv-sprout-ico">' + st.ico + '</div><div class="gv-sprout-t">' + esc(m.title) + '</div><div class="ot-muted">' + st.name + ' · 浇水 ' + (p.water || 0) + ' 次' + (p.pruned ? ' · 已修剪' : '') + (m.sealed ? ' · 🔒 已封印' : '') + '</div><div class="gv-sprout-btns"><button type="button" class="ot-btn" onclick="window.GroupV.gardenAct(\'water\',\'' + esc(m.id) + '\')">💧 浇水</button><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.gardenAct(\'prune\',\'' + esc(m.id) + '\')">✂️ 修剪</button></div></div>';
+      return '<div class="gv-sprout"><div class="gv-sprout-ico">' + st.ico + '</div><div class="gv-sprout-t">' + esc(m.title) + '</div><div class="ot-muted">' + st.name + ' · 浇水 ' + (p.water || 0) + ' 次' + (p.pruned ? ' · 已修剪' : '') + (m.sealed ? ' · 已封印' : '') + '</div><div class="gv-sprout-btns"><button type="button" class="ot-btn" onclick="window.GroupV.gardenAct(\'water\',\'' + esc(m.id) + '\')">浇水</button><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.gardenAct(\'prune\',\'' + esc(m.id) + '\')">修剪</button></div></div>';
     }).join('') + '</div>';
   }
   if (seeds.length) {
     h += '<div class="ot-muted" style="margin-top:8px;">还没种下的记忆：</div><div class="gv-seeds">' + seeds.map(function (m) {
-      return '<button type="button" class="gv-seed" onclick="window.GroupV.gardenAct(\'plant\',\'' + esc(m.id) + '\')">🌰 ' + esc(m.title) + (m.sealed ? ' 🔒' : '') + '</button>';
+      return '<button type="button" class="gv-seed" onclick="window.GroupV.gardenAct(\'plant\',\'' + esc(m.id) + '\')">' + esc(m.title) + (m.sealed ? ' · 已封印' : '') + '</button>';
     }).join('') + '</div>';
   }
   return h + '</div>';

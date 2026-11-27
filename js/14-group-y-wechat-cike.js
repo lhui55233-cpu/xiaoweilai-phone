@@ -61,16 +61,16 @@ function slotLine(slot) {
 
 // ══════════ W2 · 情绪关键词 → 动作 + 语音合成音调（关键词映射 + 模板） ══════════
 var EMOTIONS = {
-  happy: { label: '开心', action: 'wave', emoji: '👋', cls: 'gy-wave', voice: { pitch: 1.4, rate: 1.1, volume: 1 } },
-  sleepy: { label: '困', action: 'yawn', emoji: '🥱', cls: 'gy-yawn', voice: { pitch: 0.8, rate: 0.8, volume: 0.9 } },
-  shy: { label: '害羞', action: 'cover', emoji: '🙈', cls: 'gy-cover', voice: { pitch: 1.2, rate: 0.95, volume: 0.7 } }
+  happy: { label: '开心', action: 'wave', emoji: '<svg viewBox="0 0 24 24" width="18" height="18" style="vertical-align:-3px" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffd93b"/><circle cx="9" cy="10" r="1.5" fill="#1e2748"/><circle cx="15" cy="10" r="1.5" fill="#1e2748"/><path d="M8 14 Q12 18 16 14" stroke="#1e2748" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>', cls: 'gy-wave', voice: { pitch: 1.4, rate: 1.1, volume: 1 } },
+  sleepy: { label: '困', action: 'yawn', emoji: '<svg viewBox="0 0 24 24" width="18" height="18" style="vertical-align:-3px" aria-hidden="true"><path d="M15 3 A9 9 0 1 0 21 15 A7 7 0 0 1 15 3 Z" fill="#bfc8e0"/></svg>', cls: 'gy-yawn', voice: { pitch: 0.8, rate: 0.8, volume: 0.9 } },
+  shy: { label: '害羞', action: 'cover', emoji: '<svg viewBox="0 0 24 24" width="18" height="18" style="vertical-align:-3px" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffe3c4"/><circle cx="9" cy="10" r="1.4" fill="#1e2748"/><circle cx="15" cy="10" r="1.4" fill="#1e2748"/><circle cx="7.5" cy="14" r="2" fill="#e8a0a8"/><circle cx="16.5" cy="14" r="2" fill="#e8a0a8"/><path d="M10 16.5 Q12 17.5 14 16.5" stroke="#1e2748" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>', cls: 'gy-cover', voice: { pitch: 1.2, rate: 0.95, volume: 0.7 } }
 };
 function emotionFor(text) {
   var t = String(text || '');
   if (!t) return null;
   if (/害羞|脸红|不好意思|\/害羞|羞羞/.test(t)) return 'shy';
   if (/困|想睡|晚安|好累|熬夜|睡着|打哈欠/.test(t)) return 'sleepy';
-  if (/开心|哈哈|好耶|太棒了|高兴|嘻嘻|😄|😆|🎉|真好/.test(t)) return 'happy';
+  if (/开心|哈哈|好耶|太棒了|高兴|嘻嘻|\uD83D\uDE04|\uD83D\uDE06|\uD83C\uDF89|真好/.test(t)) return 'happy';
   return null;
 }
 function speakWithEmotion(text, emotion, opts) {
@@ -473,7 +473,7 @@ function appendAwayChip() {
     if (!a || a.date !== _todayStr()) return false;
     var chip = document.createElement('div');
     chip.className = 'groupy-away-chip';
-    chip.textContent = '🕰️ 你不在时 · ' + a.summary;
+    chip.textContent = '你不在时 · ' + a.summary;
     tl.appendChild(chip);
     return true;
   } catch (e) { return false; }
@@ -484,11 +484,11 @@ function statusPanelHtml(nowMs) {
   var d = statusPanelData(nowMs);
   var slotLine = d.slot ? ('现在 · ' + d.slot.hour + '点 · ' + d.slot.place + ' · ' + d.slot.activity) : '暂无日程';
   var goalLine = d.goal ? (d.goal.title + ' · ' + d.goal.progress + '%') : '暂无进行中的小目标';
-  return '<div class="groupy-panel" id="groupy-status"><h4>✦ 他现在的状态</h4>'
-    + '<div>🕰️ ' + _esc(slotLine) + ' <span class="gy-muted">（' + _esc(d.slotSource) + '）</span></div>'
-    + '<div>🎯 小目标：' + _esc(goalLine) + ' <span class="gy-muted">（' + _esc(d.goalSource) + '）</span></div>'
-    + '<div>🎒 背包：花园 ' + d.backpack.gardenPlanted + ' 株 · 钓到 ' + d.backpack.fishCaught + ' 条 · 斗地主 ' + d.backpack.ddzScore + ' 分 <span class="gy-muted">（' + _esc(d.backpackSource) + '）</span></div>'
-    + '<div>🪙 金币：' + d.coins + ' <span class="gy-muted">（' + _esc(d.coinsNote) + '）</span></div></div>';
+  return '<div class="groupy-panel" id="groupy-status"><h4>他现在的状态</h4>'
+    + '<div>' + _esc(slotLine) + ' <span class="gy-muted">（' + _esc(d.slotSource) + '）</span></div>'
+    + '<div>小目标：' + _esc(goalLine) + ' <span class="gy-muted">（' + _esc(d.goalSource) + '）</span></div>'
+    + '<div>背包：花园 ' + d.backpack.gardenPlanted + ' 株 · 钓到 ' + d.backpack.fishCaught + ' 条 · 斗地主 ' + d.backpack.ddzScore + ' 分 <span class="gy-muted">（' + _esc(d.backpackSource) + '）</span></div>'
+    + '<div>金币：' + d.coins + ' <span class="gy-muted">（' + _esc(d.coinsNote) + '）</span></div></div>';
 }
 function dayViewHtml(nowMs) {
   var d = dayViewData(nowMs);
@@ -496,7 +496,7 @@ function dayViewHtml(nowMs) {
     var mine = r.mine.length ? r.mine.map(function (t) { return _esc(t.time + ' ' + t.title); }).join('；') : '—';
     return '<div class="gy-row"><div class="gy-time">' + r.hour + '点</div><div style="flex:1;">他：' + _esc(r.charPlace + ' · ' + r.charActivity) + '<br>我：' + mine + '</div></div>';
   }).join('') : '<div class="gy-muted">char 今天还没有日程（cike_char_day_v1 未设置）。</div>';
-  return '<div class="groupy-panel" id="groupy-dayview"><h4>🗓️ 我们的一天</h4>'
+  return '<div class="groupy-panel" id="groupy-dayview"><h4>我们的一天</h4>'
     + '<div class="gy-muted">同一时间轴对照 · 上面是他，下面是你' + (d.mineCount ? '' : '（你今天还没有日程）') + '</div>' + rows + '</div>'; /* GROUP-FIX7：日程 app 已删，去掉指引 */
 }
 function moodHtml() {
@@ -508,7 +508,7 @@ function moodHtml() {
   var energies = [1, 2, 3, 4, 5].map(function (n) {
     return '<button type="button" class="' + (r && r.energy === n ? 'gy-on' : '') + '" onclick="window.GroupY && window.GroupY.moodCheckin((window.GroupY && window.GroupY._todayMood()) || \'平静\', ' + n + ')">' + n + '</button>';
   }).join('');
-  return '<div class="groupy-panel" id="groupy-mood"><h4>💛 今天的心情打卡</h4>'
+  return '<div class="groupy-panel" id="groupy-mood"><h4>今天的心情打卡</h4>'
     + '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + btns + '</div>'
     + '<div style="margin-top:6px;">能量：' + energies + ' <span class="gy-muted">（1 很累 ～ 5 满格）</span></div>'
     + (r ? '<div style="margin-top:6px;">今天已打卡：' + _esc(r.mood) + ' · 能量 ' + r.energy + '/5</div>' : '<div class="gy-muted" style="margin-top:6px;">每天点一次，打卡会进今晚日记的素材，也会让他的主动消息语气变温柔一点。</div>')
@@ -519,9 +519,9 @@ function awayHtml(nowMs) {
   var st = awayNow(nowMs);
   var btn = '<button type="button" onclick="window.GroupY && window.GroupY.simulateAway(Date.now(), {force:true}) && window.GroupY.renderCikeHome()">看看他不在时发生了什么</button>';
   var body = (a && a.date === _todayStr(new Date(nowMs || Date.now())))
-    ? '<div style="margin-top:6px;">🕰️ ' + _esc(a.summary) + '</div><div class="gy-muted">' + _esc(a.note) + '</div>'
+    ? '<div style="margin-top:6px;">' + _esc(a.summary) + '</div><div class="gy-muted">' + _esc(a.note) + '</div>'
     : '<div class="gy-muted" style="margin-top:6px;">他现在' + (st.slot ? ('在' + _esc(st.slot.place)) : '行踪未知') + '。点一下，推演一盘 NPC 棋 + 宠物玩耍，回来就能看到摘要。</div>';
-  return '<div class="groupy-panel" id="groupy-away"><h4>🐾 你不在时的小世界</h4>' + body + '<div style="margin-top:8px;">' + btn + '</div></div>';
+  return '<div class="groupy-panel" id="groupy-away"><h4>你不在时的小世界</h4>' + body + '<div style="margin-top:8px;">' + btn + '</div></div>';
 }
 function renderCikeHome(root) {
   var host = root || document.getElementById('groupy-cike-home');

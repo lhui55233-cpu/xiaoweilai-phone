@@ -334,13 +334,13 @@ function deliverPostcardToWeChat(pc) {
     sess = { id: 'chat_' + Date.now(), name: name, avatar: '', isGroup: false, isPinned: false, unread: 0, heartsVoice: '', emotionState: '平静', chatBg: '', lastTime: '刚刚', preview: '', memory: [], events: [], messages: [] };
     store.sessions.push(sess);
   }
-  sess.messages.push({ id: 'm_pc_' + pc.id, sender: name, type: 'text', content: '📮 明信片 · ' + pc.place + '\n' + pc.caption + '\n' + pc.time + ' · ' + pc.event + ' · 新见闻：' + pc.discovery + '\n（插画，非照片）', time: '刚刚', _awPostcardId: pc.id });
-  sess.preview = '📮 明信片 · ' + pc.place; sess.lastTime = '刚刚';
+  sess.messages.push({ id: 'm_pc_' + pc.id, sender: name, type: 'text', content: '明信片 · ' + pc.place + '\n' + pc.caption + '\n' + pc.time + ' · ' + pc.event + ' · 新见闻：' + pc.discovery + '\n（插画，非照片）', time: '刚刚', _awPostcardId: pc.id });
+  sess.preview = '明信片 · ' + pc.place; sess.lastTime = '刚刚';
   persistWx(); renderWx(); return true;
 }
 function notifyPostcard(pc) {
   if (window.GroupAS && typeof window.GroupAS.notifyExternal === 'function') {
-    return window.GroupAS.notifyExternal({ kind: 'char', app: 'cike', appName: '此刻', sender: mainCharName(), title: '📮 ' + mainCharName() + ' 寄来一张明信片', body: pc.place + ' · ' + pc.event, targetApp: 'cike', refId: pc.id });
+    return window.GroupAS.notifyExternal({ kind: 'char', app: 'cike', appName: '此刻', sender: mainCharName(), title: mainCharName() + ' 寄来一张明信片', body: pc.place + ' · ' + pc.event, targetApp: 'cike', refId: pc.id });
   }
   return null;
 }
@@ -621,15 +621,15 @@ function simPanelHTML() {
     if (parts.length) driveLine = '<div class="aw-sim-line">内在驱动：' + esc(parts.slice(0, 5).join(' · ')) + '</div>';
   }
   return '<h4>模拟人生 · ' + esc(mainCharName()) + ' 的一天</h4>'
-    + '<div class="aw-sim-line">🕐 ' + esc(cur.at) + ' — ' + esc(cur.text) + '（好感：' + esc(tier.label) + '）' + (cur.isDefault ? ' · 默认日程 · 未设置' : '') + '</div>'
-    + '<div class="aw-sim-line">📱 此刻他手机上：' + esc(phoneNow()) + '（模拟人生推测，不是真截屏）</div>'
+    + '<div class="aw-sim-line">' + esc(cur.at) + ' — ' + esc(cur.text) + '（好感：' + esc(tier.label) + '）' + (cur.isDefault ? ' · 默认日程 · 未设置' : '') + '</div>'
+    + '<div class="aw-sim-line">此刻他手机上：' + esc(phoneNow()) + '（模拟人生推测，不是真截屏）</div>'
     + needsBarHTML('饿', s.needs.hunger) + needsBarHTML('累', 100 - s.needs.energy) + needsBarHTML('心情', s.needs.mood) + needsBarHTML('社交', s.needs.social)
     + driveLine
-    + '<div class="aw-sim-line">🎯 今日小目标：' + esc(g ? goalText(g) : '今天还没有小目标') + '</div>'
-    + '<div class="aw-sim-line">🤝 最近承诺：' + esc(promises.length ? promiseText(promises[0]) : '没有进行中的承诺') + '</div>'
-    + '<div class="aw-sim-line">💭 ' + (mu ? '刚才他嘟囔：「' + esc(mu.text) + '」' + (mu.source === 'template' ? '（模板嘟囔）' : '') : '他还没嘟囔什么。') + '</div>'
-    + '<div class="aw-sim-line">📮 明信片：共 ' + pcs.length + ' 张' + (pcs.length ? '，最新一张来自' + esc(pcs[0].place) + ' · ' + esc(pcs[0].event) : '') + '</div>'
-    + '<div class="aw-btns"><button type="button" data-aw-open="travel">✈️ 旅行</button><button type="button" data-aw-open="murmur">💭 碎碎念</button><button type="button" data-aw-open="postcards">📮 明信片册</button><button type="button" data-aw-open="home">🏠 家</button><button type="button" data-aw-open="letters">✉️ 写信过程</button><button type="button" data-aw-open="phone">📱 查手机</button></div>';
+    + '<div class="aw-sim-line">今日小目标：' + esc(g ? goalText(g) : '今天还没有小目标') + '</div>'
+    + '<div class="aw-sim-line">最近承诺：' + esc(promises.length ? promiseText(promises[0]) : '没有进行中的承诺') + '</div>'
+    + '<div class="aw-sim-line">' + (mu ? '刚才他嘟囔：「' + esc(mu.text) + '」' + (mu.source === 'template' ? '（模板嘟囔）' : '') : '他还没嘟囔什么。') + '</div>'
+    + '<div class="aw-sim-line">明信片：共 ' + pcs.length + ' 张' + (pcs.length ? '，最新一张来自' + esc(pcs[0].place) + ' · ' + esc(pcs[0].event) : '') + '</div>'
+    + '<div class="aw-btns"><button type="button" data-aw-open="travel">旅行</button><button type="button" data-aw-open="murmur">碎碎念</button><button type="button" data-aw-open="postcards">明信片册</button><button type="button" data-aw-open="home">家</button><button type="button" data-aw-open="letters">写信过程</button><button type="button" data-aw-open="phone">查手机</button></div>';
 }
 function ensureSimPanel() {
   var book = document.getElementById('ck-popbook'); if (!book) return false;
@@ -700,7 +700,7 @@ function postcardGridHTML(place, dateStr) {
 function overlayHTML(page, arg) {
   var back = '<button class="aw-ov-back" type="button" data-aw-act="back">‹ 返回</button>';
   if (page === 'travel') {
-    return back + '<div class="aw-ov-title">✈️ 旅行</div>'
+    return back + '<div class="aw-ov-title">旅行</div>'
       + '<div class="aw-card"><label>搜索行程</label><input id="aw-tr-q" type="text" placeholder="搜目的地 / 行动 / 事件…">'
       + '<div id="aw-tr-list">' + travelListHTML('') + '</div></div>'
       + '<div class="aw-card"><label>新建目的地场景（不预填示例旅行）</label>'
@@ -714,8 +714,8 @@ function overlayHTML(page, arg) {
   }
   if (page === 'trip') {
     var tr = findTrip(arg); if (!tr) return back + '<div class="aw-empty">找不到这次旅行。</div>';
-    var rounds = (tr.rounds || []).map(function (r) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>第' + r.n + '轮</b> · ' + esc(r.action) + '<br>' + esc(r.narrative) + (r.event ? '<br><span style="color:#1e2748">✦ ' + esc(r.event.text) + '</span>' : '') + '</div>'; }).join('') || '<div class="aw-empty">还没行动，写下第一句行动吧。</div>';
-    return back + '<div class="aw-ov-title">✈️ ' + esc(tr.name) + '</div>'
+    var rounds = (tr.rounds || []).map(function (r) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>第' + r.n + '轮</b> · ' + esc(r.action) + '<br>' + esc(r.narrative) + (r.event ? '<br><span style="color:#1e2748">· ' + esc(r.event.text) + '</span>' : '') + '</div>'; }).join('') || '<div class="aw-empty">还没行动，写下第一句行动吧。</div>';
+    return back + '<div class="aw-ov-title">' + esc(tr.name) + '</div>'
       + '<div class="aw-card">' + esc(tr.setting || '') + (tr.goal ? '<br>目标：' + esc(tr.goal) : '') + ' · ' + (tr.status === 'active' ? '进行中' : '已结束') + '</div>'
       + '<div class="aw-card">' + rounds + '</div>'
       + (tr.status === 'active' ? '<div class="aw-card"><label>下一轮行动（用自己的话写）</label><input id="aw-tr-action" type="text" placeholder="如：走到海边，脱了鞋踩沙子"><button class="aw-btn" type="button" data-aw-act="tr-round" data-id="' + tr.id + '">行动</button></div>'
@@ -724,8 +724,8 @@ function overlayHTML(page, arg) {
   }
   if (page === 'murmur') {
     var list = listMurmur();
-    var inner = readInnerLog().slice(-5).reverse().map(function (e) { var t = e && (e.text || e.msg || e.content); return t ? '<div style="border-top:1px solid #dce2f1;padding:6px 0">💭 ' + esc(String(t)) + '</div>' : ''; }).join('');
-    return back + '<div class="aw-ov-title">💭 碎碎念</div>'
+    var inner = readInnerLog().slice(-5).reverse().map(function (e) { var t = e && (e.text || e.msg || e.content); return t ? '<div style="border-top:1px solid #dce2f1;padding:6px 0">' + esc(String(t)) + '</div>' : ''; }).join('');
+    return back + '<div class="aw-ov-title">碎碎念</div>'
       + '<div class="aw-card"><button class="aw-btn" type="button" data-aw-act="mu-gen">听他嘟囔一句</button><span style="font-size:12px;color:#5b6b8a">模板嘟囔 · 未接模型，点一下生成一句</span></div>'
       + '<div class="aw-card">' + (list.length ? list.map(function (m) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>' + esc(fmtTime(m.ts)) + '</b><br>「' + esc(m.text) + '」<br><span style="font-size:11px;color:#5b6b8a">来源：' + esc(m.source === 'inner' ? '内心独白' : (m.source === 'template' ? '模板嘟囔' : '模拟人生')) + '</span></div>'; }).join('') : '<div class="aw-empty">还没有碎碎念。点“听他嘟囔一句”，或等他自己嘟囔。</div>') + '</div>'
       + '<div class="aw-card"><b>内心独白 · 最近</b>' + (inner || '<div class="aw-empty">暂无内心独白记录。</div>') + '</div>';
@@ -733,7 +733,7 @@ function overlayHTML(page, arg) {
   if (page === 'postcards') {
     var places = postcardPlaces();
     var dateArg = (typeof arg === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(arg)) ? arg : '';
-    return back + '<div class="aw-ov-title">📮 明信片册' + (dateArg ? ' · ' + esc(dateArg) + '（' + postcardsForDate(dateArg).length + ' 张）' : '') + '</div>'
+    return back + '<div class="aw-ov-title">明信片册' + (dateArg ? ' · ' + esc(dateArg) + '（' + postcardsForDate(dateArg).length + ' 张）' : '') + '</div>'
       + (dateArg ? '<div class="aw-card"><button class="aw-btn ghost" type="button" data-aw-act="pc-all">看全部明信片</button></div>' : '')
       + '<div class="aw-card"><label>按地点筛选</label><select id="aw-pc-filter"><option value="">全部地点</option>' + places.map(function (p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join('') + '</select>'
       + '<div id="aw-pc-grid" data-aw-pc-date="' + esc(dateArg) + '">' + postcardGridHTML('', dateArg) + '</div></div>'
@@ -742,25 +742,25 @@ function overlayHTML(page, arg) {
   if (page === 'postcard') {
     var pcs = listPostcards(); var pc = null; pcs.forEach(function (x) { if (x.id === arg) pc = x; });
     if (!pc) return back + '<div class="aw-empty">找不到这张明信片。</div>';
-    return back + '<div class="aw-ov-title">📮 明信片</div>'
+    return back + '<div class="aw-ov-title">明信片</div>'
       + '<div class="aw-card"><div>' + postcardSVG(pc.scene, currentActivity(pc.ts).phase) + '</div><div style="font-size:12px;color:#5b6b8a">插画（非照片）· 立体书风格手绘场景</div>'
       + '<div style="margin-top:8px">「' + esc(pc.caption) + '」</div>'
-      + '<div style="margin-top:8px">🕐 时间：' + esc(pc.time) + '<br>📍 地点：' + esc(pc.place) + '<br>✦ 事件：' + esc(pc.event) + '<br>🌱 新见闻：' + esc(pc.discovery) + '<br>🏷️ 来源：' + esc(PC_SOURCES[pc.source] || pc.source) + '</div>'
+      + '<div style="margin-top:8px">时间：' + esc(pc.time) + '<br>地点：' + esc(pc.place) + '<br>事件：' + esc(pc.event) + '<br>新见闻：' + esc(pc.discovery) + '<br>来源：' + esc(PC_SOURCES[pc.source] || pc.source) + '</div>'
       + '<div style="margin-top:8px"><button class="aw-btn" type="button" data-aw-act="pc-save" data-id="' + pc.id + '">存成归巢记忆</button>' + (pc.savedMemoryId ? '<span style="font-size:12px;color:#4a7a5a">已存（' + esc(pc.savedMemoryId) + '）</span>' : '') + '</div>'
       + '<div style="margin-top:8px"><button class="aw-btn ghost" type="button" data-aw-act="pc-jump" data-id="' + pc.id + '">跳回当时的立体书场景</button>' + (pc.ref && pc.ref.type === 'travel' ? '<button class="aw-btn ghost" type="button" data-aw-act="tr-open" data-id="' + pc.ref.id + '">看旅行记录</button>' : '') + '<button class="aw-btn ghost" type="button" data-aw-act="pc-day" data-id="' + pc.id + '">看当天明信片</button></div>'
       + '<div style="font-size:12px;color:#5b6b8a">当天明信片共 ' + postcardsForDate(pc.time.slice(0, 10)).length + ' 张；存成记忆后，记忆树里也能找到这一天。</div></div>';
   }
   if (page === 'home') {
     var home = getHome(); var rn = roomNow();
-    return back + '<div class="aw-ov-title">🏠 char 的家</div>'
+    return back + '<div class="aw-ov-title">char 的家</div>'
       + '<div class="aw-card">现在：' + (rn ? '在家里 · ' + esc(roomName(rn)) + '，' + esc(currentActivity().activity) : '出门在外 · ' + esc(currentActivity().text)) + '<br>这间房子就是乙游 3D 家的那一间，同一份数据（otome_home_v1），不是两间房。</div>'
-      + '<div class="aw-card">' + ROOMS.map(function (r) { return '<div style="padding:6px 0;border-top:1px solid #dce2f1">' + (rn === r.id ? '📍 ' : '· ') + esc(r.name) + ' <span style="color:#5b6b8a">' + r.en + '</span>' + ((home.visitedRooms || []).indexOf(r.id) !== -1 ? ' · 去过' : '') + '</div>'; }).join('') + '</div>'
-      + '<div class="aw-card">🐱 宠物：' + (home.pet ? esc(home.pet.name || home.pet.kind) + '（饱食 ' + (home.pet.satiety != null ? home.pet.satiety : '—') + ' · 心情 ' + (home.pet.mood != null ? home.pet.mood : '—') + '）' : '还没有宠物') + '<br><span style="font-size:12px;color:#5b6b8a">装修/养宠/互动在乙游 3D 家里做，此刻这里只看他在家干什么。</span></div>';
+      + '<div class="aw-card">' + ROOMS.map(function (r) { return '<div style="padding:6px 0;border-top:1px solid #dce2f1">' + (rn === r.id ? '› ' : '· ') + esc(r.name) + ' <span style="color:#5b6b8a">' + r.en + '</span>' + ((home.visitedRooms || []).indexOf(r.id) !== -1 ? ' · 去过' : '') + '</div>'; }).join('') + '</div>'
+      + '<div class="aw-card">宠物：' + (home.pet ? esc(home.pet.name || home.pet.kind) + '（饱食 ' + (home.pet.satiety != null ? home.pet.satiety : '—') + ' · 心情 ' + (home.pet.mood != null ? home.pet.mood : '—') + '）' : '还没有宠物') + '<br><span style="font-size:12px;color:#5b6b8a">装修/养宠/互动在乙游 3D 家里做，此刻这里只看他在家干什么。</span></div>';
   }
   if (page === 'letters') {
     var album = rd('cike_album_v1', []);
     if (!album.length) return back + '<div class="aw-empty">信件箱还是空的。等 char 给你写信，这里会出现每封信的写信过程。</div>';
-    return back + '<div class="aw-ov-title">✉️ 写信过程</div><div class="aw-card">'
+    return back + '<div class="aw-ov-title">写信过程</div><div class="aw-card">'
       + album.map(function (l, i) { return '<div style="padding:8px 0;border-top:1px solid #dce2f1"><b>' + esc(l.role || 'char') + '</b> · ' + esc(l.time || '') + '<br>' + esc(String(l.text || '').slice(0, 40)) + '……<br><button class="aw-btn ghost" type="button" data-aw-act="letter-open" data-id="' + i + '">看这封信是怎么写出来的</button></div>'; }).join('')
       + '</div><div style="font-size:12px;color:#5b6b8a">成品信仍在信件箱里，用手撕信封动画打开；这里只看写信过程。</div>';
   }
@@ -768,7 +768,7 @@ function overlayHTML(page, arg) {
     var alb = rd('cike_album_v1', []); var letter = alb[parseInt(arg, 10)];
     if (!letter) return back + '<div class="aw-empty">找不到这封信。</div>';
     var j = buildLetterJourney(letter.text || '');
-    return back + '<div class="aw-ov-title">✉️ 写信过程</div>'
+    return back + '<div class="aw-ov-title">写信过程</div>'
       + '<div class="aw-card"><div style="font-size:12px;color:#1e2748">' + esc(j.note) + '</div>'
       + j.versions.map(function (v) { return '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>' + esc(v.label) + '</b> · ' + esc(v.note) + '<br>' + esc(v.text) + '</div>'; }).join('')
       + '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>划掉的句子</b><br>' + j.crossedOut.map(esc).join('<br>') + '</div>'

@@ -23946,10 +23946,10 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
     const ckHubPhaseOf = (h) => (h >= 6 && h < 17) ? { key: 'day', cn: '白天' } : (h >= 17 && h < 19) ? { key: 'dusk', cn: '黄昏' } : { key: 'night', cn: '夜晚' };
     // 季节色板（调研报告 §1.9 C 档定性方向的具体化：春嫩绿粉、夏深绿金黄、秋琥珀锈红、冬蓝白灰+暖黄窗光；色值是本项目自选区间，非官方色卡）
     const CK_HUB_SEASONS = {
-        spring: { key: 'spring', cn: '春季', sky: '#cfe8ef', hillFar: '#b5d9a0', hillNear: '#9ccb87', field: '#a8763f', furrow: '#7a4a28', cropA: '#8fce7d', cropB: '#e8c9d0', tree: '#7fbf6a', treeDark: '#5b8c5a', sun: '#ffd76e', cloud: '#fffdf8' },
-        summer: { key: 'summer', cn: '夏季', sky: '#aed9e8', hillFar: '#8fbf7f', hillNear: '#6a9a5a', field: '#9c6b3f', furrow: '#7a4a28', cropA: '#4e8a3e', cropB: '#daa520', tree: '#4e8a3e', treeDark: '#3e7030', sun: '#ffd76e', cloud: '#fffdf8' },
-        autumn: { key: 'autumn', cn: '秋季', sky: '#eed9b8', hillFar: '#d8a04c', hillNear: '#c98a3e', field: '#8a5a30', furrow: '#5b3a1e', cropA: '#c96a2e', cropB: '#b5541e', tree: '#d8722e', treeDark: '#b5541e', sun: '#f2b04c', cloud: '#fdf6e3' },
-        winter: { key: 'winter', cn: '冬季', sky: '#dce2f1', hillFar: '#e8ecf5', hillNear: '#dfe4ef', field: '#ddd5c4', furrow: '#b9b2a4', cropA: '#fbf9f4', cropB: '#d8cfae', tree: '#6b4a2e', treeDark: '#5b3a1e', sun: '#f2ead8', cloud: '#fffdf8' }
+        spring: { key: 'spring', cn: '春季', sky: '#cfe8ef', hillFar: '#b5d9a0', hillNear: '#9ccb87', field: '#a8763f', furrow: '#7a4a28', cropA: '#8fce7d', cropB: '#e8c9d0', cropC: '#e8c96a', tree: '#7fbf6a', treeDark: '#5b8c5a', sun: '#ffd76e', cloud: '#fffdf8' },
+        summer: { key: 'summer', cn: '夏季', sky: '#aed9e8', hillFar: '#8fbf7f', hillNear: '#6a9a5a', field: '#9c6b3f', furrow: '#7a4a28', cropA: '#4e8a3e', cropB: '#daa520', cropC: '#e8c9d0', tree: '#4e8a3e', treeDark: '#3e7030', sun: '#ffd76e', cloud: '#fffdf8' },
+        autumn: { key: 'autumn', cn: '秋季', sky: '#eed9b8', hillFar: '#d8a04c', hillNear: '#c98a3e', field: '#8a5a30', furrow: '#5b3a1e', cropA: '#c96a2e', cropB: '#b5541e', cropC: '#daa520', tree: '#d8722e', treeDark: '#b5541e', sun: '#f2b04c', cloud: '#fdf6e3' },
+        winter: { key: 'winter', cn: '冬季', sky: '#dce2f1', hillFar: '#e8ecf5', hillNear: '#dfe4ef', field: '#ddd5c4', furrow: '#b9b2a4', cropA: '#fbf9f4', cropB: '#d8cfae', cropC: '#bfc8e0', tree: '#6b4a2e', treeDark: '#5b3a1e', sun: '#f2ead8', cloud: '#fffdf8' }
     };
     // 他的实时模拟状态（只读 js/33 AWGroup 的唯一实现；AWGroup 未加载时诚实返回 ok:false，不编状态）
     const ckHubSimNow = () => {
@@ -24020,13 +24020,16 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="2" y="3" width="8" height="4" fill="#fffdf8"/><rect x="4" y="2" width="4" height="1" fill="#fffdf8"/><rect x="1" y="7" width="10" height="2" fill="#dce2f1"/></svg>';
     };
     const ckHubSeasonIcon = (key) => {
-        if (key === 'spring') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="5" width="2" height="2" fill="#e8c96a"/><rect x="5" y="2" width="2" height="2" fill="#e8c9d0"/><rect x="5" y="8" width="2" height="2" fill="#e8c9d0"/><rect x="2" y="5" width="2" height="2" fill="#e8c9d0"/><rect x="8" y="5" width="2" height="2" fill="#e8c9d0"/></svg>';
-        if (key === 'summer') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#4e8a3e"/><rect x="3" y="3" width="6" height="2" fill="#6a9a5a"/><rect x="2" y="5" width="8" height="2" fill="#6a9a5a"/><rect x="4" y="7" width="4" height="2" fill="#5b8c5a"/></svg>';
-        if (key === 'autumn') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#c96a2e"/><rect x="3" y="3" width="6" height="2" fill="#d8722e"/><rect x="2" y="5" width="8" height="2" fill="#b5541e"/><rect x="4" y="7" width="4" height="2" fill="#d8722e"/></svg>';
-        return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#bfc8e0"/><rect x="1" y="5" width="10" height="2" fill="#bfc8e0"/><rect x="3" y="3" width="2" height="2" fill="#dce2f1"/><rect x="7" y="7" width="2" height="2" fill="#dce2f1"/></svg>';
+        if (key === 'spring') return '<svg viewBox="0 0 12 12" width="14" height="14" shape-rendering="crispEdges"><rect x="5" y="5" width="2" height="2" fill="#e8c96a"/><rect x="5" y="2" width="2" height="2" fill="#e8c9d0"/><rect x="5" y="8" width="2" height="2" fill="#e8c9d0"/><rect x="2" y="5" width="2" height="2" fill="#e8c9d0"/><rect x="8" y="5" width="2" height="2" fill="#e8c9d0"/></svg>';
+        if (key === 'summer') return '<svg viewBox="0 0 12 12" width="14" height="14" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#4e8a3e"/><rect x="3" y="3" width="6" height="2" fill="#6a9a5a"/><rect x="2" y="5" width="8" height="2" fill="#6a9a5a"/><rect x="4" y="7" width="4" height="2" fill="#5b8c5a"/></svg>';
+        if (key === 'autumn') return '<svg viewBox="0 0 12 12" width="14" height="14" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#c96a2e"/><rect x="3" y="3" width="6" height="2" fill="#d8722e"/><rect x="2" y="5" width="8" height="2" fill="#b5541e"/><rect x="4" y="7" width="4" height="2" fill="#d8722e"/></svg>';
+        return '<svg viewBox="0 0 12 12" width="14" height="14" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#bfc8e0"/><rect x="1" y="5" width="10" height="2" fill="#bfc8e0"/><rect x="3" y="3" width="2" height="2" fill="#dce2f1"/><rect x="7" y="7" width="2" height="2" fill="#dce2f1"/></svg>';
     };
-    // 像素红心（7×6 格，代码现画；空心不涂满）
-    const ckHubHeartSVG = (filled) => '<svg viewBox="0 0 7 6" width="11" height="10" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="2" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="4" y="0" width="2" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="0" y="1" width="7" height="2" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="1" y="3" width="5" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="2" y="4" width="3" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="3" y="5" width="1" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/></svg>';
+    // 像素红心（7×6 格，代码现画）。实心用饱满红 #d92b3a（深红描边 #8f1d2c 勾底）；
+    // 空心不用淡色填满：深棕红 #7a2a1e 描出轮廓、内里留米色纸 #fdf6e3，0 好感也要看得清轮廓。
+    const ckHubHeartSVG = (filled) => filled
+        ? '<svg viewBox="0 0 7 6" width="12" height="11" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="2" height="1" fill="#d92b3a"/><rect x="4" y="0" width="2" height="1" fill="#d92b3a"/><rect x="0" y="1" width="7" height="2" fill="#d92b3a"/><rect x="1" y="3" width="5" height="1" fill="#d92b3a"/><rect x="2" y="4" width="3" height="1" fill="#d92b3a"/><rect x="3" y="5" width="1" height="1" fill="#8f1d2c"/></svg>'
+        : '<svg viewBox="0 0 7 6" width="12" height="11" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="2" height="1" fill="#7a2a1e"/><rect x="4" y="0" width="2" height="1" fill="#7a2a1e"/><rect x="0" y="1" width="1" height="2" fill="#7a2a1e"/><rect x="6" y="1" width="1" height="2" fill="#7a2a1e"/><rect x="1" y="3" width="1" height="1" fill="#7a2a1e"/><rect x="5" y="3" width="1" height="1" fill="#7a2a1e"/><rect x="2" y="4" width="1" height="1" fill="#7a2a1e"/><rect x="4" y="4" width="1" height="1" fill="#7a2a1e"/><rect x="3" y="5" width="1" height="1" fill="#7a2a1e"/><rect x="2" y="1" width="3" height="2" fill="#fdf6e3"/><rect x="2" y="3" width="3" height="1" fill="#fdf6e3"/></svg>';
     // HUD（星露谷右上堆叠的手机改法：叠在场景头右上角的一组小盒；日期 / 天气+季节 / 表盘+数字时间 / 有新信才出现的 !）
     const ckHubHudHTML = () => {
         const n = new Date();
@@ -24041,8 +24044,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         const mx = (11 + 7 * Math.sin(ma * Math.PI / 180)).toFixed(1), my = (11 - 7 * Math.cos(ma * Math.PI / 180)).toFixed(1);
         const pad2 = (x) => (x < 10 ? '0' + x : '' + x);
         return '<div class="ck-hud-box ck-hud-date"><span>' + (n.getMonth() + 1) + '月' + n.getDate() + '日</span><span>周' + w + '</span></div>'
-            + '<div class="ck-hud-box ck-hud-wx">' + (wx ? ckHubWxIcon(wx.icon) + '<span>' + wx.label + ' ' + wx.temp + '°</span><i class="ck-hud-sep"></i>' : '') + ckHubSeasonIcon(season.key) + '<span>' + season.cn + '</span></div>'
-            + '<div class="ck-hud-box ck-hud-time"><svg class="ck-hud-dial" viewBox="0 0 22 22" width="18" height="18" shape-rendering="crispEdges"><circle cx="11" cy="11" r="10" fill="#fdf6e3" stroke="#56160c" stroke-width="1"/><line x1="11" y1="11" x2="' + hx + '" y2="' + hy + '" stroke="#56160c" stroke-width="2"/><line x1="11" y1="11" x2="' + mx + '" y2="' + my + '" stroke="#56160c" stroke-width="1"/><circle cx="11" cy="11" r="1" fill="#56160c"/></svg><span class="ck-px">' + pad2(h) + ':' + pad2(mi) + '</span><span>' + phase.cn + '</span></div>'
+            + '<div class="ck-hud-box ck-hud-wx">' + (wx ? ckHubWxIcon(wx.icon) + '<span>' + wx.label + ' ' + wx.temp + '°</span><i class="ck-hud-sep"></i>' : '') + '<span class="ck-hud-season">' + ckHubSeasonIcon(season.key) + '<span>' + season.cn + '</span></span></div>'
+            + '<div class="ck-hud-box ck-hud-time"><svg class="ck-hud-dial" viewBox="0 0 22 22" width="18" height="18" shape-rendering="crispEdges"><circle cx="11" cy="11" r="10" fill="#fdf6e3" stroke="#56160c" stroke-width="2"/><line x1="11" y1="2" x2="11" y2="4" stroke="#56160c" stroke-width="1"/><line x1="11" y1="18" x2="11" y2="20" stroke="#56160c" stroke-width="1"/><line x1="2" y1="11" x2="4" y2="11" stroke="#56160c" stroke-width="1"/><line x1="18" y1="11" x2="20" y2="11" stroke="#56160c" stroke-width="1"/><line x1="11" y1="11" x2="' + hx + '" y2="' + hy + '" stroke="#56160c" stroke-width="2"/><line x1="11" y1="11" x2="' + mx + '" y2="' + my + '" stroke="#56160c" stroke-width="1"/><circle cx="11" cy="11" r="1" fill="#56160c"/></svg><span class="ck-px">' + pad2(h) + ':' + pad2(mi) + '</span><span>' + phase.cn + '</span></div>'
             + (unread > 0 ? '<button type="button" class="ck-hud-box ck-hud-alert" id="ck-hud-alert" title="有 ' + unread + ' 封未读新信，点开进信件箱">!</button>' : '');
     };
     // 头像对话栏（头像用手机现有的自绘角色形象 avatarHtml，绝不用星露谷村民头像；状态与心情来自真实模拟数据）
@@ -24075,19 +24078,36 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         const winCol = isWinter ? '#ffd76e' : '#5b6b8a';
         const tree = isWinter
             ? '<g class="ck-sv-tree"><rect x="24" y="52" width="8" height="28" fill="#6b4226"/><rect x="16" y="44" width="8" height="4" fill="#6b4226"/><rect x="32" y="40" width="8" height="4" fill="#6b4226"/><rect x="28" y="34" width="4" height="8" fill="#6b4226"/></g>'
-            : '<g class="ck-sv-tree"><rect x="14" y="36" width="36" height="16" fill="' + season.tree + '"/><rect x="20" y="28" width="24" height="8" fill="' + season.treeDark + '"/><rect x="24" y="52" width="8" height="28" fill="#6b4226"/></g>';
+            : '<g class="ck-sv-tree"><rect x="14" y="36" width="36" height="16" fill="' + season.tree + '"/><rect x="20" y="28" width="24" height="8" fill="' + season.treeDark + '"/><rect x="22" y="40" width="4" height="4" fill="' + season.treeDark + '"/><rect x="38" y="42" width="4" height="4" fill="' + season.treeDark + '"/><rect x="24" y="52" width="8" height="28" fill="#6b4226"/></g>';
         const house = '<g class="ck-sv-house">'
+            + '<g class="ck-sv-smoke"><rect x="106" y="30" width="6" height="6" fill="#fffdf8"/><rect x="112" y="24" width="6" height="6" fill="#dce2f1"/><rect x="108" y="18" width="8" height="6" fill="#fffdf8"/></g>'
             + '<rect x="108" y="38" width="8" height="12" fill="#8a5a2e"/>'
             + '<rect x="74" y="44" width="32" height="4" fill="' + roofCol + '"/><rect x="66" y="48" width="48" height="4" fill="' + roofCol + '"/><rect x="58" y="52" width="64" height="4" fill="' + roofCol + '"/>'
+            + '<rect x="66" y="47" width="48" height="1" fill="#8a3a1e"/><rect x="58" y="51" width="64" height="1" fill="#8a3a1e"/><rect x="74" y="43" width="32" height="1" fill="#8a3a1e"/>'
             + '<rect x="58" y="56" width="64" height="24" fill="#e8b478"/>'
+            + '<rect x="76" y="56" width="1" height="24" fill="#c98a3e"/><rect x="96" y="56" width="1" height="24" fill="#c98a3e"/><rect x="114" y="56" width="1" height="24" fill="#c98a3e"/>'
             + '<rect x="64" y="60" width="12" height="10" fill="' + winCol + '"/><rect x="64" y="60" width="12" height="2" fill="#7a4a28"/><rect x="69" y="60" width="2" height="10" fill="#7a4a28"/>'
-            + '<rect x="88" y="64" width="12" height="16" fill="#7a4a28"/></g>';
+            + '<rect x="88" y="64" width="12" height="16" fill="#7a4a28"/><rect x="97" y="71" width="2" height="2" fill="#e8c96a"/></g>';
         const fencePosts = [0, 40, 130, 190, 235, 280, 325].map((x) => '<rect x="' + x + '" y="66" width="6" height="14" fill="#6b4226"/>').join('');
-        const fence = '<g class="ck-sv-fence"><rect x="0" y="68" width="360" height="3" fill="#8a5a2e"/><rect x="0" y="75" width="360" height="3" fill="#8a5a2e"/>' + fencePosts + '</g>';
+        const fence = '<g class="ck-sv-fence"><rect x="0" y="68" width="360" height="3" fill="#8a5a2e"/><rect x="0" y="75" width="360" height="3" fill="#8a5a2e"/>' + fencePosts + '<rect x="352" y="60" width="8" height="20" fill="#5b3a1e"/><rect x="350" y="58" width="12" height="2" fill="#8a5a2e"/></g>';
         const furrows = '<g class="ck-sv-furrows">' + [89, 98, 107, 115].map((y) => '<rect x="0" y="' + y + '" width="360" height="2" fill="' + season.furrow + '"/>').join('') + '</g>';
         let crops = '<g class="ck-sv-crops">';
-        [84, 93, 102, 111].forEach((y, ri) => { [14, 54, 94, 134, 174, 214, 254, 294, 334].forEach((x, ci) => { crops += '<rect x="' + x + '" y="' + y + '" width="6" height="5" fill="' + (((ri + ci) % 2 === 0) ? season.cropA : season.cropB) + '"/>'; }); });
+        const cropCols = [season.cropA, season.cropB, season.cropC];
+        [84, 93, 102, 111].forEach((y, ri) => { [14, 54, 94, 134, 174, 214, 254, 294, 334].forEach((x, ci) => { crops += '<rect x="' + x + '" y="' + y + '" width="6" height="5" fill="' + cropCols[(ri * 2 + ci) % 3] + '"/><rect x="' + (x + 1) + '" y="' + (y - 2) + '" width="4" height="2" fill="' + season.treeDark + '"/>'; }); });
         crops += '</g>';
+        // 田间小路（竖向土路 + 石板）/ 池塘 / 草丛 / 蝴蝶 / 栅栏上的小鸟 / 季节小物：全部代码画矩形
+        const path = '<g class="ck-sv-path"><rect x="312" y="80" width="14" height="40" fill="#d8b98a"/><rect x="314" y="84" width="10" height="4" fill="#c9a26a"/><rect x="314" y="96" width="10" height="4" fill="#c9a26a"/><rect x="314" y="108" width="10" height="4" fill="#c9a26a"/></g>';
+        const pond = '<g class="ck-sv-pond"><rect x="298" y="56" width="44" height="9" fill="#7aa8c9"/><rect x="302" y="58" width="20" height="2" fill="#aed9e8"/><rect x="330" y="58" width="8" height="2" fill="#aed9e8"/><rect x="298" y="54" width="2" height="6" fill="#5b8c5a"/><rect x="340" y="54" width="2" height="6" fill="#5b8c5a"/></g>';
+        const grass = '<g class="ck-sv-grass"><rect x="36" y="84" width="2" height="6" fill="' + season.treeDark + '"/><rect x="39" y="82" width="2" height="8" fill="' + season.tree + '"/><rect x="42" y="84" width="2" height="6" fill="' + season.treeDark + '"/><rect x="236" y="114" width="2" height="6" fill="' + season.treeDark + '"/><rect x="239" y="112" width="2" height="8" fill="' + season.tree + '"/><rect x="242" y="114" width="2" height="6" fill="' + season.treeDark + '"/><rect x="330" y="114" width="2" height="6" fill="' + season.treeDark + '"/><rect x="333" y="112" width="2" height="8" fill="' + season.tree + '"/><rect x="336" y="114" width="2" height="6" fill="' + season.treeDark + '"/></g>';
+        const butterflies = '<g class="ck-sv-butterfly"><rect x="150" y="30" width="5" height="4" fill="#e8c9d0"/><rect x="156" y="30" width="5" height="4" fill="#d96a7a"/><rect x="155" y="31" width="2" height="3" fill="#5b3a1e"/></g><g class="ck-sv-butterfly"><rect x="260" y="44" width="5" height="4" fill="#e8c96a"/><rect x="266" y="44" width="5" height="4" fill="#daa520"/><rect x="265" y="45" width="2" height="3" fill="#5b3a1e"/></g>';
+        const bird = '<g class="ck-sv-bird"><rect x="198" y="62" width="8" height="4" fill="#5b6b8a"/><rect x="204" y="58" width="5" height="5" fill="#5b6b8a"/><rect x="209" y="60" width="3" height="2" fill="#e8c96a"/></g>';
+        const seasonBits = season.key === 'autumn'
+            ? '<g class="ck-sv-leaf"><rect x="60" y="20" width="4" height="4" fill="#d8722e"/><rect x="120" y="14" width="4" height="4" fill="#b5541e"/><rect x="200" y="30" width="4" height="4" fill="#daa520"/><rect x="280" y="18" width="4" height="4" fill="#d8722e"/></g>'
+            : season.key === 'winter'
+            ? '<g class="ck-sv-snow"><rect x="60" y="20" width="4" height="4" fill="#fffdf8"/><rect x="120" y="14" width="4" height="4" fill="#fffdf8"/><rect x="200" y="30" width="4" height="4" fill="#dce2f1"/><rect x="280" y="18" width="4" height="4" fill="#fffdf8"/><rect x="240" y="10" width="4" height="4" fill="#dce2f1"/></g>'
+            : season.key === 'spring'
+            ? '<g class="ck-sv-petal"><rect x="60" y="20" width="4" height="4" fill="#e8c9d0"/><rect x="120" y="14" width="4" height="4" fill="#e8c9d0"/><rect x="200" y="30" width="4" height="4" fill="#e8c9d0"/><rect x="280" y="18" width="4" height="4" fill="#e8c96a"/></g>'
+            : '<g class="ck-sv-petal"><rect x="60" y="20" width="4" height="4" fill="#e8c96a"/><rect x="120" y="14" width="4" height="4" fill="#fffdf8"/><rect x="200" y="30" width="4" height="4" fill="#e8c96a"/><rect x="280" y="18" width="4" height="4" fill="#fffdf8"/></g>';
         const cat = '<g class="ck-sv-cat"><rect x="248" y="108" width="16" height="12" fill="#e08a3c"/><rect x="250" y="100" width="12" height="10" fill="#e08a3c"/><rect x="250" y="96" width="4" height="4" fill="#e08a3c"/><rect x="258" y="96" width="4" height="4" fill="#e08a3c"/><rect x="264" y="100" width="4" height="12" fill="#c96a2e"/><rect x="252" y="104" width="2" height="2" fill="#2b2b2b"/><rect x="257" y="104" width="2" height="2" fill="#2b2b2b"/></g>';
         const bx = pose === 'walk' ? 184 : 168;
         let man = '<g class="ck-sv-man">'
@@ -24105,9 +24125,9 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             + '<rect x="84" y="12" width="40" height="8" fill="' + season.cloud + '"/><rect x="92" y="8" width="24" height="4" fill="' + season.cloud + '"/>'
             + '<rect x="140" y="24" width="36" height="8" fill="' + season.cloud + '"/><rect x="148" y="20" width="20" height="4" fill="' + season.cloud + '"/>'
             + '<rect x="0" y="56" width="360" height="12" fill="' + season.hillFar + '"/><rect x="0" y="62" width="360" height="18" fill="' + season.hillNear + '"/>'
-            + house + tree + fence
+            + house + tree + pond + fence
             + '<rect x="0" y="80" width="360" height="40" fill="' + season.field + '"/>'
-            + furrows + crops + cat + man
+            + furrows + crops + path + grass + butterflies + bird + seasonBits + cat + man
             + '</svg>';
     };
 
@@ -25536,15 +25556,17 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 /* 拉丁字母/数字小标题像素字体：Press Start 2P / VT323（index.html 里 Google Fonts CDN 引入，离线回落系统等宽字体；中文仍用系统中文，不套像素英文字体） */
 .ck-px { font-family:'Press Start 2P','VT323',ui-monospace,Menlo,monospace; }
 .ck-hub-scene-wrap { position:relative; margin:2px 0 10px; }
-.ck-hub-farm { display:block; width:100%; box-sizing:border-box; margin:0; padding:0 0 8px; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 6px #f8c878, inset 0 0 0 8px #a86a2e; clip-path:polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px); cursor:pointer; overflow:hidden; }
-.ck-hub-farm:active { transform:translateY(2px); box-shadow:inset 0 0 0 4px #c97a2e, inset 0 0 0 6px #e8a04c, inset 0 0 0 8px #8a5a2e; }
+.ck-hub-farm { display:block; width:100%; box-sizing:border-box; margin:0; padding:0 0 8px; background:#f5deb3; border:3px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 8px #f8c878, inset 0 0 0 12px #a86a2e, inset 0 0 0 14px #7a4a28; clip-path:polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); cursor:pointer; overflow:hidden; }
+.ck-hub-farm:active { transform:translateY(2px); box-shadow:inset 0 0 0 4px #c97a2e, inset 0 0 0 8px #e8a04c, inset 0 0 0 12px #8a5a2e, inset 0 0 0 14px #5b3a1e; }
 .ck-hub-farm .ck-sv-scene { display:block; width:100%; height:auto; }
 .ck-hub-farm-scene { display:block; }
 .ck-hub-farm-hint { display:inline-block; margin:6px 0 0 10px; padding:3px 8px; font-size:10px; color:#34327a; background:#add8e6; border:2px solid #34327a; }
 .ck-hud { position:absolute; top:6px; right:6px; display:flex; flex-direction:column; align-items:flex-end; gap:4px; z-index:2; }
-.ck-hud-box { box-sizing:border-box; font-family:inherit; background:#f5deb3; border:1px solid #331f28; box-shadow:inset 0 0 0 2px #e8a04c; padding:2px 5px; font-size:10px; line-height:1.5; color:#56160c; font-weight:700; text-align:right; }
+.ck-hud-box { box-sizing:border-box; font-family:inherit; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 3px #e8a04c; padding:3px 6px; font-size:11px; line-height:1.4; color:#56160c; font-weight:700; text-align:right; }
 .ck-hud-date { display:flex; gap:6px; }
 .ck-hud-wx { display:flex; align-items:center; gap:4px; }
+.ck-hud-season { display:flex; align-items:center; gap:3px; font-size:12px; font-weight:800; color:#56160c; }
+.ck-hud-season svg { display:block; }
 .ck-hud-wx svg { display:block; }
 .ck-hud-sep { width:1px; height:12px; background:#a86a2e; }
 .ck-hud-time { display:flex; align-items:center; gap:5px; }
@@ -25552,23 +25574,23 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 .ck-hud-time .ck-px { font-size:11px; }
 .ck-hud-alert { cursor:pointer; min-width:22px; min-height:22px; padding:0 6px; font-size:14px; font-weight:800; color:#56160c; background:#daa520; animation:ck-hud-blink 1s steps(1,end) infinite; }
 @keyframes ck-hud-blink { 0%,49% { background:#daa520; } 50%,100% { background:#f5deb3; } }
-.ck-hub-talk { display:flex; gap:10px; align-items:flex-start; box-sizing:border-box; margin:0 0 10px; padding:8px 10px; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 6px #f8c878; clip-path:polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); cursor:pointer; }
+.ck-hub-talk { display:flex; gap:10px; align-items:flex-start; box-sizing:border-box; margin:0 0 10px; padding:8px 10px; background:#f5deb3; border:3px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 8px #f8c878, inset 0 0 0 10px #a86a2e; clip-path:polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px); cursor:pointer; }
 .ck-hub-talk:active { transform:translateY(2px); }
-.ck-hub-av { width:44px; height:44px; flex-shrink:0; border:2px solid #7a4a28; box-shadow:inset 0 0 0 2px #f8c878; background:#fdf6e3; overflow:hidden; }
+.ck-hub-av { width:44px; height:44px; flex-shrink:0; border:3px solid #7a4a28; box-shadow:inset 0 0 0 3px #f8c878; background:#fdf6e3; overflow:hidden; }
 .ck-hub-av img { width:100%; height:100%; object-fit:cover; display:block; }
 .ck-hub-talk-tx { flex:1; min-width:0; }
 .ck-hub-talk-nm { font-size:13px; font-weight:800; color:#56160c; }
 .ck-hub-talk-st { font-size:12px; line-height:1.5; color:#331f28; margin-top:1px; }
-.ck-hub-hearts { display:flex; align-items:center; gap:1px; margin-top:3px; }
+.ck-hub-hearts { display:flex; align-items:center; gap:2px; margin-top:4px; }
 .ck-hub-hearts svg { display:block; }
-.ck-hub-tier { margin-left:6px; font-size:11px; font-weight:700; color:#56160c; }
+.ck-hub-tier { margin-left:8px; font-size:11px; font-weight:700; color:#56160c; }
 .ck-hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.ck-hub-btn { position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 8px 10px; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 3px #e8a04c, inset 0 0 0 4px #f8c878; clip-path:polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); cursor:pointer; text-align:center; }
-.ck-hub-btn:active { transform:translateY(2px); box-shadow:inset 0 0 0 3px #c97a2e, inset 0 0 0 4px #e8a04c; }
+.ck-hub-btn { position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 8px 10px; background:#f5deb3; border:3px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 8px #f8c878, inset 0 0 0 10px #a86a2e; clip-path:polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px); cursor:pointer; text-align:center; }
+.ck-hub-btn::before, .ck-hub-btn::after { content:''; position:absolute; left:26px; right:26px; height:2px; background:#a86a2e; }
+.ck-hub-btn::before { top:6px; }
+.ck-hub-btn::after { bottom:6px; }
+.ck-hub-btn:active { transform:translateY(3px); background:#e8c96a; box-shadow:inset 0 0 0 4px #c97a2e, inset 0 0 0 8px #e8a04c, inset 0 0 0 10px #8a5a2e; }
 .ck-hub-btn-main { background:#e8a04c; }
-.ck-hub-btn-main::before, .ck-hub-btn-main::after { content:''; position:absolute; left:8px; right:8px; height:2px; background:#a86a2e; }
-.ck-hub-btn-main::before { top:5px; }
-.ck-hub-btn-main::after { bottom:5px; }
 .ck-hub-nail { position:absolute; top:8px; width:4px; height:4px; background:#5b3a1e; }
 .ck-hub-nail.nl { left:8px; }
 .ck-hub-nail.nr { right:8px; }
@@ -25577,6 +25599,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 .ck-hub-nm { font-size:15px; font-weight:800; color:#56160c; letter-spacing:1px; }
 .ck-hub-sub { font-size:10px; color:#6e4a35; line-height:1.4; }
 .ck-hub-badge { position:absolute; right:5px; bottom:5px; min-width:16px; height:16px; padding:0 3px; box-sizing:border-box; background:#daa520; border:1px solid #56160c; color:#56160c; font-size:11px; font-weight:700; line-height:15px; text-align:center; }
+/* 宽屏限宽（2026-11-27 第二轮）：Hub 与子页在宽屏下不无限拉伸；只约束此刻 app 的 .ck-root，整机布局不动 */
+@media (min-width:600px) { .ck-root { max-width:480px; margin-left:auto; margin-right:auto; } }
         .gm-memtree { background:rgba(255,255,255,.82); border-radius:18px; padding:12px 14px; box-shadow:0 8px 24px rgba(160,110,80,.14), 0 0 0 1px rgba(255,255,255,.9); }
         .gm-mt-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
         .gm-mt-head span:first-child { font-size:15px; font-weight:800; color:#3a1e14; }
@@ -25584,6 +25608,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         .gm-mt-lot { margin-top:8px; font-size:12px; line-height:1.6; color:#7a5a44; background:#fdf6ec; border:1px dashed #e8c9a0; border-radius:12px; padding:8px 10px; }
         .gm-mt-lot button { border:0; background:#c87a5a; color:#fff; font-size:12px; font-weight:700; border-radius:14px; padding:5px 10px; cursor:pointer; }
         .gm-mt-tree { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .gm-mt-tree-svg { margin-top:10px; }
+        .gm-mt-tree-svg svg { display:block; width:100%; height:auto; }
         .gm-plank { position:relative; width:calc(50% - 4px); box-sizing:border-box; background:linear-gradient(160deg,#caa06e,#a97a4e); color:#fff8ea; border-radius:10px; padding:9px 10px; cursor:pointer; box-shadow:0 4px 12px rgba(120,70,30,.25); animation:gm-sway 5s ease-in-out infinite alternate; transform-origin:top center; }
         @keyframes gm-sway { from { transform:rotate(-1.2deg); } to { transform:rotate(1.2deg); } }
         .gm-plank-date { font-size:11px; font-weight:800; letter-spacing:1px; }
@@ -25599,7 +25625,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             <div class="ck-hero-cn">约<span class="dot">·</span>会</div>
             <div class="ck-hero-dating">DATING</div>
             <div class="ck-hero-online">Online</div>
-            <div class="ck-hero-spark">✦ ˚ ✶</div>
+            <div class="ck-hero-spark"><svg width="36" height="12" viewBox="0 0 36 12" fill="currentColor" aria-hidden="true"><path d="M6 1l1.4 3.6L11 6l-3.6 1.4L6 11l-1.4-3.6L1 6l3.6-1.4z"/><circle cx="18" cy="6" r="1.6"/><path d="M30 1l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z"/></svg></div>
         </div>
 
         <div class="ck-rolebar">
@@ -25609,7 +25635,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                     <span class="ck-role-lab">DATING WITH</span>
                     <span class="ck-role-nm" id="ck-role-nm">${curRole || 'TA'}</span>
                 </div>
-                <span class="ck-role-ar">▼</span>
+                <span class="ck-role-ar"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
             </div>
         </div>
 
@@ -25623,14 +25649,14 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         <div class="ck-hub-talk" id="ck-hub-talk" role="button" title="看看他的一天">${ckHubTalkHTML()}</div>
         <div class="ck-hub-grid">
             <div class="ck-hub-btn ck-hub-btn-main" id="ck-hub-simday" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.simday}</span><span class="ck-hub-nm">他的一天</span><span class="ck-hub-sub">看看他今天在干嘛</span></div>
-            <div class="ck-hub-btn" id="ck-hub-beside" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.beside}</span><span class="ck-hub-nm">日记</span><span class="ck-hub-sub">写给他的手写日记</span></div>
-            <div class="ck-hub-btn" id="ck-hub-photo" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.photo}</span><span class="ck-hub-nm">查手机</span><span class="ck-hub-sub">看看他手机里有什么</span></div>
-            <div class="ck-hub-btn" id="ck-hub-inner" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.inner}</span><span class="ck-hub-nm">她在干嘛</span><span class="ck-hub-sub">他的内心小世界</span></div>
-            <div class="ck-hub-btn" id="ck-hub-trip" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.trip}</span><span class="ck-hub-nm">相遇</span><span class="ck-hub-sub">和他线下见一面</span></div>
+            <div class="ck-hub-btn" id="ck-hub-beside" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.beside}</span><span class="ck-hub-nm">日记</span><span class="ck-hub-sub">写给他的手写日记</span></div>
+            <div class="ck-hub-btn" id="ck-hub-photo" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.photo}</span><span class="ck-hub-nm">查手机</span><span class="ck-hub-sub">看看他手机里有什么</span></div>
+            <div class="ck-hub-btn" id="ck-hub-inner" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.inner}</span><span class="ck-hub-nm">她在干嘛</span><span class="ck-hub-sub">他的内心小世界</span></div>
+            <div class="ck-hub-btn" id="ck-hub-trip" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.trip}</span><span class="ck-hub-nm">相遇</span><span class="ck-hub-sub">和他线下见一面</span></div>
             <!-- 信件箱按钮保留 id="ck-album-btn"：js/33 写信过程“去信件箱打开原信”靠这个 id 定位 -->
-            <div class="ck-hub-btn" id="ck-album-btn" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.album}</span><span class="ck-hub-nm">信件箱</span><span class="ck-hub-sub">他寄来的信都在这</span></div>
-            <div class="ck-hub-btn" id="ck-hub-memtree" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.memtree}</span><span class="ck-hub-nm">记忆树</span><span class="ck-hub-sub">每天的记忆挂成木牌</span>${ckHubBadgeHTML('memtree')}</div>
-            <div class="ck-hub-btn" id="ck-hub-garden" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.garden}</span><span class="ck-hub-nm">记忆花园</span><span class="ck-hub-sub">把记忆种成花</span>${ckHubBadgeHTML('garden')}</div>
+            <div class="ck-hub-btn" id="ck-album-btn" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.album}</span><span class="ck-hub-nm">信件箱</span><span class="ck-hub-sub">他寄来的信都在这</span></div>
+            <div class="ck-hub-btn" id="ck-hub-memtree" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.memtree}</span><span class="ck-hub-nm">记忆树</span><span class="ck-hub-sub">每天的记忆挂成木牌</span>${ckHubBadgeHTML('memtree')}</div>
+            <div class="ck-hub-btn" id="ck-hub-garden" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.garden}</span><span class="ck-hub-nm">记忆花园</span><span class="ck-hub-sub">把记忆种成花</span>${ckHubBadgeHTML('garden')}</div>
         </div>
         <div class="ck-sub" id="ck-simday">
             <div class="ck-sub-back" id="ck-simday-back">
@@ -25660,7 +25686,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 </div>
             </div>
             <div class="gm-memtree" id="ck-memtree-root">
-                <div class="gm-mt-head"><span>🌳 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>
+                <div class="gm-mt-head"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l5.5 7h-3l4 5.5H5.5l4-5.5h-3z"/><path d="M12 14.5V21"/></svg> 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>
                 <div class="gm-mt-tree"><div class="gm-mt-empty">记忆树加载中……</div></div>
             </div>
         </div>
@@ -25697,7 +25723,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
     <div class="ck-pb-last" id="ck-pb-last">还没有行踪记录</div>
     <div class="ck-pb-sub" id="ck-pb-sub">翻开这本立体书，看看 TA 去过哪里、在做什么。</div>
     </div>
-    <button class="ck-pb-lookbtn" id="ck-pb-lookbtn" type="button">🎨 换装</button>
+    <button class="ck-pb-lookbtn" id="ck-pb-lookbtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 3a9 9 0 100 18c1.6 0 2.2-1 1.5-2.3-.7-1.3.4-2.7 1.9-2.7H17a4 4 0 004-4c0-5-4.5-9-9-9z"/><circle cx="7.5" cy="10.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="11" cy="7" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="8.5" r="1.1" fill="currentColor" stroke="none"/></svg> 换装</button>
     </div>
     <div class="ck-pb-lookpanel" id="ck-pb-lookpanel">
     <div class="ck-pb-look-title">QQ 小人 · 换装 / 建模</div>
@@ -25705,15 +25731,15 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
     <div class="ck-pb-look-row"><span class="ck-pb-look-lab">瞳色</span><span id="ck-pb-eye"></span></div>
     <div class="ck-pb-look-note">选择会实时预览，并保存在 cike_char_look_v1 里，重启小手机还在。</div>
     <div id="ck-k-settings"></div>
-    <div style="display:flex;gap:8px;margin-top:10px;"><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showDuetMini('cike')">🎵 一起听</button><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showCharCardStudio()">📇 角色卡</button></div>
-    <div class="ck-pb-look-close" id="ck-pb-look-close">完成 ✓</div>
+    <div style="display:flex;gap:8px;margin-top:10px;"><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showDuetMini('cike')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> 一起听</button><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showCharCardStudio()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8" cy="10.5" r="2"/><path d="M4.8 16.5c.6-1.6 1.8-2.3 3.2-2.3s2.6.7 3.2 2.3M14 9.5h5M14 13.5h5"/></svg> 角色卡</button></div>
+    <div class="ck-pb-look-close" id="ck-pb-look-close">完成 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><polyline points="20 6 9 17 4 12"/></svg></div>
     </div>
     <div class="ck-book" id="ck-book">
     <div class="ck-book-page" id="ck-book-page">
     <div class="ck-sun"></div>
     <div class="ck-cloud ck-cl1"></div>
     <div class="ck-cloud ck-cl2"></div>
-    <div class="ck-stars">✦ ⋆ ✧ ⋆ ✦</div>
+    <div class="ck-stars"><svg width="52" height="12" viewBox="0 0 52 12" fill="currentColor" aria-hidden="true"><path d="M6 1l1.4 3.6L11 6l-3.6 1.4L6 11l-1.4-3.6L1 6l3.6-1.4z"/><circle cx="18" cy="6" r="1.4"/><path d="M26 2l1.2 3.2 3.2 1.2-3.2 1.2L26 11l-1.2-3.4-3.2-1.2 3.2-1.2z"/><circle cx="38" cy="6" r="1.4"/><path d="M46 1l1.4 3.6L51 6l-3.6 1.4L46 11l-1.4-3.6L41 6l3.6-1.4z"/></svg></div>
     <div class="ck-buildings" id="ck-buildings"></div>
     <div class="ck-street"></div>
     <div class="ck-lamp ck-lamp-l"></div>
@@ -25748,9 +25774,9 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
     <div class="ck-char-panel" id="ck-char-panel">
     <div class="ck-char-greet" id="ck-char-greet">嗨，我是 TA！</div>
     <div class="ck-char-actions">
-    <button type="button" data-ckact="wave">👋 打招呼</button>
-    <button type="button" data-ckact="hug">🤗 抱抱</button>
-    <button type="button" data-ckact="chat">💬 聊聊天</button><button type="button" data-ckact="bow">🙇 鞠躬</button><button type="button" data-ckact="laugh">😄 笑一笑</button><button type="button" data-ckact="sleep">😴 打个盹</button>
+    <button type="button" data-ckact="wave"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M7 11.5V6a1.5 1.5 0 013 0v4.5m0-6v-1a1.5 1.5 0 013 0V10m0-4.5a1.5 1.5 0 013 0V13m0-3.5a1.5 1.5 0 013 0V14a7 7 0 01-7 7h-.8a6 6 0 01-4.6-2.2l-2.3-2.9a1.5 1.5 0 012.3-1.9L7 14z"/></svg> 打招呼</button>
+    <button type="button" data-ckact="hug"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 21C7 16.5 3 13.3 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 4-4 7.2-9 11.7z"/></svg> 抱抱</button>
+    <button type="button" data-ckact="chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 3a9 9 0 00-8.6 11.6L2 18l3.6-1.2A9 9 0 1012 3z"/><circle cx="8.5" cy="11" r="0.6" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="0.6" fill="currentColor" stroke="none"/><circle cx="15.5" cy="11" r="0.6" fill="currentColor" stroke="none"/></svg> 聊聊天</button><button type="button" data-ckact="bow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><circle cx="12" cy="7" r="3"/><path d="M5 21c1-4.5 3.8-7 7-7s6 2.5 7 7"/></svg> 鞠躬</button><button type="button" data-ckact="laugh"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><circle cx="12" cy="12" r="9"/><path d="M8 14.5s1.6 2.2 4 2.2 4-2.2 4-2.2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg> 笑一笑</button><button type="button" data-ckact="sleep"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M20 13.5A8.5 8.5 0 1110.5 4 6.8 6.8 0 0020 13.5z"/></svg> 打个盹</button>
     </div>
     <div class="ck-char-reply" id="ck-char-reply">点一点上面的按钮，和 TA 互动吧。</div>
     <button class="ck-char-shrink" id="ck-char-shrink" type="button">再点一次 / 点空白处可缩回</button>
@@ -25772,7 +25798,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                     <div class="ck-pop-opt ${r===curRole?'on':''}" data-role="${r}">
                         <div class="ck-pop-opt-av">${avatarHtml(r)}</div>
                         <span>${r}</span>
-                        ${r===curRole?'<span class="ck-pop-ck">✓</span>':''}
+                        ${r===curRole?'<span class="ck-pop-ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><polyline points="20 6 9 17 4 12"/></svg></span>':''}
                     </div>`).join('');
                 })()}
             </div>
@@ -25862,7 +25888,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                     let ck = o.querySelector('.ck-pop-ck');
                     if (on && !ck) {
                         ck = document.createElement('span');
-                        ck.className = 'ck-pop-ck'; ck.textContent = '✓';
+                        ck.className = 'ck-pop-ck'; ck.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><polyline points="20 6 9 17 4 12"/></svg>';
                         o.appendChild(ck);
                     } else if (!on && ck) { ck.remove(); }
                 });
@@ -25948,7 +25974,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             <span style="font-size:11px;opacity:0.8;">内容会参考你搭建的世界书设定</span>
                         </div></div>
                         <div class="ck-btn-row">
-                            <div class="ck-btn ck-btn-main" id="ck-regen">✦ 立即生成</div>
+                            <div class="ck-btn ck-btn-main" id="ck-regen"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg> 立即生成</div>
                         </div>`;
                 }
                 const doGen = async () => {
@@ -26175,7 +26201,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 // 初始渲染封面
                 area.innerHTML = (window.PhoneModel ? window.PhoneModel.statusLineHTML('diary') : '') + coverHtml() + `
                     ${!cached ? `<div class="ck-btn-row" style="margin-top:16px;">
-                        <div class="ck-btn ck-btn-main" id="ck-diary-gen">✦ 生成今日日记</div>
+                        <div class="ck-btn ck-btn-main" id="ck-diary-gen"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg> 生成今日日记</div>
                     </div>` : ''}`;
 
                 // 点封面 → 翻开
@@ -26357,18 +26383,18 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 
                         <!-- 数字键盘 -->
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:240px;" id="ck-pinpad">
-                            ${[1,2,3,4,5,6,7,8,9,'','0','⌫'].map(k=>`
+                            ${[1,2,3,4,5,6,7,8,9,'','0','DEL'].map(k=>`
                                 <div style="height:56px;border-radius:14px;
                                     background:${k===''?'transparent':'rgba(255,255,255,0.85)'};
                                     display:flex;align-items:center;justify-content:center;
-                                    font-size:${k==='⌫'?'20':'22'}px;font-weight:600;color:#1e293b;
+                                    font-size:${k==='DEL'?'20':'22'}px;font-weight:600;color:#1e293b;
                                     box-shadow:${k===''?'none':'0 2px 8px rgba(0,0,0,0.08)'};
                                     cursor:${k===''?'default':'pointer'};
                                     transition:opacity .1s;user-select:none;
                                     -webkit-tap-highlight-color:transparent;"
                                     data-pin-key="${k}"
                                     ${k===''?'':''}>
-                                    ${k}
+                                    ${k==='DEL'?'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M21 5H8l-5 7 5 7h13a1 1 0 001-1V6a1 1 0 00-1-1z"/><path d="M12 9.5l5 5M17 9.5l-5 5"/></svg>':k}
                                 </div>`).join('')}
                         </div>
                         <div id="ck-pin-err" style="height:18px;font-size:12px;color:#ef4444;margin-top:8px;text-align:center;"></div>
@@ -26378,7 +26404,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 area.querySelector('#ck-pinpad').addEventListener('click', (e) => {
                     const key = e.target.closest('[data-pin-key]')?.getAttribute('data-pin-key');
                     if (key === '' || key === null) return;
-                    if (key === '⌫') {
+                    if (key === 'DEL') {
                         pinInput = pinInput.slice(0, -1);
                     } else if (pinInput.length < 4) {
                         pinInput += key;
@@ -26450,7 +26476,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                         </div>
                     </div>
                     <div class="ck-btn-row" style="margin-top:10px;">
-                        <div class="ck-btn ck-btn-main" id="ck-phone-gen" style="display:none;">✦ 生成内容</div>
+                        <div class="ck-btn ck-btn-main" id="ck-phone-gen" style="display:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg> 生成内容</div>
                         <div class="ck-btn ck-btn-ghost" id="ck-phone-regen" style="display:none;">重新生成</div>
                         <div class="ck-btn ck-btn-ghost" id="ck-phone-clear" style="display:${Object.keys(phoneAppContent).length?'':'none'};font-size:12px;">清空缓存</div>
                     </div>`;
@@ -26684,7 +26710,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                         这里还没有内容<br><span style="font-size:12px;color:#bbb;">去「设置」连接 API 后点「重新生成」，由 AI 为「${curRole}」生成；<br>或先去微信添加好友、发消息、写信，产生记录后再回来查看。</span></div>`;
                     return;
                 }
-                const _note = data._local ? `<div style="padding:8px 14px;background:#f5f3ff;color:#7c3aed;font-size:11px;line-height:1.6;">✦ 离线本地内容：用手机里的真实记录生成，未连接 AI。连接 API 后点「重新生成」可获得更丰富的内容。</div>` : '';
+                const _note = data._local ? `<div style="padding:8px 14px;background:#f5f3ff;color:#7c3aed;font-size:11px;line-height:1.6;">离线本地内容：用手机里的真实记录生成，未连接 AI。连接 API 后点「重新生成」可获得更丰富的内容。</div>` : '';
                 let html = _note;
                 switch(appId) {
                     case 'wechat':
@@ -26721,7 +26747,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             <div class="ck-phone-list-item">
                                 <div class="ck-phone-list-title">${p.title||''}</div>
                                 <div class="ck-phone-list-sub">${p.desc||''}</div>
-                                ${p.story?`<div style="font-size:12px;color:#a78bfa;margin-top:3px;">💭 ${p.story}</div>`:''}
+                                ${p.story?`<div style="font-size:12px;color:#a78bfa;margin-top:3px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 3a9 9 0 00-8.6 11.6L2 18l3.6-1.2A9 9 0 1012 3z"/><circle cx="8.5" cy="11" r="0.6" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="0.6" fill="currentColor" stroke="none"/><circle cx="15.5" cy="11" r="0.6" fill="currentColor" stroke="none"/></svg> ${p.story}</div>`:''}
                             </div>`).join('');
                         break;
                     case 'browser':
@@ -26746,7 +26772,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                                 </div>
                                 <div style="flex:1;">
                                     <div style="font-size:15px;color:${c.type==='missed'?'#FF3B30':'#000'};font-weight:500;">${c.name||''}</div>
-                                    <div style="font-size:12px;color:#999;margin-top:2px;">${c.type==='outgoing'?'↗ 拨出':c.type==='missed'?'↙ 未接':'↙ 接入'} · ${c.time||''}${c.duration?' · '+c.duration:''}</div>
+                                    <div style="font-size:12px;color:#999;margin-top:2px;">${c.type==='outgoing'?'拨出':c.type==='missed'?'未接':'接入'} · ${c.time||''}${c.duration?' · '+c.duration:''}</div>
                                 </div>
                                 <div style="color:#007AFF;font-size:20px;opacity:0.7;">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6.5 4h3l1.5 4-2 1.5a11 11 0 005 5L15.5 12.5l4 1.5v3A1.5 1.5 0 0118 18.5C9.4 18.5 5.5 14.6 5.5 6A1.5 1.5 0 016.5 4z" stroke="#007AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -26779,7 +26805,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             </div>`).join('');
                         break;
                     case 'sms':
-                        html = `<div style="padding:8px 14px;background:#f5f3ff;color:#7c3aed;font-size:11px;line-height:1.6;">✦ 离线本地内容：本机短信记录（phone_sms_v1），未连接 AI。</div>` + (data.threads||[]).map(t=>`
+                        html = `<div style="padding:8px 14px;background:#f5f3ff;color:#7c3aed;font-size:11px;line-height:1.6;">离线本地内容：本机短信记录（phone_sms_v1），未连接 AI。</div>` + (data.threads||[]).map(t=>`
                             <div class="ck-phone-list-item">
                                 <div style="display:flex;justify-content:space-between;"><div class="ck-phone-list-title">${t.name||''}</div><div style="font-size:11px;color:#999;">${t.time||''}</div></div>
                                 <div class="ck-phone-list-sub">${t.lastText||'（无内容）'}</div>
@@ -26787,7 +26813,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             </div>`).join('');
                         break;
                     case 'news':
-                        html = `<div style="padding:8px 14px;background:#f5f3ff;color:#7c3aed;font-size:11px;line-height:1.6;">✦ 离线本地内容：《此刻日报》只登真实发生过的事，未连接 AI。</div>`
+                        html = `<div style="padding:8px 14px;background:#f5f3ff;color:#7c3aed;font-size:11px;line-height:1.6;">离线本地内容：《此刻日报》只登真实发生过的事，未连接 AI。</div>`
                             + ((data.issues||[]).map(is=>`
                             <div class="ck-phone-list-item">
                                 <div class="ck-phone-list-title">《此刻日报》 · ${is.date||''}</div>
@@ -26887,12 +26913,12 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             ${directives.map(d=>`<div class="ck-director-chip">${d}</div>`).join('')}
                         </div>
                     </div>` : `<div class="ck-sub-card"><div class="ck-gen-empty">
-                        <div style="font-size:32px;margin-bottom:14px;opacity:0.6;">✦</div>
+                        <div style="margin-bottom:14px;opacity:0.6;color:#94a3b8;"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg></div>
                         点击下方按钮，开始与「${roleName}」的线下相遇故事
                         <div style="font-size:11px;opacity:0.55;margin-top:8px;">故事开始后可通过导演模式推进剧情</div>
                     </div></div>`}
                     <div class="ck-btn-row" style="margin-top:12px;">
-                        <div class="ck-btn ck-btn-main" id="ck-encounter-gen">${cached?'🎬 继续推进':'✦ 开始相遇'}</div>
+                        <div class="ck-btn ck-btn-main" id="ck-encounter-gen">${cached?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M7 4l13 8-13 8z"/></svg> 继续推进':'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg> 开始相遇'}</div>
                         ${cached?'<div class="ck-btn ck-btn-ghost" id="ck-encounter-reset">重新开始</div>':''}
                         ${cached?'<div class="ck-btn ck-btn-ghost" id="ck-encounter-save-letter">存入信件箱</div>':''}
                     </div>`;
@@ -26949,7 +26975,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             btn.parentNode.insertBefore(el, btn);
                             return el;
                         })();
-                        errBar.textContent = '⚠ ' + errMsg;
+                        errBar.textContent = errMsg;
                         btn.textContent = origText; btn.style.pointerEvents = '';
                     }
                 };
@@ -27174,14 +27200,14 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 const badgeHost = area.querySelector('#ck-letter-special-badge-host');
 
                 // 填入信件内容
-                area.querySelector('#ck-letter-greeting').textContent = letter.isWelcome ? '亲爱的你 ✿' : '亲爱的，';
+                area.querySelector('#ck-letter-greeting').textContent = letter.isWelcome ? '亲爱的你' : '亲爱的，';
                 area.querySelector('#ck-letter-body').textContent = letter.text || '';
                 area.querySelector('#ck-letter-sign').textContent = `— ${letter.role||'Ta'} · ${letter.time||''}`;
 
                 // 特殊徽章（欢迎信）
                 if (badgeHost) {
                     badgeHost.innerHTML = letter.special
-                        ? '<div class="ck-letter-special-badge">✦ 特别来信</div>'
+                        ? '<div class="ck-letter-special-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg> 特别来信</div>'
                         : '';
                 }
 
@@ -27226,7 +27252,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                     area.innerHTML = `
                         <div class="ck-sub-card" style="margin-top:16px;">
                             <div class="ck-gen-empty" style="padding:40px 10px;">
-                                <div style="font-size:36px;margin-bottom:12px;">✉️</div>
+                                <div style="margin-bottom:12px;color:#94a3b8;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 7l9.5 6 9.5-6"/></svg></div>
                                 信件箱空空如也。<br>
                                 <span style="font-size:11px;opacity:0.7;margin-top:6px;display:block;">生成内容后点「存入信件箱」<br>就会收到信件</span>
                             </div>
@@ -27246,7 +27272,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                             <div class="ck-letter-new-tape"></div>
                             <div class="ck-letter-new-body">
                                 <div class="ck-letter-new-header">
-                                    <div class="ck-letter-new-seal">✉</div>
+                                    <div class="ck-letter-new-seal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 7l9.5 6 9.5-6"/></svg></div>
                                     <div class="ck-letter-new-meta">
                                         <div class="ck-letter-new-from">${newest.role||'Ta'}</div>
                                         <div class="ck-letter-new-time">${newest.time||''}</div>
@@ -27264,7 +27290,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                         ${historyCount > 0 ? `
                         <div class="ck-inbox-history-btn" id="ck-history-btn">
                             <div class="ck-inbox-history-left">
-                                <div class="ck-inbox-history-icon">📬</div>
+                                <div class="ck-inbox-history-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 7l9.5 6 9.5-6"/></svg></div>
                                 <div>
                                     <div class="ck-inbox-history-text">历史信件</div>
                                     <div class="ck-inbox-history-count">共 ${historyCount} 封</div>
@@ -27285,7 +27311,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                                     const prev = (p.text||'').slice(0,50).replace(/\n/g,' ');
                                     return `<div class="ck-letter-item" data-hist-idx="${i+1}">
                                         <div class="ck-letter-header">
-                                            <div class="ck-letter-seal">✉</div>
+                                            <div class="ck-letter-seal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 7l9.5 6 9.5-6"/></svg></div>
                                             <div class="ck-letter-from">${p.role||'Ta'}</div>
                                             <div class="ck-letter-date">${p.time||''}</div>
                                         </div>
@@ -27314,7 +27340,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                                     <div class="ck-letter-envelope-flap"></div>
                                     <div class="ck-letter-stamp">
                                         <div class="ck-letter-stamp-inner">
-                                            <div class="heart">♥</div>
+                                            <div class="heart"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;"><path d="M12 21C7 16.5 3 13.3 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 4-4 7.2-9 11.7z"/></svg></div>
                                             <div>FOR YOU</div>
                                         </div>
                                     </div>

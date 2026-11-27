@@ -491,7 +491,7 @@ var rows2 = list.length? list.map(function (p) {
 var due = new Date(p.dueTs);
 var dueStr = (due.getMonth() + 1) + '月' + due.getDate() + '日';
 var stHtml = p.status === 'done'
-? '<span style="color:var(--st-ink,#1e2748);">✓ 已兑现</span>'
+? '<span style="color:var(--st-ink,#1e2748);">已兑现</span>'
 : '<button data-promise-done="' + esc(p.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">已兑现</button>';
 return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">' +
 '<div style="font-size:17px;line-height:1.5;">' + esc(p.text) + '</div>' +
@@ -602,11 +602,11 @@ function chordCardHTML() {
     return '<div style="border:1px solid #dce2f1;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.7;color:#1e2748;">'
       + '<b>' + esc(a.label) + '</b> <span style="font-size:11px;color:#5b6b8a;">' + esc(a.mood || '') + ' · ' + esc(p.label) + (s.activeId === a.id ? ' · 此刻情绪' : '') + '</span>'
       + '<div>“' + esc(a.context) + '”</div>'
-      + '<div style="margin-top:6px;"><button style="border:0;background:#1e2748;color:#fff;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordPlayById(\'' + a.id + '\')">▶ 播这段和弦</button> '
+      + '<div style="margin-top:6px;"><button style="border:0;background:#1e2748;color:#fff;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordPlayById(\'' + a.id + '\')"><svg viewBox="0 0 24 24" width="10" height="10" style="vertical-align:-1px;margin-right:4px" aria-hidden="true"><path d="M7 4 L19 12 L7 20 Z" fill="#fff"/></svg>播这段和弦</button> '
       + '<button style="border:0;background:#dce2f1;color:#1e2748;border-radius:12px;padding:6px 12px;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordSetActiveById(\'' + a.id + '\')">回到这个情绪</button> '
       + '<button style="border:0;background:none;color:#5b6b8a;font-size:12px;cursor:pointer;" onclick="window.CharInnerLife.chordRemoveById(\'' + a.id + '\')">删除</button></div></div>';
   }).join('');
-  return '<div class="ck-sub-card" id="ck-chord-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#1e2748;margin-bottom:4px;">🎹 情绪和弦</div>'
+  return '<div class="ck-sub-card" id="ck-chord-card" style="margin-bottom:10px;"><div style="font-weight:800;font-size:15px;color:#1e2748;margin-bottom:4px;">情绪和弦</div>'
     + '<div style="font-size:12px;color:#5b6b8a;line-height:1.6;">把一个时刻存成“一句话 + 一段和弦进行”，以后点一下就能回到相似的情绪温度。和弦是 WebAudio 现场合成的，不用音频文件。' + (cur ? '此刻情绪：<b>' + esc(cur.label) + '</b>。' : '') + '</div>'
     + (items ? items : '<div style="font-size:13px;color:#5b6b8a;padding:8px 0;">还没有存过的时刻，点下面存一个。</div>')
     + '<div style="margin-top:10px;"><input id="ck-chord-label" maxlength="20" placeholder="名字，如：加班夜 · 他等我回家" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:13px;margin:4px 0;">'
@@ -630,9 +630,9 @@ var seg = function (k, label) { return e[k]? '<div style="font-size:12px;line-he
 return '<div class="ck-sub-card" style="margin-bottom:10px;"><div style="font-size:11px;color:#5b6b8a;margin-bottom:6px;">' + esc(fmtTime(e.ts)) + ' · ' + esc(STATE_LABEL[e.state] || e.state || '') + (e.trigger? ' · 触发：' + esc(e.trigger): '') + '</div>' +
 seg('sense', '感知') + seg('appraise', '想法') + seg('decide', '决定') + seg('act', '行动') + seg('reflect', '回想') +
 (e.memoryRef? '<div style="font-size:11px;color:#5b6b8a;margin-top:4px;">依据：' + esc(e.memoryRef) + '</div>': '') + '</div>';
-}).join(''): '<div class="ck-sub-card"><div class="ck-gen-empty">还没有内心记录。<br>等她主动找你、推进小目标或做夜间整理后，这里会出现她的 SENSE → APPRAISE → DECIDE → ACT → REFLECT。</div></div>';
+}).join(''): '<div class="ck-sub-card"><div class="ck-gen-empty">还没有内心记录。<br>等她主动找你、推进小目标或做夜间整理后，这里会出现她的 SENSE › APPRAISE › DECIDE › ACT › REFLECT。</div></div>';
 var goalHtml = goals.map(function (g) {
-return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:13px;color:#1e2748;"><span>' + esc(g.title) + '</span><span>' + (g.status === 'done'? '✓ 完成': g.progress + '%') + '</span></div>' +
+return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:13px;color:#1e2748;"><span>' + esc(g.title) + '</span><span>' + (g.status === 'done'? '完成': g.progress + '%') + '</span></div>' +
 '<div style="height:6px;border-radius:3px;background:#dce2f1;margin-top:4px;"><div style="height:6px;border-radius:3px;background:#1e2748;width:' + (g.progress || 0) + '%;"></div></div></div>';
 }).join('');
 var promHtml = proms.length? proms.map(function (p) {
