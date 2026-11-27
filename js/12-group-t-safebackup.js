@@ -374,7 +374,7 @@ return { sessionId: sess? sess.id: null, sessionName: sess? sess.name: '', msgCo
 }
 function contextMeterHTML(sessionId, variant) {
 var u = contextUsage(sessionId);
-var bar = '<div style="height:6px;background:var(--st-silver-light,#dce2f1);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + u.pct + '%;background:' + (u.needCompress? 'var(--st-danger,#7c2d2d)': 'var(--st-ink,#1e2748)') + ';"></div></div>';
+var bar = '<div style="height:6px;background:var(--st-silver-light,#dce2f1);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + u.pct + '%;background:' + (u.needCompress? 'var(--st-danger,#7c2d2d)': 'var(--st-silver,#bfc8e0)') + ';"></div></div>';
 var tip = u.needCompress? '可以压缩了（已满 100%）': '上下文 ' + u.pct + '%';
 var inner = bar + '<div style="display:flex;justify-content:space-between;margin-top:4px;"><span>' + esc(tip) + ' · 消息 ' + u.msgCount + '/' + u.msgCap + ' · 记忆 ' + u.memCount + '/' + u.memCap + '</span><span style="color:var(--st-ink,#1e2748);font-weight:500;cursor:pointer;" onclick="window.SafeBackupT.requestCompress(\'' + esc(u.sessionId || '') + '\')">压缩</span></div>';
 /* variant 'card'：安全中心备份页里的卡片版——不用聊天页的通条底色/下边框；id 也另起，避免与聊天页那条重名、被 1.5s 轮询 ensureCtxMeter 误换。 */
@@ -631,7 +631,7 @@ overlay.innerHTML =
 '<div style="display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));">' +
 ['backup|备份与恢复', 'import|导入旧对话', 'memory|记忆与撤销', 'ns|命名空间', 'prefs|界面偏好', 'search|聊天搜索'].map(function (t) {
 var parts = t.split('|');
-return '<button data-t-tab="' + parts[0] + '" onclick="window.SafeBackupT._ui.showTab(\'' + parts[0] + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:' + ((tab || 'backup') === parts[0]? 'var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8)': 'var(--st-paper,#fffdf8)') + ';border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">' + parts[1] + '</button>';
+return '<button data-t-tab="' + parts[0] + '" onclick="window.SafeBackupT._ui.showTab(\'' + parts[0] + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:' + ((tab || 'backup') === parts[0]? 'var(--st-silver-light,#dce2f1);color:var(--st-ink,#1e2748)': 'var(--st-paper,#fffdf8)') + ';border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">' + parts[1] + '</button>';
 }).join('') + '</div>' +
 '<div id="t-center-body" style="padding:16px;"></div>';
 document.body.appendChild(overlay);
@@ -643,7 +643,7 @@ function showTab(name) {
 var body = centerBody();
 if (!body) return;
 var btns = document.querySelectorAll('#t-safe-center [data-t-tab]');
-btns.forEach(function (b) { var on = b.getAttribute('data-t-tab') === name; b.style.background = on? 'var(--st-ink,#1e2748)': 'var(--st-paper,#fffdf8)'; b.style.color = on? 'var(--st-paper,#fffdf8)': 'var(--st-ink,#1e2748)';});
+btns.forEach(function (b) { var on = b.getAttribute('data-t-tab') === name; b.style.background = on? 'var(--st-silver-light,#dce2f1)': 'var(--st-paper,#fffdf8)'; b.style.color = 'var(--st-ink,#1e2748)';});
 if (name === 'backup') body.innerHTML = renderBackupTab();
 else if (name === 'import') body.innerHTML = renderImportTab();
 else if (name === 'memory') body.innerHTML = renderMemoryTab();
@@ -663,8 +663,8 @@ return '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--s
 return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">安全模型：任何导出 / 导入 / 恢复都先展示会改变什么（预览 diff）→ 先把当前状态归档进备份区 → 再写 → 可撤销。恢复前一定先归档，永远有网兜。</div>' +
 '<div style="border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:12px 16px;margin-bottom:12px;background:var(--st-paper,#fffdf8);"><div style="font-size:17px;font-weight:600;margin-bottom:8px;">上下文用量</div>' + contextMeterHTML(null, 'card') + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;line-height:1.5;">100% = 该压缩了；只按消息与记忆的条数估算，不读内容。点“压缩”先记一条请求（U 组压缩未合入，暂不真正压缩）。</div></div>' +
 '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">' +
-'<button onclick="window.SafeBackupT._ui.doExport(\'guichao\')" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出归巢（先归档）</button>' +
-'<button onclick="window.SafeBackupT._ui.doExport(\'phone\')" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出整机备份（先归档）</button>' +
+'<button onclick="window.SafeBackupT._ui.doExport(\'guichao\')" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出归巢（先归档）</button>' +
+'<button onclick="window.SafeBackupT._ui.doExport(\'phone\')" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出整机备份（先归档）</button>' +
 '<button onclick="window.SafeBackupT._ui.doArchiveNow()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">只归档一次（不导出）</button>' +
 '<button onclick="window.SafeBackupT._ui.openCharCard()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出角色卡（先归档，再开原导出弹窗）</button></div>' +
 '<div style="margin-bottom:12px;"><input id="t-backup-q" placeholder="搜索备份：标签 / 时间 / 范围，如 导出前归档" oninput="window.SafeBackupT._ui.filterBackups(this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /></div>' +
@@ -674,7 +674,7 @@ return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line
 function renderImportTab() {
 return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">旧对话导入（Pulse A9：先预览、再挑、再存）。支持 ChatGPT / Claude / Markdown / 纯文本四种导出：粘贴或上传文件后先解析出对话列表预览（标题、条数、日期），勾选要导入的，清洗掉明显的系统提示词和空消息后存档。导入的对话存进微信会话（新会话，标题标【导入】），同时归档进 char:imported_chats_v1，可关键词搜索。不用向量。</div>' +
 '<textarea id="t-import-text" placeholder="粘贴 ChatGPT / Claude / Markdown / JSON 导出内容……" style="width:100%;box-sizing:border-box;height:120px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"></textarea>' +
-'<div style="display:flex;gap:8px;margin:10px 0;"><input type="file" id="t-import-file" accept=".json,.md,.txt" style="font-size:13px;" /><button onclick="window.SafeBackupT._ui.importPreview()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">解析预览</button></div>' +
+'<div style="display:flex;gap:8px;margin:10px 0;"><input type="file" id="t-import-file" accept=".json,.md,.txt" style="font-size:13px;" /><button onclick="window.SafeBackupT._ui.importPreview()" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">解析预览</button></div>' +
 '<div id="t-import-preview"></div>';
 }
 function renderMemoryTab() {
@@ -684,7 +684,7 @@ var rows = mems.slice(0, 30).map(function (m) {
 return '<div style="border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:10px;padding:12px 16px;margin-bottom:8px;"><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(memCat(m)) + ' · ' + esc(String(memDate(m)).slice(0, 10)) + (memFactKey(m)? ' · 事实 key：' + esc(memFactKey(m)): '') + '</div><div style="font-size:13px;margin:8px 0;">' + esc(memText(m)).slice(0, 120) + '</div><textarea id="t-mem-' + esc(String(m.id)) + '" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" rows="2">' + esc(memText(m)) + '</textarea><button onclick="window.SafeBackupT._ui.saveMemoryEdit(\'' + esc(String(m.id)).replace(/'/g, '') + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:13px;margin-top:8px;">保存修改（先记撤销记录）</button></div>';
 }).join('') || '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">暂无记忆。</div>';
 return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">记忆索引 guichao_mem_index_v1：按事实 key / 分类 / 日期索引，不改 guichao.memories.v1 本身。共 ' + mems.length + ' 条记忆' + (mems.length > 30 ? '（下方只列出前 30 条，其余请用上方搜索查）' : '') + (idx? '，索引建于 ' + esc(idx.builtAt || ''): '，索引尚未建立') + '。</div>' +
-'<div style="display:flex;gap:8px;margin-bottom:12px;"><input id="t-mem-q" placeholder="按事实 key / 分类 / 日期查，如 喜好.咖啡" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><button onclick="window.SafeBackupT._ui.searchMem()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">查索引</button><button onclick="window.SafeBackupT._ui.rebuildIndex()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">重建索引</button></div>' +
+'<div style="display:flex;gap:8px;margin-bottom:12px;"><input id="t-mem-q" placeholder="按事实 key / 分类 / 日期查，如 喜好.咖啡" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><button onclick="window.SafeBackupT._ui.searchMem()" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">查索引</button><button onclick="window.SafeBackupT._ui.rebuildIndex()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">重建索引</button></div>' +
 '<div id="t-mem-hits" style="margin-bottom:12px;"></div>' + rows;
 }
 function renderNsTab() {
@@ -736,7 +736,7 @@ var row = function (label, ctl, last) {
 return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;' + (last ? '' : 'border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));') + '"><span style="font-size:17px;flex-shrink:0;">' + label + '</span><span style="display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;">' + ctl + '</span></div>'; /* 控件 span 允许换行：主题行会被 js/22 的 #al-theme-extra 注入两个下拉+复选框+切换按钮，不换行时同一行挤压、两个下拉被压窄 */
 };
 var checkCtl = function (id, on) {
-return '<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (on ? '开' : '关') + '</span><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + ' style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);" /></span>';
+return '<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (on ? '开' : '关') + '</span><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + ' class="st-check" /></span>';
 };
 return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">界面偏好统一存在本机，主题与桌面外观共用同一份；改完点“保存偏好”生效。</div>' +
 '<div style="background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;overflow:hidden;margin-bottom:12px;">' +
@@ -753,12 +753,12 @@ row('宠物大小', sel('t-p-petsize', OPTS.petSize, p.petSize)) +
 row('宠物皮肤', sel('t-p-petskin', OPTS.petSkin, p.petSkin)) +
 row('时钟样式', sel('t-p-clock', OPTS.clockStyle, p.clockStyle), true) +
 '</div>' +
-'<div style="display:flex;gap:8px;margin-top:12px;"><button onclick="window.SafeBackupT._ui.savePrefs()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">保存偏好</button><button onclick="window.SafeBackupT._ui.migrateNow()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">从旧分散偏好迁移一次</button></div>' +
+'<div style="display:flex;gap:8px;margin-top:12px;"><button onclick="window.SafeBackupT._ui.savePrefs()" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">保存偏好</button><button onclick="window.SafeBackupT._ui.migrateNow()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">从旧分散偏好迁移一次</button></div>' +
 '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:12px;">已迁移来源：' + esc((p.migratedFrom || []).join('、') || '（无）') + '</div>';
 }
 function renderSearchTab() {
 return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">本地聊天搜索：关键词搜全部会话的消息，引用原文 + 日期，点结果跳到那条消息。不改消息存储结构，不用向量。</div>' +
-'<div style="display:flex;gap:8px;"><input id="t-search-q" placeholder="输入关键词，如 明天" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><button onclick="window.SafeBackupT._ui.runSearch()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">搜索</button></div>' +
+'<div style="display:flex;gap:8px;"><input id="t-search-q" placeholder="输入关键词，如 明天" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><button onclick="window.SafeBackupT._ui.runSearch()" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">搜索</button></div>' +
 '<div id="t-search-results" style="margin-top:12px;"></div>';
 }
 var _ui = {
@@ -827,7 +827,7 @@ box.innerHTML = '<div style="font-size:13px;margin-bottom:8px;">解析格式：'
 parsed.conversations.map(function (c, i) {
 return '<label style="display:block;border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-lg,10px);padding:12px 16px;margin-bottom:8px;font-size:17px;"><input type="checkbox" data-t-imp="' + i + '" checked /> <b>' + esc(c.title) + '</b> <span style="color:var(--st-ink-60,rgba(30,39,72,.6));">' + c.count + ' 条 · ' + esc(c.date || '日期未知') + '</span><div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;margin-top:8px;">' + esc(c.messages.length? c.messages[0].text.slice(0, 60): '') + '</div></label>';
 }).join('') +
-'<button onclick="window.SafeBackupT._ui.doImportSelected()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导入勾选的对话（先归档当前状态）</button>';
+'<button onclick="window.SafeBackupT._ui.doImportSelected()" style="border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导入勾选的对话（先归档当前状态）</button>';
 };
 if (fileInput && fileInput.files && fileInput.files[0]) {
 var r = new FileReader();

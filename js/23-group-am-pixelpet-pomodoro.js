@@ -187,7 +187,7 @@ function ensureSkin() {
     if (!p.querySelector('.am-pixel')) applySkin(s.skin);
   }
 }
-/* 4a. 季节小天气（pixelpets 季节微天气做法；自写。AH 组环境漂浮物未合入，AM 自备宠物周围开关） */
+/* 4a. 季节小天气（pixelpets 季节微天气做法；自写。AM 自备宠物周围开关） */
 function weatherKind(d) {
   var s = petSettings();
   if (s.weather && s.weather.kind && s.weather.kind !== 'auto') return s.weather.kind;
@@ -1122,7 +1122,7 @@ function openSettings(section) {
     + '<div class="am-note">皮肤注册表是 AM 自备的（AB 组未合入）；一份定义共用桌宠、番茄小浮窗的猫和这里的圆点。猫 / 狗 / QQ boy 待机动作各不相同，不只是换颜色。</div>'
     + '<h4>🌸 宠物周围季节小天气</h4><label><input type="checkbox"' + (weatherEnabled() ? ' checked' : '') + ' onchange="window.GroupAM.setWeather(this.checked)"> 开启小天气</label> '
     + '<select onchange="window.GroupAM.setWeather(true,this.value)">' + wkOpts + '</select>'
-    + '<div class="am-note">按季节自动：冬天雪、春天花瓣、夏天萤火、秋天落叶；也可以手动选。AH 组环境漂浮物未合入，这是宠物周围的小天气开关。</div>'
+    + '<div class="am-note">按季节自动：冬天雪、春天花瓣、夏天萤火、秋天落叶；也可以手动选。这是宠物周围的小天气开关。</div>'
     + '<h4>🍅 专注</h4><div>计时视角：<button type="button" class="' + (fs.view === 'elapsed' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'elapsed\')">已专注多久</button> <button type="button" class="' + (fs.view === 'remaining' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'remaining\')">还剩多久</button></div>'
     + '<div style="margin-top:6px;">环境音：<select onchange="window.GroupAM.setFocusSound(this.value)"><option value="off"' + (fs.sound === 'off' ? ' selected' : '') + '>关</option><option value="lofi"' + (fs.sound === 'lofi' ? ' selected' : '') + '>lofi</option><option value="rain"' + (fs.sound === 'rain' ? ' selected' : '') + '>雨声</option><option value="forest"' + (fs.sound === 'forest' ? ' selected' : '') + '>森林</option></select> <span style="font-size:11px;color:#a08a76;">WebAudio 合成，无外部音频文件</span></div>'
     + '<div style="margin-top:6px;"><label><input type="checkbox"' + (fs.autoStart ? ' checked' : '') + ' onchange="window.GroupAM.setFocusAutoStart(this.checked)"> 完成 5 分钟后自动开始下一轮</label></div>'

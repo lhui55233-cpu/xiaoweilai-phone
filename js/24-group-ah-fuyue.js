@@ -9,9 +9,9 @@
    M 组桌面宠物（window.GroupM.pet.poke）、P 组动作台（window.GroupP.motion）、
    N 组一起玩角落、F 组 3D 家（OtomeF）、D 组电话拨号盘（GD.phoneApp，机内模拟）。
    未合入的组（本模块先按任务给定的键名与形状自己实现，汇报写清，待该组合并后以该组为准）：
-   W 组桌面与外观（本模块自带漂浮物/主题/布局页）、Z 组装修方案（本模块自带装修日记，
+   W 组桌面与外观（本模块自带外观包页）、Z 组装修方案（本模块自带装修日记，
    钩子挂在 3D 家第一次碰家具处）、AG 组接模型已合入（本模块自带模型连接页 + 数据承诺页，与 AG 的两键设计对齐：key 单存 phone_model_key_v1，与 PhoneModel 共用）。
-   新增键（只新增，不改已有键）：phone_model_cfg_v1 / phone_floaters_v1 /
+   新增键（只新增，不改已有键）：phone_model_cfg_v1 /
    guichao_mem_review_v1 / char_tools_audit_v1 / otome_toys_v1 / cike_journey_v1 /
    cinema_watchlist_v1 / otome_decor_log_v1 / phone_call_transcripts_v1 /
    char_signature_v1 / char_room_notes_v1 / phone_model_audit_v1。
@@ -23,13 +23,13 @@
    的 EXCLUDE_KEYS；手机自带的整体备份归档 phone_backups_v1 是 T 组整体快照，
    模型页里已如实提示这一点，不谎称已排除）。
    标记：GroupAH-v1
+   （2026-11-27 删环境漂浮物：漂浮物键、漂浮物子页、漂浮层、相关函数与 setAppearance 工具整段删除；已存数据不主动删，只停用不读取。）
    ============================================================================================= */
 (function () {
 'use strict';
 var MARK = 'GroupAH-v1';
 var MODEL_KEY = 'phone_model_cfg_v1';
 var KEY_KEY = 'phone_model_key_v1'; // AG 组已合入：key 单独存此键，与 AG 的 PhoneModel 共用；AH 已对齐，apiKey 不再进 phone_model_cfg_v1。
-var FLOAT_KEY = 'phone_floaters_v1';
 var REVIEW_KEY = 'guichao_mem_review_v1';
 var AUDIT_KEY = 'char_tools_audit_v1';
 var TOYS_KEY = 'otome_toys_v1';
@@ -50,7 +50,7 @@ var AFF_KEY = 'otome_affection_v1';
 var NOTES_KEY = 'cinema_notes_v1';
 var CALLLOG_KEY = 'phone_call_log_v1';
 var EXCLUDE_KEYS = [MODEL_KEY, KEY_KEY, 'phone_minimax_cfg', 'phone_lock_passcode', 'phone_backups_v1', 'phone_undo_v1', 'phone_model_fallback_keys_v1'];
-var HOME_KEYS = [MEM_KEY, DIARY_KEY, WX_KEY, PREFS_KEY, FLOAT_KEY, REVIEW_KEY, INNERLOG_KEY, 'phone_model_fallback_v1', 'wx_files_v1', // GROUP-BO · BO-9 微信文件随整屋备份走
+var HOME_KEYS = [MEM_KEY, DIARY_KEY, WX_KEY, PREFS_KEY, REVIEW_KEY, INNERLOG_KEY, 'phone_model_fallback_v1', 'wx_files_v1', // GROUP-BO · BO-9 微信文件随整屋备份走
   'char_inner_switches_v1', HOME_KEY, AFF_KEY, TOYS_KEY, JOURNEY_KEY, NOTES_KEY, WATCH_KEY,
   CALLTR_KEY, AUDIT_KEY, DECOR_KEY, SIG_KEY, ROOMNOTE_KEY, 'char_goals_v1', 'char_promises_v1',
   'cike_char_look_v1', 'phone_my_persona', 'phone_my_persona_data', 'os_character',
@@ -58,20 +58,7 @@ var HOME_KEYS = [MEM_KEY, DIARY_KEY, WX_KEY, PREFS_KEY, FLOAT_KEY, REVIEW_KEY, I
   'phone_album_local_v1', 'cinema_progress_v1', 'cinema_chat_v1', 'cinema_tickets_v1',
   'cinema_settings_v1', 'char_drives_v1', 'char_dreams_v1'];
 var OVERWRITE_KEYS = ['phone_my_persona', 'phone_my_persona_data', 'os_character', 'cike_char_look_v1'];
-var FLOATER_TYPES = [
-  { id: 'petal', name: '花瓣' }, { id: 'star', name: '星星' }, { id: 'snow', name: '雪花' },
-  { id: 'firefly', name: '萤火虫' }, { id: 'leaf', name: '落叶' }, { id: 'bubble', name: '气泡' },
-  { id: 'dandelion', name: '蒲公英' }, { id: 'rain', name: '雨滴' }, { id: 'light', name: '光斑' }
-];
-var ACCENTS = [
-  { id: 'ink', name: '墨', color: '#34363b' }, { id: 'pink', name: '粉', color: '#e2879a' },
-  { id: 'blue', name: '蓝', color: '#5b8def' }, { id: 'green', name: '绿', color: '#4caf7d' },
-  { id: 'purple', name: '紫', color: '#8b7bd8' }, { id: 'orange', name: '橙', color: '#e08a3c' }
-];
-var LAYOUTS = [
-  { id: 'default', name: '默认' }, { id: 'compact', name: '紧凑' }, { id: 'cozy', name: '宽松' }
-];
-var TOOL_NAMES = ['setSignature', 'writeReviewMemory', 'setAppearance', 'writeRoomNote', 'createToy'];
+var TOOL_NAMES = ['setSignature', 'writeReviewMemory', 'writeRoomNote', 'createToy'];
 var POKE_LINES = ['嗯？怎么啦。', '嘿嘿，戳到我啦。', '我在呢，别戳啦。', '今天也想和你待在一起。', '……干嘛这样看着我。'];
 var _seenMsgIds = {};
 var _call = null;
@@ -410,13 +397,6 @@ function runTool(name, params) {
   } else if (name === 'writeReviewMemory') {
     var a = addToReview([{ text: params.text, category: params.category || '日常记忆', level: params.level || 'L2' }], 'char_tool');
     r = a.added ? { ok: true, added: a.added } : { ok: false, reason: 'duplicate_or_empty' };
-  } else if (name === 'setAppearance') {
-    var fl = getFloaters();
-    if (params.accent) fl.accent = params.accent;
-    if (params.layout) fl.layout = params.layout;
-    if (params.dayNight) fl.dayNight = params.dayNight;
-    setFloaters(fl);
-    r = { ok: true, floaters: fl };
   } else if (name === 'writeRoomNote') {
     var room = String(params.room || '客厅').slice(0, 20);
     var text = String(params.text || '').slice(0, 200);
@@ -433,63 +413,7 @@ function runTool(name, params) {
   return r;
 }
 
-/* ── 5. 环境漂浮物 ── */
-var FLOAT_DEFAULT = { enabled: [], accent: 'ink', dayNight: 'auto', layout: 'default' };
-function getFloaters() {
-  var f = read(FLOAT_KEY, null);
-  var out = JSON.parse(JSON.stringify(FLOAT_DEFAULT));
-  if (f && typeof f === 'object') {
-    if (Array.isArray(f.enabled)) out.enabled = f.enabled.filter(function (t) { return FLOATER_TYPES.some(function (x) { return x.id === t; }); });
-    if (typeof f.accent === 'string') out.accent = f.accent;
-    if (typeof f.dayNight === 'string') out.dayNight = f.dayNight;
-    if (typeof f.layout === 'string') out.layout = f.layout;
-  }
-  return out;
-}
-function setFloaters(patch) {
-  var cur = getFloaters();
-  if (patch) Object.keys(patch).forEach(function (k) { if (k in cur) cur[k] = patch[k]; });
-  write(FLOAT_KEY, cur);
-  applyFloaters();
-  return cur;
-}
-function accentColor(id) { var a = ACCENTS.filter(function (x) { return x.id === id; })[0]; return a ? a.color : '#34363b'; }
-function dayNightNow() {
-  var f = getFloaters();
-  if (f.dayNight === 'day') return 'day';
-  if (f.dayNight === 'night') return 'night';
-  var h = new Date().getHours();
-  return (h >= 6 && h < 18) ? 'day' : 'night';
-}
-function applyFloaters() {
-  try {
-    var f = getFloaters();
-    var layer = document.getElementById('ah-floaters');
-    if (!layer) {
-      layer = document.createElement('div');
-      layer.id = 'ah-floaters';
-      layer.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(layer);
-    }
-    var dn = dayNightNow();
-    layer.className = 'ah-floaters ah-dn-' + dn + ' ah-layout-' + f.layout;
-    layer.style.setProperty('--ah-accent', accentColor(f.accent));
-    var html = '';
-    f.enabled.forEach(function (type) {
-      for (var i = 0; i < 6; i++) {
-        var left = Math.round(Math.random() * 92 + 2);
-        var dur = (9 + Math.random() * 9).toFixed(1);
-        var delay = (-Math.random() * 16).toFixed(1);
-        var size = (10 + Math.random() * 10).toFixed(0);
-        html += '<span class="ah-fl ah-fl-' + type + '" style="left:' + left + '%;width:' + size + 'px;height:' + size + 'px;animation-duration:' + dur + 's;animation-delay:' + delay + 's;"></span>';
-      }
-    });
-    layer.innerHTML = html;
-    try { document.documentElement.setAttribute('data-ah-daynight', dn); document.body.setAttribute('data-ah-layout', f.layout); } catch (e) {}
-    return f.enabled.length;
-  } catch (e) { return 0; }
-}
-function clearFloaters() { return setFloaters({ enabled: [] }); }
+/* ── 5. 环境漂浮物（2026-11-27 整段删除：漂浮物子页、漂浮层与相关函数均已移除；已存数据不主动删，只停用不读取）── */
 
 /* ── 6. 玩具盒 ── */
 function listToys() { var a = read(TOYS_KEY, []); return Array.isArray(a) ? a : []; }
@@ -774,25 +698,21 @@ function listCallTranscripts() { var a = read(CALLTR_KEY, []); return Array.isAr
 function exportAppearance() {
   var prefs = read(PREFS_KEY, null) || {};
   return { format: 'phone_appearance_pack_v1', version: 1, exportedAt: nowISO(),
-    theme: prefs.theme || 'light', themeCustom: prefs.themeCustom || null,
-    floaters: getFloaters(), layout: getFloaters().layout };
+    theme: prefs.theme || 'light', themeCustom: prefs.themeCustom || null };
 }
 function previewAppearance(data) {
   if (!data || data.format !== 'phone_appearance_pack_v1') return { ok: false, reason: 'bad_format' };
-  var f = data.floaters || {};
-  return { ok: true, summary: '主题：' + (data.theme || 'light') + '；漂浮物：' + ((f.enabled || []).join('、') || '不飘') +
-    '；重点色：' + (f.accent || 'ink') + '；白天/黑夜：' + (f.dayNight || 'auto') + '；布局：' + (data.layout || f.layout || 'default') + '。' };
+  // 旧包里的漂浮物字段直接忽略，不报错（2026-11-27 删环境漂浮物）。
+  return { ok: true, summary: '主题：' + (data.theme || 'light') + '。' };
 }
 function applyAppearance(data) {
   var prev = previewAppearance(data);
   if (!prev.ok) return prev;
-  if (data.floaters) setFloaters(data.floaters);
   try {
     if (window.SafeBackupT && window.SafeBackupT.setUiPrefs) {
       var patch = {};
       if (data.theme) patch.theme = data.theme;
       if (data.themeCustom) patch.themeCustom = data.themeCustom;
-      if (data.layout) patch.layout = data.layout;
       window.SafeBackupT.setUiPrefs(patch);
     }
   } catch (e) {}
@@ -805,27 +725,12 @@ var _currentPage = 'home';
 var _pendingHome = null;
 var _pendingAppearance = null;
 var AH_CSS = '<style id="ah-style">'
-  + '#ah-floaters{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1;}'
-  + '#ah-floaters.ah-paused .ah-fl{animation-play-state:paused !important;}'
-  + '.ah-fl{position:absolute;top:-8%;display:block;animation-name:ahFall;animation-timing-function:linear;animation-iteration-count:infinite;}'
-  + '@keyframes ahFall{from{transform:translateY(-6vh) rotate(0deg);}to{transform:translateY(112vh) rotate(320deg);}}'
-  + '@keyframes ahDrift{0%{transform:translate(0,0);}50%{transform:translate(14px,-16px);}100%{transform:translate(-10px,8px);}}'
-  + '.ah-fl-petal{background:#f6b8c8;border-radius:62% 4% 62% 4%;opacity:.85;}'
-  + '.ah-fl-star{background:#f5c542;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}'
-  + '.ah-fl-snow{background:var(--st-paper,#fffdf8);border-radius:50%;box-shadow:0 0 6px rgba(255,255,255,.9);opacity:.9;}'
-  + '.ah-fl-firefly{background:#d8f79a;border-radius:50%;box-shadow:0 0 10px 3px rgba(216,247,154,.8);animation-name:ahDrift;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}'
-  + '.ah-fl-leaf{background:#7fb069;border-radius:50% 4% 50% 4%;opacity:.85;}'
-  + '.ah-fl-bubble{background:rgba(255,255,255,.25);border:1.5px solid rgba(120,180,220,.7);border-radius:50%;}'
-  + '.ah-fl-dandelion{background:var(--st-paper,#fffdf8);border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.25),0 0 12px rgba(255,255,255,.6);opacity:.9;}'
-  + '.ah-fl-rain{background:#7fb8e8;opacity:.55;border-radius:2px;}'
-  + '.ah-fl-light{background:rgba(245,197,66,.55);border-radius:50%;filter:blur(3px);animation-name:ahDrift;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}'
-  + '#ah-floaters.ah-dn-night .ah-fl{opacity:.55;}'
   + '.ah-card{background:var(--st-paper,#fffdf8);border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-lg,10px);padding:12px 16px;margin:0 16px 12px;font-size:17px;line-height:1.5;color:var(--st-ink,#1e2748);}'
   + '.ah-btn{display:inline-block;padding:8px 16px;border-radius:var(--st-radius-md,8px);border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);font-size:17px;cursor:pointer;margin:2px 4px 2px 0;}'
-  + '.ah-btn-pri{background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-color:var(--st-ink,#1e2748);}'
+  + '.ah-btn-pri{background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-color:var(--st-ink,#1e2748);}'
   + '.ah-input{width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);font-size:17px;margin:4px 0;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);}'
   + '.ah-chip{display:inline-block;padding:8px 12px;border-radius:var(--st-radius-sm,6px);border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);font-size:12px;margin:2px;cursor:pointer;}'
-  + '.ah-chip.on{background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-color:var(--st-ink,#1e2748);}'
+  + '.ah-chip.on{background:var(--st-silver-light,#dce2f1);color:var(--st-ink,#1e2748);border-color:var(--st-ink,#1e2748);}'
   + '.ah-filelabel{display:inline-block;padding:8px 16px;border-radius:var(--st-radius-md,8px);border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);font-size:17px;cursor:pointer;margin:2px 4px 2px 0;}'
   + '.ah-filelabel input{position:absolute;width:1px;height:1px;opacity:0;}'
   + '.ah-whack{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0;}'
@@ -842,7 +747,7 @@ function pageShell(title, sub, bodyHtml) {
     + '<div id="ah-body">' + bodyHtml + '</div><div style="height:40px;"></div></div>';
 }
 function navChips(cur) {
-  var pages = [['home', '整屋'], ['model', '模型与承诺'], ['memreview', '记忆审阅'], ['floaters', '漂浮物'], ['toys', '玩具盒'], ['watch', '待看'], ['journey', '旅行手记'], ['mumble', '碎碎念'], ['tools', 'char 的手'], ['appearance', '外观包']];
+  var pages = [['home', '整屋'], ['model', '模型与承诺'], ['memreview', '记忆审阅'], ['toys', '玩具盒'], ['watch', '待看'], ['journey', '旅行手记'], ['mumble', '碎碎念'], ['tools', 'char 的手'], ['appearance', '外观包']];
   return '<div class="ah-card">' + pages.map(function (p) { return '<span class="ah-chip' + (p[0] === cur ? ' on' : '') + '" data-ah-act="nav" data-page="' + p[0] + '">' + p[1] + '</span>'; }).join('') + '</div>';
 }
 function renderPage(page) {
@@ -887,20 +792,6 @@ function renderPage(page) {
             + '<button class="ah-btn" data-ah-act="mem-act" data-op="promote" data-id="' + esc(x.id) + '">升级</button>'
             + '<button class="ah-btn" data-ah-act="mem-act" data-op="delete" data-id="' + esc(x.id) + '">删除</button></div>';
         }).join('') : '<div class="ah-card">还没有待审记忆。点“从归巢导入待审”把归巢记忆复制一份进来审（原文不动）。</div>'));
-  }
-  if (page === 'floaters') {
-    var f = getFloaters();
-    var chips = FLOATER_TYPES.map(function (t) { return '<span class="ah-chip' + (f.enabled.indexOf(t.id) >= 0 ? ' on' : '') + '" data-ah-act="float-toggle" data-type="' + t.id + '">' + t.name + '</span>'; }).join('');
-    var acc = ACCENTS.map(function (a) { return '<span class="ah-chip' + (f.accent === a.id ? ' on' : '') + '" data-ah-act="float-set" data-k="accent" data-v="' + a.id + '">' + a.name + ' ' + a.color + '</span>'; }).join('');
-    var dn = [['auto', '自动'], ['day', '白天'], ['night', '黑夜']].map(function (d) { return '<span class="ah-chip' + (f.dayNight === d[0] ? ' on' : '') + '" data-ah-act="float-set" data-k="dayNight" data-v="' + d[0] + '">' + d[1] + '</span>'; }).join('');
-    var lay = LAYOUTS.map(function (l) { return '<span class="ah-chip' + (f.layout === l.id ? ' on' : '') + '" data-ah-act="float-set" data-k="layout" data-v="' + l.id + '">' + l.name + '</span>'; }).join('');
-    return pageShell('环境漂浮物', '赴约做法：九种可叠加 + 一键“不飘”；六套重点色、白天/黑夜独立、三种布局。W 组未合入，本页先写。',
-      navChips(page)
-      + '<div class="ah-card"><b>漂浮物（可多选叠加，纯 CSS/JS 画，不外链图片；切到后台自动暂停）</b><br>' + chips
-      + '<br><button class="ah-btn ah-btn-pri" data-ah-act="float-nop">不飘（一键清空）</button></div>'
-      + '<div class="ah-card"><b>重点色（六套）</b><br>' + acc + '</div>'
-      + '<div class="ah-card"><b>白天 / 黑夜（独立）</b><br>' + dn + '<br><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">当前按设置是“' + (dayNightNow() === 'day' ? '白天' : '黑夜') + '”。</span></div>'
-      + '<div class="ah-card"><b>页面布局（三种）</b><br>' + lay + '</div>');
   }
   if (page === 'toys') {
     var toys = listToys();
@@ -971,17 +862,17 @@ function renderPage(page) {
     var audit = read(AUDIT_KEY, []);
     return pageShell('char 的手 · 白名单', '赴约做法：char 的手只允许五件，不开放任意命令与文件系统；hands 关时五件都不做。',
       navChips(page)
-      + '<div class="ah-card"><b>白名单（五件）</b><br>1 改自己的个签/心情 · 2 写待审记忆 · 3 调整外观 · 4 按明确请求写共同房间 · 5 创建/修改离线 HTML 小玩具。<br>动手（hands）开关当前：<b>' + (sw ? '开' : '关') + '</b>（O 组四开关，在设置“内心生活”里改）。关时下面五件都不做。<br>'
+      + '<div class="ah-card"><b>白名单（四件）</b><br>1 改自己的个签/心情 · 2 写待审记忆 · 3 按明确请求写共同房间 · 4 创建/修改离线 HTML 小玩具。<br>动手（hands）开关当前：<b>' + (sw ? '开' : '关') + '</b>（O 组四开关，在设置“内心生活”里改）。关时下面四件都不做。<br>'
       + '<input class="ah-input" id="ah-tool-sig" placeholder="新个签（60 字内）…"><button class="ah-btn" data-ah-act="tool-run" data-tool="setSignature">改个签</button><br>'
       + '<input class="ah-input" id="ah-tool-mem" placeholder="写一条待审记忆…"><button class="ah-btn" data-ah-act="tool-run" data-tool="writeReviewMemory">写待审记忆</button><br>'
       + '<input class="ah-input" id="ah-tool-room" placeholder="共同房间的一句话…"><button class="ah-btn" data-ah-act="tool-run" data-tool="writeRoomNote">写房间便条</button><br>'
-      + '<button class="ah-btn" data-ah-act="tool-run" data-tool="setAppearance">把外观换成粉色重点（演示）</button></div>'
+      + '</div>'
       + '<div class="ah-card"><b>审计日志（最近 10 条）</b><br>' + ((Array.isArray(audit) && audit.length) ? audit.slice(-10).reverse().map(function (a) { return '· ' + esc(a.time || '') + ' ' + esc(a.tool) + '：' + esc(a.summary || '') + ' → ' + esc(a.result || '') + '<br>'; }).join('') : '还没有工具调用记录。') + '</div>');
   }
   if (page === 'appearance') {
-    return pageShell('外观包', '赴约做法 + Hanami 主题分享码思路：主题、漂浮物、布局打成一个外观包，可导出分享、可导入（先预览再应用）。',
+    return pageShell('外观包', '赴约做法 + Hanami 主题分享码思路：主题打成一个外观包，可导出分享、可导入（先预览再应用）。',
       navChips(page)
-      + '<div class="ah-card"><b>导出外观包</b><br>包含：主题 + 漂浮物 + 布局。不含 API Key。<br><button class="ah-btn ah-btn-pri" data-ah-act="appearance-export">下载外观包 JSON</button></div>'
+      + '<div class="ah-card"><b>导出外观包</b><br>包含：主题。不含 API Key。<br><button class="ah-btn ah-btn-pri" data-ah-act="appearance-export">下载外观包 JSON</button></div>'
       + '<div class="ah-card"><b>导入外观包</b><br><label class="ah-filelabel">选择外观包 JSON<input type="file" id="ah-appearance-file" accept=".json,application/json"></label>'
       + '<div id="ah-appearance-preview" style="color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">导入前会先预览，确认后再应用。</div>'
       + '<button class="ah-btn ah-btn-pri" data-ah-act="appearance-apply">确认应用</button></div>');
@@ -1046,9 +937,6 @@ function handleAct(act, el) {
   if (act === 'mem-import-guichao') { var r2 = importGuichaoToReview(); toast('从归巢导入待审：新增 ' + r2.added + ' 条，跳过 ' + r2.skipped + ' 条（都在待审，不进召回）。'); open('memreview'); return; }
   if (act === 'mem-add') { var a = addToReview([{ text: val('ah-mem-text'), category: '日常记忆' }], 'manual'); toast(a.added ? '已加入待审草稿。' : '没写内容或已存在。'); open('memreview'); return; }
   if (act === 'mem-act') { var rr = reviewMemory(el.getAttribute('data-id'), el.getAttribute('data-op')); toast(rr.ok ? '已处理。' : '失败：' + (rr.reason || '')); open('memreview'); return; }
-  if (act === 'float-toggle') { var f = getFloaters(); var t = el.getAttribute('data-type'); var i = f.enabled.indexOf(t); if (i >= 0) f.enabled.splice(i, 1); else f.enabled.push(t); setFloaters(f); open('floaters'); return; }
-  if (act === 'float-nop') { clearFloaters(); toast('已清空漂浮物：不飘。'); open('floaters'); return; }
-  if (act === 'float-set') { var p = {}; p[el.getAttribute('data-k')] = el.getAttribute('data-v'); setFloaters(p); open('floaters'); return; }
   if (act === 'toy-whack-start') { startWhack(30); var sc = document.getElementById('ah-whack-score'); if (sc) sc.textContent = '0'; var tm = document.getElementById('ah-whack-time'); if (tm) tm.textContent = '30'; var en = document.getElementById('ah-whack-end'); if (en) en.textContent = ''; renderWhackMole(); return; }
   if (act === 'whack-hit') { hitWhack(parseInt(el.getAttribute('data-cell'), 10)); return; }
   if (act === 'toy-play') { var pr = playToy(el.getAttribute('data-id')); var stage = document.getElementById('ah-toy-stage-' + el.getAttribute('data-id')); if (pr.ok && stage) { stage.innerHTML = '<iframe sandbox="allow-scripts" style="width:100%;height:320px;border:1px solid #eee;border-radius:12px;background:#fff;" srcdoc="' + esc(pr.toy.html).replace(/"/g, '&quot;') + '"></iframe><div style="color:#888;font-size:12px;margin-top:4px;">沙箱运行：无网络、不给 allow-same-origin。游玩已记审计。</div>'; } return; }
@@ -1066,7 +954,6 @@ function handleAct(act, el) {
     if (tool === 'setSignature') params = { text: val('ah-tool-sig') };
     if (tool === 'writeReviewMemory') params = { text: val('ah-tool-mem') };
     if (tool === 'writeRoomNote') params = { room: '客厅', text: val('ah-tool-room') };
-    if (tool === 'setAppearance') params = { accent: 'pink' };
     var tr = runTool(tool, params);
     toast(tr.ok ? '工具已执行：' + tool : '工具被拒：' + (tr.reason || ''));
     open('tools'); return;
@@ -1135,29 +1022,18 @@ function onDocChange(e) {
 }
 function init() {
   ensureCss();
-  try { applyFloaters(); } catch (e) {}
   try { document.addEventListener('click', onDocClick); } catch (e) {}
   try { document.addEventListener('change', onDocChange); } catch (e) {}
-  try {
-    if (typeof document !== 'undefined' && document.addEventListener) {
-      document.addEventListener('visibilitychange', function () {
-        var layer = document.getElementById('ah-floaters');
-        if (!layer) return;
-        if (document.hidden) layer.classList.add('ah-paused');
-        else layer.classList.remove('ah-paused');
-      });
-    }
-  } catch (e) {}
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
 
 window.GroupAH = {
   version: MARK,
-  keys: { model: MODEL_KEY, floaters: FLOAT_KEY, review: REVIEW_KEY, audit: AUDIT_KEY, toys: TOYS_KEY,
+  keys: { model: MODEL_KEY, review: REVIEW_KEY, audit: AUDIT_KEY, toys: TOYS_KEY,
     journey: JOURNEY_KEY, watch: WATCH_KEY, decor: DECOR_KEY, transcripts: CALLTR_KEY,
     signature: SIG_KEY, roomNotes: ROOMNOTE_KEY, modelAudit: MODELAUDIT_KEY },
-  FLOATER_TYPES: FLOATER_TYPES, ACCENTS: ACCENTS, LAYOUTS: LAYOUTS, TOOL_NAMES: TOOL_NAMES,
+  TOOL_NAMES: TOOL_NAMES,
   PROMISE_TEXT: PROMISE_TEXT,
   getModelCfg: getModelCfg, saveModelCfg: saveModelCfg, clearModelKey: clearModelKey,
   modelReady: modelReady, featureOn: featureOn, buildModelPayload: buildModelPayload,
@@ -1166,7 +1042,6 @@ window.GroupAH = {
   reviewMemory: reviewMemory, recallMemories: recallMemories,
   exportHome: exportHome, previewHomeImport: previewHomeImport, importHome: importHome,
   runTool: runTool, auditTool: auditTool,
-  getFloaters: getFloaters, setFloaters: setFloaters, applyFloaters: applyFloaters, clearFloaters: clearFloaters, dayNightNow: dayNightNow,
   listToys: listToys, addToy: addToy, deleteToy: deleteToy, playToy: playToy,
   startWhack: startWhack, stopWhack: stopWhack, hitWhack: hitWhack, _whack: _whack,
   extractLinks: extractLinks, listWatch: listWatch, addWatch: addWatch, processLink: processLink, onUserMessage: onUserMessage,

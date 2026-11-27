@@ -3486,8 +3486,16 @@ AppManager.register('settings', (() => {
         .st-row:last-child { border-bottom:none; }
         .st-row:active { background:var(--st-ink-08,rgba(30,39,72,.08)); }
         .st-ico { width:28px; height:28px; border-radius:var(--st-radius-md,8px); flex-shrink:0;
-            display:flex; align-items:center; justify-content:center; background:var(--st-ink,#1e2748); }
+            display:flex; align-items:center; justify-content:center; background:var(--st-silver-light,#dce2f1); }
         .st-ico svg { width:17px; height:17px; }
+        .st-ico svg[fill="#fff"] { fill:var(--st-ink,#1e2748); }
+        .st-ico svg [fill="#fff"] { fill:var(--st-ink,#1e2748); }
+        .st-ico svg[stroke="#fff"] { stroke:var(--st-ink,#1e2748); }
+        .st-ico svg [stroke="#fff"] { stroke:var(--st-ink,#1e2748); }
+        /* 自定义复选框（设置页）：纸底 + 1px 墨边框；:checked 时用背景图画墨色对勾（input 无伪元素） */
+        .st-check { -webkit-appearance:none; appearance:none; width:20px; height:20px; flex-shrink:0; margin:0; padding:0; cursor:pointer;
+            background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink,#1e2748); border-radius:4px; }
+        .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e2748' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
         .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; line-height:1.4; }
         .st-row.danger .st-label { color:var(--st-danger,#7c2d2d); }
         .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); }
@@ -3495,10 +3503,10 @@ AppManager.register('settings', (() => {
         .st-arrow { font-size:20px; color:var(--st-ink-40,rgba(30,39,72,.4)); font-weight:400; }
         .st-switch { width:44px; height:24px; border-radius:999px; background:var(--st-silver,#bfc8e0);
             position:relative; transition:background 180ms ease-out; flex-shrink:0; border:none; padding:0; }
-        .st-switch.on { background:var(--st-ink,#1e2748); }
+        .st-switch.on { background:var(--st-silver,#bfc8e0); }
         .st-knob { width:20px; height:20px; border-radius:50%; background:var(--st-paper,#fffdf8);
             position:absolute; top:2px; left:2px; transition:left 180ms ease-out; }
-        .st-switch.on .st-knob { left:22px; }
+        .st-switch.on .st-knob { left:22px; background:var(--st-ink,#1e2748); }
         /* 子页面 */
         .st-sub { position:fixed; inset:0; background:var(--st-paper,#fffdf8); z-index:9000; padding-bottom:34px;
             transform:translateX(100%); transition:transform 280ms ease-out;
@@ -3518,7 +3526,7 @@ AppManager.register('settings', (() => {
             padding:0 var(--st-sp-3,12px); height:40px; font-size:17px; outline:none; background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); font-family:inherit; }
         .st-ban-input::placeholder { color:var(--st-ink-40,rgba(30,39,72,.4)); }
         .st-ban-input:focus { border-color:var(--st-ink,#1e2748); }
-        .st-ban-add-btn { background:var(--st-ink,#1e2748); color:var(--st-paper,#fffdf8); border:none; border-radius:var(--st-radius-md,8px);
+        .sys-app-window .st-ban-add-btn { background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); border:1px solid var(--st-ink,#1e2748); border-radius:var(--st-radius-md,8px);
             padding:0 var(--st-sp-5,20px); height:40px; font-size:17px; font-weight:500; cursor:pointer; }
         .st-ban-item { display:flex; align-items:center; justify-content:space-between;
             padding:0 var(--st-sp-4,16px); min-height:56px; background:var(--st-paper,#fffdf8); border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08)); cursor:pointer; }
@@ -3530,13 +3538,13 @@ AppManager.register('settings', (() => {
         /* Token 统计页 */
         .st-sub#st-sub-token { background:var(--st-paper,#fffdf8); }
         .st-tk-cover { height:130px;
-            background:var(--st-ink,#1e2748);
+            background:var(--st-silver-light,#dce2f1);
             position:relative; margin:14px 16px 0; border-radius:var(--st-radius-lg,10px); overflow:hidden; }
         .st-tk-cover img { width:100%; height:100%; object-fit:cover; }
         .st-tk-cover-edit { position:absolute; right:12px; bottom:12px;
-            background:var(--st-ink-60,rgba(30,39,72,.6)); color:var(--st-paper,#fffdf8); font-size:12px;
+            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); font-size:12px;
             padding:7px 14px; border-radius:var(--st-radius-md,8px); cursor:pointer;
-            border:1px solid var(--st-ink-20,rgba(30,39,72,.2)); letter-spacing:0.3px; }
+            border:1px solid var(--st-ink,#1e2748); letter-spacing:0.3px; }
         .st-tk-profile { display:flex; align-items:center; gap:14px;
             padding:0 28px; margin-top:-30px; position:relative; }
         .st-tk-avatar { width:68px; height:68px; border-radius:50%;
@@ -3567,7 +3575,7 @@ AppManager.register('settings', (() => {
         .st-tk-bar-app { color:var(--st-ink,#1e2748); font-weight:400; }
         .st-tk-bar-val { color:var(--st-ink-60,rgba(30,39,72,.6)); font-size:13px; font-variant-numeric:tabular-nums; }
         .st-tk-bar-track { height:6px; background:var(--st-paper-cool,#eef0f5); border-radius:3px; overflow:hidden; }
-        .st-tk-bar-fill { height:100%; background:var(--st-ink,#1e2748); border-radius:3px;
+        .st-tk-bar-fill { height:100%; background:var(--st-silver,#bfc8e0); border-radius:3px;
             transition:width 280ms ease-out; }
         .st-tk-empty { text-align:center; color:var(--st-ink-60,rgba(30,39,72,.6)); padding:36px 24px; font-size:13px;
             background:var(--st-paper,#fffdf8); border-radius:var(--st-radius-lg,10px); margin:0 16px;
@@ -3580,14 +3588,14 @@ AppManager.register('settings', (() => {
             padding:18px 16px 8px; }
         .st-pf-avatar-wrap { position:relative; cursor:pointer; }
         .st-pf-avatar { width:108px; height:108px; border-radius:50%;
-            background:var(--st-ink,#1e2748); display:flex; align-items:center; justify-content:center;
-            color:var(--st-paper,#fffdf8); font-size:40px; font-weight:600; overflow:hidden;
+            background:var(--st-silver-light,#dce2f1); display:flex; align-items:center; justify-content:center;
+            color:var(--st-ink,#1e2748); font-size:40px; font-weight:600; overflow:hidden;
             border:3px solid var(--st-paper,#fffdf8); }
         .st-pf-avatar img { width:100%; height:100%; object-fit:cover; }
         .st-pf-cam {
             position:absolute; right:2px; bottom:6px; width:30px; height:30px;
-            background:var(--st-ink,#1e2748); border-radius:50%; display:flex; align-items:center;
-            justify-content:center; border:2px solid var(--st-paper,#fffdf8); }
+            background:var(--st-paper,#fffdf8); border-radius:50%; display:flex; align-items:center;
+            justify-content:center; border:1px solid var(--st-ink,#1e2748); box-shadow:0 0 0 2px var(--st-paper,#fffdf8); }
         .st-pf-cam svg { width:14px; height:14px; }
         .st-pf-hint { font-size:12px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:10px; letter-spacing:0.2px; }
         .st-pf-field-label { font-size:13px; font-weight:600; color:var(--st-ink,#1e2748);
@@ -3610,12 +3618,12 @@ AppManager.register('settings', (() => {
             padding:13px 0; font-size:17px; text-align:center; color:var(--st-ink,#1e2748);
             cursor:pointer; transition:background 180ms ease-out; user-select:none; }
         .st-pf-gender.on {
-            background:var(--st-ink,#1e2748); color:var(--st-paper,#fffdf8); border-color:var(--st-ink,#1e2748); }
-        .st-pf-save {
+            background:var(--st-silver-light,#dce2f1); color:var(--st-ink,#1e2748); border-color:var(--st-ink,#1e2748); }
+        .sys-app-window .st-pf-save {
             display:block; width:calc(100% - 32px); margin:22px 16px 18px;
-            background:var(--st-ink,#1e2748); color:var(--st-paper,#fffdf8); border:none; border-radius:var(--st-radius-md,8px);
+            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); border:1px solid var(--st-ink,#1e2748); border-radius:var(--st-radius-md,8px);
             padding:0; height:44px; font-size:17px; font-weight:500; cursor:pointer; letter-spacing:0.4px; font-family:inherit; }
-        .st-pf-save:active { background:var(--st-ink-60,rgba(30,39,72,.6)); }
+        .st-pf-save:active { background:var(--st-silver-light,#dce2f1); }
         .st-pf-mask-section { margin:6px 16px 24px; background:var(--st-paper,#fffdf8);
             border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px); padding:18px 16px; }
         .st-pf-mask-title { font-size:17px; font-weight:600; color:var(--st-ink,#1e2748);
@@ -3623,10 +3631,10 @@ AppManager.register('settings', (() => {
         .st-pf-mask-desc { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); line-height:1.5;
             margin-bottom:14px; }
         .st-pf-mask-add {
-            background:var(--st-ink,#1e2748); color:var(--st-paper,#fffdf8); padding:9px 14px;
-            border-radius:var(--st-radius-md,8px); font-size:13px; font-weight:500;
+            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); padding:9px 14px;
+            border:1px solid var(--st-ink,#1e2748); border-radius:var(--st-radius-md,8px); font-size:13px; font-weight:500;
             display:inline-block; cursor:pointer; letter-spacing:0.3px; }
-        .st-pf-mask-add:active { background:var(--st-ink-60,rgba(30,39,72,.6)); }
+        .st-pf-mask-add:active { background:var(--st-silver-light,#dce2f1); }
         .st-pf-mask-list { margin-top:14px; }
         .st-pf-mask-item {
             background:var(--st-paper-warm,#fbf9f4); border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px);
@@ -3637,7 +3645,7 @@ AppManager.register('settings', (() => {
             display:flex; align-items:center; gap:6px; }
         .st-pf-mask-item-badge {
             font-size:12px; padding:1px 6px; border-radius:var(--st-radius-sm,6px);
-            background:var(--st-ink,#1e2748); color:var(--st-paper,#fffdf8); font-weight:500; }
+            background:var(--st-silver-light,#dce2f1); color:var(--st-ink,#1e2748); font-weight:500; }
         .st-pf-mask-item-desc { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:3px;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .st-pf-mask-actions { display:flex; gap:10px; font-size:13px; }
@@ -3789,14 +3797,13 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                 ROW(ICON('#30B0C7', I.exp), '整屋搬家', {act:'ah_home'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.api), '模型连接与数据承诺', {act:'ah_model'}),
                 ROW(ICON('#5856D6', I.summary), '记忆审阅', {act:'ah_memreview'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.chatbg), '环境漂浮物', {act:'ah_floaters'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.ball), '玩具盒', {act:'ah_toys'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.msg), '一起看 · 待看', {act:'ah_watch'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.clock), '旅行手记', {act:'ah_journey'}),
                 ROW(ICON('#FF2D55', I.bubble), '碎碎念 · 装修日记', {act:'ah_mumble'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.voice), 'char 的手 · 白名单', {act:'ah_tools'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.wallpaper), '外观包', {act:'ah_appearance'})
-            ], '赴约借鉴（AH 组）：整屋搬家、模型连接与数据承诺、记忆审阅、环境漂浮物、玩具盒、待看、旅行手记、碎碎念、char 的手、外观包。')}
+            ], '赴约借鉴（AH 组）：整屋搬家、模型连接与数据承诺、记忆审阅、玩具盒、待看、旅行手记、碎碎念、char 的手、外观包。')}
             <div class="st-gap"></div>
         </div>`;
 
@@ -3863,7 +3870,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
             </div>
             <div class="st-foot">token 只存在本机（localStorage），绝不会放进任何备份导出文件；推送时只发给 GitHub。请用仅能推这一个私有仓库的 token。</div>
             <div style="padding:0 16px;">
-                <button data-act="mbSave" style="width:100%;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border:none;border-radius:10px;padding:13px 0;font-size:17px;">保存设置</button>
+                <button data-act="mbSave" style="width:100%;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">保存设置</button>
                 <button data-act="mbPushNow" style="width:100%;margin-top:8px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:12px 0;font-size:17px;">立即备份</button>
                 <button data-act="mbClearToken" style="width:100%;margin-top:8px;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:12px 0;font-size:17px;">清除 token</button>
                 <div id="mb-result" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));text-align:center;margin-top:12px;line-height:1.7;white-space:pre-wrap;"></div>
@@ -3974,7 +3981,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                     <div class="st-row-right"><span class="st-val" id="ao-motion-reduce-val">${reduce}</span><span class="st-arrow">›</span></div>
                 </div>
             </div>
-            <div class="st-foot">动效总原则：不需要全局一直动——只在有交互的时候动，保持流畅、省电；常驻环境动效（漂浮物、持续动画）默认关。转场与加载动画只用原生 CSS（淡入、上滑、旋转加载圈），不引入大型动画框架；开启动效开关也不会引入任何动画库。</div>
+            <div class="st-foot">动效总原则：不需要全局一直动——只在有交互的时候动，保持流畅、省电；常驻环境动效（持续动画）默认关。转场与加载动画只用原生 CSS（淡入、上滑、旋转加载圈），不引入大型动画框架；开启动效开关也不会引入任何动画库。</div>
             <div style="height:40px;"></div>
         </div>`;
     };
@@ -4069,8 +4076,8 @@ let visionCfg = {};
         const listHtml = voices.length
             ? voices.map((v,i) => `
                 <div class="st-row" style="padding:14px 16px;">
-                    <div style="width:40px;height:40px;border-radius:50%;background:var(--st-ink,#1e2748);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <svg viewBox="0 0 24 24" width="18" fill="#fffdf8"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4" stroke="#fffdf8" stroke-width="2" fill="none"/></svg>
+                    <div style="width:40px;height:40px;border-radius:50%;background:var(--st-silver-light,#dce2f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg viewBox="0 0 24 24" width="18" fill="#1e2748"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4" stroke="#1e2748" stroke-width="2" fill="none"/></svg>
                     </div>
                     <div style="flex:1;margin-left:12px;min-width:0;">
                         <div style="font-size:17px;color:var(--st-ink,#1e2748);font-weight:500;">${v.name || '未命名音色'}</div>
@@ -4116,7 +4123,7 @@ let visionCfg = {};
                         placeholder="eyJ..."
                         style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:10px 12px;font-size:17px;margin-bottom:12px;outline:none;">
                     <div style="display:flex;gap:8px;">
-                        <div id="mm-save-btn" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">保存配置</div>
+                        <div id="mm-save-btn" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">保存配置</div>
                         <div id="mm-test-btn" style="flex:1;background:var(--st-paper-cool,#eef0f5);color:var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">测试连接</div>
                     </div>
                     <div id="mm-test-result" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;text-align:center;min-height:16px;"></div>
@@ -4157,7 +4164,7 @@ let visionCfg = {};
                         placeholder="例如 glm-4.6v-flash"
                         style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:10px 12px;font-size:17px;margin-bottom:12px;outline:none;">
                     <div style="display:flex;gap:8px;">
-                        <div id="vis-save-btn" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">保存配置</div>
+                        <div id="vis-save-btn" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">保存配置</div>
                         <div id="vis-test-btn" style="flex:1;background:var(--st-paper-cool,#eef0f5);color:var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">测试连接</div>
                     </div>
                     <div id="vis-test-result" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;text-align:center;min-height:16px;"></div>
@@ -4201,7 +4208,7 @@ let visionCfg = {};
                         placeholder="zh / en / 留空自动"
                         style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:10px 12px;font-size:17px;margin-bottom:12px;outline:none;">
                     <div style="display:flex;gap:8px;">
-                        <div id="asr-save-btn" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">保存配置</div>
+                        <div id="asr-save-btn" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">保存配置</div>
                         <div id="asr-test-btn" style="flex:1;background:var(--st-paper-cool,#eef0f5);color:var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">测试连接</div>
                     </div>
                     <div id="asr-test-result" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;text-align:center;min-height:16px;"></div>
@@ -4244,7 +4251,7 @@ let visionCfg = {};
                         style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:10px 12px;font-size:17px;margin-bottom:12px;outline:none;">
                     <div style="display:flex;gap:8px;">
                         <div id="mm-cancel-add" style="flex:1;background:var(--st-paper-cool,#eef0f5);color:var(--st-ink-60,rgba(30,39,72,.6));text-align:center;padding:10px;border-radius:10px;font-size:17px;cursor:pointer;">取消</div>
-                        <div id="mm-confirm-add" style="flex:2;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">确认添加</div>
+                        <div id="mm-confirm-add" style="flex:2;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);text-align:center;padding:10px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;">确认添加</div>
                     </div>
                     <div id="mm-add-status" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;text-align:center;min-height:16px;"></div>
                 </div>
@@ -4384,7 +4391,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         ${av ? `<img src="${av}">` : `<span>${firstChar}</span>`}
                     </div>
                     <div class="st-pf-cam">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#fffdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#1e2748" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                             <circle cx="12" cy="13" r="4"/>
                         </svg>
@@ -5809,8 +5816,8 @@ AppManager.register('beautify', (() => {
            .b-text-field::placeholder { color: var(--st-ink-40,rgba(30,39,72,.4)); }
            .b-text-field:focus { border-color: var(--st-ink,#1e2748); }
            .b-dropdown { background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver,#bfc8e0); border-radius: 8px; color: var(--st-ink,#1e2748); padding: 0 12px; height: 40px; font-size: 17px; outline: none; font-weight: 500; font-family: inherit; }
-           .b-btn-action { background: var(--st-ink,#1e2748); color: var(--st-paper,#fffdf8); border: none; border-radius: 8px; padding: 0 12px; height: 44px; font-size: 17px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
-           .b-btn-action:active { background: var(--st-ink-60,rgba(30,39,72,.6)); }
+           .sys-app-window .b-btn-action { background: var(--st-paper,#fffdf8); color: var(--st-ink,#1e2748); border: 1px solid var(--st-ink,#1e2748); border-radius: 8px; padding: 0 12px; height: 44px; font-size: 17px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
+           .b-btn-action:active { background: var(--st-silver-light,#dce2f1); }
            /* 高定预设调色卡槽阵列（色点本身是用户可选颜色内容，保留原色） */
            .b-palette-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
            .b-palette-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--st-silver-light,#dce2f1); cursor: pointer; }
@@ -5826,8 +5833,8 @@ AppManager.register('beautify', (() => {
            .b-switch input { opacity: 0; width: 0; height: 0; }
            .b-switch span { position: absolute; cursor: pointer; inset: 0; background: var(--st-silver,#bfc8e0); border-radius: 999px; transition: background 180ms ease-out; }
            .b-switch span::before { content: ''; position: absolute; left: 2px; top: 2px; width: 20px; height: 20px; background: var(--st-paper,#fffdf8); border-radius: 50%; transition: transform 180ms ease-out; }
-           .b-switch input:checked + span { background: var(--st-ink,#1e2748); }
-           .b-switch input:checked + span::before { transform: translateX(20px); }
+           .b-switch input:checked + span { background: var(--st-silver,#bfc8e0); }
+           .b-switch input:checked + span::before { transform: translateX(20px); background: var(--st-ink,#1e2748); }
            /* 画廊缩略图滚动区 */
            .b-gallery-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
            .b-gallery-item { width: 90px; height: 160px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--st-silver-light,#dce2f1); transition: transform 180ms ease-out; flex-shrink: 0; background: var(--st-paper-cool,#eef0f5); }
@@ -5848,7 +5855,7 @@ AppManager.register('beautify', (() => {
            /* 按钮组胶囊网格 */
            .b-grid-capsules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
            .b-capsule-tag { padding: 8px 4px; font-size: 13px; text-align: center; background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver,#bfc8e0); border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--st-ink,#1e2748); }
-           .b-capsule-tag.active { background: var(--st-ink,#1e2748); color: var(--st-paper,#fffdf8); border-color: var(--st-ink,#1e2748); }
+           .b-capsule-tag.active { background: var(--st-silver-light,#dce2f1); color: var(--st-ink,#1e2748); border-color: var(--st-ink,#1e2748); }
            /* 精致小组件陈列室 (双列宽距排布) */
            .b-widgets-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-top: 6px; }
            .b-widget-shell { display: flex; flex-direction: column; align-items: center; }
@@ -5883,8 +5890,8 @@ AppManager.register('beautify', (() => {
               .b-home-row:active { background: var(--st-ink-08,rgba(30,39,72,.08)); }
               .b-home-row-icon { width: 28px; height: 28px; border-radius: 8px;
                   display: flex; align-items: center; justify-content: center;
-                  margin-right: 12px; color: var(--st-paper,#fffdf8); flex-shrink: 0; background: var(--st-ink,#1e2748); }
-              .b-home-row-icon svg { width: 17px; height: 17px; stroke: var(--st-paper,#fffdf8); }
+                  margin-right: 12px; color: var(--st-ink,#1e2748); flex-shrink: 0; background: var(--st-silver-light,#dce2f1); }
+              .b-home-row-icon svg { width: 17px; height: 17px; stroke: var(--st-ink,#1e2748); }
               .b-home-row-text { flex: 1; min-width: 0; }
               .b-home-row-title { font-size: 17px; color: var(--st-ink,#1e2748); }
               .b-home-row-sub { font-size: 13px; color: var(--st-ink-60,rgba(30,39,72,.6)); margin-top: 1px; }
@@ -5936,7 +5943,7 @@ AppManager.register('beautify', (() => {
                   <div class="b-home-section-title">外观</div>
                   <div class="b-home-group">
                       <div class="b-home-row" onclick="window.BeautifyEngine.switchPage('wallpaper')">
-                          <div class="b-home-row-icon" style="background:var(--st-ink,#1e2748);">
+                          <div class="b-home-row-icon" style="background:var(--st-silver-light,#dce2f1);">
                               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                           </div>
                           <div class="b-home-row-text">
@@ -5946,7 +5953,7 @@ AppManager.register('beautify', (() => {
                           <div class="b-home-row-arrow">›</div>
                       </div>
                       <div class="b-home-row" onclick="window.BeautifyEngine.switchPage('icons')">
-                          <div class="b-home-row-icon" style="background:var(--st-ink,#1e2748);">
+                          <div class="b-home-row-icon" style="background:var(--st-silver-light,#dce2f1);">
                               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3"/></svg>
                           </div>
                           <div class="b-home-row-text">
@@ -5956,7 +5963,7 @@ AppManager.register('beautify', (() => {
                           <div class="b-home-row-arrow">›</div>
                       </div>
                       <div class="b-home-row" onclick="window.BeautifyEngine.switchPage('widgets')">
-                          <div class="b-home-row-icon" style="background:var(--st-ink,#1e2748);">
+                          <div class="b-home-row-icon" style="background:var(--st-silver-light,#dce2f1);">
                               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                           </div>
                           <div class="b-home-row-text">
@@ -5970,7 +5977,7 @@ AppManager.register('beautify', (() => {
                   <div class="b-home-section-title">微信</div>
                   <div class="b-home-group">
                       <div class="b-home-row" onclick="window.BeautifyEngine.switchPage('bubbles')">
-                          <div class="b-home-row-icon" style="background:var(--st-ink,#1e2748);">
+                          <div class="b-home-row-icon" style="background:var(--st-silver-light,#dce2f1);">
                               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                           </div>
                           <div class="b-home-row-text">
@@ -5980,7 +5987,7 @@ AppManager.register('beautify', (() => {
                           <div class="b-home-row-arrow">›</div>
                       </div>
                       <div class="b-home-row" onclick="window.BeautifyEngine.switchPage('chatbg')">
-                          <div class="b-home-row-icon" style="background:var(--st-ink,#1e2748);">
+                          <div class="b-home-row-icon" style="background:var(--st-silver-light,#dce2f1);">
                               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                           </div>
                           <div class="b-home-row-text">
@@ -5994,7 +6001,7 @@ AppManager.register('beautify', (() => {
                   <div class="b-home-section-title">系统</div>
                   <div class="b-home-group">
                       <div class="b-home-row" onclick="window.BeautifyEngine.switchPage('layout')">
-                          <div class="b-home-row-icon" style="background:var(--st-ink-60,rgba(30,39,72,.6));">
+                          <div class="b-home-row-icon" style="background:var(--st-silver-light,#dce2f1);">
                               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><line x1="4" y1="8" x2="20" y2="8"/></svg>
                           </div>
                           <div class="b-home-row-text">
@@ -6129,15 +6136,15 @@ AppManager.register('beautify', (() => {
 
            <div class="b-flex-row">
                <span>边框圆角倒角</span>
-               <input type="range" min="2" max="24" value="${BStore.bubbleRadius}" style="accent-color:var(--st-ink,#1e2748);" oninput="window.BeautifyEngine.modifyBubble('radius', this.value)" />
+               <input type="range" min="2" max="24" value="${BStore.bubbleRadius}" style="accent-color:var(--st-silver,#bfc8e0);" oninput="window.BeautifyEngine.modifyBubble('radius', this.value)" />
            </div>
            <div class="b-flex-row">
                <span>气泡大小</span>
-               <input type="range" min="5" max="18" value="${BStore.bubbleSize}" style="accent-color:var(--st-ink,#1e2748);" oninput="window.BeautifyEngine.modifyBubble('size', this.value)" />
+               <input type="range" min="5" max="18" value="${BStore.bubbleSize}" style="accent-color:var(--st-silver,#bfc8e0);" oninput="window.BeautifyEngine.modifyBubble('size', this.value)" />
            </div>
            <div class="b-flex-row">
                <span>字体内容大小</span>
-               <input type="range" min="12" max="22" value="${BStore.bubbleFontSize}" style="accent-color:var(--st-ink,#1e2748);" oninput="window.BeautifyEngine.modifyBubble('fontSize', this.value)" />
+               <input type="range" min="12" max="22" value="${BStore.bubbleFontSize}" style="accent-color:var(--st-silver,#bfc8e0);" oninput="window.BeautifyEngine.modifyBubble('fontSize', this.value)" />
            </div>
            <div class="b-flex-row">
                <span>应用范围</span>
@@ -6192,7 +6199,7 @@ AppManager.register('beautify', (() => {
            <div class="b-card-title">组件设置</div>
            <div class="b-flex-row">
                <span>大小控制</span>
-               <input type="range" min="50" max="150" value="100" style="accent-color:var(--st-ink,#1e2748);" onchange="document.documentElement.style.setProperty('--widget-scale', this.value/100)" />
+               <input type="range" min="50" max="150" value="100" style="accent-color:var(--st-silver,#bfc8e0);" onchange="document.documentElement.style.setProperty('--widget-scale', this.value/100)" />
            </div>
        </div>
 
@@ -6373,12 +6380,12 @@ AppManager.register('beautify', (() => {
                    <div style="height:14px;"></div>
                    <div class="b-flex-row" style="margin-bottom:10px;">
                        <span style="font-size:13px;">底图穿透透明度</span>
-                       <input type="range" id="b-modal-opacity" min="10" max="100" value="100" style="accent-color:var(--st-ink,#1e2748);" oninput="window.BeautifyEngine.updateModalParam('opacity', this.value)" />
+                       <input type="range" id="b-modal-opacity" min="10" max="100" value="100" style="accent-color:var(--st-silver,#bfc8e0);" oninput="window.BeautifyEngine.updateModalParam('opacity', this.value)" />
                    </div>
 
                    <div class="b-flex-row" style="margin-bottom:14px;">
                        <span style="font-size:13px;">内嵌文字缩放</span>
-                       <input type="range" id="b-modal-fontsize" min="8" max="50" value="12" style="accent-color:var(--st-ink,#1e2748);" oninput="window.BeautifyEngine.updateModalParam('fontSize', this.value)" />
+                       <input type="range" id="b-modal-fontsize" min="8" max="50" value="12" style="accent-color:var(--st-silver,#bfc8e0);" oninput="window.BeautifyEngine.updateModalParam('fontSize', this.value)" />
                    </div>
 
                    <div class="b-card-title" style="margin-bottom:6px;">目标挂载空间寻址</div>
@@ -6389,7 +6396,7 @@ AppManager.register('beautify', (() => {
 
                    <div style="display:flex;gap:10px;">
                        <button class="b-btn-action" style="background:var(--st-silver-light,#dce2f1);color:var(--st-ink,#1e2748);" onclick="window.BeautifyEngine.closeWidgetModal()">取消退回</button>
-                       <button class="b-btn-action" style="background:var(--st-ink,#1e2748);" onclick="window.BeautifyEngine.saveWidgetConfiguration()">挂载生效</button>
+                       <button class="b-btn-action" style="background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);" onclick="window.BeautifyEngine.saveWidgetConfiguration()">挂载生效</button>
                    </div>
                </div>
            </div>
@@ -30972,12 +30979,12 @@ const GlobalAPI = (() => {
         .ga-status.loading { background:var(--st-paper-cool,#eef0f5); color:var(--st-ink-60,rgba(30,39,72,.6)); }
         /* ── 底部保存按钮 ── */
         .ga-save-btn {
-            width:100%; height:44px; border-radius:8px; border:none;
-            background:var(--st-ink,#1e2748); color:var(--st-paper,#fffdf8);
+            width:100%; height:44px; border-radius:8px; border:1px solid var(--st-ink,#1e2748);
+            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748);
             font-size:17px; font-weight:500; cursor:pointer;
             margin-top:8px; font-family:inherit;
         }
-        .ga-save-btn:active { background:var(--st-ink-60,rgba(30,39,72,.6)); }
+        .ga-save-btn:active { background:var(--st-silver-light,#dce2f1); }
         /* ── 底部提示 ── */
         .ga-footer-hint {
             font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); text-align:center;
@@ -31559,7 +31566,7 @@ const PhoneModel = (() => {
             + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="pm-pf-base-' + f + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空继承全局" value="' + esc(p.baseUrl) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
             + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><input id="pm-pf-key-' + f + '" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : '留空继承全局') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
             + '<div style="padding:8px 0;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="pm-pf-model-' + f + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空继承全局" value="' + esc(p.model) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.PhoneModel.savePerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border:none;border-radius:10px;padding:11px 0;font-size:17px;">保存单独配置</button><button id="pm-pf-test-' + f + '" onclick="window.PhoneModel.testPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测试连接</button><button onclick="window.PhoneModel.clearPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:11px 0;font-size:17px;">清除单独配置</button></div>'
+            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.PhoneModel.savePerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">保存单独配置</button><button id="pm-pf-test-' + f + '" onclick="window.PhoneModel.testPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测试连接</button><button onclick="window.PhoneModel.clearPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:11px 0;font-size:17px;">清除单独配置</button></div>'
             + '</div>'
             + '<div id="pm-pf-result-' + f + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 16px 12px;line-height:1.7;white-space:pre-wrap;"></div>'
             + '</div>';
@@ -31574,7 +31581,7 @@ const PhoneModel = (() => {
         const cfg = loadCfg();
         const hasKey = !!loadKey();
         const last = lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录';
-        const featRow = (f) => '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);">' + esc(FEATURE_NAMES[f]) + '<input type="checkbox" id="pm-feat-' + f + '"' + (cfg.features[f] ? ' checked' : '') + ' onchange="window.PhoneModel.setFeature(\'' + f + '\', this.checked)" style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);"></label>';
+        const featRow = (f) => '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);">' + esc(FEATURE_NAMES[f]) + '<input type="checkbox" id="pm-feat-' + f + '"' + (cfg.features[f] ? ' checked' : '') + ' onchange="window.PhoneModel.setFeature(\'' + f + '\', this.checked)" class="st-check"></label>';
         return '<div class="st-sub" id="st-sub-model">'
             + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">接模型</div></div>'
             + '<div style="padding:16px 16px 48px;">'
@@ -31589,11 +31596,11 @@ const PhoneModel = (() => {
             + '<div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">最大 token</span><input id="pm-maxtok" type="number" min="1" value="' + esc(cfg.maxTokens) + '" style="width:80px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;font-size:17px;padding:6px 8px;text-align:right;"></div>'
             + '</div>'
             + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);font-weight:600;">总开关<input type="checkbox" id="pm-enabled"' + (cfg.enabled ? ' checked' : '') + ' onchange="window.PhoneModel.setEnabled(this.checked)" style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);"></label>'
+            + '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);font-weight:600;">总开关<input type="checkbox" id="pm-enabled"' + (cfg.enabled ? ' checked' : '') + ' onchange="window.PhoneModel.setEnabled(this.checked)" class="st-check"></label>'
             + featRow('chat') + featRow('scriptDm') + featRow('diary') + featRow('monologue') + featRow('charGen') + featRow('wenYou') + featRow('novelVn') + featRow('proactive')
             + '</div>'
             + perFeatureSectionHTML()
-            + '<div style="display:flex;gap:8px;"><button onclick="window.PhoneModel.saveFromForm()" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border:none;border-radius:10px;padding:13px 0;font-size:17px;">保存</button></div>'
+            + '<div style="display:flex;gap:8px;"><button onclick="window.PhoneModel.saveFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">保存</button></div>'
             + '<div style="display:flex;gap:8px;margin-top:8px;"><button id="pm-test-btn" onclick="window.PhoneModel.testFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">测试连接</button></div>'
             + '<div style="display:flex;gap:6px;margin-top:8px;"><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'endpoint\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测端点</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'model\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测模型</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'voice\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测语音</button></div>'
             + '<div id="ao-model-split" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:10px;line-height:1.9;"><div id="ao-test-endpoint">端点：未测</div><div id="ao-test-model">模型：未测</div><div id="ao-test-voice">语音：未测</div></div>'
@@ -32712,7 +32719,7 @@ function renderVoiceRefHTML() {
     + '<input id="ao-voice-ref-name" type="text" placeholder="给这个参考起个名字" style="width:100%;box-sizing:border-box;border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:10px 12px;font-size:17px;margin:10px 0 8px;outline:none;">'
     + '<label style="display:block;text-align:center;border:1px dashed var(--st-silver,#bfc8e0);border-radius:10px;padding:12px;font-size:13px;color:var(--st-ink,#1e2748);cursor:pointer;">选择音频文件<input id="ao-voice-ref-file" type="file" accept="audio/*" style="display:none;" onchange="window.GroupAO.onVoiceRefFile(this)"></label>'
     + '<div id="ao-voice-ref-meta" style="font-size:13px;color:var(--st-ink,#1e2748);min-height:16px;margin:8px 0;"></div>'
-    + '<button type="button" onclick="window.GroupAO.saveVoiceRefFromForm()" style="width:100%;border:0;background:var(--st-ink,#1e2748);color:#fff;border-radius:10px;padding:11px 0;font-size:17px;">保存为本地参考</button>'
+    + '<button type="button" onclick="window.GroupAO.saveVoiceRefFromForm()" style="width:100%;border:1px solid var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">保存为本地参考</button>'
     + '<div id="ao-voice-ref-status" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;text-align:center;min-height:16px;"></div>'
     + '</div>';
 }
