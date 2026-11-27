@@ -462,7 +462,7 @@ var x = 96 + i * 16; /* 木牌横向只排在树冠正下方（树冠 x 90–230
 var y = 78 + (i % 2) * 12;
 var col = d.sealed? '#d8a93c': '#caa06e';
 var label = String(d.date || '').slice(5) || String(d.date || '');
-hangs += '<g class="gm-mt-hang" data-gm-date="' + esc(d.date) + '"><rect x="' + (x + 14) + '" y="56" width="2" height="' + (y - 56) + '" fill="#7a4a28"/><rect x="' + x + '" y="' + y + '" width="30" height="18" fill="' + col + '"/><text x="' + (x + 15) + '" y="' + (y + 12) + '" font-size="8" fill="#fff8ea" text-anchor="middle">' + esc(label) + '</text></g>';
+hangs += '<g class="gm-mt-hang" data-gm-date="' + esc(d.date) + '"><rect x="' + (x + 14) + '" y="50" width="2" height="' + (y - 50) + '" fill="#7a4a28"/><rect x="' + x + '" y="' + y + '" width="30" height="18" fill="' + col + '"/><text x="' + (x + 15) + '" y="' + (y + 12) + '" font-size="8" fill="#fff8ea" text-anchor="middle">' + esc(label) + '</text></g>'; /* 吊绳顶端 y=50：伸进树冠底带（y 34–56）6px 重叠，不再是 y=56 边缘相接——边缘相接在小屏上看着像悬空；重叠 6px 后肉眼一看就是系在树冠上 */
 });
 return '<div class="gm-mt-tree-svg"><svg class="gm-mt-tree-draw" viewBox="0 0 320 148" shape-rendering="crispEdges" aria-label="记忆树">'
 + '<rect x="0" y="138" width="320" height="10" fill="#8a5a2e"/>'
