@@ -15,7 +15,7 @@ var THEME_VARS = ['--wx-accent', '--wx-theme-color', '--wx-bg', '--wx-bg-page', 
 var BUBBLE_VARS = ['--wx-bubble-self-bg', '--wx-bubble-self-color', '--wx-bubble-friend-bg', '--wx-bubble-friend-color', '--wx-bubble-radius'];
 var THEMES = [
   { id: 'wechat-green', name: '默认微信绿', desc: '经典 #07C160 + 白底 + 绿气泡', scope: '微信全部页面', vars: { '--wx-accent': '#07c160', '--wx-theme-color': '#07c160', '--wx-bg': '#ededed', '--wx-bg-page': '#ffffff', '--wx-bg-card': '#ffffff', '--wx-text': '#111111', '--wx-dim': '#888888', '--wx-line': '#e5e5e5', '--wx-chat-bg': '#ededed', '--wx-bg-self': '#95ec69', '--wx-bg-friend': '#ffffff' } },
-  { id: 'guichao-white', name: '归巢白', desc: '极简白灰，与手机归巢风格一致', scope: '微信全部页面', vars: { '--wx-accent': '#34363b', '--wx-theme-color': '#34363b', '--wx-bg': '#f7f7f8', '--wx-bg-page': '#ffffff', '--wx-bg-card': '#ffffff', '--wx-text': '#25262a', '--wx-dim': '#8a8b90', '--wx-line': '#ececef', '--wx-chat-bg': '#f7f7f8', '--wx-bg-self': '#34363b', '--wx-bg-friend': '#f7f7f8' } },
+  { id: 'guichao-white', name: '归巢白', desc: '极简白灰，与手机归巢风格一致', scope: '微信全部页面', vars: { '--wx-accent': '#000000', '--wx-theme-color': '#000000', '--wx-bg': '#f9f9f9', '--wx-bg-page': '#ffffff', '--wx-bg-card': '#ffffff', '--wx-text': '#171717', '--wx-dim': '#6e6e6e', '--wx-line': '#e5e5e5', '--wx-chat-bg': '#f9f9f9', '--wx-bg-self': '#000000', '--wx-bg-friend': '#f4f4f4' } },
   { id: 'dark-night', name: '深色夜间', desc: '与微信夜间模式同一套（AV 组）', scope: '微信全部页面', vars: { '--wx-accent': '#07c160', '--wx-theme-color': '#07c160', '--wx-bg': '#111111', '--wx-bg-page': '#1c1c1e', '--wx-bg-card': '#2c2c2e', '--wx-text': '#f2f2f0', '--wx-dim': '#8e8e93', '--wx-line': '#2c2c2e', '--wx-chat-bg': '#111111', '--wx-bg-self': '#3eb575', '--wx-bg-friend': '#2c2c2c' } },
   { id: 'cream-retro', name: '奶油复古', desc: '米白底 + 暖金点缀，与信件复古风呼应', scope: '微信全部页面', vars: { '--wx-accent': '#b08d3e', '--wx-theme-color': '#b08d3e', '--wx-bg': '#f3ead6', '--wx-bg-page': '#fdf9f0', '--wx-bg-card': '#fffdf6', '--wx-text': '#3d3325', '--wx-dim': '#9a8f7a', '--wx-line': '#e8ddc8', '--wx-chat-bg': '#f3ead6', '--wx-bg-self': '#e8c97a', '--wx-bg-friend': '#fffdf6' } },
   { id: 'morandi-mist', name: '莫兰迪柔雾', desc: '低饱和灰粉 / 灰绿', scope: '微信全部页面', vars: { '--wx-accent': '#7d8b7a', '--wx-theme-color': '#7d8b7a', '--wx-bg': '#e9e7e4', '--wx-bg-page': '#f4f2f0', '--wx-bg-card': '#fbf9f8', '--wx-text': '#4a4a48', '--wx-dim': '#8f8b88', '--wx-line': '#ddd8d3', '--wx-chat-bg': '#e9e7e4', '--wx-bg-self': '#a8b5a0', '--wx-bg-friend': '#fbf9f8' } },
@@ -23,7 +23,7 @@ var THEMES = [
 ];
 var BUBBLES = [
   { id: 'classic-green', name: '经典绿', selfBg: '#07c160', selfColor: '#ffffff', friendBg: '#ffffff', friendColor: '#1a1a1a', radius: 5, tail: true },
-  { id: 'guichao-grey', name: '归巢白灰', selfBg: '#34363b', selfColor: '#ffffff', friendBg: '#f7f7f8', friendColor: '#25262a', radius: 12, tail: false },
+  { id: 'guichao-grey', name: '归巢白灰', selfBg: '#000000', selfColor: '#ffffff', friendBg: '#f4f4f4', friendColor: '#171717', radius: 12, tail: false },
   { id: 'cream-yellow', name: '奶油黄', selfBg: '#f5c542', selfColor: '#4a3600', friendBg: '#fff8e7', friendColor: '#3d3325', radius: 14, tail: true },
   { id: 'morandi', name: '莫兰迪', selfBg: '#9aa88f', selfColor: '#ffffff', friendBg: '#e5d3d6', friendColor: '#4a4a48', radius: 12, tail: false },
   { id: 'midnight-blue', name: '深夜蓝', selfBg: '#24478f', selfColor: '#ffffff', friendBg: '#3a3a3e', friendColor: '#f2f2f0', radius: 8, tail: true },

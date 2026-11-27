@@ -55,12 +55,12 @@
            GROUP-FIX13：maison-des-mots 规范色板（--mdm-*）是纸感主题的唯一色板来源，--app-* 按主题从它映射。
            例外不收敛：微信仿真绿 #07C160、此刻立体书暖色渐变与房间配色。） */
         --app-bg: #ffffff;
-        --app-surface: #f7f7f8;
+        --app-surface: #f9f9f9;
         --app-card: #ffffff;
-        --app-text: #25262a;
-        --app-muted: #8a8b91;
-        --app-line: #ececef;
-        --app-accent: #34363b;
+        --app-text: #171717;
+        --app-muted: #6e6e6e;
+        --app-line: #e5e5e5;
+        --app-accent: #000000;
         --app-accent-soft: #a8d8b9;
         --app-radius: 12px;
         /* GROUP-FIX13 · maison-des-mots-skill（MIT）规范色板：全手机纸感主题的唯一

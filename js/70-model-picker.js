@@ -1,15 +1,65 @@
-/* 小未来 · WeChat API 模型触屏选择器
- * 原生 #wx-edit-api-model 仍是唯一值源；本脚本只提供触摸/键盘交互层。
+/* 小未来 · WeChat / 全局 API 模型触屏选择器
+ * 原生 select（#wx-edit-api-model / #ga-model）仍是唯一值源；本脚本只提供触摸/键盘交互层。
+ * 两级选择：先选供应商（DeepSeek、OpenAI、Anthropic……），点进去再选型号；
+ * 供应商按模型 id 前缀推断，认不出的进「其他」。
  */
 (function () {
   'use strict';
 
-  var SELECTOR = '#wx-edit-api-model';
+  var SELECTORS = '#wx-edit-api-model, #ga-model';
   var WRAPPER_CLASS = 'wx-model-picker-field';
   var TRIGGER_CLASS = 'wx-model-picker-trigger';
   var PANEL_ID = 'wx-api-model-picker';
   var activeSelect = null;
-  var optionObserver = null;
+
+  /* 供应商顺序：DeepSeek 在最前；「其他」永远最后 */
+  var PROVIDER_ORDER = ['deepseek', 'openai', 'anthropic', 'google', 'qwen', 'moonshot', 'glm', 'yi', 'minimax', 'xai', 'meta', 'mistral', 'other'];
+  var PROVIDERS = {
+    deepseek: 'DeepSeek',
+    openai: 'OpenAI',
+    anthropic: 'Anthropic',
+    google: 'Google',
+    qwen: '通义千问',
+    moonshot: 'Moonshot',
+    glm: '智谱',
+    yi: '零一万物',
+    minimax: 'MiniMax',
+    xai: 'xAI',
+    meta: 'Meta',
+    mistral: 'Mistral',
+    other: '其他'
+  };
+
+  function providerOf(value) {
+    var v = String(value || '').toLowerCase();
+    if (/^deepseek/.test(v)) return 'deepseek';
+    if (/^(gpt-|o1|o3)/.test(v)) return 'openai';
+    if (/^claude/.test(v)) return 'anthropic';
+    if (/^gemini/.test(v)) return 'google';
+    if (/^qwen/.test(v)) return 'qwen';
+    if (/^moonshot/.test(v)) return 'moonshot';
+    if (/^glm/.test(v)) return 'glm';
+    if (/^yi[-_]/.test(v)) return 'yi';
+    if (/^abab/.test(v)) return 'minimax';
+    if (/^grok/.test(v)) return 'xai';
+    if (/^llama/.test(v)) return 'meta';
+    if (/^mistral/.test(v)) return 'mistral';
+    return 'other';
+  }
+
+  /* 按供应商分组；空 value 的占位项（「点击选择或拉取」）不是模型，不进列表 */
+  function groupModels(select) {
+    var groups = {};
+    Array.prototype.forEach.call(select.options || [], function (option) {
+      var value = option.value;
+      if (!value) return;
+      var pid = providerOf(value);
+      if (!groups[pid]) groups[pid] = [];
+      groups[pid].push({ value: value, label: option.textContent || value });
+    });
+    return PROVIDER_ORDER.filter(function (pid) { return groups[pid] && groups[pid].length; })
+      .map(function (pid) { return { id: pid, name: PROVIDERS[pid], models: groups[pid] }; });
+  }
 
   function getOptions(select) {
     return Array.prototype.map.call(select.options || [], function (option) {
@@ -52,6 +102,40 @@
     return mark;
   }
 
+  /* 列表内键盘导航：上下/Home/End 移动，Esc 关闭（对供应商级和型号级都适用） */
+  function attachNav(button, list) {
+    button.addEventListener('keydown', function (event) {
+      var buttons = Array.prototype.slice.call(list.querySelectorAll('button'));
+      var position = buttons.indexOf(button);
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        var next = event.key === 'ArrowDown' ? position + 1 : position - 1;
+        if (next < 0) next = buttons.length - 1;
+        if (next >= buttons.length) next = 0;
+        buttons[next].focus();
+      } else if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        buttons[event.key === 'Home' ? 0 : buttons.length - 1].focus();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        closePicker();
+      }
+    });
+  }
+
+  function makeOptionButton(list, label, isCurrent) {
+    var option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'fb-model-option wx-model-picker-option';
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-selected', String(!!isCurrent));
+    option.setAttribute('tabindex', isCurrent ? '0' : '-1');
+    option.appendChild(document.createTextNode(label));
+    option.appendChild(checkMark(!!isCurrent));
+    attachNav(option, list);
+    return option;
+  }
+
   function openPicker(select, trigger) {
     closePicker();
     activeSelect = select;
@@ -78,10 +162,8 @@
     var title = document.createElement('div');
     title.id = PANEL_ID + '-title';
     title.className = 'fb-sheet-title';
-    title.textContent = '选择 API 模型';
     var current = document.createElement('div');
     current.className = 'fb-sheet-current';
-    current.textContent = '当前：' + (selectedOption(select)?.textContent || '未选择');
     titleWrap.appendChild(title);
     titleWrap.appendChild(current);
     head.appendChild(titleWrap);
@@ -99,51 +181,88 @@
     list.className = 'fb-model-list wx-model-picker-list';
     list.setAttribute('role', 'listbox');
     list.setAttribute('aria-label', 'API 模型列表');
-    var options = getOptions(select);
-    options.forEach(function (item, index) {
-      var option = document.createElement('button');
-      option.type = 'button';
-      option.className = 'fb-model-option wx-model-picker-option';
-      option.dataset.value = item.value;
-      option.setAttribute('role', 'option');
-      option.setAttribute('aria-selected', String(select.value === item.value));
-      option.setAttribute('tabindex', select.value === item.value ? '0' : '-1');
-      option.appendChild(document.createTextNode(item.label));
-      option.appendChild(checkMark(select.value === item.value));
-      option.addEventListener('click', function () {
-        select.value = item.value;
-        select.dispatchEvent(new Event('input', { bubbles: true }));
-        select.dispatchEvent(new Event('change', { bubbles: true }));
-        updateTrigger(select);
-        closePicker();
-      });
-      option.addEventListener('keydown', function (event) {
-        var buttons = Array.prototype.slice.call(list.querySelectorAll('button'));
-        var position = buttons.indexOf(option);
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-          event.preventDefault();
-          var next = event.key === 'ArrowDown' ? position + 1 : position - 1;
-          if (next < 0) next = buttons.length - 1;
-          if (next >= buttons.length) next = 0;
-          buttons[next].focus();
-        } else if (event.key === 'Home' || event.key === 'End') {
-          event.preventDefault();
-          buttons[event.key === 'Home' ? 0 : buttons.length - 1].focus();
-        } else if (event.key === 'Escape') {
-          event.preventDefault();
-          closePicker();
-        }
-      });
-      list.appendChild(option);
-      if (index === 0 && select.selectedIndex < 0) option.tabIndex = 0;
-    });
-    if (!options.length) {
-      var empty = document.createElement('div');
-      empty.className = 'wx-model-picker-empty';
-      empty.textContent = '暂无模型，请先拉取模型';
-      list.appendChild(empty);
-    }
     sheet.appendChild(list);
+
+    var groups = groupModels(select);
+
+    function setHead(levelTitle) {
+      title.textContent = levelTitle;
+      current.textContent = '当前：' + (selectedOption(select)?.textContent || '未选择');
+    }
+
+    function focusSelected() {
+      var selectedButton = list.querySelector('[aria-selected="true"]') || list.querySelector('button');
+      if (selectedButton) selectedButton.focus({ preventScroll: true });
+    }
+
+    /* 第一级：供应商列表（带各家模型数量） */
+    function renderProviders() {
+      setHead('选择供应商');
+      list.setAttribute('aria-label', '供应商列表');
+      list.innerHTML = '';
+      if (!groups.length) {
+        var empty = document.createElement('div');
+        empty.className = 'wx-model-picker-empty';
+        empty.textContent = '暂无模型，请先拉取模型';
+        list.appendChild(empty);
+        return;
+      }
+      groups.forEach(function (group) {
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'fb-model-option wx-model-picker-option wx-model-picker-provider';
+        row.setAttribute('role', 'option');
+        row.setAttribute('aria-selected', String(group.models.some(function (m) { return select.value === m.value; })));
+        row.setAttribute('tabindex', '-1');
+        var name = document.createElement('span');
+        name.className = 'wx-model-picker-label';
+        name.textContent = group.name;
+        var count = document.createElement('span');
+        count.className = 'wx-model-picker-count';
+        count.textContent = group.models.length + ' 个模型';
+        var chevron = document.createElement('span');
+        chevron.className = 'wx-model-picker-chevron';
+        chevron.setAttribute('aria-hidden', 'true');
+        chevron.textContent = '›';
+        row.appendChild(name);
+        row.appendChild(count);
+        row.appendChild(chevron);
+        attachNav(row, list);
+        row.addEventListener('click', function () { renderModels(group); });
+        list.appendChild(row);
+      });
+      focusSelected();
+    }
+
+    /* 第二级：某家供应商的型号列表，顶部可返回供应商 */
+    function renderModels(group) {
+      setHead(group.name);
+      list.setAttribute('aria-label', group.name + ' 模型列表');
+      list.innerHTML = '';
+      var back = document.createElement('button');
+      back.type = 'button';
+      back.className = 'fb-model-option wx-model-picker-option wx-model-picker-back';
+      back.textContent = '‹ 全部供应商';
+      attachNav(back, list);
+      back.addEventListener('click', renderProviders);
+      list.appendChild(back);
+      group.models.forEach(function (item, index) {
+        var option = makeOptionButton(list, item.label, select.value === item.value);
+        option.dataset.value = item.value;
+        option.addEventListener('click', function () {
+          select.value = item.value;
+          select.dispatchEvent(new Event('input', { bubbles: true }));
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          updateTrigger(select);
+          closePicker();
+        });
+        list.appendChild(option);
+        if (index === 0 && select.selectedIndex < 0) option.tabIndex = 0;
+      });
+      focusSelected();
+    }
+
+    renderProviders();
     panel.appendChild(sheet);
 
     panel.addEventListener('click', function (event) {
@@ -157,8 +276,6 @@
     });
     (document.getElementById('sys-shell') || document.body).appendChild(panel);
     trigger.setAttribute('aria-expanded', 'true');
-    var selectedButton = list.querySelector('[aria-selected="true"]') || list.querySelector('button');
-    if (selectedButton) selectedButton.focus({ preventScroll: true });
   }
 
   function enhance(select) {
@@ -183,18 +300,20 @@
     select.addEventListener('change', function () { updateTrigger(select); });
     updateTrigger(select);
 
-    if (optionObserver) optionObserver.disconnect();
-    optionObserver = new MutationObserver(function () {
+    /* 每个 select 各自的观察器：选项变化时刷新触发器文字，打开中则关掉重选 */
+    if (select._wxModelPickerObserver) select._wxModelPickerObserver.disconnect();
+    var observer = new MutationObserver(function () {
       updateTrigger(select);
       var panel = document.getElementById(PANEL_ID);
       if (panel && activeSelect === select) closePicker();
     });
-    optionObserver.observe(select, { childList: true, subtree: true, characterData: true });
+    observer.observe(select, { childList: true, subtree: true, characterData: true });
+    select._wxModelPickerObserver = observer;
   }
 
   function scan() {
-    var select = document.querySelector(SELECTOR);
-    if (select) enhance(select);
+    var selects = document.querySelectorAll(SELECTORS);
+    Array.prototype.forEach.call(selects, enhance);
   }
 
   scan();

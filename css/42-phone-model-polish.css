@@ -430,3 +430,9 @@
 #wx-api-model-picker .fb-model-option:last-child { border-bottom: 0; }
 #wx-api-model-picker .fb-model-option:active { background: #f4f7f9; }
 #wx-api-model-picker .fb-model-option:focus-visible { outline: 2px solid #178f68; outline-offset: -2px; border-radius: 10px; }
+
+/* 两级选择：供应商行（名字 + 数量 + 箭头）与返回行 */
+#wx-api-model-picker .wx-model-picker-provider .wx-model-picker-label { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+#wx-api-model-picker .wx-model-picker-count { flex: 0 0 auto; color: #777d85; font-size: 12px; }
+#wx-api-model-picker .wx-model-picker-provider .wx-model-picker-chevron { flex: 0 0 auto; color: #77808a; font-size: 19px; line-height: 1; }
+#wx-api-model-picker .wx-model-picker-back { min-height: 44px; color: #4d5966; font-size: 13px; justify-content: flex-start; }

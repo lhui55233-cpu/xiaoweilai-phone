@@ -3474,7 +3474,7 @@ AppManager.register('settings', (() => {
         (foot ? `<div class="st-foot">${foot}</div>` : '');
 
     const styleBlock = `<style>
-        .st-root, .st-sub { --st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12) }
+        .st-root, .st-sub { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12) }
         .st-root { width:100%; height:100%; background:var(--st-paper,#fffdf8); overflow-y:auto;
             font-family:"Noto Serif SC","Songti SC",serif;
             -webkit-overflow-scrolling:touch; position:relative; color:var(--st-ink,#1e2748); }
@@ -3521,7 +3521,7 @@ AppManager.register('settings', (() => {
         /* 自定义复选框（设置页）：纸底 + 1px 墨边框；:checked 时用背景图画墨色对勾（input 无伪元素） */
         .st-check { -webkit-appearance:none; appearance:none; width:20px; height:20px; flex-shrink:0; margin:0; padding:0; cursor:pointer;
             background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink,#1e2748); border-radius:4px; }
-        .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e2748' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
+        .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
         .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; line-height:1.4; }
         .st-row.danger .st-label { color:var(--st-danger,#7c2d2d); }
         .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); }
@@ -3719,7 +3719,7 @@ AppManager.register('settings', (() => {
         <div class="st-root" id="st-root">
             <div class="st-statusbar"></div>
             <div class="st-home-backrow" onclick="(window.NavigationManager?NavigationManager.back():AppManager.minimize())">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#1e2748" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#171717" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                 <span>返回桌面</span>
             </div>
             <div class="st-bigtitle">设置</div>
@@ -3752,18 +3752,8 @@ AppManager.register('settings', (() => {
             ])}
             <div class="st-gap"></div>
             ${GROUP([
-                ROW(ICON('var(--st-ink,#1e2748)', I.wallpaper), '壁纸', {act:'b_wallpaper'}),
-                ROW(ICON('#5856D6', I.iconStyle), '应用图标', {act:'b_icons'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '桌面组件', {act:'b_widgets'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '小组件商店', {act:'ac_widgets'}),
-                ROW(ICON('#07C160', I.bubble), '聊天气泡', {act:'b_bubbles'}),
-                ROW(ICON('#FF2D55', I.chatbg), '页面背景', {act:'b_chatbg'}),
-                ROW(ICON('var(--st-ink-60,rgba(30,39,72,.6))', I.layout), '布局与状态栏', {act:'b_layout'}),
-                ROW(ICON('#5856D6', I.summary), '深色主题', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');return p.theme==='gruvbox-dark'?'Gruvbox 深色':(p.theme==='guichao-dark'?'归巢深色':'归巢白（默认）');}catch(e){return '归巢白（默认）';}})(), act:'af_theme'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '圆体字体', {value: (()=>{try{return localStorage.getItem('af_round_font_v1')==='1'?'已开启':'关闭';}catch(e){return '关闭';}})(), act:'af_roundfont'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
-            ], '外观与美化：壁纸、图标、桌面组件、聊天气泡等全部在此设置。')}
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题美化', {value:'壁纸、图标、聊天气泡等', act:'beauty'})
+            ], '壁纸、图标、桌面组件、聊天气泡等都在主题美化里。')}
             <div class="st-gap"></div>
             ${GROUP([
                 ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '桌面与外观', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');var t={light:'浅色',dark:'深色',auto:'跟随系统'}[p.theme||'light']||'浅色';return t+' · '+(p.petEnabled===false?'桌宠关':'桌宠开');}catch(e){return '浅色';}})(), act:'w_desktop'}),
@@ -3872,7 +3862,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-membackup">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">记忆备份</div>
@@ -3908,7 +3898,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-banwords">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">禁词管理</div>
@@ -3938,7 +3928,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-passcode">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">锁屏密码</div>
@@ -3989,7 +3979,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-motion">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">动效与省电</div>
@@ -4010,6 +4000,37 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         </div>`;
     };
 
+
+    // ── 主题美化汇总子页：壁纸/图标/组件/气泡等都在这里，不单开 app；
+    //    各行沿用原来在设置首页的 act 与取值，点进行为一点没变。
+    const renderBeautySub = () => {
+        return `
+        <div class="st-sub" id="st-sub-beauty">
+            <div class="st-sub-bar">
+                <div class="st-sub-back" data-back="1">
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    设置
+                </div>
+                <div class="st-sub-title">主题美化</div>
+            </div>
+            <div class="st-bigtitle" style="padding-top:4px;">主题美化</div>
+            ${GROUP([
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '壁纸', {act:'b_wallpaper'}),
+                ROW(ICON('#5856D6', I.iconStyle), '应用图标', {act:'b_icons'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面组件', {act:'b_widgets'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '小组件商店', {act:'ac_widgets'}),
+                ROW(ICON('#07C160', I.bubble), '聊天气泡', {act:'b_bubbles'}),
+                ROW(ICON('#FF2D55', I.chatbg), '页面背景', {act:'b_chatbg'}),
+                ROW(ICON('var(--st-ink-60,rgba(23,23,23,.6))', I.layout), '布局与状态栏', {act:'b_layout'}),
+                ROW(ICON('#5856D6', I.summary), '深色主题', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');return p.theme==='gruvbox-dark'?'Gruvbox 深色':(p.theme==='guichao-dark'?'归巢深色':'归巢白（默认）');}catch(e){return '归巢白（默认）';}})(), act:'af_theme'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '圆体字体', {value: (()=>{try{return localStorage.getItem('af_round_font_v1')==='1'?'已开启':'关闭';}catch(e){return '关闭';}})(), act:'af_roundfont'}),
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
+                ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
+            ], '外观与美化：壁纸、图标、桌面组件、聊天气泡等全部在此设置。')}
+            <div style="height:40px;"></div>
+        </div>`;
+    };
+
     // ── 灵动岛设置子页面 ──
     const renderIslandSub = () => {
         const cur = (window.IslandManager && window.IslandManager.get()) || { width:122, height:36, top:0, radius:999, offsetX:0 };
@@ -4017,7 +4038,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-island">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">灵动岛</div>
@@ -4101,7 +4122,7 @@ let visionCfg = {};
             ? voices.map((v,i) => `
                 <div class="st-row" style="padding:14px 16px;">
                     <div style="width:40px;height:40px;border-radius:50%;background:var(--st-silver-light,#dce2f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <svg viewBox="0 0 24 24" width="18" fill="#1e2748"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4" stroke="#1e2748" stroke-width="2" fill="none"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" fill="#171717"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4" stroke="#171717" stroke-width="2" fill="none"/></svg>
                     </div>
                     <div style="flex:1;margin-left:12px;min-width:0;">
                         <div style="font-size:17px;color:var(--st-ink,#1e2748);font-weight:500;">${v.name || '未命名音色'}</div>
@@ -4124,7 +4145,7 @@ let visionCfg = {};
         <div class="st-sub" id="st-sub-voice">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">克隆音色</div>
@@ -4324,7 +4345,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
         <div class="st-sub" id="st-sub-token">
             <div class="st-sub-bar st-sub-bar-solid">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">Token 统计与分析</div>
@@ -4401,7 +4422,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
         <div class="st-sub" id="st-sub-profile">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">我的账户</div>
@@ -4415,7 +4436,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         ${av ? `<img src="${av}">` : `<span>${firstChar}</span>`}
                     </div>
                     <div class="st-pf-cam">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#1e2748" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                             <circle cx="12" cy="13" r="4"/>
                         </svg>
@@ -5414,6 +5435,17 @@ win.addEventListener('change', (e) => {
                 if (window.GroupAO) window.GroupAO.pinFlow('toggle', win);
                 break;
             }
+            case 'beauty': {
+                // 主题美化汇总子页：每次打开重新渲染，行上的取值（深色主题/圆体字体/主题名）保持最新
+                let sub = win.querySelector('#st-sub-beauty');
+                if (sub) sub.remove();
+                const tmp = document.createElement('div');
+                tmp.innerHTML = renderBeautySub();
+                sub = tmp.firstElementChild;
+                win.appendChild(sub);
+                requestAnimationFrame(() => sub.classList.add('show'));
+                break;
+            }
             case 'motion': {
                 // [AO] 动效与省电子页：常驻环境动效默认关，转场只用原生 CSS
                 let sub = win.querySelector('#st-sub-motion');
@@ -5790,7 +5822,7 @@ AppManager.register('beautify', (() => {
    // 2. 内部高度密封的视图装配输出层
    const renderView = () => `
        <style>
-           .b-sandbox-core { --st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12);
+           .b-sandbox-core { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
                width: 100%; height: 100%;
                background: var(--st-paper,#fffdf8);
                color: var(--st-ink,#1e2748);
@@ -6173,8 +6205,8 @@ AppManager.register('beautify', (() => {
                <div class="b-widget-shell">
                    <div class="b-widget-viewport" onclick="window.BeautifyEngine.openWidgetModal('gameboy')" style="background: #FAFAFA;">
                        <svg width="100%" height="100%" viewBox="0 0 100 100" style="position:absolute; top:4px; left:0;">
-                           <path id="b-gb-shell" d="M12 4 L88 4 C94 4 96 6 96 12 L96 82 C96 92 88 96 78 96 L22 96 C12 96 4 92 4 82 L4 12 C4 6 6 4 12 4 Z" fill="${BStore.widgets.gameboy.color}" stroke="#1e2748" stroke-width="1.5"/>
-                           <rect x="15" y="16" width="70" height="46" rx="6" fill="#3A3A3C" stroke="#1e2748" stroke-width="1.5" />
+                           <path id="b-gb-shell" d="M12 4 L88 4 C94 4 96 6 96 12 L96 82 C96 92 88 96 78 96 L22 96 C12 96 4 92 4 82 L4 12 C4 6 6 4 12 4 Z" fill="${BStore.widgets.gameboy.color}" stroke="#171717" stroke-width="1.5"/>
+                           <rect x="15" y="16" width="70" height="46" rx="6" fill="#3A3A3C" stroke="#171717" stroke-width="1.5" />
                        </svg>
                        <div style="position:absolute; top:20.5%; left:22.5%; width:55%; height:37%; border-radius:3px; overflow:hidden; z-index:5; background:#D4D9D2; display:flex; align-items:center; justify-content:center;">
                            <img id="b-preview-thumb-gameboy" src="${BStore.widgets.gameboy.img}" style="width:100%;height:100%;object-fit:cover; opacity:${BStore.widgets.gameboy.opacity/100};" />
@@ -17543,7 +17575,7 @@ const petStep = (st, dtMs, o) => {
 // 皮肤 overlay 说明：M 组重建 innerHTML 会清掉 overlay，本组在 tick 里补回；
 // 'cutout' 皮肤优先用 M 组已渲染的抠图 img，没有才用本组上传的图 overlay。
 const GW_CSS = '.gw-hidden{display:none!important}' +
-'#st-sub-w-desktop{--st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12)}' +
+'#st-sub-w-desktop{--st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12)}' +
 '#gw-desk{position:absolute;right:6px;bottom:106px;width:132px;z-index:4;pointer-events:auto}' + /* GROUP-FIX2: 书桌 180 -> 132px，底边抬到 dock 上方 */
 '#gw-desk .gw-desk-top{height:8px;background:#e8e0d5;border:1px solid #d8cfc2;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.12)}' +
 '#gw-desk .gw-monitor{width:60px;margin:0 auto 2px;text-align:center}' + /* GROUP-FIX2: 状态显示器随书桌缩小 */
@@ -18331,7 +18363,7 @@ const openDesktopSettings = (win) => {
     let sub = host.querySelector('#st-sub-w-desktop');
     if (!sub) {
       const tmp = document.createElement('div');
-      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌面与外观</div></div><div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
+      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌面与外观</div></div><div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
       sub = tmp.firstElementChild;
       host.appendChild(sub);
       sub.addEventListener('click', (e) => {
@@ -23061,7 +23093,7 @@ AppManager.register('forum', (() => {
         return `
             <div class="fm-d-bar">
                 <div class="fm-d-back" data-detail-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     返回
                 </div>
                 <div class="fm-d-bartitle">帖子详情</div>
@@ -30253,7 +30285,7 @@ AppManager.register('nobeidanci', (() => {
                            <div style="font-size:11px;color:#46536f;margin-top:4px;font-weight:bold;">内置 5 词 · 可导入扩充</div>
                        </div>
                        <div style="width:46px;height:46px;border-radius:14px;background:#dce2f1;display:flex;align-items:center;justify-content:center;border:1px solid rgba(30,39,72,0.16);">
-                           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1e2748" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H12v18H6.5A2.5 2.5 0 0 1 4 19.5Z"></path>
                                <path d="M20 19.5v-15A2.5 2.5 0 0 0 17.5 2H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5Z"></path>
                            </svg>
@@ -31209,6 +31241,9 @@ const GlobalAPI = (() => {
     const pSave = () => { try { localStorage.setItem(PKEY, JSON.stringify(presets)); } catch(e){} };
     pLoad();
 
+    // 预设名/模型名是用户手输的，插进 HTML 前转义
+    const escHtml = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
     // 热门模型列表（拉取失败时的兜底 / 也用于快速选择）
     const POPULAR_MODELS = [
         'deepseek-chat','deepseek-reasoner','deepseek-v3',
@@ -31229,7 +31264,7 @@ const GlobalAPI = (() => {
         s.id = 'global-api-css';
         s.textContent = `
         /* ── GlobalAPI 全屏子页面 ── */
-        .ga-page { --st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12);
+        .ga-page { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
             position:fixed; inset:0; z-index:95000;
             background:var(--st-paper,#fffdf8);
             transform:translateX(100%);
@@ -31346,6 +31381,13 @@ const GlobalAPI = (() => {
             font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); text-align:center;
             margin-top:16px; line-height:1.5;
         }
+        /* ── 模型选择器（两级：供应商 → 型号；原生 #ga-model 仍是唯一值源）── */
+        .ga-select-wrap .wx-model-picker-field { flex:1; display:flex; min-width:0; }
+        .ga-select-wrap .wx-model-picker-field > select { position:absolute !important; width:1px !important; height:1px !important; overflow:hidden !important; clip:rect(0 0 0 0) !important; border:0 !important; }
+        .ga-page .wx-model-picker-trigger { flex:1; display:flex; align-items:center; justify-content:flex-end; gap:4px; min-width:0; background:transparent; border:none; padding:0; font-size:17px; color:var(--st-ink,#171717); font-family:inherit; cursor:pointer; text-align:right; }
+        .ga-page .wx-model-picker-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ga-page .wx-model-picker-chevron { color:var(--st-ink-40,rgba(23,23,23,.4)); flex-shrink:0; }
+        .ga-select-wrap:has(.wx-model-picker-field)::after { display:none; }
         @media (prefers-reduced-motion: reduce) { .ga-page { transition:none; } }
         `;
         document.head.appendChild(s);
@@ -31367,21 +31409,14 @@ const GlobalAPI = (() => {
 
             <div id="ga-status"></div>
 
-            <!-- 预设 -->
+            <!-- 预设：点一下名字就套用，名字就是保存时起的 -->
             <div class="ga-section-title">预设配置</div>
             <div class="ga-group">
-                <div class="ga-row">
-                    <span class="ga-row-label">选择预设</span>
-                    <div class="ga-select-wrap">
-                        <select class="ga-select" id="ga-preset">
-                            <option value="">-- 选择预设 --</option>
-                        </select>
-                    </div>
-                </div>
                 <div class="ga-row">
                     <span class="ga-row-label">保存当前为预设</span>
                     <button class="ga-inline-btn" id="ga-save-preset">保存预设</button>
                 </div>
+                <div id="ga-preset-list"></div>
             </div>
 
             <!-- 连接配置 -->
@@ -31414,7 +31449,7 @@ const GlobalAPI = (() => {
                         <span class="ga-row-label">模型总开关</span>
                         <span class="ga-row-label sub">关掉后全机回到模板模式</span>
                     </div>
-                    <input type="checkbox" id="ga-pm-enabled" style="width:22px;height:22px;accent-color:#1e2748;">
+                    <input type="checkbox" id="ga-pm-enabled" style="width:22px;height:22px;accent-color:#000000;">
                 </div>
                 <div class="ga-row">
                     <div class="ga-row-left">
@@ -31435,14 +31470,14 @@ const GlobalAPI = (() => {
             <!-- 按功能开关 -->
             <div class="ga-section-title">按功能开关</div>
             <div class="ga-group">
-                <div class="ga-row"><span class="ga-row-label">微信聊天</span><input type="checkbox" id="ga-pm-feat-chat" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">剧本 DM</span><input type="checkbox" id="ga-pm-feat-scriptDm" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">日记生成</span><input type="checkbox" id="ga-pm-feat-diary" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">此刻内心独白</span><input type="checkbox" id="ga-pm-feat-monologue" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">角色/档案生成</span><input type="checkbox" id="ga-pm-feat-charGen" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">文游 DM</span><input type="checkbox" id="ga-pm-feat-wenYou" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">视觉小说整理</span><input type="checkbox" id="ga-pm-feat-novelVn" style="width:22px;height:22px;accent-color:#1e2748;"></div>
-                <div class="ga-row"><span class="ga-row-label">主动行为文案</span><input type="checkbox" id="ga-pm-feat-proactive" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">微信聊天</span><input type="checkbox" id="ga-pm-feat-chat" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">剧本 DM</span><input type="checkbox" id="ga-pm-feat-scriptDm" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">日记生成</span><input type="checkbox" id="ga-pm-feat-diary" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">此刻内心独白</span><input type="checkbox" id="ga-pm-feat-monologue" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">角色/档案生成</span><input type="checkbox" id="ga-pm-feat-charGen" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">文游 DM</span><input type="checkbox" id="ga-pm-feat-wenYou" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">视觉小说整理</span><input type="checkbox" id="ga-pm-feat-novelVn" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">主动行为文案</span><input type="checkbox" id="ga-pm-feat-proactive" style="width:22px;height:22px;accent-color:#000000;"></div>
             </div>
             <div class="ga-footer-hint">key 只存本机，不进备份与导出；小说批注仍走它自己的设置，不用这里的 key。</div>
 
@@ -31501,10 +31536,8 @@ const GlobalAPI = (() => {
         g('ga-memory').value = config.memoryCount ?? 20;
         // 模型下拉：当前值 + 热门模型
         refreshModelSelect(config.model);
-        // 预设下拉
-        const ps = g('ga-preset');
-        ps.innerHTML = '<option value="">-- 选择预设 --</option>' +
-            presets.map((p,i) => `<option value="${i}">${p.name}</option>`).join('');
+        // 预设列表（点选套用）
+        renderPresetList();
         g('ga-status').className = '';
         g('ga-status').textContent = '';
         // 模型连接分区：总开关与按功能开关（与 PhoneModel 共用同一份配置）
@@ -31561,7 +31594,84 @@ const GlobalAPI = (() => {
         save();
         syncToWeChat();
         showStatus('ok', _any ? '已保存，全局生效' : '已清空，回到模板模式');
-        setTimeout(() => modalEl.classList.remove('show'), 700);
+        if (!_any) { setTimeout(() => modalEl.classList.remove('show'), 700); return; }
+        // 保存成功后问一句要不要存为预设：起个名字，下次点一下就能直接用
+        setTimeout(() => {
+            let want = false;
+            try { want = confirm('已保存。要把这次的配置存为预设吗？下次点一下名字就能直接用。'); } catch (e) {}
+            if (want) savePresetFromForm();
+            setTimeout(() => modalEl.classList.remove('show'), 700);
+        }, 700);
+    };
+
+    // ── 预设列表：点一行套用，行内「删除」删掉该预设 ──
+    const renderPresetList = () => {
+        const list = document.getElementById('ga-preset-list');
+        if (!list) return;
+        if (!presets.length) {
+            list.innerHTML = '<div class="ga-row"><span class="ga-row-label sub" style="font-size:15px;">还没有预设，保存后点一下名字就能直接用。</span></div>';
+            return;
+        }
+        list.innerHTML = presets.map((pr, i) => {
+            const sub = (pr.model || '未选模型') + (pr.baseUrl ? ' · ' + pr.baseUrl.replace(/^https?:\/\//, '').split('/')[0] : '');
+            return '<div class="ga-row" data-preset-idx="' + i + '" style="cursor:pointer;">'
+                + '<div class="ga-row-left"><span class="ga-row-label">' + escHtml(pr.name) + '</span>'
+                + '<span class="ga-row-label sub">' + escHtml(sub) + '</span></div>'
+                + '<button class="ga-inline-btn" data-preset-del="' + i + '" style="color:#b3261e;">删除</button></div>';
+        }).join('');
+    };
+
+    // 从当前表单读一份预设（名字由调用方给；老预设没有的新字段按表单现状补）
+    const readFormPreset = (name) => {
+        const g = (id) => document.getElementById(id);
+        const feat = {};
+        try { (window.PhoneModel && window.PhoneModel.FEATURES ? window.PhoneModel.FEATURES : []).forEach(function (f) { const fe = document.getElementById('ga-pm-feat-' + f); feat[f] = !!(fe && fe.checked); }); } catch (e) {}
+        return {
+            name: name,
+            baseUrl: g('ga-baseurl').value.trim(),
+            key: g('ga-key').value.trim(),
+            model: g('ga-model').value.trim(),
+            temperature: g('ga-temp').value.trim() === '' ? 0.9 : parseFloat(g('ga-temp').value.trim()),
+            maxTokens: g('ga-maxtok').value.trim(),
+            memoryCount: g('ga-memory').value.trim() === '' ? 20 : parseInt(g('ga-memory').value.trim(), 10),
+            enabled: !!(g('ga-pm-enabled') && g('ga-pm-enabled').checked),
+            features: feat
+        };
+    };
+
+    // 保存当前表单为具名预设（复用同一份逻辑，保存按钮和保存后询问都走这里）
+    const savePresetFromForm = () => {
+        const name = prompt('为当前配置起个预设名：', 'API预设' + (presets.length + 1));
+        if (!name) return false;
+        presets.push(readFormPreset(name.trim()));
+        pSave();
+        renderPresetList();
+        showStatus('ok', '预设已保存');
+        return true;
+    };
+
+    // 套用预设：填地址/key/模型/温度/长度/记忆条数；总开关与按功能开关走现有 change 处理立即落盘。
+    // 老预设没有的字段不动；key 被导出剥离过（空）时不清空现有的 key，留给用户自己填。
+    const applyPreset = (idx) => {
+        const pr = presets[idx];
+        if (!pr) return;
+        const g = (id) => document.getElementById(id);
+        if (pr.baseUrl) g('ga-baseurl').value = pr.baseUrl;
+        if (pr.key) g('ga-key').value = pr.key;
+        if (typeof pr.temperature === 'number' && !isNaN(pr.temperature)) g('ga-temp').value = pr.temperature;
+        if (pr.maxTokens !== undefined && pr.maxTokens !== null && pr.maxTokens !== '') g('ga-maxtok').value = pr.maxTokens;
+        if (typeof pr.memoryCount === 'number' && pr.memoryCount > 0) g('ga-memory').value = pr.memoryCount;
+        if (pr.model) refreshModelSelect(pr.model);
+        try {
+            const pe = g('ga-pm-enabled');
+            if (pe && typeof pr.enabled === 'boolean') { pe.checked = pr.enabled; pe.dispatchEvent(new Event('change')); }
+            if (pr.features && window.PhoneModel && window.PhoneModel.FEATURES) window.PhoneModel.FEATURES.forEach(function (f) {
+                const fe = document.getElementById('ga-pm-feat-' + f);
+                if (fe && typeof pr.features[f] === 'boolean') { fe.checked = pr.features[f]; fe.dispatchEvent(new Event('change')); }
+            });
+        } catch (e) {}
+        refreshPmStatus();
+        showStatus('ok', '已套用预设「' + pr.name + '」，点保存后全局生效');
     };
 
     // ── 事件绑定 ──
@@ -31616,31 +31726,27 @@ const GlobalAPI = (() => {
         // 模型连接：清除 key
         const _pc = g('ga-pm-clear-key');
         if (_pc) _pc.onclick = function () { try { if (window.PhoneModel) window.PhoneModel.clearKeyFromForm(); } catch (e) {} const _k = g('ga-key'); if (_k) _k.value = ''; refreshPmStatus(); };
-        // 保存预设
-        g('ga-save-preset').onclick = () => {
-            const name = prompt('为当前配置起个预设名：', 'API预设' + (presets.length+1));
-            if (!name) return;
-            presets.push({
-                name: name.trim(),
-                baseUrl: g('ga-baseurl').value.trim(),
-                key: g('ga-key').value.trim(),
-                model: g('ga-model').value.trim()
-            });
-            pSave();
-            fillForm();
-            showStatus('ok', '预设已保存');
-        };
-        // 选择预设
-        g('ga-preset').onchange = (e) => {
-            const idx = e.target.value;
-            if (idx === '') return;
-            const p = presets[parseInt(idx)];
-            if (p) {
-                g('ga-baseurl').value = p.baseUrl || '';
-                g('ga-key').value = p.key || '';
-                refreshModelSelect(p.model);
+        // 保存预设（起名后进列表）
+        g('ga-save-preset').onclick = () => { savePresetFromForm(); };
+        // 预设列表：点一行套用，行内「删除」删掉该预设
+        const _pl = g('ga-preset-list');
+        if (_pl) _pl.addEventListener('click', (e) => {
+            const del = e.target.closest('[data-preset-del]');
+            if (del) {
+                e.stopPropagation();
+                const idx = parseInt(del.getAttribute('data-preset-del'), 10);
+                const pr = presets[idx];
+                if (!pr) return;
+                if (!confirm('确定删除预设「' + pr.name + '」吗？')) return;
+                presets.splice(idx, 1);
+                pSave();
+                renderPresetList();
+                showStatus('ok', '预设已删除');
+                return;
             }
-        };
+            const row = e.target.closest('[data-preset-idx]');
+            if (row) applyPreset(parseInt(row.getAttribute('data-preset-idx'), 10));
+        });
     };
 
     const showStatus = (type, msg) => {
@@ -33125,7 +33231,7 @@ function injectCSS() {
       '.ao-lock-row button{border:0;background:transparent;color:rgba(255,255,255,.85);font-size:13px;cursor:pointer;text-decoration:underline;}',
       '#ao-decoy-line{position:absolute;left:0;right:0;bottom:18%;text-align:center;color:rgba(255,255,255,.85);font-size:13px;letter-spacing:2px;z-index:2;}',
       '#sys-lockscreen-layer.ao-decoy .sys-lock-widgets,#sys-lockscreen-layer.ao-decoy #sys-signature{display:none !important;}',
-      '.ao-pinpad{--st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12);position:fixed;inset:0;z-index:99999;background:rgba(30,39,72,.4);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
+      '.ao-pinpad{--st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);position:fixed;inset:0;z-index:99999;background:rgba(30,39,72,.4);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
       '.ao-pin-card{background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:14px;padding:22px 18px;width:100%;max-width:320px;box-sizing:border-box;text-align:center;box-shadow:var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12));}',
       '.ao-pin-title{font-size:20px;font-weight:600;color:var(--st-ink,#1e2748);}',
       '.ao-pin-sub{font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;line-height:1.5;}',
