@@ -27,7 +27,7 @@ var WX_KEY = 'phone_wechat_store_v2';
 var SETTINGS_KEY = 'phone_settings_v3';
 var PROM_O_KEY = 'char_promises_v1';
 var INNERLOG_KEY = 'char_inner_log_v1';
-var MODEL_KEY = 'phone_model_cfg_v1'; /* AG 组未合入时不存在，只读探测 */
+var MODEL_KEY = 'global_api_config_v1'; /* 统一配置键（设置 → API 设置）；只读探测 */
 var EVENT_KEY = 'phone_event_log_v1'; /* AE 组未合入时不存在，读时兼容 */
 /* ── 小工具 ── */
 function ls() { try { return window.localStorage;} catch (e) { return null;}}
@@ -256,7 +256,7 @@ var id = identityLoad();
 return { spec: 'character-card', version: 'v3', name: id.name || '', persona: id.persona || '', personality: id.persona || '',
 worldbook: id.worldbook || '', world_book: id.worldbook || '',
 exampleDialogue: id.examples || [], examples: id.examples || [],
-model: null, modelConfig: null, note: '身份设定与模型配置分离：换模型不断线。模型配置在 phone_model_cfg_v1（AG 组），不在此卡里。'};
+model: null, modelConfig: null, note: '身份设定与模型配置分离：换模型不断线。模型配置在 global_api_config_v1（设置 → API 设置），不在此卡里。'};
 }
 function importIdentityCard(card) {
 if (!card || typeof card!== 'object') return null;
@@ -432,7 +432,7 @@ var list = Object.keys(words).map(function (k) { return { theme: k, count: words
 return list.slice(0, 3);
 }
 function semanticThemesStub() {
-return { available: false, reason: '本地规则版已上线；接模型后升级为语义分析（需 AG 组模型配置 phone_model_cfg_v1），接口已留好。'};
+return { available: false, reason: '本地规则版已上线；接模型后升级为语义分析（需在设置 → API 设置里配好模型），接口已留好。'};
 }
 function monthlyReport(yearMonth) {
 var themes = monthlyThemes(yearMonth);
@@ -765,7 +765,7 @@ if (sess && Array.isArray(sess.messages)) recent = sess.messages.slice(-recentN)
 return { order: ['活跃事实', '当日摘要', '检索命中', '最近原文'], caps: { facts: 10, hits: 5, recent: recentN},
 facts: facts.map(function (m) { return { id: m.id, factKey: factKeyOf(m), content: String(m.content || m.text || '').slice(0, 60)};}),
 daySummary: day.text, hits: hits.map(function (m) { return { id: m.id, content: String(m.content || m.text || '').slice(0, 60)};}),
-recent: recent, modelConfigured:!!read(MODEL_KEY, null),
+recent: recent, modelConfigured: (function () { try { var c = read(MODEL_KEY, null); return !!(c && c.baseUrl && c.model && c.key); } catch (e) { return false; } })(),
 promise: '发模型前先展示此清单，用户确认后才调用；绝不代点发送。'};
 }
 function contextConfirmHTML(preview) {
@@ -854,7 +854,7 @@ resolve({ reply: reply, audit: audit, mode: 'template', worldbook: { count: _bkW
 function modelCallInterface() {
 /* AG 组未合入时的接口：有配置才返回可调用，否则模板回落 */
 var cfg = read(MODEL_KEY, null);
-if (!cfg) return { available: false, mode: 'template', reason: '未检测到 phone_model_cfg_v1（AG 组接模型未合入），用本地模板回复；配置后走用户自填的 OpenAI 兼容接口。'};
+if (!cfg || !cfg.baseUrl || !cfg.model || !cfg.key) return { available: false, mode: 'template', reason: '未检测到模型配置（请到设置 → API 设置里配好地址、模型名和 key），用本地模板回复；配置后走用户自填的 OpenAI 兼容接口。'};
 return { available: true, mode: 'model', reason: '已检测到模型配置；调用前仍需用户在清单上点确认。'};
 }
 function proposeMemoryCandidate(text, source) {

@@ -42,32 +42,17 @@ function findSession(sid) { var st = wxStore(); if (!st) return null; return (st
 function findMsg(sid, mid) { var s = findSession(sid); if (!s) return null; var m = (s.messages || []).find(function (x) { return String(x.id) === String(mid); }); return m ? { sess: s, msg: m } : null; }
 function uid(p) { return (p || 'bs') + '_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1e6).toString(36); }
 
-/* ── 1. 模型回退链 ── */
-function cleanChain(arr) {
-    if (!Array.isArray(arr)) return [];
-    var out = [];
-    arr.forEach(function (e) {
-        if (!e || typeof e !== 'object') return;
-        var name = String(e.name || '').trim().slice(0, 40);
-        var baseUrl = String(e.baseUrl || '').trim().slice(0, 200);
-        var model = String(e.model || '').trim().slice(0, 80);
-        if (!name && !baseUrl && !model) return;
-        out.push({ id: String(e.id || uid('fb')), name: name, baseUrl: baseUrl, model: model });
-    });
-    return out.slice(0, MAX_FB);
-}
-function getFallbackChain() { return cleanChain(lsGet(CHAIN_KEY, [])); }
-function setFallbackChain(list) { var c = cleanChain(list); lsSet(CHAIN_KEY, c); return c; }
-function getFallbackKey(id) { var m = lsGet(FBKEYS_KEY, {}); return (m && typeof m === 'object') ? (m[String(id)] || '') : ''; }
+/* ── 1. 模型回退链（已删：备用模型与备用 key 已随「接模型」并进 API 设置而删除）──
+ * 主模型不可用时不再自动切备用，只走主模型；旧的备用链/备用 key 数据还留在
+ * localStorage 里也不会再被读取，导出时整条排除。 */
+function getFallbackChain() { return []; }
+function setFallbackChain(list) { return []; }
+function getFallbackKey(id) { return ''; }
 function setFallbackKey(id, key) {
-    var m = lsGet(FBKEYS_KEY, {});
-    if (!m || typeof m !== 'object') m = {};
-    if (key) m[String(id)] = String(key); else delete m[String(id)];
-    lsSet(FBKEYS_KEY, m);
+    try { var m = lsGet(FBKEYS_KEY, {}); if (m && typeof m === 'object') { delete m[String(id)]; lsSet(FBKEYS_KEY, m); } } catch (e) {}
 }
-function fallbackKeysNote() {
-    return getFallbackChain().length ? '备用模型 key 未导出，需重填（请到设置 → 接模型 → 备用模型重填）' : '';
-}
+function fallbackKeysNote() { return ''; }
+
 function statusOf(err) {
     var m = String((err && err.message) || err || '');
     var mm = m.match(/HTTP\s(\d{3})/) || m.match(/\b(401|403|404|429|5\d\d)\b/);
@@ -422,62 +407,6 @@ function scheduleIntent(text) {
     return /(今天|明天).{0,8}(日程|安排)/.test(t) || /查(一下)?(今天|明天)?日程/.test(t);
 }
 
-/* ── 设置页：备用模型区 ── */
-function fallbackSectionHTML() {
-    var chain = getFallbackChain();
-    var rows = '';
-    for (var i = 0; i < MAX_FB; i++) {
-        var e = chain[i] || { id: '', name: '', baseUrl: '', model: '' };
-        var hasKey = e.id ? !!getFallbackKey(e.id) : false;
-        rows += '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;" data-bs-fb="' + i + '">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);">备用模型 ' + (i + 1) + '</div>'
-            + '<div style="padding:4px 16px 0;">'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">名字</div><input id="bs-fb-name-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 备用 DeepSeek" value="' + esc(e.name || '') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="bs-fb-base-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空表示不用这个备用位" value="' + esc(e.baseUrl || '') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><input id="bs-fb-key-' + i + '" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : '只存在本机，不进备份与导出') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="bs-fb-model-' + i + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 deepseek-chat" value="' + esc(e.model || '') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.GroupBS.saveFallbackFromForm(' + i + ')" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border:none;border-radius:10px;padding:11px 0;font-size:17px;">保存备用 ' + (i + 1) + '</button><button onclick="window.GroupBS.clearFallbackFromForm(' + i + ')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:11px 0;font-size:17px;">清除</button></div>'
-            + '<div id="bs-fb-result-' + i + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 0 12px;line-height:1.7;white-space:pre-wrap;"></div>'
-            + '</div></div>';
-    }
-    return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:4px 2px 8px;line-height:1.6;">备用模型（回退链）：主模型返回 401 / 403 / 429 / 5xx 时，按顺序自动切到下一个，并在聊天里写一行小字说明。备用模型的 key 只存在本机，导出时删掉并写明“key 未导出，需重填”。留空的备用位会被跳过。</div>' + rows;
-}
-function fbFormVal(i, kind) { var el = document.getElementById('bs-fb-' + kind + '-' + i); return el ? String(el.value || '') : ''; }
-function fbShowResult(i, text, ok) {
-    var el = document.getElementById('bs-fb-result-' + i);
-    if (el) { el.textContent = text; el.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
-}
-function saveFallbackFromForm(i) {
-    var chain = getFallbackChain();
-    var name = fbFormVal(i, 'name').trim();
-    var base = fbFormVal(i, 'base').trim();
-    var model = fbFormVal(i, 'model').trim();
-    var keyIn = fbFormVal(i, 'key').trim();
-    if (!name && !base && !model && !keyIn) { clearFallbackFromForm(i); return true; }
-    if (base && !/^https?:\/\//i.test(base)) { fbShowResult(i, '地址要以 http:// 或 https:// 开头', false); return false; }
-    var id = (chain[i] && chain[i].id) ? chain[i].id : uid('fb');
-    var next = chain.slice();
-    while (next.length <= i) next.push({ id: uid('fb'), name: '', baseUrl: '', model: '' });
-    next[i] = { id: id, name: name, baseUrl: base, model: model };
-    setFallbackChain(next.filter(function (e) { return e.name || e.baseUrl || e.model; }));
-    if (keyIn) setFallbackKey(id, keyIn);
-    var keyEl = document.getElementById('bs-fb-key-' + i);
-    if (keyEl) { keyEl.value = ''; keyEl.placeholder = (keyIn || getFallbackKey(id)) ? '已保存（留空表示不改）' : '只存在本机，不进备份与导出'; }
-    fbShowResult(i, '备用模型 ' + (i + 1) + ' 已保存（key 只存在本机）', true);
-    return true;
-}
-function clearFallbackFromForm(i) {
-    var chain = getFallbackChain();
-    var old = chain[i];
-    if (old && old.id) setFallbackKey(old.id, '');
-    var next = chain.slice();
-    next.splice(i, 1);
-    setFallbackChain(next);
-    ['name', 'base', 'model', 'key'].forEach(function (kind) { var el = document.getElementById('bs-fb-' + kind + '-' + i); if (el) el.value = ''; });
-    fbShowResult(i, '备用模型 ' + (i + 1) + ' 已清除', true);
-    return true;
-}
-
 /* ── 接线：挂到 WeChatAppEngine / PhoneModel / sendMsg 上 ── */
 function wireUp() {
     try {
@@ -494,42 +423,7 @@ function wireUp() {
             WeChatAppEngine.toggleActCard = toggleActCard;
         }
     } catch (e) {}
-    try {
-        if (window.PhoneModel && window.PhoneModel.renderSettingsSub && !window.PhoneModel.renderSettingsSub._bsWrapped) {
-            var _origRSS = window.PhoneModel.renderSettingsSub;
-            var _wrapped = function () {
-                var h = _origRSS();
-                var sec = fallbackSectionHTML();
-                var idx = h.indexOf('id="pm-test-result"');
-                if (idx === -1) return h + sec;
-                var divStart = h.lastIndexOf('<div', idx);
-                if (divStart === -1) return h + sec;
-                return h.slice(0, divStart) + sec + h.slice(divStart);
-            };
-            _wrapped._bsWrapped = true;
-            window.PhoneModel.renderSettingsSub = _wrapped;
-        }
-    } catch (e) {}
-    try {
-        if (window.PhoneModel && window.PhoneModel.sanitizeExportData && !window.PhoneModel.sanitizeExportData._bsWrapped) {
-            var _origSan = window.PhoneModel.sanitizeExportData;
-            var _wrappedSan = function (data, scope) {
-                var out = _origSan(data, scope) || {};
-                try { delete out[FBKEYS_KEY]; } catch (e) {}
-                var keys = [];
-                try { var m = lsGet(FBKEYS_KEY, {}); Object.keys(m || {}).forEach(function (k) { if (m[k]) keys.push(m[k]); }); } catch (e) {}
-                keys.forEach(function (key) {
-                    Object.keys(out).forEach(function (k) {
-                        try { if (typeof out[k] === 'string' && out[k].indexOf(key) !== -1) delete out[k]; } catch (e) {}
-                    });
-                });
-                if (scope === 'all') out['__phone_model_fallback_keys_note__'] = '备用模型 key 未导出，需重填（请到设置 → 接模型 → 备用模型重填）';
-                return out;
-            };
-            _wrappedSan._bsWrapped = true;
-            window.PhoneModel.sanitizeExportData = _wrappedSan;
-        }
-    } catch (e) {}
+    /* 备用 key 的导出包装已删：PhoneModel.sanitizeExportData 现直接处理统一配置的 key，旧备用 key 由 doExport 的排除清单兜底。 */
     try {
         if (typeof WeChatAppEngine !== 'undefined' && WeChatAppEngine && WeChatAppEngine.sendMsg && !WeChatAppEngine.sendMsg._bsWrapped) {
             var _origSend = WeChatAppEngine.sendMsg;
@@ -570,8 +464,6 @@ window.GroupBS = {
     runAct: runAct, runScheduleAct: runScheduleAct,
     readScheduleToday: readScheduleToday, readDiary: readDiary, readPhotos: readPhotos,
     scheduleIntent: scheduleIntent,
-    fallbackSectionHTML: fallbackSectionHTML,
-    saveFallbackFromForm: saveFallbackFromForm, clearFallbackFromForm: clearFallbackFromForm
 };
 try { wireUp(); } catch (e) {}
 })();

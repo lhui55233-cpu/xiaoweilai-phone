@@ -3739,8 +3739,7 @@ AppManager.register('settings', (() => {
             </div>
 
             ${GROUP([
-                ROW(ICON('var(--st-ink,#1e2748)', I.api), 'API 设置', {value:'微信原有配置', act:'api'}),
-                ROW(ICON('#5856D6', I.api), '接模型', {value:'全机统一配置', act:'model'}),
+                ROW(ICON('var(--st-ink,#1e2748)', I.api), 'API 设置', {value: (() => { try { if (window.PhoneModel && PhoneModel.isConfigured()) return '已接模型 · ' + PhoneModel.modelName(); return '未配置 · 模板模式'; } catch (e) { return '未配置'; } })(), act:'api'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.ball), 'API 悬浮球', {sw:'apiFloatBall'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.voice), '克隆音色设置', {act:'voice'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.full), '全屏 / 安装到桌面', {value:'点击开启', act:'fullscreen'}),
@@ -5348,18 +5347,6 @@ win.addEventListener('change', (e) => {
  case 'api':
                 if (window.GlobalAPI) GlobalAPI.open();
                 break;
-            case 'model': {
-                // [AG组] 接模型子页：每次重建，保证读到最新的配置与最近一次调用状态
-                let sub = win.querySelector('#st-sub-model');
-                if (sub) sub.remove();
-                const tmp = document.createElement('div');
-                tmp.innerHTML = window.PhoneModel ? window.PhoneModel.renderSettingsSub() : '';
-                sub = tmp.firstElementChild;
-                if (!sub) break;
-                win.appendChild(sub);
-                requestAnimationFrame(() => sub.classList.add('show'));
-                break;
-            }
             case 'lunarSuffix': {
                 const curLunar = (typeof window.XWClockLunarSuffix === 'function') ? window.XWClockLunarSuffix() : '';
                 SysDialog.prompt('', curLunar, { title: '时钟组件农历后缀', placeholder: '留空则自动按当日农历显示', maxlength: 20 }).then(nv => {
@@ -5702,7 +5689,7 @@ win.addEventListener('change', (e) => {
             if (k === '__xwl_idb_v1' || k === '__xwl_idb_note') continue; // GROUP-STEP0: 备份块是导出时现算的，localStorage 里的旧值不带出
             if (scope==='part') {
                 if (k.includes('wechat')||k.includes('char')||k.includes('wx_')||k.includes('os_character')||k.includes('persona')||k.includes('prompts')||k.includes('token')||k.includes('voice')||k.includes('vision')||k.includes('asr')||k.includes('minimax')) data[k]=localStorage.getItem(k);
-            } else if (k === 'phone_model_key_v1' || k === 'phone_model_per_feature_v1' || k === 'phone_model_fallback_keys_v1') { /* [AG组] 接模型 key 永不导出（另见 PhoneModel.sanitizeExportData；T 组备份流程对接时同样排除此键）[BF组] 单独配置（含各功能单独 key）同样永不导出 */ }
+            } else if (k === 'phone_model_key_v1' || k === 'phone_model_per_feature_v1' || k === 'phone_model_fallback_keys_v1') { /* 旧接模型 key 与单独配置/备用 key 永不导出；统一配置 global_api_config_v1 的 key 由 PhoneModel.sanitizeExportData 摘掉字段后再导出（地址/模型名保留） */ }
             else if (k === 'phone_lock_pw_hash_v1' || k === 'phone_lock_salt_v1' || k === 'phone_lock_pw_kind_v1' || k === 'phone_lock_pw_v1' || k === 'phone_lock_passcode' || k === 'phone_lock_disabled' || k === 'phone_lock_fail_v1' || k === 'phone_lock_cool_v1' || k === 'phone_lock_attempts_v1' || k === 'phone_lock_last_verified_v1') { /* [AO] 锁屏密码哈希/盐/输错记录永不导出 */ }
             else data[k]=localStorage.getItem(k);
         }
@@ -11532,7 +11519,7 @@ exitFullscreen: (e) => {
                       WeChatAppEngine.renderUpdates();
                       setTimeout(() => { const b = document.getElementById('wx-msg-stream-container'); if (b) b.scrollTop = b.scrollHeight; }, 20);
                   } else {
-                      // ★ [AG组] 接模型优先：用户在「设置 → 接模型」配好并打开微信聊天时，用 PhoneModel 配置走同一条 executeRealAIReply / callRealAI 路径；否则走原有 GlobalAPI / 微信 apiConfigs
+                      // ★ [AG组] 模型优先：用户在「设置 → API 设置」配好并打开微信聊天时，用 PhoneModel 配置走同一条 executeRealAIReply / callRealAI 路径；否则走原有 GlobalAPI / 微信 apiConfigs
  // [S组] 行为引擎决策表：先决定动作再决定说什么；reply 才走原有回复流程
  var _sd = null;
  try { _sd = window.CharSubject? window.CharSubject.decideForMessage(userText, { charName: curSess.name}): null;} catch(e){}
@@ -28350,7 +28337,7 @@ AppManager.register('TarotDivine', (() => {
  //   先征求同意、本机运行；提问→牌阵→抽牌→整组揭示→按需解读；陪伴方接回原文，不另抽一组牌、不自行补造解读；
  //   没有模型也能抽牌，但没有 AI 解读（老实标注）；刷新恢复已保存的牌、正逆位、揭示与原文状态，不重抽、不重请求模型。
  //   本文件是单文件手机，装不下仓库的 Node 服务/本地回环引擎：行为用自己的代码在本地实现；
- //   模型走手机现有的 PhoneModel 设置（设置 → 接模型），不另起一套，不把 key 写进任何新代码。
+ //   模型走手机现有的 PhoneModel 设置（设置 → API 设置），不另起一套，不把 key 写进任何新代码。
  const TAROT_CONSENT_KEY = 'tarot_consent_v1'; // 同意记录 {agreed:true, at}，只存本机
  const TAROT_SESSION_KEY = 'tarot_session_v1'; // 当前局完整状态（tarot_history_v1 只存已归档记录，不改它的结构）
  let _tarotSessionSeq = 0; // 会话序号计数器（新一局 +1）
@@ -29417,7 +29404,7 @@ html += '<div class="tarot-ax-reading-label">上次的解读请求被打断了</
 html += '<div class="tarot-ax-reading-label">完整解读 · ' + escAx(state.readingLabel || '本地牌义') + '</div>';
 if (state.readingText) html += '<p class="tarot-ax-reading-text">' + escAx(state.readingText) + '</p>';
 if (state.readingAiText) html += '<p class="tarot-ax-reading-text">\n' + escAx(state.readingAiText) + '</p>';
-if (state.readingState === 'failed') html += '<p class="tarot-ax-reading-note">模型调用失败，已用本地牌义；可以检查「设置 → 接模型」后再点「解读」重试。</p>';
+if (state.readingState === 'failed') html += '<p class="tarot-ax-reading-note">模型调用失败，已用本地牌义；可以检查「设置 → API 设置」后再点「解读」重试。</p>';
 }
 html += '</div>';
 } else if (state.revealedCount >= state.drawnCards.length && state.drawnCards.length) {
@@ -31155,16 +31142,76 @@ const GlobalAPI = (() => {
 
     // 全局 API 配置（持久化，全局唯一）
     const GKEY = 'global_api_config_v1';
+    const DEFAULT_FEATURES = { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true };
+    const FEATURE_NAMES = { chat: '微信聊天', scriptDm: '剧本 DM', diary: '日记生成', monologue: '此刻内心独白', charGen: '角色/档案生成', wenYou: '文游 DM', novelVn: '视觉小说整理', proactive: '主动行为文案' };
     let config = {
         baseUrl: '', key: '', model: '',
-        temperature: 0.9, maxTokens: '', memoryCount: 20
+        temperature: 0.9, maxTokens: '', memoryCount: 20,
+        enabled: true, features: Object.assign({}, DEFAULT_FEATURES)
     };
     const load = () => {
-        try { const r = localStorage.getItem(GKEY); if (r) Object.assign(config, JSON.parse(r)); }
-        catch(e){}
+        try {
+            const r = localStorage.getItem(GKEY);
+            if (r) {
+                const parsed = JSON.parse(r);
+                if (parsed && typeof parsed === 'object') {
+                    const pf = parsed.features;
+                    Object.assign(config, parsed);
+                    config.features = (pf && typeof pf === 'object') ? Object.assign({}, DEFAULT_FEATURES, pf) : Object.assign({}, DEFAULT_FEATURES);
+                }
+            }
+        } catch (e) {}
+        if (typeof config.enabled !== 'boolean') config.enabled = true;
+        if (!config.features || typeof config.features !== 'object') config.features = Object.assign({}, DEFAULT_FEATURES);
     };
-    const save = () => { try { localStorage.setItem(GKEY, JSON.stringify(config)); } catch(e){} };
+    const save = () => { try { localStorage.setItem(GKEY, JSON.stringify(config)); } catch (e) {} };
+    // 供 PhoneModel 等模块改配置：合并后保存并同步到微信 apiConfigs
+    const setConfig = (patch) => {
+        try {
+            if (patch && typeof patch === 'object') {
+                const rest = Object.assign({}, patch);
+                // features 只合并不替换：传了部分开关就并进现有 features，没传/传 undefined 就不动
+                if (rest.features && typeof rest.features === 'object') config.features = Object.assign({}, DEFAULT_FEATURES, config.features, rest.features);
+                delete rest.features;
+                Object.assign(config, rest);
+            }
+        } catch (e) {}
+        save();
+        try { syncToWeChat(); } catch (e) {}
+        return config;
+    };
+    // 一次性迁移：旧「接模型」配置（phone_model_cfg_v1 / phone_model_key_v1）
+    // 只在全局配置还没配好时迁一次；迁完（无论迁没迁到值）都记 flag，之后不再迁，
+    // 所以用户在 API 设置里清空配置也不会被旧值“复活”。旧键留着不删、不再写入。
+    const MIGRATED_FLAG = 'phone_model_migrated_to_global_v1';
+    const migrateLegacyModelConfig = () => {
+        try {
+            if (localStorage.getItem(MIGRATED_FLAG)) return;
+            let oldCfg = null, oldKey = '';
+            try { const raw = localStorage.getItem('phone_model_cfg_v1'); if (raw) oldCfg = JSON.parse(raw) || null; } catch (e) {}
+            try { oldKey = localStorage.getItem('phone_model_key_v1') || ''; } catch (e) {}
+            const globalEmpty = !config.baseUrl && !config.model && !config.key;
+            let moved = false;
+            if (oldCfg && typeof oldCfg === 'object') {
+                if (!config.baseUrl && typeof oldCfg.baseUrl === 'string' && oldCfg.baseUrl.trim()) { config.baseUrl = oldCfg.baseUrl.trim(); moved = true; }
+                if (!config.model && typeof oldCfg.model === 'string' && oldCfg.model.trim()) { config.model = oldCfg.model.trim(); moved = true; }
+                if (globalEmpty) {
+                    if (typeof oldCfg.temperature === 'number') { config.temperature = Math.max(0, Math.min(2, oldCfg.temperature)); moved = true; }
+                    if (oldCfg.maxTokens !== undefined && oldCfg.maxTokens !== '' && oldCfg.maxTokens != null) { config.maxTokens = String(oldCfg.maxTokens); moved = true; }
+                    if (typeof oldCfg.enabled === 'boolean') { config.enabled = oldCfg.enabled; moved = true; }
+                    if (oldCfg.features && typeof oldCfg.features === 'object') {
+                        Object.keys(DEFAULT_FEATURES).forEach(function (f) { if (typeof oldCfg.features[f] === 'boolean') config.features[f] = oldCfg.features[f]; });
+                        moved = true;
+                    }
+                }
+            }
+            if (!config.key && oldKey) { config.key = oldKey; moved = true; }
+            if (moved) save();
+            try { localStorage.setItem(MIGRATED_FLAG, '1'); } catch (e) {}
+        } catch (e) {}
+    };
     load();
+    migrateLegacyModelConfig();
 
     // 预设管理（持久化）
     const PKEY = 'global_api_presets_v1';
@@ -31370,6 +31417,46 @@ const GlobalAPI = (() => {
                 </div>
             </div>
 
+            <!-- 模型连接：全机唯一的模型连接入口（原「接模型」已并入本页） -->
+            <div class="ga-section-title">模型连接</div>
+            <div class="ga-group">
+                <div class="ga-row">
+                    <div class="ga-row-left">
+                        <span class="ga-row-label">模型总开关</span>
+                        <span class="ga-row-label sub">关掉后全机回到模板模式</span>
+                    </div>
+                    <input type="checkbox" id="ga-pm-enabled" style="width:22px;height:22px;accent-color:#1e2748;">
+                </div>
+                <div class="ga-row">
+                    <div class="ga-row-left">
+                        <span class="ga-row-label">当前状态</span>
+                        <span class="ga-row-label sub" id="ga-pm-status">还没有调用记录</span>
+                    </div>
+                </div>
+                <div class="ga-row">
+                    <span class="ga-row-label">测试连接</span>
+                    <button class="ga-inline-btn" id="ga-pm-test">开始测试</button>
+                </div>
+                <div class="ga-row">
+                    <span class="ga-row-label">清除 key</span>
+                    <button class="ga-inline-btn" id="ga-pm-clear-key" style="color:#7c2d2d;">清除</button>
+                </div>
+            </div>
+
+            <!-- 按功能开关 -->
+            <div class="ga-section-title">按功能开关</div>
+            <div class="ga-group">
+                <div class="ga-row"><span class="ga-row-label">微信聊天</span><input type="checkbox" id="ga-pm-feat-chat" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">剧本 DM</span><input type="checkbox" id="ga-pm-feat-scriptDm" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">日记生成</span><input type="checkbox" id="ga-pm-feat-diary" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">此刻内心独白</span><input type="checkbox" id="ga-pm-feat-monologue" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">角色/档案生成</span><input type="checkbox" id="ga-pm-feat-charGen" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">文游 DM</span><input type="checkbox" id="ga-pm-feat-wenYou" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">视觉小说整理</span><input type="checkbox" id="ga-pm-feat-novelVn" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+                <div class="ga-row"><span class="ga-row-label">主动行为文案</span><input type="checkbox" id="ga-pm-feat-proactive" style="width:22px;height:22px;accent-color:#1e2748;"></div>
+            </div>
+            <div class="ga-footer-hint">key 只存本机，不进备份与导出；小说批注仍走它自己的设置，不用这里的 key。</div>
+
             <!-- 高级参数 -->
             <div class="ga-section-title">高级参数</div>
             <div class="ga-group">
@@ -31397,7 +31484,7 @@ const GlobalAPI = (() => {
             </div>
 
             <button class="ga-save-btn" id="ga-save-bottom">保存全部设置</button>
-            <div class="ga-footer-hint">此处为全局 API 设置，保存后微信聊天、此刻等全部功能将使用此配置。</div>
+            <div class="ga-footer-hint">此处为全局 API 设置，也是全机唯一的模型连接入口；保存后微信聊天、此刻等全部功能将使用此配置。</div>
 
         </div>`;
     };
@@ -31431,6 +31518,27 @@ const GlobalAPI = (() => {
             presets.map((p,i) => `<option value="${i}">${p.name}</option>`).join('');
         g('ga-status').className = '';
         g('ga-status').textContent = '';
+        // 模型连接分区：总开关与按功能开关（与 PhoneModel 共用同一份配置）
+        try {
+            if (window.PhoneModel) {
+                const pmc = window.PhoneModel.loadCfg();
+                const pe = g('ga-pm-enabled'); if (pe) pe.checked = !!pmc.enabled;
+                (window.PhoneModel.FEATURES || []).forEach(function (f) { const fe = document.getElementById('ga-pm-feat-' + f); if (fe) fe.checked = !!(pmc.features && pmc.features[f]); });
+            }
+        } catch (e) {}
+        refreshPmStatus();
+    };
+
+    // ── 模型连接分区状态行：总开关状态 + 最近一次调用（复用 PhoneModel）──
+    const refreshPmStatus = () => {
+        const el = document.getElementById('ga-pm-status');
+        if (!el) return;
+        try {
+            if (!window.PhoneModel) { el.textContent = '模型连接未加载'; return; }
+            const label = window.PhoneModel.overallLabel ? window.PhoneModel.overallLabel() : '';
+            const last = window.PhoneModel.lastCallInfo ? window.PhoneModel.lastCallInfo() : null;
+            el.textContent = label + (last ? ' · 最近一次调用：' + new Date(last.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + last.detail : ' · 还没有调用记录');
+        } catch (e) {}
     };
 
     const refreshModelSelect = (selected) => {
@@ -31504,6 +31612,21 @@ const GlobalAPI = (() => {
                     showStatus('err', '拉取失败('+err.message+')，已列出热门模型供选择');
                 });
         };
+        // 模型连接：总开关 / 按功能开关（立即保存，与 PhoneModel 共用配置）
+        try {
+            const _pe = g('ga-pm-enabled');
+            if (_pe) _pe.onchange = function () { try { if (window.PhoneModel) window.PhoneModel.setEnabled(!!_pe.checked); } catch (e) {} refreshPmStatus(); };
+            if (window.PhoneModel && window.PhoneModel.FEATURES) window.PhoneModel.FEATURES.forEach(function (f) {
+                const _fe = document.getElementById('ga-pm-feat-' + f);
+                if (_fe) _fe.onchange = function () { try { window.PhoneModel.setFeature(f, !!_fe.checked); } catch (e) {} refreshPmStatus(); };
+            });
+        } catch (e) {}
+        // 模型连接：测试连接（用当前表单里的地址/模型/key，不用已保存值）
+        const _pt = g('ga-pm-test');
+        if (_pt) _pt.onclick = function () { try { if (window.PhoneModel) window.PhoneModel.testFromForm(); } catch (e) {} refreshPmStatus(); };
+        // 模型连接：清除 key
+        const _pc = g('ga-pm-clear-key');
+        if (_pc) _pc.onclick = function () { try { if (window.PhoneModel) window.PhoneModel.clearKeyFromForm(); } catch (e) {} const _k = g('ga-key'); if (_k) _k.value = ''; refreshPmStatus(); };
         // 保存预设
         g('ga-save-preset').onclick = () => {
             const name = prompt('为当前配置起个预设名：', 'API预设' + (presets.length+1));
@@ -31569,36 +31692,38 @@ const GlobalAPI = (() => {
         getConfig: () => config,
         // 供其它模块直接取用
         isConfigured: () => !!(config.baseUrl && config.key),
-        syncToWeChat
+        syncToWeChat,
+        setConfig: setConfig,
+        saveConfig: () => save()
     };
 })();
 window.GlobalAPI = GlobalAPI;
 // ══════════════════════════════════════════════════════════════════════
-// GROUP-AG-MODEL · 接模型（设置 → 接模型）
+// GROUP-AG-MODEL · 模型连接（已并进「设置 → API 设置」，不再单开子页）
 // 用户自己接 OpenAI 兼容模型：OpenAI / DeepSeek / OpenRouter / 本地 llama.cpp /
 // Ollama 的 OpenAI 兼容服务都走这一个口子。只复用已有的 /chat/completions 调用
 // 约定（WeChatAppEngine.callRealAI 的 URL 规范化 + Bearer 规则），不另起一套。
-// 新键只有两个：phone_model_cfg_v1（配置，不含 key）与 phone_model_key_v1（只存 key 本身）。
-// [GROUP-BF] 再加一个：phone_model_per_feature_v1（按功能分的单独配置，含各功能单独 key；只存本机，永不导出）。
+// 规范配置只有 global_api_config_v1（GlobalAPI 的键，含 key）；旧键 phone_model_cfg_v1 /
+// phone_model_key_v1 只作一次性迁移来源（见 GlobalAPI 的 migrateLegacyModelConfig），迁完不再读写。按功能单独配置与备用 key 已删。
 // 安全红线（T 组备份流程对接时同样遵守；T 组尚未合入，当前导出路径 doExport 已在本补丁里处理）：
 //   · key 只存 localStorage，永不离开手机；只在 fetch 到用户自己填的 baseUrl 时带
 //     Authorization: Bearer <key>，其他任何请求都不带；
-//   · 备份/导出一律排除 phone_model_key_v1（doExport 里经 sanitizeExportData 跳过此键，
-//     并写明“key 未导出，需重填”）；恢复备份后 key 需用户在「设置 → 接模型」里重填；
+//   · 备份/导出一律排除 key：sanitizeExportData 会先把 global_api_config_v1 里的 key 字段
+//     摘掉再导出，并写明“key 未导出，需重填”；恢复备份后 key 需用户在「设置 → API 设置」里重填；
 //   · 不把 key 写进任何日志、错误提示、备份文件；错误只报状态码/分类（网络错误 / 401 未授权 /
 //     404 未找到），绝不贴响应体原文；本模块没有任何 console 输出；
 //   · 小说批注继续走它自己的 NovelStore 配置（novel_api_key / novel_base_url），不用这里的
-//     key；微信原有的 GlobalAPI（global_api_config_v1）与微信内 apiConfigs 也原样保留——
-//     PhoneModel 配好并打开时优先于它们，未配 / 关闭时行为与原来完全一致。
+//     key；微信内 apiConfigs 原样保留——PhoneModel 配好并打开时优先于它们，未配 / 关闭时
+//     行为与原来完全一致。
 // S 组提示词检查器尚未合入：本模块的 lastCall()（最近一次调用状态）供其读取，在检查器里
-//   显示当前模式与模型名；未合入前，「接模型」页内直接显示最近一次调用状态。
+//   显示当前模式与模型名；未合入前，API 设置页的「模型连接」分区直接显示最近一次调用状态。
 // 不连真实账号：除用户自己填的 endpoint 外不连任何服务；不复制任何项目代码。
 // 费用与归属：费用按用户选的供应商账单走，手机不代付；key 是用户自己的，随时可换可清
 //   （见设置页顶部文案）。
 // ══════════════════════════════════════════════════════════════════════
 const PhoneModel = (() => {
-    const CFG_KEY = 'phone_model_cfg_v1';
-    const KEY_KEY = 'phone_model_key_v1';
+    const CFG_KEY = 'global_api_config_v1'; // 唯一规范配置键（GlobalAPI 的键）
+    const KEY_KEY = 'phone_model_key_v1'; // 旧 key 键：只作迁移来源与导出排除，不再写入
     const FEATURES = ['chat', 'scriptDm', 'diary', 'monologue', 'charGen', 'wenYou', 'novelVn', 'proactive'];
     const FEATURE_NAMES = { chat: '微信聊天', scriptDm: '剧本 DM', diary: '日记生成', monologue: '此刻内心独白', charGen: '角色/档案生成', wenYou: '文游 DM', novelVn: '视觉小说整理', proactive: '主动行为文案' };
     const DEFAULTS = { baseUrl: '', model: '', temperature: 0.9, maxTokens: 500, enabled: true, features: { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true } };
@@ -31612,41 +31737,64 @@ const PhoneModel = (() => {
     const clampTemp = (v) => { const n = parseFloat(v); if (isNaN(n)) return 0.9; return Math.max(0, Math.min(2, n)); };
     const clampTokens = (v) => { const n = parseInt(v, 10); if (isNaN(n) || n <= 0) return 500; return n; };
 
-    // 配置每次都从 localStorage 现读（不缓存），保证设置页 / 各功能读到同一份
-    const loadCfg = () => {
-        const d = { baseUrl: '', model: '', temperature: 0.9, maxTokens: 500, enabled: true, features: { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true } };
+    // 统一配置：唯一规范是 GlobalAPI 的 global_api_config_v1（地址/key/模型/温度/
+    // 最大 token/总开关/按功能开关都在里面）。旧键 phone_model_cfg_v1 与
+    // phone_model_key_v1 只在 GlobalAPI 加载时做一次性迁移，之后不再读写。
+    const readGlobalRaw = () => {
         try {
-            const raw = localStorage.getItem(CFG_KEY);
-            if (raw) {
-                const c = JSON.parse(raw) || {};
-                if (typeof c.baseUrl === 'string') d.baseUrl = c.baseUrl.trim();
-                if (typeof c.model === 'string') d.model = c.model.trim();
-                if (c.temperature !== undefined) d.temperature = clampTemp(c.temperature);
-                if (c.maxTokens !== undefined) d.maxTokens = clampTokens(c.maxTokens);
-                if (typeof c.enabled === 'boolean') d.enabled = c.enabled;
-                if (c.features) FEATURES.forEach((f) => { if (typeof c.features[f] === 'boolean') d.features[f] = c.features[f]; });
-            }
+            const raw = localStorage.getItem('global_api_config_v1');
+            if (raw) { const o = JSON.parse(raw) || {}; if (o && typeof o === 'object') return o; }
         } catch (e) {}
+        return null;
+    };
+    const loadCfg = () => {
+        const d = { baseUrl: '', model: '', temperature: 0.9, maxTokens: '', enabled: true, features: { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true } };
+        let c = null;
+        try { if (window.GlobalAPI && window.GlobalAPI.getConfig) c = window.GlobalAPI.getConfig(); } catch (e) {}
+        if (!c || typeof c !== 'object') c = readGlobalRaw();
+        if (!c) return d;
+        if (typeof c.baseUrl === 'string') d.baseUrl = c.baseUrl.trim();
+        if (typeof c.model === 'string') d.model = c.model.trim();
+        if (c.temperature !== undefined) d.temperature = clampTemp(c.temperature);
+        if (c.maxTokens !== undefined && c.maxTokens !== '' && c.maxTokens != null) d.maxTokens = clampTokens(c.maxTokens);
+        if (typeof c.enabled === 'boolean') d.enabled = c.enabled;
+        if (c.features) FEATURES.forEach((f) => { if (typeof c.features[f] === 'boolean') d.features[f] = c.features[f]; });
         return d;
     };
-    const saveCfg = (cfg) => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} return cfg; };
-    const loadKey = () => { try { return localStorage.getItem(KEY_KEY) || ''; } catch (e) { return ''; } };
-    const saveKey = (k) => { try { localStorage.setItem(KEY_KEY, String(k || '')); } catch (e) {} };
-    const clearKey = () => { try { localStorage.removeItem(KEY_KEY); } catch (e) {} };
+    const saveCfg = (cfg) => {
+        // 先和当前统一配置合并：只传部分字段（如 { enabled: true }）时，其余字段保持原值，绝不清空
+        const cur = loadCfg();
+        const merged = Object.assign({}, cur, cfg || {});
+        if (cfg && cfg.features && typeof cfg.features === 'object') merged.features = Object.assign({}, cur.features, cfg.features);
+        const patch = {
+            baseUrl: merged.baseUrl || '', model: merged.model || '',
+            temperature: (merged.temperature !== undefined ? merged.temperature : 0.9),
+            maxTokens: (merged.maxTokens === undefined || merged.maxTokens === null) ? '' : merged.maxTokens,
+            enabled: !!merged.enabled, features: merged.features
+        };
+        try {
+            if (window.GlobalAPI && window.GlobalAPI.setConfig) { window.GlobalAPI.setConfig(patch); return merged; }
+        } catch (e) {}
+        try {
+            const curRaw = readGlobalRaw() || {};
+            Object.assign(curRaw, patch);
+            localStorage.setItem('global_api_config_v1', JSON.stringify(curRaw));
+        } catch (e) {}
+        return merged;
+    };
+    const loadKey = () => {
+        try { if (window.GlobalAPI && window.GlobalAPI.getConfig) { const k = window.GlobalAPI.getConfig().key; if (typeof k === 'string') return k; } } catch (e) {}
+        const raw = readGlobalRaw();
+        return (raw && typeof raw.key === 'string') ? raw.key : '';
+    };
+    const saveKey = (k) => {
+        try { if (window.GlobalAPI && window.GlobalAPI.setConfig) { window.GlobalAPI.setConfig({ key: String(k || '') }); return; } } catch (e) {}
+        try { const cur = readGlobalRaw() || {}; cur.key = String(k || ''); localStorage.setItem('global_api_config_v1', JSON.stringify(cur)); } catch (e) {}
+    };
+    const clearKey = () => { saveKey(''); };
 
-    // GROUP-BF · 单独配置：只新增 phone_model_per_feature_v1 一个键，按功能分；
-    // 每项 { source:'global'|'custom', baseUrl:'', model:'', key:'' }，空字段继承全局；
-    // key 只存本机，导出时整条删掉（见 sanitizeExportData 与 doExport），绝不进日志。
-    const PER_KEY = 'phone_model_per_feature_v1';
-    const loadPerAll = () => { try { const raw = localStorage.getItem(PER_KEY); if (raw) { const o = JSON.parse(raw) || {}; if (o && typeof o === 'object') return o; } } catch (e) {} return {}; };
-    const savePerAll = (o) => { try { localStorage.setItem(PER_KEY, JSON.stringify(o || {})); } catch (e) {} return o; };
-    const loadPerFeature = (f) => { const all = loadPerAll(); const e = (all && all[f]) || {}; return { source: e.source === 'custom' ? 'custom' : 'global', baseUrl: typeof e.baseUrl === 'string' ? e.baseUrl.trim() : '', model: typeof e.model === 'string' ? e.model.trim() : '', key: typeof e.key === 'string' ? e.key : '' }; };
-    const savePerFeature = (f, entry) => { const all = loadPerAll(); if (!entry || entry.source !== 'custom') delete all[f]; else all[f] = { source: 'custom', baseUrl: String(entry.baseUrl || '').trim(), model: String(entry.model || '').trim(), key: String(entry.key || '') }; savePerAll(all); return loadPerFeature(f); };
-    const clearPerFeature = (f) => { const all = loadPerAll(); delete all[f]; savePerAll(all); };
-    const perFeatureKeys = () => { const all = loadPerAll(); const out = []; FEATURES.forEach((f) => { const k = all[f] && all[f].key; if (k) out.push(k); }); return out; };
-    const configSourceFor = (f) => loadPerFeature(f).source;
-    // 该功能实际用的配置：单独字段优先填，未填的继承全局；温度/maxTokens 始终走全局
-    const effectiveCfgFor = (f) => { const c = loadCfg(); const p = loadPerFeature(f); const baseUrl = (p.source === 'custom' && p.baseUrl) ? p.baseUrl : c.baseUrl; const model = (p.source === 'custom' && p.model) ? p.model : c.model; const key = (p.source === 'custom' && p.key) ? p.key : loadKey(); return { baseUrl: baseUrl, model: model, key: key, temperature: c.temperature, maxTokens: c.maxTokens, source: p.source }; };
+    // 该功能实际用的配置：直接用全局统一配置（按功能单独配置已删）。
+    const effectiveCfgFor = (f) => { const c = loadCfg(); return { baseUrl: c.baseUrl, model: c.model, key: loadKey(), temperature: c.temperature, maxTokens: c.maxTokens, source: 'global' }; };
 
     // URL 规范化：沿用 callRealAI / GlobalAPI 拉取模型时的同一规则
     const normalizeBase = (u) => { let s = String(u || '').trim().replace(/\/+$/, ''); if (/\/chat\/completions$/.test(s)) s = s.replace(/\/chat\/completions$/, ''); return s; };
@@ -31695,7 +31843,7 @@ const PhoneModel = (() => {
         if (!e.baseUrl || !e.model || !e.key) return '模板模式';
         if (!c.enabled) return '模板模式（总开关已关）';
         if (!c.features[f]) return '模板模式（本功能已关）';
-        return '已接模型（' + (e.source === 'custom' ? '单独' : '全局') + ' · ' + e.model + '）';
+        return '已接模型（' + e.model + '）';
     };
     const overallLabel = () => {
         const c = loadCfg();
@@ -31722,8 +31870,9 @@ const PhoneModel = (() => {
     const apiCfgFor = (f) => {
         if (!isEnabledFor(f)) return null;
         const e = effectiveCfgFor(f);
-        return { baseUrl: e.baseUrl, key: e.key, model: e.model, temperature: e.temperature, maxTokens: e.maxTokens, source: e.source };
+        return { baseUrl: e.baseUrl, key: e.key, model: e.model, temperature: e.temperature, maxTokens: e.maxTokens, source: 'global' };
     };
+
 
     // 唯一调用口子：只向用户自己填的 baseUrl 发请求，只在这里带 Authorization
     const chatComplete = async (messages, opts) => {
@@ -31802,19 +31951,37 @@ const PhoneModel = (() => {
     };
 
     // 备份/导出净化：删掉 key 本身；值里若混进了 key 也整条删掉；all 备份写明 key 未导出
+    // 备份/导出净化：key 永不导出。global_api_config_v1 与 global_api_presets_v1
+    // 只摘掉里面的 key 字段，其余配置（地址/模型名/温度）照常导出；旧键与备用 key
+    // 整条删掉；值里若混进了 key 字符串也整条删掉；all 备份写明 key 未导出。
     const sanitizeExportData = (data, scope) => {
         const out = data || {};
-        try { delete out[KEY_KEY]; } catch (e) {}
-        try { delete out[PER_KEY]; } catch (e) {}
-        const keysToScrub = [loadKey()].concat(perFeatureKeys()).filter(Boolean);
+        try { delete out['phone_model_key_v1']; } catch (e) {}
+        try { delete out['phone_model_per_feature_v1']; } catch (e) {}
+        try { delete out['phone_model_fallback_keys_v1']; } catch (e) {}
+        const stripKeyField = (v) => {
+            if (typeof v === 'string') { try { const o = JSON.parse(v); if (o && typeof o === 'object') { delete o.key; return JSON.stringify(o); } } catch (e) {} return v; }
+            if (v && typeof v === 'object') { try { delete v.key; } catch (e) {} return v; }
+            return v;
+        };
+        const stripPresetKeys = (v) => {
+            const stripOne = (p) => { if (p && typeof p === 'object') { try { delete p.key; } catch (e) {} } return p; };
+            if (typeof v === 'string') { try { const a = JSON.parse(v); if (Array.isArray(a)) return JSON.stringify(a.map(stripOne)); } catch (e) {} return v; }
+            if (Array.isArray(v)) return v.map(stripOne);
+            return v;
+        };
+        try { if (out['global_api_config_v1'] !== undefined) out['global_api_config_v1'] = stripKeyField(out['global_api_config_v1']); } catch (e) {}
+        try { if (out['global_api_presets_v1'] !== undefined) out['global_api_presets_v1'] = stripPresetKeys(out['global_api_presets_v1']); } catch (e) {}
+        const keysToScrub = [loadKey()].filter(Boolean);
         keysToScrub.forEach(function (key) {
             Object.keys(out).forEach(function (k) {
                 try { if (typeof out[k] === 'string' && out[k].indexOf(key) !== -1) delete out[k]; } catch (e) {}
             });
         });
-        if (scope === 'all') out['__phone_model_key_note__'] = 'key 未导出，需重填（请到设置 → 接模型重新填写）';
+        if (scope === 'all') out['__phone_model_key_note__'] = 'key 未导出，需重填（请到设置 → API 设置重新填写）';
         return out;
     };
+
 
     // ── 此刻内心独白：结合最近的日记写一句独白；10 分钟内只试一次，不刷接口 ──
     const refreshMonologue = (charName, cb) => {
@@ -31869,104 +32036,31 @@ const PhoneModel = (() => {
     try { ensureCSS(); } catch (e) {}
     try { refreshChatLine(); } catch (e) {}
 
-    // GROUP-BF · 每个功能单独配模型：区块 HTML（全局设置下方）；key 输入框 password 遮罩，不带值
-    const perFeatBlock = (f) => {
-        const p = loadPerFeature(f);
-        const custom = p.source === 'custom';
-        const hasKey = !!p.key;
-        return '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;" data-pm-perfeature="' + esc(f) + '">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);">'
-            + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">' + esc(FEATURE_NAMES[f]) + '</span>'
-            + '<select id="pm-pf-source-' + f + '" onchange="window.PhoneModel.setPerFeatureSourceUI(\'' + f + '\', this.value)" style="font-size:17px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:6px 8px;background:var(--st-paper,#fffdf8);flex-shrink:0;">'
-            + '<option value="global"' + (custom ? '' : ' selected') + '>用全局设置</option>'
-            + '<option value="custom"' + (custom ? ' selected' : '') + '>单独设置</option></select></div>'
-            + '<div id="pm-pf-label-' + f + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;">当前：' + esc(modeLabel(f)) + '</div></div>'
-            + '<div id="pm-pf-fields-' + f + '" style="display:' + (custom ? 'block' : 'none') + ';padding:4px 16px 0;">'
-            + '<div style="padding:10px 0 2px;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">只填想改的项，留空继承全局；单独的 key 同样只存在本机。</div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="pm-pf-base-' + f + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空继承全局" value="' + esc(p.baseUrl) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><input id="pm-pf-key-' + f + '" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : '留空继承全局') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="pm-pf-model-' + f + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空继承全局" value="' + esc(p.model) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.PhoneModel.savePerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">保存单独配置</button><button id="pm-pf-test-' + f + '" onclick="window.PhoneModel.testPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测试连接</button><button onclick="window.PhoneModel.clearPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:11px 0;font-size:17px;">清除单独配置</button></div>'
-            + '</div>'
-            + '<div id="pm-pf-result-' + f + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 16px 12px;line-height:1.7;white-space:pre-wrap;"></div>'
-            + '</div>';
-    };
-    const perFeatureSectionHTML = () => {
-        return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:4px 2px 8px;line-height:1.6;">每个功能单独配模型：选“单独设置”可只改其中一项（地址 / key / 模型名），其余继承全局；单独的 key 同样只存在本机，不进备份与导出。</div>'
-            + FEATURES.map(perFeatBlock).join('');
-    };
-
-    // ── 设置子页 ──
-    const renderSettingsSub = () => {
-        const cfg = loadCfg();
-        const hasKey = !!loadKey();
-        const last = lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录';
-        const featRow = (f) => '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);">' + esc(FEATURE_NAMES[f]) + '<input type="checkbox" id="pm-feat-' + f + '"' + (cfg.features[f] ? ' checked' : '') + ' onchange="window.PhoneModel.setFeature(\'' + f + '\', this.checked)" class="st-check"></label>';
-        return '<div class="st-sub" id="st-sub-model">'
-            + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">接模型</div></div>'
-            + '<div style="padding:16px 16px 48px;">'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;padding:14px 16px;margin-bottom:12px;"><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">当前模式</div><div id="pm-mode-status" style="font-size:17px;font-weight:600;margin-top:4px;">' + esc(overallLabel()) + '</div><div id="pm-last-call" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;">最近一次调用：' + esc(last) + '</div></div>'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="pm-baseurl" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 https://api.deepseek.com/v1" value="' + esc(cfg.baseUrl) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><input id="pm-key" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : 'sk-…（只存在本机）') + '" style="flex:1;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);padding:0;min-width:0;"><span onclick="var i=document.getElementById(\'pm-key\');if(i){i.type=(i.type===\'password\'?\'text\':\'password\');this.textContent=(i.type===\'password\'?\'显示\':\'隐藏\');}" style="font-size:17px;cursor:pointer;flex-shrink:0;">显示</span></div></div>'
-            + '<div style="padding:13px 16px;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="pm-model" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 deepseek-chat（等你填）" value="' + esc(cfg.model) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '</div>'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);display:flex;align-items:center;justify-content:space-between;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">温度（0–2）</span><input id="pm-temp" type="number" step="0.1" min="0" max="2" value="' + esc(cfg.temperature) + '" style="width:80px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;font-size:17px;padding:6px 8px;text-align:right;"></div>'
-            + '<div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">最大 token</span><input id="pm-maxtok" type="number" min="1" value="' + esc(cfg.maxTokens) + '" style="width:80px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;font-size:17px;padding:6px 8px;text-align:right;"></div>'
-            + '</div>'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);font-weight:600;">总开关<input type="checkbox" id="pm-enabled"' + (cfg.enabled ? ' checked' : '') + ' onchange="window.PhoneModel.setEnabled(this.checked)" class="st-check"></label>'
-            + featRow('chat') + featRow('scriptDm') + featRow('diary') + featRow('monologue') + featRow('charGen') + featRow('wenYou') + featRow('novelVn') + featRow('proactive')
-            + '</div>'
-            + perFeatureSectionHTML()
-            + '<div style="display:flex;gap:8px;"><button onclick="window.PhoneModel.saveFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">保存</button></div>'
-            + '<div style="display:flex;gap:8px;margin-top:8px;"><button id="pm-test-btn" onclick="window.PhoneModel.testFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">测试连接</button></div>'
-            + '<div style="display:flex;gap:6px;margin-top:8px;"><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'endpoint\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测端点</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'model\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测模型</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'voice\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测语音</button></div>'
-            + '<div id="ao-model-split" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:10px;line-height:1.9;"><div id="ao-test-endpoint">端点：未测</div><div id="ao-test-model">模型：未测</div><div id="ao-test-voice">语音：未测</div></div>'
-            + '<button onclick="window.PhoneModel.clearKeyFromForm()" style="width:100%;margin-top:8px;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:12px 0;font-size:17px;">清除 key</button>'
-            + '<div id="pm-test-result" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));text-align:center;margin-top:12px;line-height:1.7;white-space:pre-wrap;"></div>'
-            + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));text-align:center;margin-top:12px;line-height:1.7;">不预填任何地址、模型名与 key，等你自己填。<br>小说批注仍走它自己的设置，不用这里的 key；<br>微信原有的「API 设置」也还保留，未配这里时按原来的走。</div>'
-            + '</div></div>';
-    };
-
-    const readForm = () => {
+    // ── API 设置页（GlobalAPI）里的「模型连接」分区共用的状态/测试函数 ──
+    // 读表单：直接读 ga-* 输入框（API 设置页）；页没打开时读已保存的统一配置。
+    const readGaForm = () => {
         const v = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
         const c = loadCfg();
-        c.baseUrl = v('pm-baseurl').trim();
-        c.model = v('pm-model').trim();
-        c.temperature = clampTemp(v('pm-temp'));
-        c.maxTokens = clampTokens(v('pm-maxtok'));
-        const en = document.getElementById('pm-enabled');
-        if (en) c.enabled = !!en.checked;
-        FEATURES.forEach((f) => { const el = document.getElementById('pm-feat-' + f); if (el) c.features[f] = !!el.checked; });
-        return { cfg: c, keyInput: v('pm-key').trim() };
+        const bu = v('ga-baseurl').trim();
+        const mo = v('ga-model').trim();
+        const ky = v('ga-key').trim();
+        if (bu || mo || ky) { c.baseUrl = bu; c.model = mo; }
+        return { cfg: c, keyInput: ky };
     };
+    const lastCallText = () => lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录';
     const showResult = (text, ok) => {
+        const msg = (text === '' || text == null) ? (overallLabel() + ' · 最近一次调用：' + lastCallText()) : text;
+        const st = document.getElementById('ga-pm-status');
+        if (st) { st.textContent = msg; st.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
         const el = document.getElementById('pm-test-result');
-        if (el) { el.textContent = text; el.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
-        const st = document.getElementById('pm-mode-status');
-        if (st) st.textContent = overallLabel();
+        if (el) { el.textContent = text || ''; }
+        const ms = document.getElementById('pm-mode-status');
+        if (ms) ms.textContent = overallLabel();
         const lc = document.getElementById('pm-last-call');
-        if (lc) lc.textContent = '最近一次调用：' + (lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录');
-    };
-    const saveFromForm = () => {
-        // BL-06：温度/最大 token 填错不再静默钳制成默认值，报错不保存
-        const _rawTemp = (document.getElementById('pm-temp') || {}).value;
-        if (_rawTemp !== '' && _rawTemp != null && (isNaN(parseFloat(_rawTemp)) || parseFloat(_rawTemp) < 0 || parseFloat(_rawTemp) > 2)) { showResult('温度要是 0–2 之间的数字，现在是「' + _rawTemp + '」，没保存', false); return false; }
-        const _rawTok = (document.getElementById('pm-maxtok') || {}).value;
-        if (_rawTok !== '' && _rawTok != null && (!/^\d+$/.test(String(_rawTok).trim()) || parseInt(_rawTok, 10) < 1)) { showResult('最大 token 要是大于 0 的整数，现在是「' + _rawTok + '」，没保存', false); return false; }
-        const f = readForm();
-        if (f.cfg.baseUrl && !/^https?:\/\//i.test(f.cfg.baseUrl)) { showResult('地址要以 http:// 或 https:// 开头', false); return false; }
-        if (f.cfg.enabled && (!f.cfg.baseUrl || !f.cfg.model || !(f.keyInput || loadKey()))) { const _miss = [!f.cfg.baseUrl ? '接口地址' : null, !f.cfg.model ? '模型名' : null, !(f.keyInput || loadKey()) ? 'API key' : null].filter(Boolean).join('、'); showResult('总开关开着，但还缺：' + _miss + '。填好再保存，或先关掉总开关', false); return false; }
-        saveCfg(f.cfg);
-        if (f.keyInput) saveKey(f.keyInput);
-        showResult('已保存' + (f.keyInput ? '（key 已更新，只存在本机）' : ''), true);
-        refreshChatLine();
-        return true;
+        if (lc) lc.textContent = '最近一次调用：' + lastCallText();
     };
     const testFromForm = async () => {
-        const f = readForm();
+        const f = readGaForm();
         showResult('正在测试连接…', null);
         try {
             const r = await testConnection(f.cfg, f.keyInput || loadKey());
@@ -31974,70 +32068,15 @@ const PhoneModel = (() => {
             else showResult('连接失败：' + r.reason, false);
         } catch (e) { showResult('连接失败：' + classify(e, loadKey()), false); }
     };
-    // GROUP-BF · 单独配置表单：读本功能块内的输入；空字段继承全局；key 留空不改已存值
-    const perFormVal = (f, kind) => { const el = document.getElementById('pm-pf-' + kind + '-' + f); return el ? String(el.value || '') : ''; };
-    const refreshPerFeatureLabel = (f) => {
-        const el = document.getElementById('pm-pf-label-' + f);
-        if (el) el.textContent = '当前：' + modeLabel(f);
-    };
-    const showPerFeatureResult = (f, text, ok) => {
-        const el = document.getElementById('pm-pf-result-' + f);
-        if (el) { el.textContent = text; el.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
-        refreshPerFeatureLabel(f);
-    };
-    const setPerFeatureSourceUI = (f, v) => {
-        const fields = document.getElementById('pm-pf-fields-' + f);
-        if (v === 'custom') { if (fields) fields.style.display = 'block'; }
-        else { clearPerFeature(f); if (fields) fields.style.display = 'none'; showPerFeatureResult(f, '已改回全局设置', true); }
-        refreshPerFeatureLabel(f); refreshChatLine();
-    };
-    const savePerFeatureFromForm = (f) => {
-        const srcEl = document.getElementById('pm-pf-source-' + f);
-        if (!srcEl || srcEl.value !== 'custom') { clearPerFeature(f); showPerFeatureResult(f, '已改回全局设置', true); refreshChatLine(); return true; }
-        const prev = loadPerFeature(f);
-        const base = perFormVal(f, 'base').trim();
-        const model = perFormVal(f, 'model').trim();
-        const keyIn = perFormVal(f, 'key').trim();
-        if (base && !/^https?:\/\//i.test(base)) { showPerFeatureResult(f, '地址要以 http:// 或 https:// 开头', false); return false; }
-        savePerFeature(f, { source: 'custom', baseUrl: base, model: model, key: keyIn || prev.key });
-        const keyEl = document.getElementById('pm-pf-key-' + f);
-        if (keyEl) { keyEl.value = ''; keyEl.placeholder = (keyIn || prev.key) ? '已保存（留空表示不改）' : '留空继承全局'; }
-        showPerFeatureResult(f, '单独配置已保存（key 只存在本机）', true);
-        refreshChatLine();
-        return true;
-    };
-    const testPerFeatureFromForm = async (f) => {
-        const prev = loadPerFeature(f);
-        const g = loadCfg();
-        const base = perFormVal(f, 'base').trim() || prev.baseUrl || g.baseUrl;
-        const model = perFormVal(f, 'model').trim() || prev.model || g.model;
-        const key = perFormVal(f, 'key').trim() || prev.key || loadKey();
-        showPerFeatureResult(f, '正在测试连接…', null);
-        try {
-            const r = await testConnection({ baseUrl: base, model: model }, key);
-            if (r.ok) showPerFeatureResult(f, r.via === 'models' ? ('连接成功，模型列表通过' + (r.models && r.models.length ? '：' + r.models.join('、') : '')) : '连接成功，探针通过（模型列表拉取失败，但最小 chat 探针通过）', true);
-            else showPerFeatureResult(f, '连接失败：' + r.reason, false);
-        } catch (e) { showPerFeatureResult(f, '连接失败：' + classify(e, key), false); }
-    };
-    const clearPerFeatureFromForm = (f) => {
-        try { if (typeof window.confirm === 'function' && !window.confirm('确定清除「' + (FEATURE_NAMES[f] || f) + '」的单独配置吗？清除后改回全局设置。')) return; } catch (e) {}
-        clearPerFeature(f);
-        const srcEl = document.getElementById('pm-pf-source-' + f);
-        if (srcEl) srcEl.value = 'global';
-        const fields = document.getElementById('pm-pf-fields-' + f);
-        if (fields) fields.style.display = 'none';
-        ['base', 'model', 'key'].forEach(function (kind) { const el = document.getElementById('pm-pf-' + kind + '-' + f); if (el) el.value = ''; });
-        showPerFeatureResult(f, '单独配置已清除，改回全局设置', true);
-        refreshChatLine();
-    };
     const clearKeyFromForm = () => {
         try { if (typeof window.confirm === 'function' && !window.confirm('确定清除已保存的 key 吗？清除后回到模板模式，需要重新填写才能再用模型。')) return; } catch (e) {}
         clearKey();
-        const inp = document.getElementById('pm-key');
-        if (inp) { inp.value = ''; inp.placeholder = 'sk-…（只存在本机）'; }
+        const inp = document.getElementById('ga-key');
+        if (inp) inp.value = '';
         showResult('key 已清除，已回到模板模式', true);
         refreshChatLine();
     };
+
     const setEnabled = (v) => { const c = loadCfg(); c.enabled = !!v; saveCfg(c); showResult('', null); refreshChatLine(); };
     const setFeature = (f, v) => { const c = loadCfg(); if (c.features[f] !== undefined) c.features[f] = !!v; saveCfg(c); showResult('', null); refreshChatLine(); };
 
@@ -32049,13 +32088,10 @@ const PhoneModel = (() => {
         lastFallbackFor: lastFallbackFor, lastCallInfo: () => lastCall, noteFallback: noteFail,
         apiCfgFor: apiCfgFor, chatComplete: chatComplete, testConnection: testConnection,
         sanitizeExportData: sanitizeExportData, refreshMonologue: refreshMonologue, dmLineForScript: dmLineForScript,
-        refreshChatLine: refreshChatLine, renderSettingsSub: renderSettingsSub,
-        saveFromForm: saveFromForm, testFromForm: testFromForm, clearKeyFromForm: clearKeyFromForm,
+        refreshChatLine: refreshChatLine,
+        testFromForm: testFromForm, clearKeyFromForm: clearKeyFromForm,
         setEnabled: setEnabled, setFeature: setFeature,
-        PER_KEY: PER_KEY, loadPerFeature: loadPerFeature, savePerFeature: savePerFeature,
-        clearPerFeature: clearPerFeature, effectiveCfgFor: effectiveCfgFor, configSourceFor: configSourceFor,
-        setPerFeatureSourceUI: setPerFeatureSourceUI, savePerFeatureFromForm: savePerFeatureFromForm,
-        testPerFeatureFromForm: testPerFeatureFromForm, clearPerFeatureFromForm: clearPerFeatureFromForm
+        effectiveCfgFor: effectiveCfgFor
     };
 })();
 window.PhoneModel = PhoneModel;

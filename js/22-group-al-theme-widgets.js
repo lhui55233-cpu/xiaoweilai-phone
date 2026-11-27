@@ -304,7 +304,7 @@ function widgetEntries() {
 function settingEntries() {
   return [
     { kind: 'setting', name: '主题与外观', sub: '设置 · 浅色/深色/色温/壁纸', act: 'theme' },
-    { kind: 'setting', name: '接模型', sub: '设置 · 模型连接（AG 组未合入时仅提示）', act: 'model' },
+    { kind: 'setting', name: 'API 设置', sub: '设置 · 模型连接', act: 'model' },
     { kind: 'setting', name: '锁屏密码', sub: '设置 · 默认关闭，自行设置', act: 'lock' },
     { kind: 'setting', name: '小组件商店', sub: '设置 · 挑选桌面小组件', act: 'store' }
   ];
@@ -357,7 +357,7 @@ function openSettingEntry(act) {
     ALToast('info', '小组件商店未就绪');
     return;
   }
-  if (act === 'model') { ALToast('info', '接模型尚未合入（AG 组），请稍后再来'); return; }
+  if (act === 'model') { try { if (window.GlobalAPI) { window.GlobalAPI.open(); return; } } catch (e) {} ALToast('info', 'API 设置未就绪'); return; }
   /* 主题/锁屏：点桌面“设置”图标；找不到时只提示，不造假跳转 */
   var icons = appEntries();
   var target = null;

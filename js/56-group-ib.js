@@ -488,7 +488,7 @@
     var btn = root.querySelector ? root.querySelector('#ib-diag-ai') : null;
     if (_aiDiagBusy) { setLine('AI 诊断正在跑，等这一轮跑完再点。'); return Promise.resolve('busy'); }
     if (!window.PhoneModel || !window.PhoneModel.isConfigured || !window.PhoneModel.isConfigured()) {
-      setLine('AI 诊断需要先在设置 → 接模型里接好模型（填好地址、模型名和 key）。现在还没接好，所以没有诊断——不是模型说没问题，是根本没问模型。');
+      setLine('AI 诊断需要先在设置 → API 设置里接好模型（填好地址、模型名和 key）。现在还没接好，所以没有诊断——不是模型说没问题，是根本没问模型。');
       return Promise.resolve('need-model');
     }
     _aiDiagBusy = true; if (btn) btn.disabled = true;
