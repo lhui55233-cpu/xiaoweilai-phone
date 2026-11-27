@@ -320,6 +320,9 @@ else { p = lsGet(PREFS_KEY, null); _coreUiPrefsRaw = p; _coreUiPrefsAt = _now; _
 if (!p || typeof p!== 'object') return JSON.parse(JSON.stringify(PREFS_DEFAULT));
 var out = JSON.parse(JSON.stringify(PREFS_DEFAULT));
 Object.keys(PREFS_DEFAULT).forEach(function (k) { if (p[k]!== undefined) out[k] = p[k];});
+/* 布局只认 default/compact：旧迁移曾把图标位置对象 String() 成 "[object Object]" 写进来，读到非法值一律回默认（保存偏好时会写回合法值） */
+if (out.layout !== 'default' && out.layout !== 'compact') out.layout = 'default';
+if (out.themeCustom == null || typeof out.themeCustom !== 'object') out.themeCustom = { c1: '#ffffff', c2: '#34363b' };
 return out;
 }
 function setUiPrefs(patch) {
@@ -345,7 +348,7 @@ if (typeof s3.layout === 'string') patch.layout = s3.layout;
 var wp = rawGet('phone_wallpaper_v1') || rawGet('phone_wallpaper');
 if (wp) { from.push('phone_wallpaper_v1'); if (!patch.wallpaper) patch.wallpaper = wp;}
 var icons = lsGet('iconsystem_v1', null);
-if (icons && typeof icons === 'object') { from.push('iconsystem_v1'); if (icons.layout &&!patch.layout) patch.layout = String(icons.layout);}
+if (icons && typeof icons === 'object') { from.push('iconsystem_v1'); /* iconsystem 的 layout 是图标位置对象（各区 id 数组），不是偏好的 default/compact，绝不能 String() 进来（会写成 "[object Object]"）；只接受字符串枚举值 */ if (typeof icons.layout === 'string' && (icons.layout === 'default' || icons.layout === 'compact') && !patch.layout) patch.layout = icons.layout;}
 var pet = lsGet('char_inner_switches_v1', null);
 if (pet && typeof pet === 'object') { from.push('char_inner_switches_v1');}
 if (!cur) { var created = JSON.parse(JSON.stringify(PREFS_DEFAULT)); Object.keys(patch).forEach(function (k) { created[k] = patch[k];}); created.migratedFrom = from; lsSet(PREFS_KEY, created); try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (e) {} /* GROUP-THROTTLE: 写后立即失效主题解析缓存 */ return { created: true, from: from, prefs: created};}
@@ -369,11 +372,14 @@ var memCount = getMemories().length;
 var pct = Math.min(100, Math.round(100 * (0.6 * Math.min(msgCount, CTX_MSG_CAP) / CTX_MSG_CAP + 0.4 * Math.min(memCount, CTX_MEM_CAP) / CTX_MEM_CAP)));
 return { sessionId: sess? sess.id: null, sessionName: sess? sess.name: '', msgCount: msgCount, memCount: memCount, msgCap: CTX_MSG_CAP, memCap: CTX_MEM_CAP, pct: pct, needCompress: pct >= 100};
 }
-function contextMeterHTML(sessionId) {
+function contextMeterHTML(sessionId, variant) {
 var u = contextUsage(sessionId);
 var bar = '<div style="height:6px;background:var(--st-silver-light,#dce2f1);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + u.pct + '%;background:' + (u.needCompress? 'var(--st-danger,#7c2d2d)': 'var(--st-ink,#1e2748)') + ';"></div></div>';
 var tip = u.needCompress? '可以压缩了（已满 100%）': '上下文 ' + u.pct + '%';
-return '<div id="t-ctx-meter" style="padding:8px 12px;background:var(--st-paper-cool,#eef0f5);border-bottom:1px solid var(--st-silver,#bfc8e0);font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));" data-pct="' + u.pct + '">' + bar + '<div style="display:flex;justify-content:space-between;margin-top:4px;"><span>' + esc(tip) + ' · 消息 ' + u.msgCount + '/' + u.msgCap + ' · 记忆 ' + u.memCount + '/' + u.memCap + '</span><span style="color:var(--st-ink,#1e2748);font-weight:500;cursor:pointer;" onclick="window.SafeBackupT.requestCompress(\'' + esc(u.sessionId || '') + '\')">压缩</span></div></div>';
+var inner = bar + '<div style="display:flex;justify-content:space-between;margin-top:4px;"><span>' + esc(tip) + ' · 消息 ' + u.msgCount + '/' + u.msgCap + ' · 记忆 ' + u.memCount + '/' + u.memCap + '</span><span style="color:var(--st-ink,#1e2748);font-weight:500;cursor:pointer;" onclick="window.SafeBackupT.requestCompress(\'' + esc(u.sessionId || '') + '\')">压缩</span></div>';
+/* variant 'card'：安全中心备份页里的卡片版——不用聊天页的通条底色/下边框；id 也另起，避免与聊天页那条重名、被 1.5s 轮询 ensureCtxMeter 误换。 */
+if (variant === 'card') return '<div id="t-ctx-meter-center" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));" data-pct="' + u.pct + '">' + inner + '</div>';
+return '<div id="t-ctx-meter" style="padding:8px 12px;background:var(--st-paper-cool,#eef0f5);border-bottom:1px solid var(--st-silver,#bfc8e0);font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));" data-pct="' + u.pct + '">' + inner + '</div>';
 }
 function requestCompress(sessionId) {
 /* U 组压缩未合入：先提示 + 记一条，不假装已压缩。合入后这里改为调用 U 组入口。 */
@@ -655,6 +661,7 @@ var urows = undos.map(function (u) {
 return '<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));">' + esc(u.label) + ' · ' + esc(u.time || '') + ' <button onclick="window.SafeBackupT._ui.doUndo(\'' + u.id + '\')" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:13px;">撤销</button></div>';
 }).join('') || '<div style="color:var(--st-ink-60,rgba(30,39,72,.6));font-size:13px;">暂无可撤销的编辑。</div>';
 return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">安全模型：任何导出 / 导入 / 恢复都先展示会改变什么（预览 diff）→ 先把当前状态归档进备份区 → 再写 → 可撤销。恢复前一定先归档，永远有网兜。</div>' +
+'<div style="border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:12px 16px;margin-bottom:12px;background:var(--st-paper,#fffdf8);"><div style="font-size:17px;font-weight:600;margin-bottom:8px;">上下文用量</div>' + contextMeterHTML(null, 'card') + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;line-height:1.5;">100% = 该压缩了；只按消息与记忆的条数估算，不读内容。点“压缩”先记一条请求（U 组压缩未合入，暂不真正压缩）。</div></div>' +
 '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">' +
 '<button onclick="window.SafeBackupT._ui.doExport(\'guichao\')" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出归巢（先归档）</button>' +
 '<button onclick="window.SafeBackupT._ui.doExport(\'phone\')" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">导出整机备份（先归档）</button>' +
@@ -691,16 +698,61 @@ return '<div style="margin-bottom:12px;"><input id="t-ns-q" placeholder="搜索 
 }
 function renderPrefsTab() {
 var p = getUiPrefs();
-return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">界面偏好统一存放 phone_ui_prefs_v1（形状见模块注释；V 组主题与 W 组桌面外观按同一份形状读写）。迁移只读旧键一次，不回写旧键。</div>' +
-'<div style="font-size:17px;line-height:1.5;">语言 <input id="t-p-lang" value="' + esc(p.lang) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
-'主题 <select id="t-p-theme"><option value="light"' + (p.theme === 'light'? ' selected': '') + '>light</option><option value="dark"' + (p.theme === 'dark'? ' selected': '') + '>dark</option><option value="auto"' + (p.theme === 'auto'? ' selected': '') + '>auto</option><option value="bu-spring-pink"' + (p.theme === 'bu-spring-pink'? ' selected': '') + '>春·槐花粉</option><option value="bu-autumn-red"' + (p.theme === 'bu-autumn-red'? ' selected': '') + '>秋·枫叶红</option><option value="bu-night-black"' + (p.theme === 'bu-night-black'? ' selected': '') + '>夜·蜕茧黑</option><option value="bu-winter-blue"' + (p.theme === 'bu-winter-blue'? ' selected': '') + '>冬·雪河蓝</option><option value="bu-mint"' + (p.theme === 'bu-mint'? ' selected': '') + '>薄荷绿</option><option value="bu-lavender"' + (p.theme === 'bu-lavender'? ' selected': '') + '>薰衣草紫</option><option value="bu-cream"' + (p.theme === 'bu-cream'? ' selected': '') + '>奶油黄</option><option value="bu-forest"' + (p.theme === 'bu-forest'? ' selected': '') + '>墨绿</option></select><br/>' +
-'自定义两色 <input id="t-p-c1" value="' + esc(p.themeCustom.c1) + '" style="width:90px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /> <input id="t-p-c2" value="' + esc(p.themeCustom.c2) + '" style="width:90px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
-'布局 <input id="t-p-layout" value="' + esc(p.layout) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
-'图标风格 <input id="t-p-icon" value="' + esc(p.iconStyle) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
-'壁纸 <input id="t-p-wp" value="' + esc(p.wallpaper) + '" style="width:220px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
-'桌面组件 <input id="t-p-wd" type="checkbox"' + (p.widgetsEnabled? ' checked': '') + ' /> 开启　桌面宠物 <input id="t-p-pet" type="checkbox"' + (p.petEnabled? ' checked': '') + ' /> 开启<br/>' +
-'宠物模式 <input id="t-p-petmode" value="' + esc(p.petMode) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" />　宠物大小 <input id="t-p-petsize" value="' + esc(p.petSize) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" />　宠物皮肤 <input id="t-p-petskin" value="' + esc(p.petSkin) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /><br/>' +
-'时钟样式 <input id="t-p-clock" value="' + esc(p.clockStyle) + '" style="border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);" /></div>' +
+/* 选项表：值沿用 phone_ui_prefs_v1 的原值（保存时原样写回），标签全部中文。
+   选项来源与 js/00 的同名表一致（ICON_STYLES / CLOCK_STYLES / PET_MODES /
+   PET_SIZES / PET_SKINS / WALLPAPERS）；这里各写一份字面量，不跨文件读 js/00 的
+   const，避免加载顺序耦合。壁纸值可能是色值 / data URL / 路径，见不到的走“其他”兜底。 */
+var OPTS = {
+lang: [['zh-CN', '中文（简体）'], ['en', 'English']],
+theme: [['light', '浅色'], ['dark', '深色'], ['auto', '跟随系统'], ['bu-spring-pink', '春·槐花粉'], ['bu-autumn-red', '秋·枫叶红'], ['bu-night-black', '夜·蜕茧黑'], ['bu-winter-blue', '冬·雪河蓝'], ['bu-mint', '薄荷绿'], ['bu-lavender', '薰衣草紫'], ['bu-cream', '奶油黄'], ['bu-forest', '墨绿']],
+layout: [['default', '默认'], ['compact', '紧凑']],
+iconStyle: [['default', '默认'], ['line', '极简线条'], ['jelly', '液态果冻'], ['frost', '磨砂玻璃'], ['classic', '经典纯色'], ['ios', 'iOS 原生']],
+wallpaper: [['fish', '游鱼'], ['', '纯白'], ['#fdf2f4', '柔粉'], ['#eef7f2', '薄荷'], ['#eef4fb', '天空'], ['#faf6ef', '暖米'], ['unsent-words', '无法显现的文字'], ['rain-letters', '雨落碎了字里行间']],
+petMode: [['full', '完整（书桌 + 溜达）'], ['walk-only', '只走路'], ['desk-only', '只坐桌']],
+petSize: [['small', '小'], ['medium', '中'], ['large', '大']],
+petSkin: [['default', 'QQ 小人（默认）'], ['cat', '小猫'], ['cutout', '抠图立绘'], ['pet-claude', 'Claude'], ['pet-chatgpt', 'ChatGPT'], ['pet-muse', 'Muse']],
+clockStyle: [['default', '默认'], ['digital', '数字'], ['analog', '模拟表盘'], ['minimal', '简约']] /* 'default' 是 PREFS_DEFAULT 的存量值（js/00:17399 未命中 analog/minimal 时按数字渲染），必须进选项表，否则存量默认会显示成“其他（原值：default）” */
+};
+var SEL_STYLE = 'border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);max-width:200px;';
+var otherLabel = function (cur) {
+var s = String(cur == null ? '' : cur);
+if (s.indexOf('data:') === 0 || s.indexOf('/') === 0 || s.indexOf('http') === 0) return '自定义图片';
+return '其他（原值：' + (s.length > 12 ? s.slice(0, 12) + '…' : s) + '）';
+};
+var sel = function (id, opts, cur) {
+var h = '<select id="' + id + '" style="' + SEL_STYLE + '">';
+var found = false;
+opts.forEach(function (o) { if (String(o[0]) === String(cur)) found = true; });
+if (!found) h += '<option value="' + esc(cur) + '" selected>' + esc(otherLabel(cur)) + '</option>';
+opts.forEach(function (o) { h += '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(cur) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; });
+return h + '</select>';
+};
+var hex = function (v, fb) { return /^#[0-9a-fA-F]{6}$/.test(String(v || '')) ? v : fb; };
+var c1 = hex(p.themeCustom.c1, '#ffffff'), c2 = hex(p.themeCustom.c2, '#34363b');
+var colorCtl = function (id, val) {
+return '<span style="display:inline-flex;align-items:center;gap:8px;"><input type="color" id="' + id + '" value="' + esc(val) + '" oninput="var s=this.nextElementSibling;if(s)s.textContent=this.value;" style="width:44px;height:32px;padding:2px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;background:var(--st-paper,#fffdf8);" /><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(val) + '</span></span>';
+};
+var row = function (label, ctl, last) {
+return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;' + (last ? '' : 'border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));') + '"><span style="font-size:17px;flex-shrink:0;">' + label + '</span><span style="display:flex;align-items:center;gap:8px;min-width:0;">' + ctl + '</span></div>';
+};
+var checkCtl = function (id, on) {
+return '<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (on ? '开' : '关') + '</span><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + ' style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);" /></span>';
+};
+return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:12px;">界面偏好统一存在本机，主题与桌面外观共用同一份；改完点“保存偏好”生效。</div>' +
+'<div style="background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;overflow:hidden;margin-bottom:12px;">' +
+row('语言', sel('t-p-lang', OPTS.lang, p.lang)) +
+row('主题', sel('t-p-theme', OPTS.theme, p.theme)) +
+row('自定义两色', colorCtl('t-p-c1', c1) + colorCtl('t-p-c2', c2)) +
+row('布局', sel('t-p-layout', OPTS.layout, p.layout)) +
+row('图标风格', sel('t-p-icon', OPTS.iconStyle, p.iconStyle)) +
+row('壁纸', sel('t-p-wp', OPTS.wallpaper, p.wallpaper)) +
+row('桌面组件', checkCtl('t-p-wd', p.widgetsEnabled)) +
+row('桌面宠物', checkCtl('t-p-pet', p.petEnabled)) +
+row('宠物模式', sel('t-p-petmode', OPTS.petMode, p.petMode)) +
+row('宠物大小', sel('t-p-petsize', OPTS.petSize, p.petSize)) +
+row('宠物皮肤', sel('t-p-petskin', OPTS.petSkin, p.petSkin)) +
+row('时钟样式', sel('t-p-clock', OPTS.clockStyle, p.clockStyle), true) +
+'</div>' +
 '<div style="display:flex;gap:8px;margin-top:12px;"><button onclick="window.SafeBackupT._ui.savePrefs()" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">保存偏好</button><button onclick="window.SafeBackupT._ui.migrateNow()" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 16px;font-size:17px;">从旧分散偏好迁移一次</button></div>' +
 '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:12px;">已迁移来源：' + esc((p.migratedFrom || []).join('、') || '（无）') + '</div>';
 }

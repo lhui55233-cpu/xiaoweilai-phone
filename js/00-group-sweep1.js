@@ -423,7 +423,9 @@ const NavigationManager = (() => {
         const stWin = AppManager.getActiveId() === 'settings' ? AppManager.getWin('settings') : null;
         const stSubs = stWin ? stWin.querySelectorAll('.st-sub.show') : [];
         if (stSubs.length) {
-            stSubs[stSubs.length - 1].classList.remove('show');
+            var _stEl = stSubs[stSubs.length - 1];
+            _stEl.classList.remove('show');
+            dropClosedStSub(_stEl);
             return true;
         }
         // 5c. 此刻 APP 子页面 (.ck-sub.show)
@@ -619,7 +621,7 @@ const home = () => {
             '.wx-feed-popover.wx-active',
             '.wx-subpage-box.wx-active'
         ].join(',')).forEach(el => el.classList.remove('wx-active', 'sd-show'));
-        document.querySelectorAll('.st-sub.show').forEach(el => el.classList.remove('show'));
+        document.querySelectorAll('.st-sub.show').forEach(el => { el.classList.remove('show'); dropClosedStSub(el); });
         document.querySelectorAll('.sys-app-subpage.sys-active').forEach(el => el.classList.remove('sys-active'));
         try { if (window.SystemCenter) SystemCenter.hideAll(); } catch(e) {}
         if (!SystemStore.get('isLocked') && AppManager.getActiveId()) AppManager.minimize();
@@ -638,6 +640,18 @@ const home = () => {
     return { back, home, push, current, clear, getStack: () => stack.slice() };
 })();
 window.NavigationManager = NavigationManager;
+
+// [设置重构浏览器问题修复] 关掉的 .st-sub 不要留在 DOM 里：它是 position:fixed +
+// translateX(100%) 的离屏面板，父窗 .sys-app-window 又是 transform 容器
+// （fixed 的包含块）且 overflow-y:auto → 每个关掉未删的子页都会把窗口的横向
+// 可滚动区撑到 200% 宽，底部出现横向滚动条。滑出动画 280ms，320ms 后确认
+// 还没重新 .show 才删；重新打开同 id 子页时挂载处已先删旧节点，行为不变。
+function dropClosedStSub(el) {
+    if (!el || el.nodeType !== 1) return;
+    setTimeout(function () {
+        if (!el.classList.contains('show') && el.parentNode) el.parentNode.removeChild(el);
+    }, 320);
+}
 
 // ══════════════════════════════════════════════════════════════════════
 // SysDialog · 全局美化弹窗 v1.0
@@ -4483,7 +4497,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                 // 全部 .st-sub.show（如 AH 整屋页叠在接模型页上时，点一次返回直接跳回设置首页）。
                 if (e.target.closest('[data-back]')) {
                     const atSubs = win.querySelectorAll('.st-sub.show');
-                    if (atSubs.length) atSubs[atSubs.length - 1].classList.remove('show');
+                    if (atSubs.length) { const _atEl = atSubs[atSubs.length - 1]; _atEl.classList.remove('show'); dropClosedStSub(_atEl); }
                     return;
                 }
                 // 禁词删除
@@ -31580,7 +31594,6 @@ const PhoneModel = (() => {
             + '</div>'
             + perFeatureSectionHTML()
             + '<div style="display:flex;gap:8px;"><button onclick="window.PhoneModel.saveFromForm()" style="flex:1;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border:none;border-radius:10px;padding:13px 0;font-size:17px;">保存</button></div>'
-            + '<div style="display:flex;gap:8px;margin-top:8px;"><button onclick="window.PhoneModel.testFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测试连接</button></div>'
             + '<div style="display:flex;gap:8px;margin-top:8px;"><button id="pm-test-btn" onclick="window.PhoneModel.testFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">测试连接</button></div>'
             + '<div style="display:flex;gap:6px;margin-top:8px;"><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'endpoint\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测端点</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'model\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测模型</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'voice\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测语音</button></div>'
             + '<div id="ao-model-split" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:10px;line-height:1.9;"><div id="ao-test-endpoint">端点：未测</div><div id="ao-test-model">模型：未测</div><div id="ao-test-voice">语音：未测</div></div>'
