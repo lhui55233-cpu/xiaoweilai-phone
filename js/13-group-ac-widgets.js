@@ -316,8 +316,8 @@ const ACWidgets = (() => {
         + '<div class="ac-si-sizes">' + ['S', 'M', 'L'].map((s) => '<button type="button" data-ac-add="' + c.id + ':' + s + '"' + (placed && placed.size === s ? ' class="ac-on"' : '') + '>' + (s === 'S' ? '小' : s === 'M' ? '中' : '大') + '</button>').join('') + '</div>'
         + '<div class="ac-si-state">' + (placed ? '已在桌面 · ' + placed.size + ' 尺寸，点尺寸可改大小' : '未放到桌面') + '</div></div>';
     });
-    ov.innerHTML = '<div class="ac-store-card">'
-      + '<div class="ac-store-title">小组件商店</div>'
+    ov.innerHTML = '<div class="ac-store-card"><div class="ac-store-grab"></div>'
+      + '<div class="ac-store-head"><div class="ac-store-title">小组件商店</div><button type="button" class="ac-store-x" data-ac-close-store="1" aria-label="关闭"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'
       + '<div class="ac-store-sub">每个组件一张卡片，点尺寸放到桌面；桌面上长按组件可移动、改大小；点右上角 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> 就地编辑。</div>' + (window.GroupAM ? window.GroupAM.configTableHtml() : '')
       + '<div class="ac-store-grid">' + cards + '</div>'
       + '<div class="ac-store-sec">主题色 · HSL 色轮</div>'
@@ -334,6 +334,8 @@ const ACWidgets = (() => {
       + '<div class="ac-store-sub">主题色同时写进 phone_ui_prefs_v1.themeCustom（T 组约定形状，T 组未合入，先按此键名与形状写，待 T 组确认后以 T 组为准）。</div>'
       + '<button type="button" class="ac-store-close" data-ac-close-store="1">完成</button></div>';
     document.body.appendChild(ov);
+    /* 商店打开期间藏起桌宠气泡：气泡在桌面层，浮层打开时它会透过遮罩压在搜索框上。 */
+    try { document.body.classList.add('xwl-store-open'); } catch (e) {}
     applyTheme();
     ov.addEventListener('click', (e) => {
       const add = e.target.closest('[data-ac-add]');
@@ -376,7 +378,7 @@ const ACWidgets = (() => {
       wheel.addEventListener('click', (ev) => { wheelPick(ev); });
     }
   };
-  const closeStore = () => { const m = document.getElementById('ac-store-modal'); if (m) m.remove(); };
+  const closeStore = () => { const m = document.getElementById('ac-store-modal'); if (m) m.remove(); try { document.body.classList.remove('xwl-store-open'); } catch (e) {} };
 
   /* ── 桌面区事件委托：铅笔就地编辑 / 移动 / 改大小 / 长按 ── */
   let lpTimer = null;

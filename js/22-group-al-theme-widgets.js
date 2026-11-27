@@ -422,7 +422,10 @@ function injectStoreSearch() {
     box.className = 'al-store-search';
     box.innerHTML = '<input id="al-store-input" type="search" aria-label="搜索小组件" placeholder="搜索小组件…" autocomplete="off" />'
       + '<div id="al-store-suggest" class="al-store-suggest"></div>';
-    card.insertBefore(box, card.firstChild);
+    /* 搜索框放在标题行下面（不在卡片最顶，避免压住顶部小横条），滚动时吸顶。 */
+    var head = card.querySelector('.ac-store-head');
+    if (head && head.nextSibling) card.insertBefore(box, head.nextSibling);
+    else card.insertBefore(box, card.firstChild);
     var input = $('#al-store-input');
     var suggest = $('#al-store-suggest');
     var applyFilter = function () {

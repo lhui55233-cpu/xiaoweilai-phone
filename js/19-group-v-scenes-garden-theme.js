@@ -184,15 +184,19 @@ var GV_DOWN_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" s
 var themeSectionHTML = function () {
   var cur = currentTheme();
   var btns = THEMES.map(function (t) {
-    return '<button type="button" class="gv-theme-btn' + (cur.id === t.id ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.setTheme(\'' + t.id + '\')" title="' + esc(t.desc) + '"><span class="gv-theme-sw" style="background:' + t.c1 + ';border-color:' + t.c2 + ';"></span>' + esc(t.name) + (cur.id === t.id ? ' ' + GV_CHECK_SVG : '') + '</button>';
+    var on = cur.id === t.id;
+    return '<button type="button" class="gv-theme-btn' + (on ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.setTheme(\'' + t.id + '\')" title="' + esc(t.desc) + '" aria-pressed="' + on + '"><span class="gv-theme-sw" style="background:linear-gradient(135deg,' + t.c1 + ' 50%,' + t.c2 + ' 50%);"></span><span class="gv-theme-name">' + esc(t.name) + '</span>' + (on ? '<span class="gv-theme-check">' + GV_CHECK_SVG + '</span>' : '') + '</button>';
   }).join('');
-  return '<div style="font-weight:600;margin:12px 0 8px;">主题</div>'
+  /* 自定义卡片：当前为自定义两色时，它就是唯一选中项；点它展开下方高级里的取色器。 */
+  var customOn = cur.id === 'custom';
+  btns += '<button type="button" class="gv-theme-btn' + (customOn ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.openCustomTheme()" title="自定义两色" aria-pressed="' + customOn + '"><span class="gv-theme-sw gv-theme-sw-custom"><i style="background:' + cur.c1 + '"></i><i style="background:' + cur.c2 + '"></i></span><span class="gv-theme-name">自定义</span>' + (customOn ? '<span class="gv-theme-check">' + GV_CHECK_SVG + '</span>' : '') + '</button>';
+  return '<div style="font-weight:600;font-size:17px;margin:12px 0 8px;">主题</div>'
     + '<div class="ot-muted">当前：<span data-gv-theme-name>' + esc(cur.name) + '</span></div>'
     + '<div class="gv-theme-btns">' + btns + '</div>'
-    + '<details style="margin-top:12px;"><summary style="font-size:13px;cursor:pointer;">高级</summary>'
-    + '<div style="margin-top:8px;font-size:13px;line-height:1.5;">自定义两色：浅色 <input type="color" value="' + cur.c1 + '" onchange="window.GroupV.setCustomColor(1,this.value)"> 主色 <input type="color" value="' + cur.c2 + '" onchange="window.GroupV.setCustomColor(2,this.value)"></div>'
-    + '<div style="margin-top:8px;font-size:13px;">分享代码：<input id="gv-share-code" readonly value="' + esc(shareCode()) + '" style="width:150px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.copyShareCode()">复制</button></div>'
-    + '<div style="margin-top:8px;font-size:13px;">导入代码：<input id="gv-share-import" placeholder="粘贴 GV1- 开头的代码" style="width:150px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.importShareCodeUI()">导入</button> <span id="gv-share-msg" class="ot-muted"></span></div></details>';
+    + '<details id="gv-adv" style="margin-top:12px;"' + (customOn ? ' open' : '') + '><summary style="font-size:13px;cursor:pointer;">高级</summary>'
+    + '<div style="margin-top:8px;font-size:14px;line-height:1.5;">自定义两色：浅色 <input type="color" value="' + cur.c1 + '" onchange="window.GroupV.setCustomColor(1,this.value)"> 主色 <input type="color" value="' + cur.c2 + '" onchange="window.GroupV.setCustomColor(2,this.value)"></div>'
+    + '<div style="margin-top:8px;font-size:13px;">分享代码：<input id="gv-share-code" readonly value="' + esc(shareCode()) + '" style="width:150px;border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;font-size:12px;background:#fff;color:#171717;"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.copyShareCode()">复制</button></div>'
+    + '<div style="margin-top:8px;font-size:13px;">导入代码：<input id="gv-share-import" placeholder="粘贴 GV1- 开头的代码" style="width:150px;border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;font-size:12px;background:#fff;color:#171717;"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.importShareCodeUI()">导入</button> <span id="gv-share-msg" class="ot-muted"></span></div></details>';
 };
 var refreshOtomeSettings = function () {
   try {
@@ -204,11 +208,17 @@ var openThemeSheet = function () {
   closeThemeSheet();
   var ov = document.createElement('div');
   ov.id = 'gv-theme-sheet';
-  ov.innerHTML = '<div class="gv-sheet"><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">' + GV_X_SVG + '</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
+  ov.innerHTML = '<div class="gv-sheet"><div class="gv-sheet-grab"></div><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">' + GV_X_SVG + '</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
   document.body.appendChild(ov);
   return true;
 };
 var closeThemeSheet = function () { var el = document.getElementById('gv-theme-sheet'); if (el) el.remove(); return true; };
+/* 点「自定义」卡片：展开高级里的取色器，让用户直接改两色。 */
+var openCustomTheme = function () {
+  var d = document.getElementById('gv-adv');
+  if (d) { d.open = true; try { d.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+  return true;
+};
 
 /* ══════════ A30 动作库：动作名即配置 ══════════
    命名约定（Hanami“文件名即配置”的做法，本组自写实现）：
@@ -742,12 +752,18 @@ var GV_CSS = [
   '.gv-pack-chip{border:1px solid #e8ddd2;background:#f7f7f7;color:#333;border-radius:12px;padding:5px 10px;font-size:12px;cursor:pointer;}',
   '.gv-pack-chip.gv-pack-on{background:#07c160;color:#fff;border-color:#07c160;}',
   '.gv-pack-send{border:0;background:#07c160;color:#fff;border-radius:12px;padding:7px 12px;font-size:12px;cursor:pointer;}',
-  '.gv-theme-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}',
-  '.gv-theme-btn{border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;cursor:pointer;display:flex;align-items:center;gap:8px;}',
-  '.gv-theme-btn-on{background:var(--st-paper-cool,#eef0f5);font-weight:500;}',
-  '.gv-theme-sw{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--st-silver,#bfc8e0);}',
+  '.gv-theme-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}',
+  '.gv-theme-btn{border:1px solid #e5e5e5;background:#fff;color:#171717;border-radius:12px;padding:10px 12px;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:48px;min-width:0;box-sizing:border-box;text-align:left;}',
+  '.gv-theme-btn-on{background:#f9f9f9;font-weight:600;border-color:#171717;box-shadow:inset 0 0 0 1px #171717;}',
+  '.gv-theme-sw{display:inline-block;width:24px;height:24px;border-radius:8px;border:1px solid rgba(23,23,23,.12);flex-shrink:0;}',
+  '.gv-theme-sw-custom{display:flex;overflow:hidden;padding:0;}',
+  '.gv-theme-sw-custom i{flex:1;display:block;}',
+  '.gv-theme-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
+  '.gv-theme-check{width:20px;height:20px;border-radius:50%;background:#171717;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
+  '.gv-theme-check svg{vertical-align:0;}',
+  '.gv-sheet-grab{width:36px;height:4px;border-radius:999px;background:#e5e5e5;margin:0 auto 12px;}',
   '#gv-theme-sheet{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:flex-end;justify-content:center;}',
-  '#gv-theme-sheet .gv-sheet{width:100%;max-width:480px;max-height:82%;overflow:auto;background:var(--st-paper,#fffdf8);border:1px solid var(--st-ink-20,rgba(30,39,72,.2));border-radius:var(--st-radius-xl,14px) var(--st-radius-xl,14px) 0 0;padding:16px;box-sizing:border-box;font-size:17px;color:var(--st-ink,#1e2748);box-shadow:var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12));}',
+  '#gv-theme-sheet .gv-sheet{width:100%;max-width:480px;max-height:70vh;overflow:auto;background:#fff;border:none;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));box-sizing:border-box;font-size:16px;color:#171717;box-shadow:0 4px 16px rgba(23,23,23,.12);}',
   '.gv-garden{margin-top:12px;background:rgba(255,255,255,.82);border-radius:18px;padding:12px 14px;box-shadow:0 8px 24px rgba(160,110,80,.14),0 0 0 1px rgba(255,255,255,.9);}',
   '.gv-garden-head{font-weight:700;font-size:14px;margin-bottom:8px;}',
   '.gv-garden-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}',
@@ -762,8 +778,7 @@ var THEME_CSS = [
   '#sys-shell{background-color:var(--gv-soft);}',
   '#sys-shell .sys-dock-bg{background-color:var(--gv-soft)!important;}',
   '.sys-app-window[data-app-sandbox="wechat"] #wx-otome-home{background:linear-gradient(180deg,var(--gv-soft) 0%,#ffffff 65%)!important;}',
-  '.st-bigtitle{color:var(--gv-accent)!important;}',
-  '.gv-theme-btn-on{border-color:var(--gv-accent)!important;}'
+  '.st-bigtitle{color:var(--gv-accent)!important;}'
 ].join('\n');
 var injectStyles = function () {
   try {
@@ -791,6 +806,7 @@ window.GroupV = {
   setTheme: setTheme, setCustomColor: setCustomColor, shareCode: shareCode, decodeTheme: decodeTheme,
   importShareCode: importShareCode, copyShareCode: copyShareCode, importShareCodeUI: importShareCodeUI,
   themeSectionHTML: themeSectionHTML, openThemeSheet: openThemeSheet, closeThemeSheet: closeThemeSheet,
+  openCustomTheme: openCustomTheme,
   refreshOtomeSettings: refreshOtomeSettings,
   ACTIONS: ACTIONS, EMOTIONS: EMOTIONS, lookupAction: lookupAction, listActions: listActions,
   playAction: playAction, charNod: charNod, ckNod: ckNod, charSit: charSit, isSeated: isSeated,

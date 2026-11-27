@@ -846,12 +846,12 @@ function configTableHtml() {
     (groups[m.group] = groups[m.group] || []).push(id);
   });
   var h = '<datalist id="am-city-list"><option value="上海"></option><option value="北京"></option><option value="杭州"></option><option value="成都"></option><option value="深圳"></option></datalist>';
-  h += '<div class="am-cfg" id="am-widget-cfg"><h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg> 小组件配置表（AM）</h4><div class="am-hint">每个组件一张配置表；带条件的行只在相关开关打开时出现。改完即存 groupam_widget_cfg_v1。</div>';
+  h += '<div class="am-cfg" id="am-widget-cfg"><h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg> 小组件配置表（AM）</h4><div class="am-hint">改完自动保存；带条件的行只在相关开关打开时出现。</div>';
   Object.keys(groups).forEach(function (g) {
-    h += '<div style="font-weight:700;margin-top:8px;">' + esc(g) + '</div><table>';
+    h += '<div style="font-weight:600;font-size:17px;color:#171717;margin:20px 0 4px;">' + esc(g) + '</div><table>';
     groups[g].forEach(function (id) {
       var m = WIDGET_CFG[id]; var cfg = getCfg(id);
-      h += '<tr><td colspan="2" style="font-weight:700;border-top:1px solid #efe3d3;">' + esc(m.name) + '</td></tr>';
+      h += '<tr><td colspan="2" style="font-weight:600;border-top:1px solid rgba(23,23,23,.08);">' + esc(m.name) + '</td></tr>';
       m.fields.forEach(function (f) {
         var vis = fieldVisible(id, f, cfg);
         var hint = f.type === 'number' ? ('默认 ' + f.def + ' · ' + f.min + '–' + f.max + '，步长 ' + f.step) : ('默认 ' + f.def);
@@ -861,7 +861,7 @@ function configTableHtml() {
     h += '</table>';
   });
   h += '<div style="margin-top:8px;"><button type="button" onclick="window.GroupAM.resetWidgetLayout()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 3.5V9h-5.5"/></svg> 一键恢复默认位置尺寸</button> <button type="button" onclick="window.GroupAM.snapGuides(true)">显示吸附参考线</button> <button type="button" onclick="window.GroupAM.snapGuides(false)">隐藏参考线</button></div>'
-    + '<div class="am-hint">AK 组桌面编辑（拖拽）未合入本版文件：AM 只做参考线 + 恢复默认的 UI，不重写拖拽；AK 合入后以 AK 的拖拽为准。</div></div>';
+    + '<div class="am-hint">桌面拖拽编辑尚未合入：这里只提供参考线与恢复默认。</div></div>';
   return h;
 }
 function resetWidgetLayout() {

@@ -24,7 +24,7 @@ var REG = G('AppRegistry'), MGR = G('AppManager');
 var $ = function (s, r) { return (r || document).querySelector(s); };
 var sleep = function (ms) { return new Promise(function (res) { setTimeout(res, ms); }); };
 
-/* ══ 1. 深色主题：V 组未合入，按 T 组 phone_ui_prefs_v1.theme 加两个取值 ══ */
+/* ══ 1. 深色主题：V 组主题表里没有这两套深色，按 T 组 phone_ui_prefs_v1.theme 加两个取值 ══ */
 var AFTheme = {
   KEY: 'phone_ui_prefs_v1',
   THEMES: {
@@ -67,7 +67,7 @@ var AFTheme = {
             + esc(AFTheme.THEMES[id].name) + (id === cur ? ' <svg class="af-cur-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>' : '') + '</button>';
         }).join('')
       + '<button type="button" class="af-theme-opt" data-af-theme-opt="__cancel" style="text-align:center;color:var(--st-ink,#1e2748);font-weight:600;">取消</button>'
-      + '<div class="af-theme-note">深色随时可切回白色；壁纸白色默认不变。<br>V 组 5 套主题 + 自定义两色未合入时，这里只有默认白与两套深色。</div></div>';
+      + '<div class="af-theme-note">深色随时可切回白色；壁纸白色默认不变。<br>这里只管两套深色（Gruvbox / 归巢深色）；14 套浅色主题 + 自定义两色在设置 → 主题里。</div></div>';
     ov.addEventListener('click', function (e) {
       if (e.target === ov) { ov.remove(); return; }
       var b = e.target.closest ? e.target.closest('[data-af-theme-opt]') : null;

@@ -54,13 +54,15 @@
 #am-search-overlay input[type=text]{width:100%;border:1px solid #e8d5c0;border-radius:12px;padding:10px;font-size:14px;background:#fff;color:#3a2e22;}
 #am-search-overlay .am-res{margin-top:10px;}
 #am-search-overlay .am-res-row{padding:8px 4px;border-top:1px dashed #f0e2d2;}
-.am-cfg{border:1px solid #efe3d3;background:#fffdf9;border-radius:12px;padding:10px;margin-top:10px;font-size:12px;color:#5a3a22;line-height:1.6;}
-.am-cfg h4{margin:0 0 4px;font-size:12px;color:#3a1e14;}
+.am-cfg{border:1px solid #e5e5e5;background:#fff;border-radius:12px;padding:16px;margin-top:16px;font-size:14px;color:#171717;line-height:1.5;}
+.am-cfg h4{margin:0 0 4px;font-size:17px;color:#171717;}
 .am-cfg table{width:100%;border-collapse:collapse;}
-.am-cfg td{padding:4px 2px;border-top:1px dashed #f0e2d2;vertical-align:middle;}
-.am-cfg td:first-child{width:38%;}
-.am-cfg select,.am-cfg input[type=text],.am-cfg input[type=number]{border:1px solid #e8d5c0;background:#fff;border-radius:8px;padding:4px 6px;font-size:12px;color:#5a3a22;max-width:130px;}
-.am-cfg .am-hint{font-size:11px;color:#a08a76;}
+.am-cfg td{padding:12px 0;border-top:1px solid rgba(23,23,23,.08);vertical-align:middle;}
+.am-cfg td:first-child{width:38%;font-size:15px;}
+.am-cfg select,.am-cfg input[type=text],.am-cfg input[type=number]{border:1px solid #e5e5e5;background:#fff;border-radius:8px;padding:8px 10px;font-size:14px;color:#171717;max-width:130px;}
+.am-cfg input[type=checkbox]{accent-color:#171717;width:20px;height:20px;}
+.am-cfg .am-hint{font-size:12px;color:#6e6e6e;}
+.am-cfg td .am-hint{display:block;margin-top:4px;}
 .am-cinema-react{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);z-index:20;max-width:86%;background:rgba(255,253,249,.97);border:1px solid #ead9c8;color:#5a3a22;font-size:12px;line-height:1.5;border-radius:14px;padding:7px 11px;box-shadow:0 6px 18px rgba(0,0,0,.16);pointer-events:none;}
 .am-reader-deco{position:absolute;right:12px;bottom:64px;z-index:30;max-width:78%;background:rgba(255,253,249,.95);border:1px solid #e8d5c0;color:#7a5a40;font-size:12px;line-height:1.5;border-radius:12px;padding:6px 10px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.1);}
 #am-snap-guides{position:absolute;inset:0;z-index:35;pointer-events:none;}

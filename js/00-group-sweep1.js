@@ -663,22 +663,21 @@ const SysDialog = (() => {
         const st = document.createElement('style');
         st.id = 'sys-dialog-style';
         st.textContent = `
-            .sd-mask { position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,0.36); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 28px; opacity: 0; pointer-events: none; transition: opacity 0.22s ease; }
+            .sd-mask { position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,0.40); display: flex; align-items: center; justify-content: center; padding: 28px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
             .sd-mask.sd-show { opacity: 1; pointer-events: auto; }
-            .sd-box { width: 100%; max-width: 300px; background: rgba(250,250,252,0.96); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); border-radius: 18px; overflow: hidden; box-shadow: 0 24px 50px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(0,0,0,0.04); transform: scale(0.95); transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1); font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; }
+            .sd-box { width: 100%; max-width: 320px; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(23,23,23,.12); transform: scale(0.96); transition: transform 0.2s ease; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; }
             .sd-mask.sd-show .sd-box { transform: scale(1); }
-            .sd-content { padding: 22px 22px 18px; text-align: center; }
-            .sd-title { font-size: 16px; font-weight: 600; color: #1d1d1f; letter-spacing: 0.2px; margin: 0 0 6px; }
-            .sd-msg { font-size: 13px; color: #515158; line-height: 1.5; margin: 0; }
-            .sd-input { width: 100%; margin-top: 14px; padding: 9px 12px; border-radius: 9px; border: 1px solid rgba(0,0,0,0.10); background: #fff; font-size: 14px; color: #1d1d1f; outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
-            .sd-input:focus { border-color: #007AFF; box-shadow: 0 0 0 3px rgba(0,122,255,0.14); }
-            .sd-actions { display: flex; border-top: 0.5px solid rgba(0,0,0,0.10); }
-            .sd-btn { flex: 1; padding: 12px 0; font-size: 15px; font-weight: 500; color: #007AFF; background: transparent; border: none; cursor: pointer; transition: background 0.12s ease; font-family: inherit; }
-            .sd-btn + .sd-btn { border-left: 0.5px solid rgba(0,0,0,0.10); }
-            .sd-btn:hover { background: rgba(0,0,0,0.04); }
-            .sd-btn:active { background: rgba(0,0,0,0.08); }
-            .sd-btn.sd-primary { font-weight: 600; }
-            .sd-btn.sd-danger { color: #FF3B30; }
+            .sd-content { padding: 20px; }
+            .sd-title { font-size: 17px; font-weight: 600; color: #171717; margin: 0 0 8px; }
+            .sd-msg { font-size: 16px; color: #525252; line-height: 1.5; margin: 0; }
+            .sd-input { width: 100%; margin-top: 14px; padding: 10px 12px; border-radius: 8px; border: 1px solid #e5e5e5; background: #fff; font-size: 16px; color: #171717; outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+            .sd-input:focus { border-color: rgba(23,23,23,.4); box-shadow: 0 0 0 3px rgba(23,23,23,.08); }
+            .sd-actions { display: flex; gap: 12px; padding: 0 20px 20px; }
+            .sd-btn { flex: 1; min-height: 44px; padding: 10px 0; font-size: 16px; font-weight: 500; color: #171717; background: transparent; border: 1px solid #e5e5e5; border-radius: 10px; cursor: pointer; transition: background 0.12s ease; font-family: inherit; }
+            .sd-btn:active { background: #f4f4f4; }
+            .sd-btn.sd-primary { font-weight: 600; background: #000; border-color: #000; color: #fff; }
+            .sd-btn.sd-primary:active { background: #262626; }
+            .sd-btn.sd-danger { color: #7c2d2d; border-color: #7c2d2d; }
         `;
         document.head.appendChild(st);
     }
@@ -3768,10 +3767,6 @@ AppManager.register('settings', (() => {
             ])}
             <div class="st-gap"></div>
             ${GROUP([
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '桌面与外观', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');var t={light:'浅色',dark:'深色',auto:'跟随系统'}[p.theme||'light']||'浅色';return t+' · '+(p.petEnabled===false?'桌宠关':'桌宠开');}catch(e){return '浅色';}})(), act:'w_desktop'}),
-            ], '桌面与外观：壁纸、主题、图标、桌宠、小组件都在这里，不单开 app；长按桌面空白处也能进。')}
-            <div class="st-gap"></div>
-            ${GROUP([
                 ROW(ICON('#FF2D55', I.sound), '消息提示音', {value: sset.msgSound, act:'sound'}),
                 ROW(ICON('#FF2D55', I.sound), '电话铃声', {value: (window.GroupBH ? window.GroupBH.globalLabel() : '默认'), act:'bhRingtone'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.msg), '开启主动发消息', {sw:'proactiveMsg'}),
@@ -4038,6 +4033,14 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                 ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
                 ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
             ])}
+            ${GROUP([
+                ROW(ICON('var(--st-ink,#171717)', I.summary), '开机动画', {act:'w_desktop:intro'}),
+                ROW(ICON('var(--st-ink,#171717)', I.layout), '桌面图标', {act:'w_desktop:deskicons'}),
+                ROW(ICON('var(--st-ink,#171717)', I.iconStyle), '图标挑选器', {act:'w_desktop:iconpicker'}),
+                ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟样式', {act:'w_desktop:clock'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面小组件', {act:'w_desktop:widgets'}),
+                ROW(ICON('var(--st-ink,#171717)', I.bubble), '桌宠', {act:'w_desktop:pet'})
+            ], '桌面独有的设置：点一行直接跳到对应位置；长按桌面空白处也能进。')}
             <div style="height:40px;"></div>
         </div>`;
     };
@@ -4498,6 +4501,81 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
             <div style="height:40px;"></div>
         </div>`;
     };
+    const updateBeautyBackBtn = (sub) => {
+        try {
+            const btn = sub.querySelector('#st-beautify-backbtn');
+            if (!btn) return;
+            const home = sub.querySelector('#b-page-home');
+            btn.style.display = (home && home.classList.contains('active')) ? '' : 'none';
+        } catch(e){}
+    };
+    const closeBeautyInSettings = (win) => {
+        try {
+            const w = win || (typeof AppManager !== 'undefined' && AppManager.getWin ? AppManager.getWin('settings') : null);
+            if (!w) return;
+            const sub = w.querySelector('#st-sub-beautify');
+            if (!sub) return;
+            sub.classList.remove('show');
+            dropClosedStSub(sub);
+        } catch(e){}
+    };
+    const openBeautyPageInSettings = (pageId, win) => {
+        try {
+            const cfg = (typeof AppRegistry !== 'undefined') ? AppRegistry['beautify'] : null;
+            if (!cfg || typeof cfg.render !== 'function' || typeof cfg.mount !== 'function') {
+                // 兜底：仍走原来的跨 APP 启动
+                window.__beautifyReturnTo = 'settings';
+                window.__beautifyAutoOpen = pageId;
+                AppManager.launch('beautify');
+                return;
+            }
+            // 清掉旧入口留下的跨 APP 意图，避免内嵌页里的返回误触 launch('settings')
+            window.__beautifyReturnTo = null;
+            window.__beautifyAutoOpen = null;
+            // 若 beautify APP 已有缓存窗口，先摘掉它，避免 #b-page-* 等 id 在文档里出现两份
+            // （内嵌页里 document.getElementById('b-subpage-new-wallpaper') 等会取到第一份隐藏节点）
+            // 下次再 launch('beautify') 时会重新创建窗口。
+            try {
+                if (typeof appPool !== 'undefined' && appPool['beautify']) {
+                    const oldWin = appPool['beautify'];
+                    if (oldWin && oldWin.parentNode) oldWin.parentNode.removeChild(oldWin);
+                    delete appPool['beautify'];
+                    if (typeof appState !== 'undefined') delete appState['beautify'];
+                }
+            } catch(e){}
+            let sub = win.querySelector('#st-sub-beautify');
+            if (sub) sub.remove();
+            const tmp = document.createElement('div');
+            tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + cfg.render() + '</div>';
+            sub = tmp.firstElementChild;
+            // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
+            const backBtn = document.createElement('div');
+            backBtn.className = 'sys-app-backbtn';
+            backBtn.id = 'st-beautify-backbtn';
+            backBtn.setAttribute('data-beautify-close', '1');
+            backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+            sub.appendChild(backBtn);
+            sub.addEventListener('click', (e) => {
+                if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
+            });
+            win.appendChild(sub);
+            // 挂载引擎到这个子页（winDom = sub，内部全部用 querySelector 定位）
+            try { cfg.mount(sub); } catch(e){ console.warn('[beauty-in-settings] mount failed', e); }
+            // 覆盖返回行为：子页「返回」回到美化主页（仍在设置内），不 launch('settings')
+            try {
+                if (window.BeautifyEngine) {
+                    const _origGoHome = window.BeautifyEngine.goHome;
+                    window.BeautifyEngine.goHome = () => { try { _origGoHome(); } catch(e){} updateBeautyBackBtn(sub); };
+                    const _origSwitch = window.BeautifyEngine.switchPage;
+                    window.BeautifyEngine.switchPage = (pid) => { try { _origSwitch(pid); } catch(e){} updateBeautyBackBtn(sub); };
+                }
+            } catch(e){}
+            try { if (window.BeautifyEngine && window.BeautifyEngine.switchPage) window.BeautifyEngine.switchPage(pageId); } catch(e){}
+            updateBeautyBackBtn(sub);
+            requestAnimationFrame(() => sub.classList.add('show'));
+        } catch(e){ console.warn('[beauty-in-settings]', e); }
+    };
+
 
     return {
         init: () => {},
@@ -5256,82 +5334,10 @@ win.addEventListener('change', (e) => {
 
     // ── 美化子页直接嵌在设置内打开（不再 AppManager.launch('beautify')，
     //    否则设置窗口会被隐藏、先闪回桌面一次才出现子页）──
-    const updateBeautyBackBtn = (sub) => {
-        try {
-            const btn = sub.querySelector('#st-beautify-backbtn');
-            if (!btn) return;
-            const home = sub.querySelector('#b-page-home');
-            btn.style.display = (home && home.classList.contains('active')) ? '' : 'none';
-        } catch(e){}
-    };
-    const closeBeautyInSettings = (win) => {
-        try {
-            const w = win || (typeof AppManager !== 'undefined' && AppManager.getWin ? AppManager.getWin('settings') : null);
-            if (!w) return;
-            const sub = w.querySelector('#st-sub-beautify');
-            if (!sub) return;
-            sub.classList.remove('show');
-            dropClosedStSub(sub);
-        } catch(e){}
-    };
-    const openBeautyPageInSettings = (pageId, win) => {
-        try {
-            const cfg = (typeof AppRegistry !== 'undefined') ? AppRegistry['beautify'] : null;
-            if (!cfg || typeof cfg.render !== 'function' || typeof cfg.mount !== 'function') {
-                // 兜底：仍走原来的跨 APP 启动
-                window.__beautifyReturnTo = 'settings';
-                window.__beautifyAutoOpen = pageId;
-                AppManager.launch('beautify');
-                return;
-            }
-            // 清掉旧入口留下的跨 APP 意图，避免内嵌页里的返回误触 launch('settings')
-            window.__beautifyReturnTo = null;
-            window.__beautifyAutoOpen = null;
-            // 若 beautify APP 已有缓存窗口，先摘掉它，避免 #b-page-* 等 id 在文档里出现两份
-            // （内嵌页里 document.getElementById('b-subpage-new-wallpaper') 等会取到第一份隐藏节点）
-            // 下次再 launch('beautify') 时会重新创建窗口。
-            try {
-                if (typeof appPool !== 'undefined' && appPool['beautify']) {
-                    const oldWin = appPool['beautify'];
-                    if (oldWin && oldWin.parentNode) oldWin.parentNode.removeChild(oldWin);
-                    delete appPool['beautify'];
-                    if (typeof appState !== 'undefined') delete appState['beautify'];
-                }
-            } catch(e){}
-            let sub = win.querySelector('#st-sub-beautify');
-            if (sub) sub.remove();
-            const tmp = document.createElement('div');
-            tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + cfg.render() + '</div>';
-            sub = tmp.firstElementChild;
-            // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
-            const backBtn = document.createElement('div');
-            backBtn.className = 'sys-app-backbtn';
-            backBtn.id = 'st-beautify-backbtn';
-            backBtn.setAttribute('data-beautify-close', '1');
-            backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
-            sub.appendChild(backBtn);
-            sub.addEventListener('click', (e) => {
-                if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
-            });
-            win.appendChild(sub);
-            // 挂载引擎到这个子页（winDom = sub，内部全部用 querySelector 定位）
-            try { cfg.mount(sub); } catch(e){ console.warn('[beauty-in-settings] mount failed', e); }
-            // 覆盖返回行为：子页「返回」回到美化主页（仍在设置内），不 launch('settings')
-            try {
-                if (window.BeautifyEngine) {
-                    const _origGoHome = window.BeautifyEngine.goHome;
-                    window.BeautifyEngine.goHome = () => { try { _origGoHome(); } catch(e){} updateBeautyBackBtn(sub); };
-                    const _origSwitch = window.BeautifyEngine.switchPage;
-                    window.BeautifyEngine.switchPage = (pid) => { try { _origSwitch(pid); } catch(e){} updateBeautyBackBtn(sub); };
-                }
-            } catch(e){}
-            try { if (window.BeautifyEngine && window.BeautifyEngine.switchPage) window.BeautifyEngine.switchPage(pageId); } catch(e){}
-            updateBeautyBackBtn(sub);
-            requestAnimationFrame(() => sub.classList.add('show'));
-        } catch(e){ console.warn('[beauty-in-settings]', e); }
-    };
-
     function handleAction(act, win) {
+        // 深链：w_desktop:<section> 打开桌面与外观并滚动到对应分组
+        let gwSection = null;
+        if (act && act.indexOf('w_desktop:') === 0) { gwSection = act.slice('w_desktop:'.length); act = 'w_desktop'; }
         // ── 外观与美化：直接在设置内打开对应子页 ──
         const beautySubMap = {
             b_wallpaper: 'wallpaper',
@@ -5351,7 +5357,7 @@ win.addEventListener('change', (e) => {
         switch(act) {
             case 'gv_theme': if (window.GroupV) window.GroupV.openThemeSheet(); break;
             // [W组] 桌面与外观 / 番茄猫入口
-            case 'w_desktop': { if (window.GroupW) window.GroupW.openDesktopSettings(win); break; }
+            case 'w_desktop': { if (window.GroupW) window.GroupW.openDesktopSettings(win, gwSection); break; }
             case 'w_focus': { if (window.GroupW) window.GroupW.openPomodoro(); break; }
             // [O组] 内心生活子页：调试页 / 承诺清单（动态建页，数据来自 CharInnerLife，不另存）
             // [BH组] 电话铃声子页：内置/本地/链接三来源 + 专属铃声 + 振动
@@ -5927,16 +5933,16 @@ AppManager.register('beautify', (() => {
        <style>
            .b-sandbox-core { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
                width: 100%; height: 100%;
-               background: var(--st-paper,#fffdf8);
-               color: var(--st-ink,#1e2748);
-               font-family: "Noto Serif SC","Songti SC",serif;
+               background: var(--st-paper,#ffffff);
+               color: var(--st-ink,#171717);
+               font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
                overflow-y: auto;
                overflow-x: hidden;
                padding: 100px 16px 40px;
                box-sizing: border-box;
                position: relative;
            }
-           .b-sandbox-core :focus-visible { outline:2px solid var(--st-ink-40,rgba(30,39,72,.4)); outline-offset:2px; }
+           .b-sandbox-core :focus-visible { outline:2px solid var(--st-ink-40,rgba(23,23,23,.4)); outline-offset:2px; }
            /* 页面背景统一铺满，消除顶部露色 */
            .b-page-view { background: transparent; }
            /* 视图页隔离切换 */
@@ -5944,46 +5950,46 @@ AppManager.register('beautify', (() => {
            .b-page-view.active { display: block; }
            @keyframes bFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
            /* 基础块面构建器 */
-           .b-card-frame { background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver-light,#dce2f1); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
-           .b-card-title { font-size: 13px; color: var(--st-ink-60,rgba(30,39,72,.6)); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
-           .b-flex-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 17px; font-weight: 500; color: var(--st-ink,#1e2748); }
+           .b-card-frame { background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver-light,#f4f4f4); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+           .b-card-title { font-size: 13px; color: var(--st-ink-60,rgba(23,23,23,.6)); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
+           .b-flex-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 17px; font-weight: 500; color: var(--st-ink,#171717); }
            .b-flex-row:last-child { margin-bottom: 0; }
            /* 交互式控件规范 */
-           .b-text-field { background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver,#bfc8e0); border-radius: 8px; color: var(--st-ink,#1e2748); padding: 0 12px; height: 40px; font-size: 17px; outline: none; width: 100%; box-sizing: border-box; transition: border-color 180ms ease-out; font-family: inherit; }
-           .b-text-field::placeholder { color: var(--st-ink-40,rgba(30,39,72,.4)); }
-           .b-text-field:focus { border-color: var(--st-ink,#1e2748); }
-           .b-dropdown { background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver,#bfc8e0); border-radius: 8px; color: var(--st-ink,#1e2748); padding: 0 12px; height: 40px; font-size: 17px; outline: none; font-weight: 500; font-family: inherit; }
-           .sys-app-window .b-btn-action { background: var(--st-paper,#fffdf8); color: var(--st-ink,#1e2748); border: 1px solid var(--st-ink,#1e2748); border-radius: 8px; padding: 0 12px; height: 44px; font-size: 17px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
-           .b-btn-action:active { background: var(--st-silver-light,#dce2f1); }
+           .b-text-field { background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver,#e5e5e5); border-radius: 8px; color: var(--st-ink,#171717); padding: 0 12px; height: 44px; font-size: 16px; outline: none; width: 100%; box-sizing: border-box; transition: border-color 180ms ease-out; font-family: inherit; }
+           .b-text-field::placeholder { color: var(--st-ink-40,rgba(23,23,23,.4)); }
+           .b-text-field:focus { border-color: var(--st-ink,#171717); }
+           .b-dropdown { background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver,#e5e5e5); border-radius: 8px; color: var(--st-ink,#171717); padding: 0 12px; height: 44px; font-size: 16px; outline: none; font-weight: 500; font-family: inherit; }
+           .sys-app-window .b-btn-action { background: var(--st-paper,#ffffff); color: var(--st-ink,#171717); border: 1px solid var(--st-ink,#171717); border-radius: 8px; padding: 0 12px; height: 44px; font-size: 17px; font-weight: 500; cursor: pointer; width: 100%; margin-top: 8px; font-family: inherit; }
+           .b-btn-action:active { background: var(--st-silver-light,#f4f4f4); }
            /* 高定预设调色卡槽阵列（色点本身是用户可选颜色内容，保留原色） */
            .b-palette-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
-           .b-palette-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--st-silver-light,#dce2f1); cursor: pointer; }
+           .b-palette-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--st-silver-light,#f4f4f4); cursor: pointer; }
            .b-palette-dot:active { transform: scale(0.9); }
            .b-color-picker-custom { background: transparent; border: none; width: 28px; height: 28px; cursor: pointer; }
            /* 布局子页:开关行 */
-           .b-layout-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; min-height: 56px; border-bottom: 1px solid var(--st-ink-08,rgba(30,39,72,.08)); }
+           .b-layout-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; min-height: 56px; border-bottom: 1px solid var(--st-ink-08,rgba(23,23,23,.08)); }
            .b-layout-row:last-child { border-bottom: none; }
            .b-layout-text { flex: 1; min-width: 0; padding-right: 14px; }
-           .b-layout-title { font-size: 17px; font-weight: 500; color: var(--st-ink,#1e2748); letter-spacing: 0.1px; }
-           .b-layout-sub { font-size: 13px; color: var(--st-ink-60,rgba(30,39,72,.6)); margin-top: 3px; line-height: 1.5; }
+           .b-layout-title { font-size: 17px; font-weight: 500; color: var(--st-ink,#171717); letter-spacing: 0.1px; }
+           .b-layout-sub { font-size: 13px; color: var(--st-ink-60,rgba(23,23,23,.6)); margin-top: 3px; line-height: 1.5; }
            .b-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
            .b-switch input { opacity: 0; width: 0; height: 0; }
-           .b-switch span { position: absolute; cursor: pointer; inset: 0; background: var(--st-silver,#bfc8e0); border-radius: 999px; transition: background 180ms ease-out; }
-           .b-switch span::before { content: ''; position: absolute; left: 2px; top: 2px; width: 20px; height: 20px; background: var(--st-paper,#fffdf8); border-radius: 50%; transition: transform 180ms ease-out; }
-           .b-switch input:checked + span { background: var(--st-silver,#bfc8e0); }
-           .b-switch input:checked + span::before { transform: translateX(20px); background: var(--st-ink,#1e2748); }
+           .b-switch span { position: absolute; cursor: pointer; inset: 0; background: var(--st-silver,#e5e5e5); border-radius: 999px; transition: background 180ms ease-out; }
+           .b-switch span::before { content: ''; position: absolute; left: 2px; top: 2px; width: 20px; height: 20px; background: var(--st-paper,#ffffff); border-radius: 50%; transition: transform 180ms ease-out; }
+           .b-switch input:checked + span { background: #171717; }
+           .b-switch input:checked + span::before { transform: translateX(20px); background: var(--st-ink,#171717); }
            /* 画廊缩略图滚动区 */
            .b-gallery-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
-           .b-gallery-item { width: 90px; height: 160px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--st-silver-light,#dce2f1); transition: transform 180ms ease-out; flex-shrink: 0; background: var(--st-paper-cool,#eef0f5); }
+           .b-gallery-item { width: 90px; height: 160px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--st-silver-light,#f4f4f4); transition: transform 180ms ease-out; flex-shrink: 0; background: var(--st-paper-cool,#f9f9f9); }
            .b-gallery-item:active { transform: scale(0.95); }
            /* 气泡挂件深度视窗 */
-           .b-chat-display { background: var(--st-paper-cool,#eef0f5); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; overflow: hidden; }
+           .b-chat-display { background: var(--st-paper-cool,#f9f9f9); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; overflow: hidden; }
            .b-chat-line { display: flex; width: 100%; }
            .b-chat-line.left { justify-content: flex-start; }
            .b-chat-line.right { justify-content: flex-end; }
-           .b-bubble-body { max-width: 80%; padding: 10px 14px; font-size: 17px; line-height: 1.5; position: relative; transition: background 180ms ease-out; color: var(--st-ink,#1e2748); }
-           .b-chat-line.left .b-bubble-body { background: var(--st-paper,#fffdf8); color: var(--st-ink,#1e2748); border-radius: 8px; }
-           .b-chat-line.right .b-bubble-body { color: var(--st-ink,#1e2748); border-radius: 8px; }
+           .b-bubble-body { max-width: 80%; padding: 10px 14px; font-size: 17px; line-height: 1.5; position: relative; transition: background 180ms ease-out; color: var(--st-ink,#171717); }
+           .b-chat-line.left .b-bubble-body { background: var(--st-paper,#ffffff); color: var(--st-ink,#171717); border-radius: 8px; }
+           .b-chat-line.right .b-bubble-body { color: var(--st-ink,#171717); border-radius: 8px; }
            .b-decor-mount { position: absolute; z-index: 10; display: flex; align-items: center; justify-content: center; transition: all 180ms ease-out; }
            .pos-top-left { top: -10px; left: -10px; transform: rotate(-15deg); }
            .pos-top-right { top: -10px; right: -10px; transform: rotate(15deg); }
@@ -5991,18 +5997,18 @@ AppManager.register('beautify', (() => {
            .pos-bottom-right { bottom: -10px; right: -10px; transform: rotate(15deg); }
            /* 按钮组胶囊网格 */
            .b-grid-capsules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
-           .b-capsule-tag { padding: 8px 4px; font-size: 13px; text-align: center; background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver,#bfc8e0); border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--st-ink,#1e2748); }
-           .b-capsule-tag.active { background: var(--st-silver-light,#dce2f1); color: var(--st-ink,#1e2748); border-color: var(--st-ink,#1e2748); }
+           .b-capsule-tag { padding: 8px 4px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 13px; text-align: center; background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver,#e5e5e5); border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--st-ink,#171717); box-sizing: border-box; }
+           .b-capsule-tag.active { background: #171717; color: #fff; border-color: #171717; }
            /* 精致小组件陈列室 (双列宽距排布) */
            .b-widgets-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-top: 6px; }
            .b-widget-shell { display: flex; flex-direction: column; align-items: center; }
-           .b-widget-viewport { width: 100%; aspect-ratio: 1 / 1; background: var(--st-paper,#fffdf8); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; overflow: hidden; border: 1px solid var(--st-silver-light,#dce2f1); box-sizing: border-box; transition: transform 180ms ease-out; }
+           .b-widget-viewport { width: 100%; aspect-ratio: 1 / 1; background: var(--st-paper,#ffffff); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; overflow: hidden; border: 1px solid var(--st-silver-light,#f4f4f4); box-sizing: border-box; transition: transform 180ms ease-out; }
            .b-widget-viewport:active { transform: scale(0.96); }
-           .b-widget-desc { font-size: 12px; font-weight: 500; color: var(--st-ink-60,rgba(30,39,72,.6)); margin-top: 8px; text-align: center; }
+           .b-widget-desc { font-size: 13px; font-weight: 500; color: var(--st-ink-60,rgba(23,23,23,.6)); margin-top: 8px; text-align: center; }
            /* 高级浮动编辑弹窗规范 */
-           .b-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30,39,72,.4); z-index: 5000; display: none; align-items: center; justify-content: center; animation: bModalFade 180ms ease-out; }
+           .b-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.40); z-index: 5000; display: none; align-items: center; justify-content: center; animation: bModalFade 180ms ease-out; }
            .b-modal-overlay.active { display: flex; }
-           .b-modal-window { width: 90%; max-height: 85%; background: var(--st-paper,#fffdf8); border-radius: 14px; padding: 20px; border: 1px solid var(--st-silver-light,#dce2f1); box-shadow: var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12)); display: flex; flex-direction: column; overflow-y: auto; box-sizing: border-box; }
+           .b-modal-window { width: 90%; max-height: 85%; background: var(--st-paper,#ffffff); border-radius: 14px; padding: 20px; border: 1px solid var(--st-silver-light,#f4f4f4); box-shadow: var(--st-shadow-float,0 4px 16px rgba(23,23,23,.12)); display: flex; flex-direction: column; overflow-y: auto; box-sizing: border-box; }
            @keyframes bModalFade { from { opacity: 0; } to { opacity: 1; } }
            .b-hidden-hub { display: none; }
            @media (prefers-reduced-motion: reduce) { .b-page-view, .b-modal-overlay { animation: none; } }
@@ -6016,30 +6022,30 @@ AppManager.register('beautify', (() => {
               .b-page-view.active { display: block; }
               /* 主页样式（仿 iOS 设置） */
               .b-home-wrap { padding: 14px 0 30px; }
-              .b-home-title { font-family: "Cormorant Garamond","Noto Serif SC",serif; font-size: 28px; font-weight: 600; color: var(--st-ink,#1e2748);
+              .b-home-title { font-family: "Cormorant Garamond","Noto Serif SC",serif; font-size: 28px; font-weight: 600; color: var(--st-ink,#171717);
                   padding: 12px 4px 18px; letter-spacing: 0.5px; }
-              .b-home-group { background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver-light,#dce2f1); border-radius: 10px; overflow: hidden;
+              .b-home-group { background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver-light,#f4f4f4); border-radius: 12px; overflow: hidden;
                   margin-bottom: 22px; }
-              .b-home-row { display: flex; align-items: center; padding: 0 14px; min-height: 56px;
-                  cursor: pointer; border-bottom: 1px solid var(--st-ink-08,rgba(30,39,72,.08));
+              .b-home-row { display: flex; align-items: center; padding: 0 16px; min-height: 56px;
+                  cursor: pointer; border-bottom: 1px solid var(--st-ink-08,rgba(23,23,23,.08));
                   transition: background 180ms ease-out; }
               .b-home-row:last-child { border-bottom: none; }
-              .b-home-row:active { background: var(--st-ink-08,rgba(30,39,72,.08)); }
+              .b-home-row:active { background: var(--st-ink-08,rgba(23,23,23,.08)); }
               .b-home-row-icon { width: 28px; height: 28px; border-radius: 8px;
                   display: flex; align-items: center; justify-content: center;
-                  margin-right: 12px; color: var(--st-ink,#1e2748); flex-shrink: 0; background: var(--st-silver-light,#dce2f1); }
-              .b-home-row-icon svg { width: 17px; height: 17px; stroke: var(--st-ink,#1e2748); }
+                  margin-right: 12px; color: var(--st-ink,#171717); flex-shrink: 0; background: var(--st-silver-light,#f4f4f4); }
+              .b-home-row-icon svg { width: 17px; height: 17px; stroke: var(--st-ink,#171717); }
               .b-home-row-text { flex: 1; min-width: 0; }
-              .b-home-row-title { font-size: 17px; color: var(--st-ink,#1e2748); }
-              .b-home-row-sub { font-size: 13px; color: var(--st-ink-60,rgba(30,39,72,.6)); margin-top: 1px; }
-              .b-home-row-arrow { color: var(--st-ink-40,rgba(30,39,72,.4)); font-size: 20px; flex-shrink: 0; }
+              .b-home-row-title { font-size: 17px; color: var(--st-ink,#171717); }
+              .b-home-row-sub { font-size: 13px; color: var(--st-ink-60,rgba(23,23,23,.6)); margin-top: 1px; }
+              .b-home-row-arrow { color: var(--st-ink-40,rgba(23,23,23,.4)); font-size: 20px; flex-shrink: 0; }
               .b-home-section-title { font-size: 13px; font-weight: 600;
-                  color: var(--st-ink-60,rgba(30,39,72,.6)); letter-spacing: 0.3px;
+                  color: var(--st-ink-60,rgba(23,23,23,.6)); letter-spacing: 0.3px;
                   padding: 0 14px 8px; }
               /* 子页滑动转场：默认隐藏（脱离文档流），只有 active 才显示 */
               .b-page-view.b-sub {
                   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-                  background: var(--st-paper,#fffdf8); z-index: 20;
+                  background: var(--st-paper,#ffffff); z-index: 20;
                   transform: translateX(100%); transition: transform 280ms ease-out;
                   overflow-y: auto;
                   overflow-x: hidden;
@@ -6057,15 +6063,15 @@ AppManager.register('beautify', (() => {
               .b-page-view.b-sub #b-page-wallpaper > div[style*="margin: -50px"] { margin: 0 !important; }
               /* 子页顶部返回栏 */
               .b-sub-bar { position: sticky; top: 0; z-index: 30;
-                  background: var(--st-paper,#fffdf8);
+                  background: var(--st-paper,#ffffff);
                   padding-top: var(--sys-island-safe-top, 62px);
-                  border-bottom: 1px solid var(--st-ink-08,rgba(30,39,72,.08)); }
+                  border-bottom: 1px solid var(--st-ink-08,rgba(23,23,23,.08)); }
               .b-sub-bar-row { display: flex; align-items: center; padding: 8px 12px; height: 44px; }
-              .b-sub-back { color: var(--st-ink,#1e2748); font-size: 17px; display: flex;
+              .b-sub-back { color: var(--st-ink,#171717); font-size: 17px; display: flex;
                   align-items: center; gap: 1px; cursor: pointer; flex-shrink: 0; }
               .b-sub-back svg { margin-right: -2px; }
               .b-sub-title { position: absolute; left: 50%; transform: translateX(-50%);
-                  font-size: 20px; font-weight: 600; color: var(--st-ink,#1e2748); }
+                  font-size: 20px; font-weight: 600; color: var(--st-ink,#171717); }
               .b-sub-content { padding: 0; }
               /* 隐藏原底部 dock */
               .b-ios-dock-wrapper { display: none !important; }
@@ -18426,31 +18432,29 @@ const renderDesktopSettingsHTML = () => {
       /* GROUP-WIDGET（第 3 项）: 日历行直接进日历页（设置也是入口之一）。 */ (c.kind === 'calendar' ? '<button data-gw-opencal="1">打开</button>' : '') +
       '</div>';
   }).join('');
-  return '<div class="gw-set-h">壁纸</div>' +
-    '<div class="gw-seg">' + WALLPAPERS.map((wp) => '<button class="gw-swatch' + ((p.wallpaper || '') === wp.id ? ' on' : '') + '" data-gw-set="wallpaper" data-v="' + esc(wp.id) + '" style="background:' + esc(wp.image ? wp.image + ' center/cover no-repeat' : wp.css) + '" title="' + esc(wp.name) + '" aria-label="壁纸' + esc(wp.name) + '"></button>').join('') + '</div>' +
-    '<div class="gw-set-row"><div class="lb">当前壁纸<div class="sub">' + esc(WALLPAPERS.find((x) => x.id === (p.wallpaper || '')) ? WALLPAPERS.find((x) => x.id === (p.wallpaper || '')).name : '图片') + '（默认游鱼，改完桌面实时预览）</div></div></div>' +
-    (((p.wallpaper || '') === 'rain-letters' || (typeof SystemStore !== 'undefined' && SystemStore.get('lockscreen_wp') === 'rain-letters')) ? swRow('rainEnabled', '雨幕动效', '仅在锁屏／桌面显示；减少动态效果或低电量时自动暂停。', p.rainEnabled !== false) : '') +
-    ((p.wallpaper || '') === 'fish' && window.FishWallpaper && typeof window.FishWallpaper.settingsHTML === 'function' ? window.FishWallpaper.settingsHTML(p) : '') +
+  /* 壁纸挑选已合进主题美化 → 壁纸页；这里只留壁纸独有的效果开关（雨幕/游鱼），
+     没有相关壁纸时整段不渲染。 */
+  const _wpFx = (((p.wallpaper || '') === 'rain-letters' || (typeof SystemStore !== 'undefined' && SystemStore.get('lockscreen_wp') === 'rain-letters')) ? swRow('rainEnabled', '雨幕动效', '仅在锁屏／桌面显示；减少动态效果或低电量时自动暂停。', p.rainEnabled !== false) : '') +
+    ((p.wallpaper || '') === 'fish' && window.FishWallpaper && typeof window.FishWallpaper.settingsHTML === 'function' ? window.FishWallpaper.settingsHTML(p) : '');
+  return (_wpFx ? '<div class="gw-set-h" id="gw-sec-wpfx">壁纸效果</div>' + _wpFx : '') +
     '<div class="gw-set-h">主题</div>' +
-    (window.BuThemes ? window.BuThemes.desktopSettingsHtml() : '<div class="gw-set-row"><div class="lb">当前主题：' + esc(themeLabel(p.theme)) + '</div></div>') +
-(function(){var iv=(window.GroupIntro?window.GroupIntro.load():{enabled:true});return '<div class="gw-set-h">开机动画</div><div class="gw-set-row"><div class="lb">开机动画<div class="sub">冷启动时播一次：字母雨落进水面，信封展开“因为爱，所以相遇”，最后汇成 FUTURE；点一下屏幕可跳过；关了直接进锁屏。</div></div><button class="gw-switch'+(iv.enabled?' on':'')+'" data-intro-boot-toggle="1" aria-label="开机动画"></button></div><div class="gw-set-row"><div class="lb">预览<div class="sub">现在播一次开机动画。</div></div><button data-intro-boot-preview="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">预览</button></div>';})()+
-    '<div class="gw-set-h">应用图标</div>' +
-    seg('iconStyle', ICON_STYLES, p.iconStyle || 'default') +
-    '<div class="gw-set-h">桌面图标</div>' +
+    '<div class="gw-set-row"><div class="lb">当前主题<div class="sub">' + esc(themeLabel(p.theme)) + ' · 14 套主题 + 自定义两色都在主题里换</div></div><button data-gw-theme="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">更换主题</button></div>' +
+(function(){var iv=(window.GroupIntro?window.GroupIntro.load():{enabled:true});return '<div class="gw-set-h" id="gw-sec-intro">开机动画</div><div class="gw-set-row"><div class="lb">开机动画<div class="sub">冷启动时播一次：字母雨落进水面，信封展开“因为爱，所以相遇”，最后汇成 FUTURE；点一下屏幕可跳过；关了直接进锁屏。</div></div><button class="gw-switch'+(iv.enabled?' on':'')+'" data-intro-boot-toggle="1" aria-label="开机动画"></button></div><div class="gw-set-row"><div class="lb">预览<div class="sub">现在播一次开机动画。</div></div><button data-intro-boot-preview="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">预览</button></div>';})()+
+    '<div class="gw-set-h" id="gw-sec-deskicons">桌面图标</div>' +
     (window.AKDesktop ? window.AKDesktop.settingsIconsHTML() : '<div class="muted">桌面图标管理尚未加载。</div>') +
-    '<div class="gw-set-h">图标挑选器</div>' +
+    '<div class="gw-set-h" id="gw-sec-iconpicker">图标挑选器</div>' +
     '<div class="gw-set-row"><div class="lb">精选图标库<div class="sub">60 个单色图标（Tabler 为主）+ 24 个彩色表情，只存图标 ID，换风格不用重存。</div></div><button data-aq-open="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">打开挑选器</button></div>' +
     (window.AQIcons ? window.AQIcons.pickerSummaryHTML() : '') +
-    '<div class="gw-set-h">桌宠</div>' +
+    '<div class="gw-set-h" id="gw-sec-pet">桌宠</div>' +
     swRow('petEnabled', '桌宠', '桌面上的他就是这只桌宠（同一张脸、同一份心情/好感/日程）。', p.petEnabled !== false) +
     '<div class="gw-set-row"><div class="lb">模式</div></div>' + seg('petMode', PET_MODES, p.petMode || 'full') +
     '<div class="gw-set-row"><div class="lb">大小</div></div>' + seg('petSize', PET_SIZES, p.petSize || 'medium') +
     '<div class="gw-set-row"><div class="lb">皮肤</div></div>' + seg('petSkin', PET_SKINS, p.petSkin || 'default') +
     '<div class="gw-set-row"><div class="lb">抠图立绘皮肤<div class="sub">上传一张抠好的立绘图作桌宠皮肤；也会读此刻已有的抠图人物（otome_custom_char_v1）。图片只存本机。</div></div><label style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer">上传图片<input id="gw-cutout-file" type="file" accept="image/*" style="display:none"></label></div>' +
-    '<div class="gw-set-h">时钟样式</div>' +
+    '<div class="gw-set-h" id="gw-sec-clock">时钟样式</div>' +
     seg('clockStyle', CLOCK_STYLES, p.clockStyle || 'digital') +
     '<div class="gw-set-row"><div class="lb">桌面小组件总开关<div class="sub">关掉后桌面上的小组件全部隐藏，布局保留。</div></div><button class="gw-switch' + (p.widgetsEnabled !== false ? ' on' : '') + '" data-gw-toggle="widgetsEnabled" aria-label="桌面小组件总开关"></button></div>' +
-    '<div class="gw-set-h">小组件 · 仓库和管理</div>' +
+    '<div class="gw-set-h" id="gw-sec-widgets">小组件 · 仓库和管理</div>' +
     '<div class="muted">点尺寸直接放到桌面；桌面上的小组件长按可移动、换尺寸、移除。</div>' +
     store +
     '<div class="gw-set-row"><div class="lb">更多小组件<div class="sub">专注热力图、宠物状态、共读统计等由 AC 组小组件商店管理。</div></div><button data-gw-acstore="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">打开商店</button></div>' +
@@ -18458,7 +18462,7 @@ const renderDesktopSettingsHTML = () => {
     '<div class="gw-set-h">说明</div>' +
     '<div class="muted">偏好存在 phone_ui_prefs_v1（T 组形状），W 组小组件布局存在 phone_widgets_w_v1（AC 组的 phone_widgets_v1 不动）；长按桌面空白处也可进这里，不占桌面图标。</div>';
 };
-const openDesktopSettings = (win) => {
+const openDesktopSettings = (win, section) => {
   try {
     let host = win || null;
     if (!host) {
@@ -18612,6 +18616,16 @@ const openDesktopSettings = (win) => {
     const body = sub.querySelector('#gw-desk-body');
     if (body) body.innerHTML = renderDesktopSettingsHTML();
     requestAnimationFrame(() => sub.classList.add('show'));
+    /* 深链：滚动到对应分组并闪一下标题，方便从主题美化跳进来定位。 */
+    if (section) {
+      requestAnimationFrame(() => {
+        const head = sub.querySelector('#gw-sec-' + section);
+        if (!head) return;
+        try { head.scrollIntoView({ block: 'start' }); } catch (e) {}
+        head.style.background = '#f4f4f4'; head.style.borderRadius = '8px';
+        setTimeout(() => { head.style.background = ''; head.style.borderRadius = ''; }, 1200);
+      });
+    }
     return true;
   } catch (e) { return false; }
 };
