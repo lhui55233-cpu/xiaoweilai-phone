@@ -733,7 +733,7 @@ var colorCtl = function (id, val) {
 return '<span style="display:inline-flex;align-items:center;gap:8px;"><input type="color" id="' + id + '" value="' + esc(val) + '" oninput="var s=this.nextElementSibling;if(s)s.textContent=this.value;" style="width:44px;height:32px;padding:2px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;background:var(--st-paper,#fffdf8);" /><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(val) + '</span></span>';
 };
 var row = function (label, ctl, last) {
-return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;' + (last ? '' : 'border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));') + '"><span style="font-size:17px;flex-shrink:0;">' + label + '</span><span style="display:flex;align-items:center;gap:8px;min-width:0;">' + ctl + '</span></div>';
+return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;' + (last ? '' : 'border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));') + '"><span style="font-size:17px;flex-shrink:0;">' + label + '</span><span style="display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;">' + ctl + '</span></div>'; /* 控件 span 允许换行：主题行会被 js/22 的 #al-theme-extra 注入两个下拉+复选框+切换按钮，不换行时同一行挤压、两个下拉被压窄 */
 };
 var checkCtl = function (id, on) {
 return '<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (on ? '开' : '关') + '</span><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + ' style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);" /></span>';

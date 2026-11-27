@@ -558,7 +558,7 @@ function injectThemeControls() {
     var ui = readUiPrefs();
     var div = document.createElement('div');
     div.id = 'al-theme-extra';
-    div.style.cssText = 'font-size:13px;line-height:2.2;';
+    div.style.cssText = 'font-size:13px;line-height:2.2;flex-basis:100%;'; /* 占满整行：#t-p-theme 所在行是 flex（js/12 row() 的控件 span，带 flex-wrap），不占满会被挤在同一行、把色温变体/壁纸线条两个下拉压窄 */
     div.innerHTML = '<span>色温变体 </span><select id="al-variant" aria-label="色温变体">'
       + '<option value="none">默认</option><option value="warm">暖</option><option value="cold">冷</option></select> '
       + '<span>壁纸线条 </span><select id="al-wall" aria-label="壁纸线条">'
