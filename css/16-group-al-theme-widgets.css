@@ -151,7 +151,7 @@ html[data-theme-resolved="light"] .al-theme-toggle .al-ico-moon, html:not([data-
 @keyframes al-burst { 0% { opacity: 1; transform: translate(0,0) scale(1); } 100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, -24px)) scale(.4); } }
 .al-burst-bit { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--al-focus);
   pointer-events: none; animation: al-burst .6s ease-out 1 forwards; }
-.al-copied::after { content: " ✓ 已复制"; color: var(--al-success); font-size: 12px; }
+.al-copied::after { content: "已复制"; color: var(--al-success); font-size: 12px; }
 /* ── 18. 统一按压手感：:active 轻微缩放/变暗，松开恢复 ── */
 #sys-shell button:active, #sys-shell [role="button"]:active, #sys-shell .sys-app-icon:active,
 #sys-shell .wx-send-btn:active, #sys-shell .al-segmented button:active {
