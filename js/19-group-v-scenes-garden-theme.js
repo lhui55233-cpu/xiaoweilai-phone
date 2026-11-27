@@ -349,7 +349,7 @@ var ckWire = function (ctx) {
   ctx.page.addEventListener('click', function (ev) {
     try {
       if (ctx.isZoomed && ctx.isZoomed()) return;
-      if (ev.target && ev.target.closest && ev.target.closest('#ck-char, #ck-char-panel, .ck-pagebtn, .ck-timeline, .ck-book-entries')) return;
+      if (ev.target && ev.target.closest && ev.target.closest('#ck-char, #ck-char-panel, .ck-pagebtn, .ck-timeline')) return;
       var r = ctx.page.getBoundingClientRect();
       if (!r.width) return;
       var x = clamp(((ev.clientX - r.left) / r.width) * 100, 8, 88);
@@ -432,9 +432,8 @@ var rigSectionHTML = function () {
     + '<div style="margin-top:6px;"><button class="ot-btn ot-btn-ghost" style="padding:5px 10px;" onclick="window.GroupV.refreshOtomeSettings()">↻ 刷新 VRM 状态</button></div>';
 };
 
-/* ══════════ A5 记忆花园：与 M 组记忆树合并成一个视图 ══════════
-   M 组已合入：记忆树（GroupM.memtree.render / memtreeDays / sealed_days_v1 / #ck-memtree-root）。
-   花园不另起一棵树：补丁把 gardenHTML() 接进 memtreeRender 的 innerHTML（树干木牌下方同一 #ck-memtree-root 内），
+/* ══════════ A5 记忆花园：此刻 Hub“记忆花园”页（#ck-garden-root）══════════
+   2026-11-27 Hub：花园从记忆树里拆出，住自己的子页面；gardenRefresh() 原地渲染（见下）。
    读同一份 guichao.memories.v1；封印状态只读 M 组的 sealed_days_v1（不写）；花园自己的状态存在新键 gv_garden_v1。
    规则：记忆 -> 可种的种子；种下 -> 幼苗；浇水每 2 次长大一级（种子/幼苗/成长/开花）；修剪 +1 水、标记已修剪。 */
 var GARDEN_KEY = 'gv_garden_v1';
@@ -453,9 +452,11 @@ var gardenMemories = function () {
   });
 };
 var gardenStageOf = function (p) { if (!p) return -1; return clamp(Math.floor((p.water || 0) / 2), 0, 3); };
+/* 2026-11-27 Hub：花园拆去自己的 #ck-garden-root 页。始终原地渲染：.gv-garden 在就地替换，
+   没有就在 #ck-garden-root 里生成；不再经 memtree.render() 间接渲染（记忆树也不再拼花园）。 */
 var gardenRefresh = function () {
-  try { if (window.GroupM && window.GroupM.memtree && typeof window.GroupM.memtree.render === 'function') { window.GroupM.memtree.render(); return; } } catch (e) {}
-  try { var el = document.querySelector('.gv-garden'); if (el) { var tmp = document.createElement('div'); tmp.innerHTML = gardenHTML(); if (tmp.firstElementChild) el.replaceWith(tmp.firstElementChild); } } catch (e) {}
+  try { var el = document.querySelector('.gv-garden'); if (el) { var tmp = document.createElement('div'); tmp.innerHTML = gardenHTML(); if (tmp.firstElementChild) el.replaceWith(tmp.firstElementChild); return; } } catch (e) {}
+  try { var root = document.getElementById('ck-garden-root'); if (root) root.innerHTML = gardenHTML(); } catch (e) {}
 };
 var gardenPlant = function (id) { var g = gardenLoad(); if (g.plants[id]) return g.plants[id]; g.plants[id] = { stage: 0, water: 0, pruned: false, plantedAt: Date.now() }; gardenSave(g); gardenRefresh(); return g.plants[id]; };
 var gardenWater = function (id) { var g = gardenLoad(); var p = g.plants[id]; if (!p) return null; p.water = (p.water || 0) + 1; p.stage = gardenStageOf(p); gardenSave(g); gardenRefresh(); return p; };
@@ -470,7 +471,7 @@ var gardenHTML = function () {
   var g = gardenLoad(); var mems = gardenMemories();
   var planted = mems.filter(function (m) { return g.plants[m.id]; });
   var seeds = mems.filter(function (m) { return !g.plants[m.id]; });
-  var h = '<div class="gv-garden"><div class="gv-garden-head">🌱 记忆花园 <span class="ot-muted">和上面记忆树同一棵树：记忆种成幼苗，浇水长大</span></div>';
+  var h = '<div class="gv-garden"><div class="gv-garden-head">🌱 记忆花园 <span class="ot-muted">记忆种成幼苗，浇水长大</span></div>';
   if (!mems.length) h += '<div class="ot-muted">还没有记忆。去归巢记一条，回来就能种下它。</div>';
   if (planted.length) {
     h += '<div class="gv-garden-grid">' + planted.map(function (m) {

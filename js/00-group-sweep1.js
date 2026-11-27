@@ -23927,6 +23927,41 @@ const ckSaveLook = (look) => {
 try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: look.eye})); return true;} catch (e) { return false;}
 };
 
+    // ── 星露谷风 Hub：像素图标 + 农场场景头（全部代码现画的 SVG 矩形像素画，不复制任何游戏原画/贴图）──
+    const CK_HUB_ICONS = {
+        simday: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="11" y="1" width="3" height="3" fill="#e8c96a"/><rect x="12" y="0" width="1" height="1" fill="#e8c96a"/><rect x="12" y="4" width="1" height="1" fill="#e8c96a"/><rect x="10" y="2" width="1" height="1" fill="#e8c96a"/><rect x="14" y="2" width="1" height="1" fill="#e8c96a"/><rect x="5" y="6" width="6" height="1" fill="#7a4a28"/><rect x="4" y="7" width="8" height="1" fill="#7a4a28"/><rect x="4" y="8" width="8" height="6" fill="#e8b478"/><rect x="7" y="11" width="2" height="3" fill="#5b3a1e"/><rect x="5" y="9" width="2" height="2" fill="#aed9e8"/><rect x="9" y="9" width="2" height="2" fill="#aed9e8"/></svg>',
+        beside: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="1" y="3" width="14" height="10" fill="#7a4a28"/><rect x="2" y="4" width="5" height="8" fill="#fffdf8"/><rect x="9" y="4" width="5" height="8" fill="#fffdf8"/><rect x="3" y="6" width="3" height="1" fill="#bfc8e0"/><rect x="3" y="8" width="3" height="1" fill="#bfc8e0"/><rect x="10" y="6" width="3" height="1" fill="#bfc8e0"/><rect x="10" y="8" width="3" height="1" fill="#bfc8e0"/><rect x="7" y="4" width="2" height="8" fill="#e8d5b5"/></svg>',
+        photo: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="5" y="1" width="6" height="14" fill="#5b3a1e"/><rect x="6" y="3" width="4" height="9" fill="#aed9e8"/><rect x="6" y="4" width="4" height="1" fill="#fffdf8"/><rect x="7" y="13" width="2" height="1" fill="#fbf3df"/></svg>',
+        inner: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="2" width="12" height="8" fill="#fffdf8"/><rect x="2" y="2" width="12" height="1" fill="#7a4a28"/><rect x="2" y="9" width="12" height="1" fill="#7a4a28"/><rect x="2" y="2" width="1" height="8" fill="#7a4a28"/><rect x="13" y="2" width="1" height="8" fill="#7a4a28"/><rect x="4" y="10" width="3" height="1" fill="#7a4a28"/><rect x="5" y="11" width="2" height="1" fill="#7a4a28"/><rect x="6" y="4" width="1" height="1" fill="#d96a7a"/><rect x="9" y="4" width="1" height="1" fill="#d96a7a"/><rect x="5" y="5" width="6" height="2" fill="#d96a7a"/><rect x="6" y="7" width="4" height="1" fill="#d96a7a"/><rect x="7" y="8" width="2" height="1" fill="#d96a7a"/></svg>',
+        trip: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="3" y="3" width="3" height="3" fill="#ffe3c4"/><rect x="3" y="3" width="3" height="1" fill="#3a2a1e"/><rect x="3" y="6" width="3" height="5" fill="#7aa8c9"/><rect x="3" y="11" width="1" height="3" fill="#3a3a3a"/><rect x="5" y="11" width="1" height="3" fill="#3a3a3a"/><rect x="10" y="3" width="3" height="3" fill="#ffe3c4"/><rect x="10" y="3" width="3" height="1" fill="#b5541e"/><rect x="10" y="6" width="3" height="5" fill="#c98a9b"/><rect x="10" y="11" width="1" height="3" fill="#3a3a3a"/><rect x="12" y="11" width="1" height="3" fill="#3a3a3a"/><rect x="7" y="4" width="2" height="1" fill="#d96a7a"/><rect x="7" y="5" width="2" height="1" fill="#d96a7a"/><rect x="1" y="14" width="14" height="1" fill="#8a5a2e"/></svg>',
+        album: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="1" y="4" width="14" height="9" fill="#f7ead0"/><rect x="1" y="4" width="14" height="1" fill="#7a4a28"/><rect x="1" y="12" width="14" height="1" fill="#7a4a28"/><rect x="1" y="4" width="1" height="9" fill="#7a4a28"/><rect x="14" y="4" width="1" height="9" fill="#7a4a28"/><rect x="4" y="5" width="8" height="1" fill="#e8d5b5"/><rect x="5" y="6" width="6" height="1" fill="#e8d5b5"/><rect x="6" y="7" width="4" height="1" fill="#e8d5b5"/><rect x="7" y="8" width="2" height="1" fill="#e8d5b5"/><rect x="7" y="9" width="2" height="2" fill="#d96a7a"/></svg>',
+        memtree: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="4" y="2" width="8" height="3" fill="#5b8c5a"/><rect x="3" y="5" width="10" height="3" fill="#6a9a5a"/><rect x="5" y="8" width="6" height="2" fill="#5b8c5a"/><rect x="5" y="6" width="1" height="1" fill="#d96a7a"/><rect x="10" y="6" width="1" height="1" fill="#d96a7a"/><rect x="7" y="10" width="2" height="4" fill="#7a4a28"/><rect x="3" y="14" width="10" height="1" fill="#8a5a2e"/></svg>',
+        garden: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="7" y="2" width="2" height="2" fill="#e8c9d0"/><rect x="5" y="4" width="2" height="2" fill="#e8c9d0"/><rect x="9" y="4" width="2" height="2" fill="#e8c9d0"/><rect x="7" y="6" width="2" height="2" fill="#e8c9d0"/><rect x="7" y="4" width="2" height="2" fill="#e8c96a"/><rect x="7" y="8" width="2" height="5" fill="#5b8c5a"/><rect x="9" y="10" width="3" height="1" fill="#6a9a5a"/><rect x="9" y="11" width="2" height="1" fill="#6a9a5a"/><rect x="4" y="13" width="8" height="1" fill="#8a5a2e"/></svg>'
+    };
+    const CK_HUB_FARM_SVG = '<svg class="ck-sv-scene" viewBox="0 0 360 120" shape-rendering="crispEdges" aria-hidden="true">'
+        + '<rect width="360" height="120" fill="#aed9e8"/>'
+        + '<rect x="292" y="10" width="24" height="24" fill="#ffd76e"/><rect x="296" y="6" width="16" height="4" fill="#ffd76e"/><rect x="296" y="34" width="16" height="4" fill="#ffd76e"/><rect x="288" y="14" width="4" height="16" fill="#ffd76e"/><rect x="316" y="14" width="4" height="16" fill="#ffd76e"/>'
+        + '<rect x="30" y="16" width="44" height="10" fill="#fffdf8"/><rect x="38" y="10" width="28" height="6" fill="#fffdf8"/>'
+        + '<rect x="200" y="26" width="36" height="8" fill="#fffdf8"/><rect x="208" y="21" width="20" height="5" fill="#fffdf8"/>'
+        + '<rect x="14" y="36" width="36" height="16" fill="#5b8c5a"/><rect x="20" y="28" width="24" height="8" fill="#6a9a5a"/><rect x="28" y="52" width="8" height="28" fill="#6b4226"/>'
+        + '<rect x="0" y="66" width="120" height="14" fill="#8fbf7f"/><rect x="110" y="60" width="140" height="20" fill="#7ab06a"/><rect x="240" y="68" width="120" height="12" fill="#8fbf7f"/>'
+        + '<rect x="0" y="72" width="360" height="3" fill="#6b4226"/><rect x="16" y="68" width="6" height="12" fill="#6b4226"/><rect x="90" y="68" width="6" height="12" fill="#6b4226"/><rect x="164" y="68" width="6" height="12" fill="#6b4226"/><rect x="238" y="68" width="6" height="12" fill="#6b4226"/><rect x="312" y="68" width="6" height="12" fill="#6b4226"/>'
+        + '<rect x="0" y="80" width="360" height="40" fill="#9c6b3f"/><rect x="0" y="88" width="360" height="4" fill="#7a4a28"/><rect x="0" y="100" width="360" height="4" fill="#7a4a28"/><rect x="0" y="112" width="360" height="4" fill="#7a4a28"/>'
+        + '<rect x="20" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="60" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="100" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="240" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="280" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="320" y="84" width="6" height="4" fill="#5b8c5a"/>'
+        + '<rect x="40" y="96" width="6" height="4" fill="#6a9a5a"/><rect x="120" y="96" width="6" height="4" fill="#6a9a5a"/><rect x="260" y="96" width="6" height="4" fill="#6a9a5a"/><rect x="300" y="96" width="6" height="4" fill="#6a9a5a"/>'
+        + '<rect x="168" y="86" width="28" height="5" fill="#e8c96a"/><rect x="174" y="79" width="16" height="7" fill="#e8c96a"/><rect x="174" y="83" width="16" height="3" fill="#c9a227"/><rect x="176" y="91" width="12" height="10" fill="#ffe3c4"/><rect x="179" y="95" width="2" height="2" fill="#2b2b2b"/><rect x="183" y="95" width="2" height="2" fill="#2b2b2b"/><rect x="173" y="101" width="18" height="12" fill="#7aa8c9"/><rect x="175" y="113" width="6" height="7" fill="#3a3a3a"/><rect x="183" y="113" width="6" height="7" fill="#3a3a3a"/>'
+        + '</svg>';
+    // 农场头真实信息：日期 + 季节（3–5 春、6–8 夏、9–11 秋、12–2 冬）+ 时段（与 js/09 phaseForHour 同一划分）；天气没有真实来源就不写
+    const ckHubFarmInfo = () => {
+        const n = new Date();
+        const m = n.getMonth() + 1;
+        const season = (m >= 3 && m <= 5) ? '春季' : (m >= 6 && m <= 8) ? '夏季' : (m >= 9 && m <= 11) ? '秋季' : '冬季';
+        const h = n.getHours();
+        const phase = (h >= 6 && h < 17) ? '白天' : (h >= 17 && h < 19) ? '黄昏' : '夜晚';
+        const w = ['日', '一', '二', '三', '四', '五', '六'][n.getDay()];
+        return '<span>' + n.getFullYear() + '年' + m + '月' + n.getDate() + '日 周' + w + '</span><span>' + season + ' · ' + phase + '</span>';
+    };
+
     const renderView = () => `
     <style>
         /* ── 根容器：归巢纸底 ── */
@@ -23976,105 +24011,6 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         .ck-role-nm { font-size:13px; font-weight:700; color:#1e2748; }
         .ck-role-ar { font-size:8px; color:#a9b3cc; }
 
-        /* ── 拼贴卡片区 ── */
-        .ck-collage { position:relative; height:732px; z-index:1; }
-        .ck-card { position:absolute; cursor:pointer; overflow:hidden;
-            box-shadow:0 12px 32px rgba(100,160,220,0.18), 0 0 0 1.5px rgba(255,255,255,0.75);
-            transition:transform .2s, box-shadow .2s; }
-        .ck-card:active { transform:scale(0.975); box-shadow:0 6px 16px rgba(100,160,220,0.12); }
-        .ck-card::after { content:''; position:absolute; inset:0;
-            background:linear-gradient(180deg,rgba(255,255,255,0.38) 0%,transparent 42%,rgba(60,100,140,0.06) 100%);
-            pointer-events:none; }
-        .ck-card-body { position:absolute; left:16px; bottom:14px; z-index:2; }
-        .ck-card-en { font-size:8.5px; letter-spacing:2.5px; color:rgba(255,255,255,0.85);
-            font-weight:600; margin-bottom:3px; text-shadow:0 1px 3px rgba(0,60,120,0.2); }
-        .ck-card-en { font-size:8.5px; letter-spacing:2.5px; color:rgba(255,255,255,0.75);
-            font-family:'Georgia',serif; font-weight:400; margin-bottom:4px; }
-        .ck-card-cn { font-size:23px; font-weight:800; color:#fff; letter-spacing:2px;
-            font-family:'Songti SC',serif; text-shadow:0 1px 6px rgba(0,0,0,0.2); }
-        .ck-card-cn-sub { font-size:9px; color:rgba(255,255,255,0.65); letter-spacing:2px;
-            margin-top:2px; font-weight:400; }
-        .ck-card-arrow { font-size:13px; color:rgba(255,255,255,0.7); margin-top:4px; letter-spacing:-1px; }
-        .ck-card-tag { position:absolute; top:11px; right:11px; z-index:3;
-            font-size:9px; font-weight:700; padding:3px 9px; border-radius:9px;
-            letter-spacing:0.5px;
-            backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
-        .ck-tag-new { background:rgba(255,255,255,0.28); color:#fff; }
-        .ck-tag-ltd { background:rgba(255,255,255,0.28); color:#fff; }
-
-        /* ── 卡片噪点纹理（subtle grain for elegance）── */
-        .ck-card::before {
-            content:''; position:absolute; inset:0; z-index:0; opacity:0.06; pointer-events:none;
-            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            background-size:120px;
-        }
-
-        /* ── 各卡定位与配色（高级淡雅·对照参考图1:1还原）── */
-
-        /* ── 暖调焦糖·玫瑰·奶茶配色 ── */
-
-        /* 相遇：左上大卡 — 深玫瑰砖红，热烈温柔 */
-        .ck-c-trip {
-            left:0; top:0; width:53%; height:286px; border-radius:22px;
-            background:
-                radial-gradient(ellipse at 30% 15%, rgba(210,195,190,0.5) 0%, transparent 55%),
-                linear-gradient(155deg, #B8A8A4 0%, #A09490 50%, #8C8280 100%);
-        }
-
-        /* 日记：右上小卡 — 薄雾米白 */
-        .ck-c-beside {
-            right:0; top:0; width:44.5%; height:150px;
-            border-radius:20px 20px 20px 48px;
-            background:
-                radial-gradient(ellipse at 65% 25%, rgba(248,244,238,0.95) 0%, transparent 65%),
-                linear-gradient(145deg, #EDE5D8 0%, #E2D8C8 55%, #D8CEBC 100%);
-        }
-
-        .ck-c-photo {
-            left:0; top:302px; width:53%; height:228px; border-radius:22px;
-            background:
-                radial-gradient(ellipse at 28% 25%, rgba(155,182,170,0.45) 0%, transparent 55%),
-                linear-gradient(155deg, #8EAAA0 0%, #74928A 55%, #5E7870 100%);
-        }
-
-        /* 浅色卡文字修正 */
-        .ck-c-beside .ck-card-en  { color:rgba(80,45,20,0.55); }
-        .ck-c-beside .ck-card-cn  { color:#5a2e10; text-shadow:none; }
-        .ck-c-beside .ck-card-cn-sub { color:rgba(80,45,20,0.45); }
-        .ck-c-beside .ck-card-arrow { color:rgba(80,45,20,0.45); }
-        /* 卡片底部渐变遮罩（确保文字可读，深色卡更柔） */
-        .ck-c-trip::after, .ck-c-photo::after {
-            background:linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.0) 55%) !important;
-        }
-        .ck-c-beside::after {
-            background:linear-gradient(to top, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.0) 55%) !important;
-        }
-        .ck-diary-svg { position:absolute; right:-8px; top:-8px;
-            width:96px; height:108px; opacity:0.88; z-index:1; }
-
-        /* ── 其他卡片 SVG 图标 ── */
-        .ck-card-icon { position:absolute; right:10px; top:10px; z-index:1;
-            width:52px; height:52px; opacity:0.8; }
-        .ck-c-anec .ck-card-icon { width:44px; height:44px; opacity:0.75; }
-
-        /* ── 相册按钮 ── */
-        .ck-album-btn { position:absolute; left:50%; transform:translateX(-50%);
-            top:666px; width:62%; height:54px; border-radius:27px;
-            background:rgba(255,255,255,0.80);
-            border:1.5px solid rgba(255,255,255,0.95);
-            backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-            display:flex; align-items:center; justify-content:center; gap:10px;
-            color:#7A7068; font-weight:700; font-size:15px; letter-spacing:3px;
-            box-shadow:0 8px 24px rgba(130,110,100,0.12);
-            cursor:pointer; transition:transform .15s; }
-        .ck-album-btn:active { transform:translateX(-50%) scale(0.97); }
-
-        /* ── 底部装饰 ── */
-        .ck-deco-bottom { position:absolute; left:8px; bottom:-8px; z-index:0; opacity:0.5; pointer-events:none; }
-        .ck-deco-orb { position:absolute; right:20px; bottom:8px; z-index:0;
-            width:18px; height:18px; border-radius:50%;
-            background:radial-gradient(circle, #C8BEB8, #ACA49C);
-            box-shadow:0 0 10px 3px rgba(160,148,140,0.25); pointer-events:none; }
 
         /* ── 角色选择弹层 ── */
         .ck-pop { position:absolute; inset:0;
@@ -25443,13 +25379,19 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 .ck-tl-date { font-size:11px; font-weight:800; color:#1e2748;}
 .ck-tl-place { font-size:10px; color:#46536f; line-height:1.35; margin-top:1px; min-height:26px;}
 .ck-tl-sample { font-size:8px; color:#b45309; background:#fef3c7; border-radius:6px; padding:0 4px;}
-/* 入口区：沿用原.ck-card / #ck-album-btn，改成静态小卡片网格 */
-.ck-book-entries { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;}
-.ck-book-entries .ck-card { position:relative!important; left:auto!important; top:auto!important; width:auto!important; height:92px!important; border-radius:18px;}
-.ck-book-entries .ck-card-body { left:14px; bottom:12px;}
-.ck-book-entries .ck-card-icon, .ck-book-entries .ck-diary-svg { display:none;}
-.ck-book-entries .ck-album-btn { position:relative!important; left:auto!important; top:auto!important; transform:none!important; width:auto!important; height:48px; grid-column:1 / -1;}
-.ck-book-entries .ck-album-btn:active { transform:scale(.97)!important;}
+/* ── 星露谷风 Hub：农场场景头 + 2 列木质像素按钮（仅此刻 app，ck-hub-/ck-sv- 作用域）── */
+.ck-hub-farm { display:block; width:100%; box-sizing:border-box; margin:2px 0 12px; padding:0 0 8px; background:#fbf3df; border:2px solid #7a4a28; border-radius:4px; box-shadow:0 3px 0 #6b4226, 0 8px 18px rgba(90,50,20,.18); cursor:pointer; overflow:hidden; }
+.ck-hub-farm:active { transform:translateY(2px); box-shadow:0 1px 0 #6b4226, 0 4px 10px rgba(90,50,20,.16); }
+.ck-hub-farm .ck-sv-scene { display:block; width:100%; height:auto; }
+.ck-hub-farm-info { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:8px 10px 0; font-size:12px; color:#5b3a1e; font-weight:700; }
+.ck-hub-farm-hint { padding:2px 10px 0; font-size:10px; color:#a08a7a; text-align:left; }
+.ck-hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.ck-hub-btn { display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 8px 10px; background:linear-gradient(180deg,#fdf6e3,#f7ead0); border:2px solid #7a4a28; border-radius:4px; box-shadow:inset 0 0 0 2px #fffdf8, inset 0 -4px 0 rgba(122,74,40,.14), 0 3px 0 #6b4226, 0 6px 14px rgba(90,50,20,.16); cursor:pointer; text-align:center; }
+.ck-hub-btn:active { transform:translateY(2px); box-shadow:inset 0 0 0 2px #fffdf8, inset 0 -2px 0 rgba(122,74,40,.14), 0 1px 0 #6b4226, 0 3px 8px rgba(90,50,20,.14); }
+.ck-hub-ico { width:40px; height:40px; }
+.ck-hub-ico svg { width:40px; height:40px; display:block; }
+.ck-hub-nm { font-size:15px; font-weight:800; color:#5b3a1e; letter-spacing:1px; }
+.ck-hub-sub { font-size:10px; color:#a08a7a; line-height:1.4; }
         .gm-memtree { background:rgba(255,255,255,.82); border-radius:18px; padding:12px 14px; box-shadow:0 8px 24px rgba(160,110,80,.14), 0 0 0 1px rgba(255,255,255,.9); }
         .gm-mt-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
         .gm-mt-head span:first-child { font-size:15px; font-weight:800; color:#3a1e14; }
@@ -25486,102 +25428,152 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             </div>
         </div>
 
- <div class="ck-popbook" id="ck-popbook" data-phase="day">
-<div class="ck-pb-lastseen">
-<div>
-<div class="ck-pb-eyebrow">LAST SEEN · A POP-UP BOOK OF PLACES</div>
-<div class="ck-pb-last" id="ck-pb-last">还没有行踪记录</div>
-<div class="ck-pb-sub" id="ck-pb-sub">翻开这本立体书，看看 TA 去过哪里、在做什么。</div>
-</div>
-<button class="ck-pb-lookbtn" id="ck-pb-lookbtn" type="button">🎨 换装</button>
-</div>
-<div class="ck-pb-lookpanel" id="ck-pb-lookpanel">
-<div class="ck-pb-look-title">QQ 小人 · 换装 / 建模</div>
-<div class="ck-pb-look-row"><span class="ck-pb-look-lab">发色</span><span id="ck-pb-hair"></span></div>
-<div class="ck-pb-look-row"><span class="ck-pb-look-lab">瞳色</span><span id="ck-pb-eye"></span></div>
-<div class="ck-pb-look-note">选择会实时预览，并保存在 cike_char_look_v1 里，重启小手机还在。</div>
-<div id="ck-k-settings"></div>
-<div style="display:flex;gap:8px;margin-top:10px;"><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showDuetMini('cike')">🎵 一起听</button><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showCharCardStudio()">📇 角色卡</button></div>
-<div class="ck-pb-look-close" id="ck-pb-look-close">完成 ✓</div>
-</div>
-<div class="ck-book" id="ck-book">
-<div class="ck-book-page" id="ck-book-page">
-<div class="ck-sun"></div>
-<div class="ck-cloud ck-cl1"></div>
-<div class="ck-cloud ck-cl2"></div>
-<div class="ck-stars">✦ ⋆ ✧ ⋆ ✦</div>
-<div class="ck-buildings" id="ck-buildings"></div>
-<div class="ck-street"></div>
-<div class="ck-lamp ck-lamp-l"></div>
-<div class="ck-lamp ck-lamp-r"></div>
-<div class="ck-tree ck-tree-l"></div>
-<div class="ck-tree ck-tree-r"></div>
-<div class="ck-crease"></div>
-<div class="ck-tint"></div>
-<div class="ck-char" id="ck-char" role="button" title="点我放大">
-<div class="ck-bubble" id="ck-bubble"><span id="ck-bubble-text"></span><span class="ck-bubble-tag" id="ck-bubble-tag"></span></div>
-<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
-<ellipse cx="60" cy="142" rx="26" ry="5" fill="rgba(0,0,0,0.18)"/>
-<rect x="48" y="118" width="10" height="22" rx="4" fill="#3a3a3a"/>
-<rect x="62" y="118" width="10" height="22" rx="4" fill="#3a3a3a"/>
-<path d="M38 96 Q60 84 82 96 L86 122 Q60 130 34 122 Z" fill="#5b8def"/>
-<path d="M38 98 Q28 112 30 124" stroke="#ffe3c4" stroke-width="9" stroke-linecap="round" fill="none"/>
-<path d="M82 98 Q92 112 90 124" stroke="#ffe3c4" stroke-width="9" stroke-linecap="round" fill="none"/>
-<circle cx="60" cy="56" r="34" fill="#ffe3c4"/>
-<path d="M27 58 Q22 16 60 14 Q98 16 93 58 Q88 34 60 32 Q32 34 27 58 Z" fill="var(--ck-hair)"/>
-<path d="M30 52 Q34 30 60 28 Q86 30 90 52 Q84 40 60 38 Q36 40 30 52 Z" fill="var(--ck-hair)" opacity="0.55"/>
-<ellipse cx="47" cy="58" rx="5.5" ry="7.5" fill="var(--ck-eye)"/>
-<ellipse cx="73" cy="58" rx="5.5" ry="7.5" fill="var(--ck-eye)"/>
-<circle cx="49" cy="55.5" r="1.8" fill="#fff"/>
-<circle cx="75" cy="55.5" r="1.8" fill="#fff"/>
-<circle cx="36" cy="70" r="4.5" fill="#ffb3a0" opacity="0.7"/>
-<circle cx="84" cy="70" r="4.5" fill="#ffb3a0" opacity="0.7"/>
-<path class="ck-mouth-flat" d="M54 74 Q60 79 66 74" stroke="#c87a5a" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse class="ck-mouth-open" cx="60" cy="78" rx="5" ry="6" fill="#a04a3a" opacity="0"/>
-</svg>
-</div>
-<button class="ck-pagebtn ck-prev" id="ck-prev" type="button" aria-label="上一个地点">‹</button>
-<button class="ck-pagebtn ck-next" id="ck-next" type="button" aria-label="下一个地点">›</button>
-<div class="ck-char-panel" id="ck-char-panel">
-<div class="ck-char-greet" id="ck-char-greet">嗨，我是 TA！</div>
-<div class="ck-char-actions">
-<button type="button" data-ckact="wave">👋 打招呼</button>
-<button type="button" data-ckact="hug">🤗 抱抱</button>
-<button type="button" data-ckact="chat">💬 聊聊天</button><button type="button" data-ckact="bow">🙇 鞠躬</button><button type="button" data-ckact="laugh">😄 笑一笑</button><button type="button" data-ckact="sleep">😴 打个盹</button>
-</div>
-<div class="ck-char-reply" id="ck-char-reply">点一点上面的按钮，和 TA 互动吧。</div>
-<button class="ck-char-shrink" id="ck-char-shrink" type="button">再点一次 / 点空白处可缩回</button>
-</div>
-</div>
-</div>
-<div class="ck-pb-caption" id="ck-pb-caption"></div>
-<div class="ck-timeline" id="ck-timeline"></div>
-<div id="groupy-cike-home"></div>
-<div class="ck-book-entries">
-<div class="ck-card ck-c-trip" data-mod="trip">
-<div class="ck-card-tag ck-tag-ltd">线下模式</div>
-<div class="ck-card-body"><div class="ck-card-en">ENCOUNTER</div><div class="ck-card-cn">相遇</div><div class="ck-card-arrow">▸▸</div></div>
-</div>
-<div class="ck-card ck-c-beside" data-mod="beside">
-<div class="ck-card-tag ck-tag-new">NEW</div>
-<div class="ck-card-body"><div class="ck-card-en">DEAR DIARY</div><div class="ck-card-cn">日记</div><div class="ck-card-arrow">▸▸</div></div>
-</div>
-<div class="ck-card ck-c-photo" data-mod="photo">
-<div class="ck-card-body"><div class="ck-card-en">SCREEN CHECK</div><div class="ck-card-cn">查手机</div><div class="ck-card-arrow">▸▸</div></div>
-</div>
-<div class="ck-card ck-c-inner" data-mod="inner">
-<div class="ck-card-tag ck-tag-new">NEW</div>
-<div class="ck-card-body"><div class="ck-card-en">INNER LIFE</div><div class="ck-card-cn">她在干嘛</div><div class="ck-card-arrow">▸▸</div></div>
-</div>
-<div class="ck-album-btn" id="ck-album-btn">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(200,215,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2.9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-信件箱
-</div>
-<div class="gm-memtree" id="ck-memtree-root" style="grid-column:1 / -1;">
-<div class="gm-mt-head"><span>🌳 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>
-<div class="gm-mt-tree"><div class="gm-mt-empty">记忆树加载中……</div></div>
-</div>
-</div>
-</div>
+        <div class="ck-hub-farm" id="ck-hub-farm" role="button" title="进入小世界">
+            ${CK_HUB_FARM_SVG}
+            <div class="ck-hub-farm-info">${ckHubFarmInfo()}</div>
+            <div class="ck-hub-farm-hint">点场景进入小世界 · 看看 TA 的立体书</div>
+        </div>
+        <div class="ck-hub-grid">
+            <div class="ck-hub-btn" id="ck-hub-simday" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.simday}</span><span class="ck-hub-nm">他的一天</span><span class="ck-hub-sub">看看他今天在干嘛</span></div>
+            <div class="ck-hub-btn" id="ck-hub-beside" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.beside}</span><span class="ck-hub-nm">日记</span><span class="ck-hub-sub">写给他的手写日记</span></div>
+            <div class="ck-hub-btn" id="ck-hub-photo" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.photo}</span><span class="ck-hub-nm">查手机</span><span class="ck-hub-sub">看看他手机里有什么</span></div>
+            <div class="ck-hub-btn" id="ck-hub-inner" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.inner}</span><span class="ck-hub-nm">她在干嘛</span><span class="ck-hub-sub">他的内心小世界</span></div>
+            <div class="ck-hub-btn" id="ck-hub-trip" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.trip}</span><span class="ck-hub-nm">相遇</span><span class="ck-hub-sub">和他线下见一面</span></div>
+            <!-- 信件箱按钮保留 id="ck-album-btn"：js/33 写信过程“去信件箱打开原信”靠这个 id 定位 -->
+            <div class="ck-hub-btn" id="ck-album-btn" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.album}</span><span class="ck-hub-nm">信件箱</span><span class="ck-hub-sub">他寄来的信都在这</span></div>
+            <div class="ck-hub-btn" id="ck-hub-memtree" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.memtree}</span><span class="ck-hub-nm">记忆树</span><span class="ck-hub-sub">每天的记忆挂成木牌</span></div>
+            <div class="ck-hub-btn" id="ck-hub-garden" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.garden}</span><span class="ck-hub-nm">记忆花园</span><span class="ck-hub-sub">把记忆种成花</span></div>
+        </div>
+        <div class="ck-sub" id="ck-simday">
+            <div class="ck-sub-back" id="ck-simday-back">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                返回
+            </div>
+            <div class="ck-sub-head">
+                <div class="ck-sub-av" id="ck-simday-av"></div>
+                <div>
+                    <div class="ck-sub-title">他的一天</div>
+                    <div class="ck-sub-en">HIS DAY · SIM LIFE</div>
+                </div>
+            </div>
+            <div id="ck-simday-area"></div>
+            <div id="groupy-cike-home"></div>
+        </div>
+        <div class="ck-sub" id="ck-memtree">
+            <div class="ck-sub-back" id="ck-memtree-back">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                返回
+            </div>
+            <div class="ck-sub-head">
+                <div class="ck-sub-av" id="ck-memtree-av"></div>
+                <div>
+                    <div class="ck-sub-title">记忆树</div>
+                    <div class="ck-sub-en">MEMORY TREE</div>
+                </div>
+            </div>
+            <div class="gm-memtree" id="ck-memtree-root">
+                <div class="gm-mt-head"><span>🌳 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>
+                <div class="gm-mt-tree"><div class="gm-mt-empty">记忆树加载中……</div></div>
+            </div>
+        </div>
+        <div class="ck-sub" id="ck-garden">
+            <div class="ck-sub-back" id="ck-garden-back">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                返回
+            </div>
+            <div class="ck-sub-head">
+                <div class="ck-sub-av" id="ck-garden-av"></div>
+                <div>
+                    <div class="ck-sub-title">记忆花园</div>
+                    <div class="ck-sub-en">MEMORY GARDEN</div>
+                </div>
+            </div>
+            <div id="ck-garden-root"></div>
+        </div>
+        <div class="ck-sub" id="ck-diorama">
+            <div class="ck-sub-back" id="ck-diorama-back">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                返回
+            </div>
+            <div class="ck-sub-head">
+                <div class="ck-sub-av" id="ck-diorama-av"></div>
+                <div>
+                    <div class="ck-sub-title">小世界</div>
+                    <div class="ck-sub-en">LAST SEEN · POP-UP BOOK</div>
+                </div>
+            </div>
+     <div class="ck-popbook" id="ck-popbook" data-phase="day">
+    <div class="ck-pb-lastseen">
+    <div>
+    <div class="ck-pb-eyebrow">LAST SEEN · A POP-UP BOOK OF PLACES</div>
+    <div class="ck-pb-last" id="ck-pb-last">还没有行踪记录</div>
+    <div class="ck-pb-sub" id="ck-pb-sub">翻开这本立体书，看看 TA 去过哪里、在做什么。</div>
+    </div>
+    <button class="ck-pb-lookbtn" id="ck-pb-lookbtn" type="button">🎨 换装</button>
+    </div>
+    <div class="ck-pb-lookpanel" id="ck-pb-lookpanel">
+    <div class="ck-pb-look-title">QQ 小人 · 换装 / 建模</div>
+    <div class="ck-pb-look-row"><span class="ck-pb-look-lab">发色</span><span id="ck-pb-hair"></span></div>
+    <div class="ck-pb-look-row"><span class="ck-pb-look-lab">瞳色</span><span id="ck-pb-eye"></span></div>
+    <div class="ck-pb-look-note">选择会实时预览，并保存在 cike_char_look_v1 里，重启小手机还在。</div>
+    <div id="ck-k-settings"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;"><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showDuetMini('cike')">🎵 一起听</button><button type="button" class="ck-pb-lookbtn" style="flex:1;" onclick="window.GroupN && window.GroupN.showCharCardStudio()">📇 角色卡</button></div>
+    <div class="ck-pb-look-close" id="ck-pb-look-close">完成 ✓</div>
+    </div>
+    <div class="ck-book" id="ck-book">
+    <div class="ck-book-page" id="ck-book-page">
+    <div class="ck-sun"></div>
+    <div class="ck-cloud ck-cl1"></div>
+    <div class="ck-cloud ck-cl2"></div>
+    <div class="ck-stars">✦ ⋆ ✧ ⋆ ✦</div>
+    <div class="ck-buildings" id="ck-buildings"></div>
+    <div class="ck-street"></div>
+    <div class="ck-lamp ck-lamp-l"></div>
+    <div class="ck-lamp ck-lamp-r"></div>
+    <div class="ck-tree ck-tree-l"></div>
+    <div class="ck-tree ck-tree-r"></div>
+    <div class="ck-crease"></div>
+    <div class="ck-tint"></div>
+    <div class="ck-char" id="ck-char" role="button" title="点我放大">
+    <div class="ck-bubble" id="ck-bubble"><span id="ck-bubble-text"></span><span class="ck-bubble-tag" id="ck-bubble-tag"></span></div>
+    <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="60" cy="142" rx="26" ry="5" fill="rgba(0,0,0,0.18)"/>
+    <rect x="48" y="118" width="10" height="22" rx="4" fill="#3a3a3a"/>
+    <rect x="62" y="118" width="10" height="22" rx="4" fill="#3a3a3a"/>
+    <path d="M38 96 Q60 84 82 96 L86 122 Q60 130 34 122 Z" fill="#5b8def"/>
+    <path d="M38 98 Q28 112 30 124" stroke="#ffe3c4" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M82 98 Q92 112 90 124" stroke="#ffe3c4" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <circle cx="60" cy="56" r="34" fill="#ffe3c4"/>
+    <path d="M27 58 Q22 16 60 14 Q98 16 93 58 Q88 34 60 32 Q32 34 27 58 Z" fill="var(--ck-hair)"/>
+    <path d="M30 52 Q34 30 60 28 Q86 30 90 52 Q84 40 60 38 Q36 40 30 52 Z" fill="var(--ck-hair)" opacity="0.55"/>
+    <ellipse cx="47" cy="58" rx="5.5" ry="7.5" fill="var(--ck-eye)"/>
+    <ellipse cx="73" cy="58" rx="5.5" ry="7.5" fill="var(--ck-eye)"/>
+    <circle cx="49" cy="55.5" r="1.8" fill="#fff"/>
+    <circle cx="75" cy="55.5" r="1.8" fill="#fff"/>
+    <circle cx="36" cy="70" r="4.5" fill="#ffb3a0" opacity="0.7"/>
+    <circle cx="84" cy="70" r="4.5" fill="#ffb3a0" opacity="0.7"/>
+    <path class="ck-mouth-flat" d="M54 74 Q60 79 66 74" stroke="#c87a5a" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse class="ck-mouth-open" cx="60" cy="78" rx="5" ry="6" fill="#a04a3a" opacity="0"/>
+    </svg>
+    </div>
+    <button class="ck-pagebtn ck-prev" id="ck-prev" type="button" aria-label="上一个地点">‹</button>
+    <button class="ck-pagebtn ck-next" id="ck-next" type="button" aria-label="下一个地点">›</button>
+    <div class="ck-char-panel" id="ck-char-panel">
+    <div class="ck-char-greet" id="ck-char-greet">嗨，我是 TA！</div>
+    <div class="ck-char-actions">
+    <button type="button" data-ckact="wave">👋 打招呼</button>
+    <button type="button" data-ckact="hug">🤗 抱抱</button>
+    <button type="button" data-ckact="chat">💬 聊聊天</button><button type="button" data-ckact="bow">🙇 鞠躬</button><button type="button" data-ckact="laugh">😄 笑一笑</button><button type="button" data-ckact="sleep">😴 打个盹</button>
+    </div>
+    <div class="ck-char-reply" id="ck-char-reply">点一点上面的按钮，和 TA 互动吧。</div>
+    <button class="ck-char-shrink" id="ck-char-shrink" type="button">再点一次 / 点空白处可缩回</button>
+    </div>
+    </div>
+    </div>
+    <div class="ck-pb-caption" id="ck-pb-caption"></div>
+    <div class="ck-timeline" id="ck-timeline"></div>
+    </div>
+
+        </div>
         <div class="ck-pop" id="ck-pop">
             <div class="ck-pop-panel">
                 <div class="ck-pop-title">选 择 约 会 对 象</div>
@@ -25642,6 +25634,13 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             const pop = win.querySelector('#ck-pop');
             const sub = win.querySelector('#ck-sub');
             const album = win.querySelector('#ck-album');
+            const simday = win.querySelector('#ck-simday');
+            const memtreePage = win.querySelector('#ck-memtree');
+            const gardenPage = win.querySelector('#ck-garden');
+            const diorama = win.querySelector('#ck-diorama');
+
+            // 关掉所有此刻子页面（#ck-sub / #ck-album / 4 个 Hub 新页）
+            const closeAllCkSubs = () => { win.querySelectorAll('.ck-sub').forEach(el => el.classList.remove('show')); };
 
             const refreshRole = () => {
                 win.querySelector('#ck-role-nm').textContent = curRole || 'TA';
@@ -25677,8 +25676,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             };
             // 用 MutationObserver 监听 .ck-sub class 变化，自动同步系统返回按钮
             const subObserver = new MutationObserver(syncSysBack);
-            [sub, album].forEach(el => {
-                if (el) subObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+            win.querySelectorAll('.ck-sub').forEach(el => {
+                subObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
             });
 
             win.querySelector('#ck-role-btn')?.addEventListener('click', () => pop?.classList.add('show'));
@@ -26771,11 +26770,41 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                         if (p) p.classList.toggle('show', diarySettingsOpen);
                     };
                 }
-                album?.classList.remove('show');
+                closeAllCkSubs();
                 if (sub) { sub.scrollTop = 0; sub._openedMod = modKey; }
                 sub?.classList.add('show');
             };
 
+
+            // ── Hub 新子页面：常驻容器（仿 #ck-album 模式），里面住着 observer 维护的活节点，绝不用 renderSub 的 wipe 模式 ──
+            const openHubPage = (el) => {
+                if (!el) return;
+                closeAllCkSubs();
+                el.scrollTop = 0;
+                el.classList.add('show');
+            };
+            const openSimday = () => {
+                const av = win.querySelector('#ck-simday-av');
+                if (av) av.innerHTML = avatarHtml(curRole);
+                openHubPage(simday);
+            };
+            const openMemtree = () => {
+                const av = win.querySelector('#ck-memtree-av');
+                if (av) av.innerHTML = avatarHtml(curRole);
+                try { if (window.GroupM && window.GroupM.memtree) window.GroupM.memtree.render(); } catch(e){}
+                openHubPage(memtreePage);
+            };
+            const openGarden = () => {
+                const av = win.querySelector('#ck-garden-av');
+                if (av) av.innerHTML = avatarHtml(curRole);
+                try { if (window.GroupV && window.GroupV.gardenRefresh) window.GroupV.gardenRefresh(); } catch(e){}
+                openHubPage(gardenPage);
+            };
+            const openDiorama = () => {
+                const av = win.querySelector('#ck-diorama-av');
+                if (av) av.innerHTML = avatarHtml(curRole);
+                openHubPage(diorama);
+            };
 
             // ── Group C · 立体书小世界（首页）──
             const initPopBook = () => {
@@ -27118,21 +27147,35 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                     });
                 }
 
-                sub?.classList.remove('show');
+                closeAllCkSubs();
                 if (album) album.scrollTop = 0;
                 album?.classList.add('show');
             };
+            // ── Hub 按钮：#ck-album-btn 的 id 现在长在 Hub 信件箱按钮上（js/33 写信过程“去信件箱打开原信”靠它定位），绑定行不动 ──
             win.querySelector('#ck-album-btn')?.addEventListener('click', openAlbum);
+            win.querySelector('#ck-hub-farm')?.addEventListener('click', openDiorama);
+            win.querySelector('#ck-hub-simday')?.addEventListener('click', openSimday);
+            win.querySelector('#ck-hub-beside')?.addEventListener('click', () => openSub('beside'));
+            win.querySelector('#ck-hub-photo')?.addEventListener('click', () => openSub('photo'));
+            win.querySelector('#ck-hub-inner')?.addEventListener('click', () => openSub('inner'));
+            win.querySelector('#ck-hub-trip')?.addEventListener('click', () => openSub('trip'));
+            win.querySelector('#ck-hub-memtree')?.addEventListener('click', openMemtree);
+            win.querySelector('#ck-hub-garden')?.addEventListener('click', openGarden);
+            // 模拟人生面板“查手机”入口的桥：面板在 js/33 里，openSub 在本闭包里，靠冒泡事件递话
+            if (!win._ckOpenSubBound) {
+                win._ckOpenSubBound = true;
+                win.addEventListener('ck-open-sub', (e) => { if (e.detail && MODULES[e.detail]) openSub(e.detail); });
+            }
 
             // ── 返回按钮绑定 ──
             win.querySelector('#ck-sub-back')?.addEventListener('click', () => sub?.classList.remove('show'));
             win.querySelector('#ck-album-back')?.addEventListener('click', () => album?.classList.remove('show'));
+            win.querySelector('#ck-simday-back')?.addEventListener('click', () => simday?.classList.remove('show'));
+            win.querySelector('#ck-memtree-back')?.addEventListener('click', () => memtreePage?.classList.remove('show'));
+            win.querySelector('#ck-garden-back')?.addEventListener('click', () => gardenPage?.classList.remove('show'));
+            win.querySelector('#ck-diorama-back')?.addEventListener('click', () => diorama?.classList.remove('show'));
 
             initPopBook();
-            // ── 卡片点击 ──
-            win.querySelectorAll('.ck-card').forEach(card => {
-                card.addEventListener('click', () => openSub(card.getAttribute('data-mod')));
-            });
         },
         resume: () => {}
     };

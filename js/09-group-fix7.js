@@ -464,12 +464,13 @@ return '<div class="gm-plank' + (d.sealed? ' gm-sealed': '') + '" data-gm-date="
 + '<div class="gm-plank-meta">' + esc(d.items[0].source) + (d.items.length > 1? ' · 等' + d.items.length + '条': '') + '</div>'
 + '<div class="gm-plank-seal">' + (d.sealed? '🔒 已封印': '') + '</div></div>';
 }).join(''): '<div class="gm-mt-empty">还没有记忆。去归巢记一条，或在此时写一篇日记，木牌就会挂上来。</div>';
-var _fix6Html = '<div class="gm-mt-head"><span>🌳 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>' + lotHtml + '<div class="gm-mt-tree">' + planks + '</div>' + (window.GroupV ? window.GroupV.gardenHTML() : '');
+/* 2026-11-27 Hub：花园已拆去自己的 #ck-garden-root 页，不再拼进记忆树。 */
+var _fix6Html = '<div class="gm-mt-head"><span>🌳 记忆树</span><span class="gm-mt-sub">每天的记忆挂成木牌 · 点一下封印 / 解封</span></div>' + lotHtml + '<div class="gm-mt-tree">' + planks + '</div>';
   /* GROUP-FIX6 · FIX6-1 记忆树去重写：内容与上次写入完全相同就不写 innerHTML。
      根因：gmInit 的 body/subtree observer 回调 memtreeRender()，无条件写
      innerHTML 又触发 observer，无限微任务乒乓饿死定时器（开此刻后 10 秒
      #ck-memtree-root 重写 3259 次、observer 回调 58726 次、定时器冻结）。
-     html 完全由数据决定（天数/唤醒券/花园，无时钟），数据不变恒命中；封印、
+     html 完全由数据决定（天数/唤醒券，无时钟），数据不变恒命中；封印、
      抽券、兑现、新记忆改变 html 时照常重写。缓存用写入的字符串本身比对，
      不读 innerHTML 序列化，避免序列化差异导致永不命中。 */
   if (root.__fix6LastHtml === _fix6Html) return true;

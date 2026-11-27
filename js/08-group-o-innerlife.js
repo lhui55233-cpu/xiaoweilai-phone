@@ -657,16 +657,6 @@ chordCardHTML() +
 logHtml;
 }
 
-/* ── 样式：此刻新卡片配色（无外链图片）──
-   入口卡片用正常层叠的浅纸底 + ink 字，不用 important 覆盖紫渐变。 */
-try {
-var _st = document.createElement('style');
-_st.textContent = '.ck-c-inner{background:#fffdf8;border:1px solid #dce2f1;}' +
-'.ck-c-inner.ck-card-en{color:rgba(30,39,72,.65);}.ck-c-inner.ck-card-cn{color:#1e2748;}' +
-'.ck-c-inner.ck-card-arrow{color:rgba(30,39,72,.55);}';
-document.head.appendChild(_st);
-} catch (e) {}
-
 window.CharInnerLife = {
 getSwitches: getSwitches, setSwitch: setSwitch,
 stateAt: stateAt, currentState: currentState, noteInteraction: noteInteraction,

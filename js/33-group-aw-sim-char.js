@@ -580,7 +580,7 @@ function ensureStyle() {
     '.aw-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}',
     '.aw-btns button{border:0;background:#dce2f1;color:#1e2748;font-size:12px;font-weight:700;border-radius:16px;padding:7px 11px;cursor:pointer;}',
     '.aw-btns button:active{transform:scale(.94);}',
-    '#aw-overlay{position:absolute;inset:0;background:#fbf9f4;z-index:60;overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 40px;box-sizing:border-box;display:none;}',
+    '#aw-overlay{position:absolute;inset:0;background:#fbf9f4;z-index:120;overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 40px;box-sizing:border-box;display:none;}', // z-index 120：高于此刻子页面 .ck-sub(95)/.ck-pop(90)，低于系统级浮层（创建人物页 3200 起）
     '#aw-overlay.show{display:block;}',
     '.aw-ov-back{border:0;background:none;color:#1e2748;font-size:15px;font-weight:700;cursor:pointer;padding:6px 0;}',
     '.aw-ov-title{font-size:17px;font-weight:800;color:#1e2748;margin:4px 0 10px;}',
@@ -638,11 +638,14 @@ function ensureSimPanel() {
   var panel = document.getElementById('aw-sim-panel');
   if (!panel) {
     panel = document.createElement('div'); panel.id = 'aw-sim-panel';
-    if (tl.after) tl.after(panel); else tl.parentNode.insertBefore(panel, tl.nextSibling);
+    /* 2026-11-27 Hub：面板住进“他的一天”子页的 #ck-simday-area；该容器不存在时才回落到时间线后面。 */
+    var simdayArea = document.getElementById('ck-simday-area');
+    if (simdayArea) simdayArea.appendChild(panel);
+    else if (tl.after) tl.after(panel); else tl.parentNode.insertBefore(panel, tl.nextSibling);
     panel.addEventListener('click', function (ev) {
       var b = ev.target && ev.target.closest ? ev.target.closest('[data-aw-open]') : null; if (!b) return;
       var page = b.getAttribute('data-aw-open');
-      if (page === 'phone') { var card = document.querySelector('.ck-card[data-mod="photo"]'); if (card) card.click(); return; }
+      if (page === 'phone') { /* 2026-11-27 Hub：首页 .ck-card 已删，查手机改走冒泡事件，js/00 mount 里接 openSub('photo') */ try { panel.dispatchEvent(new CustomEvent('ck-open-sub', { detail: 'photo', bubbles: true })); } catch (e) {} return; }
       openOverlay(page);
     });
     /* 2026-11-27：底部“模拟人生”卡片已删（用户要求）；内联 #aw-sim-panel 留着。 */
