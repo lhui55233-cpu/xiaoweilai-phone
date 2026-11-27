@@ -74,7 +74,7 @@ html[data-al-round-font="on"] { --al-font-ui: "ZCOOL KuaiLe", -apple-system, "Pi
   background-repeat: no-repeat; background-position: center bottom; background-size: 430px 200px;
 }
 /* ── 6. 主题切换动效：太阳/月亮变形 + 圆环揭示，轻、短、一次 ── */
-.al-theme-toggle { display: inline-flex; align-items: center; gap: 6px; border: var(--al-bw) solid var(--al-border);
+.al-theme-toggle { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border: var(--al-bw) solid var(--al-border);
   background: var(--al-bg); color: var(--al-fg); border-radius: 999px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
 .al-theme-toggle .al-ico { display: inline-block; transition: transform .25s ease, opacity .25s ease; }
 html[data-theme-resolved="dark"] .al-theme-toggle .al-ico-sun { opacity: .35; transform: rotate(90deg) scale(.8); }
