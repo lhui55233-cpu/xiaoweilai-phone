@@ -456,8 +456,7 @@ function interact(kind) {
 var CX_CSS = '<style>'
 + '.cx-root{position:absolute;inset:0;background:#fffdfb;color:#2b2a28;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:40px;}'
 + '.cx-head{position:sticky;top:0;z-index:5;background:rgba(255,253,251,.94);backdrop-filter:blur(12px);padding:calc(var(--sys-status-bar-height,40px) + 28px) 18px 10px;border-bottom:1px solid #f0edea;}'
-+ '.sys-app-window[data-app-sandbox="cinema"]:not(:has([data-cx="lib"])) .cx-head{padding-left:56px;}'
-+ '.cx-back{font-size:14px;color:#8a8580;cursor:pointer;}'
++ '.cx-back{font-size:15px;color:#8a8580;cursor:pointer;display:inline-flex;align-items:center;gap:2px;font-weight:500;}'
 + '.cx-title{font-size:26px;font-weight:600;margin:6px 0 2px;}'
 + '.cx-sub{font-size:12px;color:#9a958f;line-height:1.6;}'
 + '.cx-note{margin:12px 16px 0;padding:10px 12px;background:#fdf6ec;border:1px solid #f3e3c8;border-radius:14px;font-size:12px;line-height:1.7;color:#8a6d3b;}'
@@ -520,7 +519,11 @@ function seatHTML() {
   return h;
 }
 function renderLib() {
-  var h = '<div class="cx-head"><div class="cx-title">影院 · 一起看</div><div class="cx-sub">和 ' + esc(charName()) + ' 一起看短片 · 片是手机里的模拟短片</div></div>'
+  // 首页头也有文字返回“‹ 返回桌面”（与天气/备忘录的 .gd-back 同款）：
+  // data-cx="lib" 一身两用——①它是 css/00 里隐藏注入圆钮的 :has([data-cx="lib"]) 钩子，
+  // 首页有了它，圆钮不再出现，也就不再需要 56px 左内边距让位；②bind() 里按
+  // state.view 分流：已在片库时点它回桌面，子页点“‹ 片库”时回片库。
+  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 返回桌面</span><div class="cx-title">影院 · 一起看</div><div class="cx-sub">和 ' + esc(charName()) + ' 一起看短片 · 片是手机里的模拟短片</div></div>'
     + '<div class="cx-note">本地模拟短片，非真实影片文件：没有真实视频，只有立体书世界场景 + 对白 + 分镜卡（CSS 画的），不连网、不下载影片。</div>'
     + (state.notice ? '<div class="cx-note">' + esc(state.notice) + '</div>' : '')
     + '<div class="cx-note">' + esc(CinemaServer.status().label) + '</div>'
@@ -670,7 +673,17 @@ function bind(win) {
     if (!el) return;
     var act = el.getAttribute('data-cx');
     var id = el.getAttribute('data-id');
-    if (act === 'lib') { state.view = 'lib'; state.playing = false; stopTimer(); render(); }
+    if (act === 'lib') {
+      if (state.view === 'lib') { // 首页“‹ 返回桌面”：已在片库，点按直接回桌面。
+        // 注意不能走 NavigationManager.back()：js/00 的 5k 子页条款看到 [data-cx="lib"]
+        // 就会点它（原意是“子页先回片库”，并假定“片库首页无该按钮”），back() 点它又
+        // 回到这里，_busy 防重入直接吞掉，什么都不发生。直接 minimize 也能接住系统
+        // 返回——back() 走到 5k 时点的正是这个按钮，同样落到 minimize。
+        try { if (typeof AppManager !== 'undefined' && AppManager.minimize) AppManager.minimize(); } catch (e) {}
+        return;
+      }
+      state.view = 'lib'; state.playing = false; stopTimer(); render();
+    }
     else if (act === 'open') { openFilm(id); }
     else if (act === 'notes') { var nid = id || state.filmId; if (!nid || !filmById(nid)) { state.view = 'lib'; state.notice = '这部短片已不在片库，旧票根还在票根页里。'; } else { state.filmId = nid; state.view = 'notes'; state.notice = ''; } render(); }
     else if (act === 'tickets') { state.view = 'tickets'; state.notice = ''; render(); }
