@@ -8,7 +8,7 @@ dream / hands 四个开关、她在你不在时推进小目标、信守对话里
 许下的承诺、夜里整理记忆、只在真的合适时才主动找你、做过
 的事都落在内心生活日志里。未复制其代码，本模块为全新自写。
 新增键：char_inner_log_v1 / char_inner_switches_v1 /
-char_goals_v1 / char_promises_v1 / char_quiet_v1 /
+char_goals_v1 / char_promises_v1 / char_inner_beat_v1 /
 char_inner_state_v1。
 只读复用：phone_settings_v3（proactiveMsg 总开关）、
 cike_cache_v1、ck_diary_meta_v1、cike_char_day_v1
@@ -28,7 +28,7 @@ var LOG_KEY = 'char_inner_log_v1';
 var SW_KEY = 'char_inner_switches_v1';
 var GOAL_KEY = 'char_goals_v1';
 var PROM_KEY = 'char_promises_v1';
-var QUIET_KEY = 'char_quiet_v1';
+var BEAT_KEY = 'char_inner_beat_v1';
 var STATE_KEY = 'char_inner_state_v1';
 var DREAM_KEY = 'char_dreams_v1'; // 只读：M 组梦境数据
 var DAY_KEY = 'cike_char_day_v1'; // 只读：K2 日程（未合入则不存在）
@@ -99,7 +99,7 @@ return true;
 // 索引来源：Awesome AI Companion（CC BY 4.0）https://github.com/DasterProkio/awesome-ai-companion
 // 不弹窗、不发消息，只在既有内心日志 char_inner_log_v1 里留一条；离线期间按真实
 // 经过时间补记一条（明确标“补记”），不谎称持续在线思考。挂在 120 秒中央 tick 上，
-// 不新建定时器；节流字段复用 char_quiet_v1（intervalMin/lastBeatAt）。
+// 不新建定时器；心跳节流字段存在自己的键 char_inner_beat_v1（intervalMin/lastBeatAt）。
 var QUIET_KINDS = {
 journal: ['把今天的对话收进日记，写了三行。', '在日记里补了一句今天没说出口的话。', '翻了翻旧日记，在某一页停了很久。'],
 tidy: ['把最近的记忆按日子理了理，重复的两条并成了一条。', '给几条记忆换了更短的标题，方便以后找。', '把一件小事从“待办”挪进了“已完成”。'],
@@ -116,10 +116,21 @@ if (r < 0.4) return 'journal';
 if (r < 0.7) return 'tidy';
 return 'rest';
 }
+function getBeat() {
+var b = read(BEAT_KEY, null);
+return { intervalMin: (b && typeof b.intervalMin === 'number') ? b.intervalMin : 60, lastBeatAt: (b && typeof b.lastBeatAt === 'number') ? b.lastBeatAt : 0 };
+}
+function setBeat(p) {
+var b = getBeat();
+if (p.intervalMin != null) b.intervalMin = Math.max(5, Math.min(240, parseInt(p.intervalMin, 10) || 60));
+if (p.lastBeatAt != null) b.lastBeatAt = p.lastBeatAt;
+write(BEAT_KEY, b);
+return b;
+}
 function quietBeat(now) {
 now = now || new Date();
 if (!getSwitches().quiet) return null;
-var q = getQuiet();
+var q = getBeat();
 var nowMs = now.getTime();
 if (q.lastBeatAt && nowMs - q.lastBeatAt < (q.intervalMin || 60) * 60000) return null;
 var kind = quietKind(now);
@@ -133,80 +144,41 @@ reflect: awayMin? ('你不在的 ' + awayMin + ' 分钟补记'): '',
 trigger: 'quiet', state: currentState(now)
 });
 if (!ok) return null;
-setQuiet({ lastBeatAt: nowMs});
+setBeat({ lastBeatAt: nowMs});
 return { kind: kind, text: text, awayMin: awayMin};
 }
 
 function getLog() { return read(LOG_KEY, []);}
 
-// ── 节流门：每日上限 + 免打扰 + 动手开关 ──
-function getQuiet() {
-var q = read(QUIET_KEY, null);
-var d = { dailyCap: 3, quietStart: '23:00', quietEnd: '07:00', sent: {}, intervalMin: 60, lastBeatAt: 0};
-if (q) {
-if (typeof q.dailyCap === 'number') d.dailyCap = q.dailyCap;
-if (q.quietStart) d.quietStart = q.quietStart;
-if (q.quietEnd) d.quietEnd = q.quietEnd;
-if (q.sent) d.sent = q.sent;
-if (typeof q.intervalMin === 'number') d.intervalMin = q.intervalMin;
-if (typeof q.lastBeatAt === 'number') d.lastBeatAt = q.lastBeatAt;
-}
-return d;
-}
-function setQuiet(p) {
-var q = getQuiet();
-if (p.dailyCap!= null) q.dailyCap = Math.max(0, Math.min(20, parseInt(p.dailyCap, 10) || 0));
-if (p.quietStart) q.quietStart = String(p.quietStart).slice(0, 5);
-if (p.quietEnd) q.quietEnd = String(p.quietEnd).slice(0, 5);
-if (p.intervalMin!= null) q.intervalMin = Math.max(5, Math.min(240, parseInt(p.intervalMin, 10) || 60));
-if (p.lastBeatAt!= null) q.lastBeatAt = p.lastBeatAt;
-write(QUIET_KEY, q);
-return q;
-}
-function toMin(s) { var p = String(s || '0:0').split(':'); return ((+p[0] || 0) * 60 + (+p[1] || 0));}
-function inQuiet(now, q) {
-var m = now.getHours() * 60 + now.getMinutes();
-var qs = toMin(q.quietStart), qe = toMin(q.quietEnd);
-if (qs === qe) return false;
-return qs < qe? (m >= qs && m < qe): (m >= qs || m < qe);
-}
-function sentToday(now, q) { return (q.sent && q.sent[todayStr(now)]) || 0;}
+// ── 发送门：只剩动手开关（免打扰/每日上限 2026-11-27 随“不打扰的规矩”删除）──
 function canSendProactive(now) {
-now = now || new Date();
 if (!getSwitches().hands) return { ok: false, reason: 'hands_off'};
-var q = getQuiet();
-if (inQuiet(now, q)) return { ok: false, reason: 'quiet'};
-if (sentToday(now, q) >= q.dailyCap) return { ok: false, reason: 'cap'};
 return { ok: true, reason: ''};
 }
 function noteSent(type, text, charName) {
 var now = new Date();
-var q = getQuiet();
-q.sent = q.sent || {};
-q.sent[todayStr(now)] = (q.sent[todayStr(now)] || 0) + 1;
-write(QUIET_KEY, q);
 noteInteraction(now.getTime());
 logCycle({
 sense: '触发：' + (type || '主动消息') + '——该找你了',
-appraise: '现在状态是 ' + currentState(now) + '，节流门放行（今日第 ' + q.sent[todayStr(now)] + ' 条，未超上限，不在免打扰时段）',
+appraise: '现在状态是 ' + currentState(now) + '，动手开关开着，可以发',
 decide: '发一条微信给你',
 act: '发微信：' + String(text || '').slice(0, 40),
 reflect: '已经发出去了，等你回我',
-trigger: type || 'proactive', memoryRef: '节流门 char_quiet_v1 · 今日已发 ' + q.sent[todayStr(now)] + '/' + q.dailyCap + ' 条'
+trigger: type || 'proactive'
 });
 }
 function noteSuppressed(reason) {
 var now = Date.now();
 if (now - _lastSuppress.ts < 30 * 60 * 1000 && _lastSuppress.reason === reason) return false;
 _lastSuppress = { ts: now, reason: reason};
-var label = { hands_off: '动手开关已关闭', quiet: '现在是免打扰时段', cap: '今天主动消息已达上限', gate_in_dispatch: '节流门拦截'}[reason] || reason;
+var label = { hands_off: '动手开关已关闭', gate_in_dispatch: '节流门拦截'}[reason] || reason;
 return logCycle({
 sense: '到了该主动找你的时刻',
 appraise: '检查节流门：' + label + '，这次不适合打扰你',
 decide: '先不发，等合适的时候',
 act: '保持安静（' + label + '）',
 reflect: '忍住了，没打扰你',
-trigger: 'suppressed:' + reason, memoryRef: '节流门 char_quiet_v1'
+trigger: 'suppressed:' + reason, memoryRef: '节流门'
 });
 }
 
@@ -535,18 +507,6 @@ return subHead('承诺清单', '她许下的承诺：到期前 1 天微信提醒
 if (act === 'dailyRules') {
   return ruleSettingsHTML();
 }
-if (act === 'innerQuiet') {
-var q = getQuiet();
-var sent = sentToday(new Date(), q);
-return subHead('免打扰与每日上限', '主动消息节流门：免打扰时段内不发，超过每日上限不发。关掉“动手”开关则一条都不发。').replace('PLACEHOLDER', 'innerQuiet') +
-'<div class="st-group">' +
-'<div class="st-row" style="padding:12px 14px;"><span class="st-label">每日主动消息上限</span><div class="st-row-right"><input id="iq-cap" type="number" min="0" max="20" value="' + q.dailyCap + '" style="width:64px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"> 条</div></div>' +
-'<div class="st-row" style="padding:12px 14px;"><span class="st-label">免打扰开始</span><div class="st-row-right"><input id="iq-start" type="time" value="' + esc(q.quietStart) + '" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>' +
-'<div class="st-row" style="padding:12px 14px;"><span class="st-label">免打扰结束</span><div class="st-row-right"><input id="iq-end" type="time" value="' + esc(q.quietEnd) + '" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>' +
-'</div><div class="st-foot">今天已发 ' + sent + ' / ' + q.dailyCap + ' 条。默认上限 3 条，免打扰默认 23:00–7:00。</div>' +
-'<div style="margin:12px 16px;"><button id="inner-quiet-save" style="width:100%;border:0;background:#007AFF;color:#fff;border-radius:12px;padding:12px;font-size:16px;">保存</button>' +
-'<div id="iq-tip" style="text-align:center;font-size:13px;color:#34C759;margin-top:8px;min-height:18px;"></div></div>' + SUB_CLOSE;
-}
 return '';
 }
 
@@ -711,7 +671,7 @@ window.CharInnerLife = {
 getSwitches: getSwitches, setSwitch: setSwitch,
 stateAt: stateAt, currentState: currentState, noteInteraction: noteInteraction,
 logCycle: logCycle, getLog: getLog,
-getQuiet: getQuiet, setQuiet: setQuiet, canSendProactive: canSendProactive,
+canSendProactive: canSendProactive,
 noteSent: noteSent, noteSuppressed: noteSuppressed,
 getGoals: getGoals, advanceGoals: advanceGoals,
 getPromises: getPromises, addPromise: addPromise, markDone: markDone,
@@ -721,7 +681,7 @@ renderSettingsSub: renderSettingsSub, renderInnerHTML: renderInnerHTML,
 quietBeat: quietBeat,
 chordPlayById: chordPlayById, chordSetActiveById: chordSetActiveById, chordRemoveById: chordRemoveById, chordAddFromForm: chordAddFromForm, chordCardHTML: chordCardHTML, chordCurrent: chordCurrent,
 ruleList: ruleList, ruleAdd: ruleAdd, ruleToggle: ruleToggle, ruleRemove: ruleRemove, dueRules: dueRules, markRuleFired: markRuleFired, onPomodoroDone: onPomodoroDone, ruleSettingsHTML: ruleSettingsHTML,
-_keys: { log: LOG_KEY, switches: SW_KEY, goals: GOAL_KEY, promises: PROM_KEY, quiet: QUIET_KEY, state: STATE_KEY, dreams: DREAM_KEY, chords: CHORD_KEY, rules: RULE_KEY}
+_keys: { log: LOG_KEY, switches: SW_KEY, goals: GOAL_KEY, promises: PROM_KEY, beat: BEAT_KEY, state: STATE_KEY, dreams: DREAM_KEY, chords: CHORD_KEY, rules: RULE_KEY}
 };
 })();
 

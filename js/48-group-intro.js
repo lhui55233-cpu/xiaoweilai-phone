@@ -406,6 +406,8 @@ window.XWIntro={play,skip};
  *     以前关过开机动画的用户仍保持关闭，不会被重置为开）。
  *  ② 冷启动自动播：XWIntro.play({ onDone, onEvent })；任何 reason
  *     （done/skip/error/timeout）都进锁屏；onEvent('exit') 时同步启动锁屏淡入。
+ *     播放期间给灵动岛加 xw-intro-hide（见 css/02-group-intro.css），
+ *     onDone 时摘掉；动画被关掉（boot 不播放）时不隐藏。
  *     减动效时不跳过——播包里自带的淡入淡出版（runReduced）。
  *  ③ 点按跳过：XWIntro 本身不绑点击，这里补 pointerdown/click → skip()。
  *  ④ 设置页：桌面与外观 → 开机动画只剩一个开关 + 预览（无样式二选一）。
@@ -452,17 +454,29 @@ window.XWIntro={play,skip};
     } catch (e) {}
     lockFadeIn();
   }
+  /* 灵动岛只在开场动画播放期间隐藏：加类即藏，摘类即恢复原状，不动
+     IslandManager 的设置值（phone_island_settings_v1）与 DynamicIsland 的活动状态。 */
+  function hideIsland() {
+    try { var isl = document.getElementById('sys-dynamic-island'); if (isl) isl.classList.add('xw-intro-hide'); } catch (e) {}
+  }
+  function showIsland() {
+    try { var isl = document.getElementById('sys-dynamic-island'); if (isl) isl.classList.remove('xw-intro-hide'); } catch (e) {}
+  }
   function play(opts) {
     opts = opts || {};
     if (!window.XWIntro || typeof window.XWIntro.play !== 'function') { enterLockscreen(); return null; }
-    return window.XWIntro.play({
-      force: !!opts.force,
-      onDone: function (reason) {
-        try { console.log('[GroupIntro] done:', reason); } catch (e) {}
-        if (!opts.preserveScreen) enterLockscreen();
-      },
-      onEvent: function (name) { if (name === 'exit' && !opts.preserveScreen) lockFadeIn(); }
-    });
+    hideIsland();
+    try {
+      return window.XWIntro.play({
+        force: !!opts.force,
+        onDone: function (reason) {
+          showIsland();
+          try { console.log('[GroupIntro] done:', reason); } catch (e) {}
+          if (!opts.preserveScreen) enterLockscreen();
+        },
+        onEvent: function (name) { if (name === 'exit' && !opts.preserveScreen) lockFadeIn(); }
+      });
+    } catch (e) { showIsland(); enterLockscreen(); return null; }
   }
   function skip() {
     try { if (window.XWIntro) window.XWIntro.skip(); } catch (e) { enterLockscreen(); }
@@ -508,7 +522,7 @@ window.XWIntro={play,skip};
     }
   } catch (e) {}
 
-  window.GroupIntro = { KEY: KEY, load: load, save: save, play: play, skip: skip, boot: boot, enterLockscreen: enterLockscreen, lockFadeIn: lockFadeIn };
+  window.GroupIntro = { KEY: KEY, load: load, save: save, play: play, skip: skip, boot: boot, enterLockscreen: enterLockscreen, lockFadeIn: lockFadeIn, hideIsland: hideIsland, showIsland: showIsland };
   boot();
   window.addEventListener('pageshow', function (event) {
     if (event.persisted && load().enabled) play({ force: true, preserveScreen: true });

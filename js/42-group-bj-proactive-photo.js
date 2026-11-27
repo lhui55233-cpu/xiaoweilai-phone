@@ -7,16 +7,15 @@ BJ 组 · AI 主动发照片 + 主动发消息做实（端到端跑通）
 触发：AW 明信片（旅行到达/第一次/里程碑/节日，24h 内）→ 好看的地方
   （当前活动地点在风景集合且和上次拍的不一样）→ 想你了的自拍
   （K2 shouldNudge：沉默满 8 小时，一天一次）。
-节流：照片开关 → 主动消息总开关 → R 粘性静音 → O 门（动手/免打扰/
-  每日上限）→ K2 收敛门（连续 2 次未回停/每天 3 条/冷却）→ 每日照片
-  上限（默认 2 张）→ 同一触发 key 去重；发照片同样三处记账。
+节流：照片开关 → 主动消息总开关 → R 粘性静音 → O 门（动手开关）
+  → 每日照片上限（默认 2 张）→ 同一触发 key 去重；发照片同样三处记账。
 消息：不另起引擎。_dispatch 走 deliverBurst（CharK burstSegments 拆
   2–3 条 + 打字停顿，深夜 softenLateNight），每类消息单独开关在
   _dispatch 开头拦截；checkAndSendMessage 是同一条路的可测入口。
 设置：包一层 GroupR.renderSettingsSub/saveProactiveForm，在主动消息
   子页追加 BJ 区（主动照片开关/每日上限/六类消息开关/今日计数）。
 新增键：char_bj_cfg_v1（配置）、char_bj_state_v1（已发照片去重状态）。
-复用键（只读或经原属模块写）：phone_settings_v3、char_quiet_v1、
+复用键（只读或经原属模块写）：phone_settings_v3、
   char_proactive_cfg_v1、char_proactive_state_v1、cike_postcards_v1、
   cike_char_day_v1、phone_wechat_store_v2。不抄第三方代码，无外链。
 ═════════════════════════════════════════════════════════════════ */
@@ -219,7 +218,6 @@ function checkAndSendMessage(now, opts) {
   sess.unread = (sess.unread || 0) + 1;
   persistWx(); renderWx(); scrollChat();
   try { if (typeof MemoryCore !== 'undefined' && MemoryCore.write) MemoryCore.write({ source: name, content: text, layer: 'short', forceWeight: 0.4 }); } catch (e) {}
-  try { if (window.CharK && window.CharK.recordProactiveSent) window.CharK.recordProactiveSent(Date.now()); } catch (e) {}
   try { if (window.GroupR && window.GroupR.recordSent) window.GroupR.recordSent('bj:' + (reason.kind || 'msg'), text, reason); } catch (e) {}
   try { if (window.CharInnerLife && window.CharInnerLife.noteSent) window.CharInnerLife.noteSent('bj:' + (reason.kind || 'msg'), text, name); } catch (e) {}
   try { if (reason.kind === 'special_date' && window.CharK && window.CharK.markReminded && reason.key) window.CharK.markReminded(reason.key, Date.now()); } catch (e) {}
@@ -333,12 +331,6 @@ function gateForPhoto(now, trigger) {
       if (!og.ok) return fail(og.reason);
     }
   } catch (e) {}
-  try {
-    if (window.CharK && window.CharK.proactiveGate) {
-      var kg = window.CharK.proactiveGate(now.getTime());
-      if (!kg.allowed) return fail('k2:' + (kg.reason || 'backoff'));
-    }
-  } catch (e) {}
   if (photosTodayCount(now) >= cfg.photoDailyCap) return fail('photo_cap');
   if (trigger && readState().sentPhotoKeys[trigger.key]) return fail('dup');
   return { ok: true, reason: '' };
@@ -368,7 +360,6 @@ function sendPhotoNow(trigger, opts) {
   persistWx(); renderWx(); scrollChat();
   try { if (typeof MemoryCore !== 'undefined' && MemoryCore.write) MemoryCore.write({ source: name, content: '[照片 · ' + trigger.source + '] ' + (trigger.caption || ''), layer: 'short', forceWeight: 0.4 }); } catch (e) {}
   island(name, '📷 ' + (trigger.caption || '[图片]'));
-  try { if (window.CharK && window.CharK.recordProactiveSent) window.CharK.recordProactiveSent(Date.now()); } catch (e) {}
   try { if (window.GroupR && window.GroupR.recordSent) window.GroupR.recordSent('photo:' + trigger.kind, trigger.caption || '[图片]', { kind: 'photo:' + trigger.kind, key: trigger.key, text: trigger.caption || '', ref: trigger.ref || '' }); } catch (e) {}
   try { if (window.CharInnerLife && window.CharInnerLife.noteSent) window.CharInnerLife.noteSent('photo:' + trigger.kind, trigger.caption || '[图片]', name); } catch (e) {}
   var st = readState();

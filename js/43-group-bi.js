@@ -1,20 +1,19 @@
 
 /* GROUP-BI · char 主动来电做实（端到端）
-   触发来自真实数据（承诺/日程/问候），不编造；底线复用 O 组节流门
-   （char_quiet_v1：免打扰 + 每日上限），深夜 22:00-08:00 绝不打；
+   触发来自真实数据（承诺/日程/问候），不编造；底线：动手开关 +
+   深夜 22:00-08:00 绝不打；
    铃声接 BH 组（phone_ringtone_v1 / window.GroupBH），BH 不在则用默认
-   合成铃声；接听即停铃；温柔挂断 18 秒（15-20 秒区间），期间任何声音
-   取消挂断；拒接原因进微信 + 通话记录；未接只留一条微信跟进；
+   合成铃声；接听即停铃；挂断即结束通话；拒接原因进微信 + 通话记录；
+   未接只留一条微信跟进；
    回拨 10 秒未接通自动转文字；通话记录 + 一行摘要。
    新增键：phone_bi_call_cfg_v1 / phone_bi_call_state_v1（仅本组）。
-   只读：char_quiet_v1 / char_promises_v1 / phone_schedule_v1 /
+   只读：char_promises_v1 / phone_schedule_v1 /
    phone_call_log_v1 / char_inner_state_v1 / phone_ringtone_v1。
    全部新写代码，未抄任何第三方代码。 */
 window.GroupBI = (() => {
 'use strict';
 var CFG_KEY = 'phone_bi_call_cfg_v1';
 var STATE_KEY = 'phone_bi_call_state_v1';
-var QUIET_KEY = 'char_quiet_v1';
 var PROM_KEY = 'char_promises_v1';
 var SCHED_KEY = 'phone_schedule_v1';
 var RING_KEY = 'phone_ringtone_v1';
@@ -22,13 +21,11 @@ var CALL_LOG_KEY = 'phone_call_log_v1';
 var NIGHT_START = 22, NIGHT_END = 8;
 var SLOW_ANSWER_MS = 10000;
 var DEFAULT_PICKUP_MS = 6000;
-var GRACE_S = 18;
 
 function read(k, fb) { try { var r = localStorage.getItem(k); return r == null ? fb : JSON.parse(r); } catch (e) { return fb; } }
 function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function todayStr(d) { d = d || new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-function toMin(s) { var p = String(s || '0:0').split(':'); return ((+p[0] || 0) * 60 + (+p[1] || 0)); }
 function fmtDur(sec) { sec = Math.max(0, Math.round(sec || 0)); if (sec < 60) return sec + '秒'; return Math.floor(sec / 60) + '分' + (sec % 60) + '秒'; }
 
 /* 开关：独立键 phone_bi_call_cfg_v1，默认开；不动设置总开关 */
@@ -48,20 +45,8 @@ function seenMark(key) {
   saveState(st);
 }
 
-/* 底线：深夜 + O 组节流门（免打扰 / 每日上限 / 动手开关） */
+/* 底线：深夜 + 动手开关 */
 function isNight(now) { var h = (now || new Date()).getHours(); return h >= NIGHT_START || h < NIGHT_END; }
-function getQuiet() {
-  try { if (window.CharInnerLife && window.CharInnerLife.getQuiet) return window.CharInnerLife.getQuiet(); } catch (e) {}
-  var q = read(QUIET_KEY, null);
-  if (q && typeof q === 'object') return { dailyCap: (typeof q.dailyCap === 'number' ? q.dailyCap : 3), quietStart: q.quietStart || '23:00', quietEnd: q.quietEnd || '07:00', sent: q.sent || {} };
-  return { dailyCap: 3, quietStart: '23:00', quietEnd: '07:00', sent: {} };
-}
-function inQuiet(now, q) {
-  var m = now.getHours() * 60 + now.getMinutes();
-  var qs = toMin(q.quietStart), qe = toMin(q.quietEnd);
-  if (qs === qe) return false;
-  return qs < qe ? (m >= qs && m < qe) : (m >= qs || m < qe);
-}
 function baseGate(now) {
   now = now || new Date();
   if (!callsEnabled()) return { ok: false, reason: 'calls_off' };
@@ -73,9 +58,6 @@ function baseGate(now) {
       return { ok: true, reason: '' };
     }
   } catch (e) {}
-  var q = getQuiet();
-  if (inQuiet(now, q)) return { ok: false, reason: 'quiet' };
-  if (((q.sent || {})[todayStr(now)] || 0) >= q.dailyCap) return { ok: false, reason: 'cap' };
   return { ok: true, reason: '' };
 }
 function canCall(now, kind) {
@@ -167,17 +149,6 @@ function pickTrigger(now) {
   return { kind: 'greeting', reason: '想你了，打来看看你在干嘛', key: 'greet:' + todayStr(now), ref: '' };
 }
 
-/* 来电计入当日主动联系次数：只加 char_quiet_v1.sent 计数，
-   不动 lastInteractTs（打电话不是用户回消息）。 */
-function countTowardCap(now) {
-  try {
-    var q = getQuiet();
-    q.sent = q.sent || {};
-    var ds = todayStr(now);
-    q.sent[ds] = (q.sent[ds] || 0) + 1;
-    write(QUIET_KEY, q);
-  } catch (e) {}
-}
 function callUiPresent() {
   try { return !!(document.getElementById('ao-incoming') || document.getElementById('ao-incall') || document.getElementById('bi-outgoing')); } catch (e) { return false; }
 }
@@ -196,12 +167,11 @@ function fire(trigger, now) {
     st.greet.count = (st.greet.count || 0) + 1;
     saveState(st);
   }
-  countTowardCap(now);
   try {
     if (window.CharInnerLife && window.CharInnerLife.logCycle) {
       window.CharInnerLife.logCycle({
         sense: '到了该打电话的时候：' + trigger.reason,
-        appraise: '节流门放行（不在深夜、不在免打扰、今日未超上限）',
+        appraise: '节流门放行（不在深夜、动手开关开着）',
         decide: '打一通电话给你', act: '来电：' + trigger.reason, reflect: '等你接听',
         trigger: 'bi_call:' + trigger.kind, memoryRef: '来电原因：' + trigger.reason
       });
@@ -299,86 +269,6 @@ function stopRingtone() {
   return true;
 }
 function ringState() { return { playing: ring.playing, bursts: ring.bursts, source: ring.source, name: ring.name }; }
-
-/* 温柔挂断：AO 的 18 秒倒计时期间，任何声音取消挂断 */
-var grace = { active: false, startedAt: 0, micStream: null, micTimer: null, watchTimer: null, onAct: null };
-function graceState() {
-  var n = null;
-  try { var el = document.getElementById('ao-call-grace-n'); if (el) n = parseInt(el.textContent, 10); } catch (e) {}
-  return { active: grace.active, remainS: ((typeof n === 'number' && isFinite(n)) ? n : null), graceS: GRACE_S };
-}
-function graceCleanup() {
-  grace.active = false;
-  try { if (grace.micTimer) clearInterval(grace.micTimer); } catch (e) {}
-  grace.micTimer = null;
-  try { if (grace.watchTimer) clearTimeout(grace.watchTimer); } catch (e) {}
-  grace.watchTimer = null;
-  try {
-    if (grace.micStream) { var trs = grace.micStream.getTracks ? grace.micStream.getTracks() : []; trs.forEach(function (t) { try { t.stop(); } catch (e) {} }); }
-  } catch (e) {}
-  grace.micStream = null;
-  try {
-    if (grace.onAct) { document.removeEventListener('click', grace.onAct); document.removeEventListener('keydown', grace.onAct); }
-  } catch (e) {}
-  grace.onAct = null;
-}
-function onGraceStart() {
-  grace.active = true; grace.startedAt = Date.now();
-  var cancel = function () {
-    if (!grace.active) return;
-    try { if (window.GroupAO && window.GroupAO.cancelGrace) window.GroupAO.cancelGrace(); } catch (e) {}
-    graceCleanup();
-  };
-  grace._cancel = cancel;
-  /* 麦克风：有权限时，任何声音取消挂断；无权限/不支持则退回点按/按键 */
-  try {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-        if (!grace.active) { try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} return; }
-        grace.micStream = stream;
-        try {
-          var AC = window.AudioContext || window.webkitAudioContext;
-          if (!AC) return;
-          var ctx = new AC();
-          var src = ctx.createMediaStreamSource(stream);
-          var an = ctx.createAnalyser(); an.fftSize = 512;
-          src.connect(an);
-          var buf = new Uint8Array(an.frequencyBinCount);
-          grace.micTimer = setInterval(function () {
-            if (!grace.active) { try { ctx.close(); } catch (e) {} return; }
-            try {
-              an.getByteTimeDomainData(buf);
-              var sum = 0;
-              for (var i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; sum += v * v; }
-              var rms = Math.sqrt(sum / buf.length);
-              if (rms > 0.02) cancel();
-            } catch (e) {}
-          }, 200);
-        } catch (e) {}
-      }).catch(function () {});
-    }
-  } catch (e) {}
-  /* 退回：宽限期里任何一次点按或按键都取消挂断（延时挂监听，避免把
-     点“挂断”那一下本身算成取消） */
-  try {
-    var onAct = function () { if (grace.active) cancel(); };
-    grace.onAct = onAct;
-    setTimeout(function () {
-      if (!grace.active) return;
-      try { document.addEventListener('click', onAct); document.addEventListener('keydown', onAct); } catch (e) {}
-    }, 300);
-  } catch (e) {}
-  /* 兜底：AO 的倒计时 18 秒走完会自然挂断，BI 的状态最晚 19.5 秒后复位 */
-  try { grace.watchTimer = setTimeout(function () { graceCleanup(); }, 19500); } catch (e) {}
-  return true;
-}
-/* 测试/外部调用：模拟“宽限期里有声音” */
-function noteSoundDuringGrace() {
-  if (!grace.active) return false;
-  try { if (window.GroupAO && window.GroupAO.cancelGrace) window.GroupAO.cancelGrace(); } catch (e) {}
-  graceCleanup();
-  return true;
-}
 
 /* 通话中说话：语音识别 + TTS + 模型回答；未接模型走模板并标注 */
 function ttsSpeak(text, onend) {
@@ -566,7 +456,6 @@ function callback(name, opts) {
     + '<div class="bi-out-mode" id="bi-out-mode">通话模式：模板对话（未接模型）</div>'
     + '<div class="bi-out-btns"><button type="button" id="bi-out-totext">转文字</button>'
     + '<button type="button" id="bi-out-hangup">挂断</button></div>'
-    + '<div class="bi-out-grace" id="bi-out-grace" style="display:none;">说完再见，多留 <span id="bi-out-grace-n">18</span> 秒…<button type="button" id="bi-out-cancel-grace">取消挂断</button></div>'
     + '</div>';
   document.body.appendChild(ov);
   cb.timers.push(setInterval(function () {
@@ -575,8 +464,7 @@ function callback(name, opts) {
     if (el) el.textContent = fmtDur(cb.elapsedS);
   }, 1000));
   ov.querySelector('#bi-out-totext').addEventListener('click', function () { cbSwitchToText('manual'); });
-  ov.querySelector('#bi-out-hangup').addEventListener('click', function () { cbGentleHangup(); });
-  ov.querySelector('#bi-out-cancel-grace').addEventListener('click', function () { cbCancelGrace(); });
+  ov.querySelector('#bi-out-hangup').addEventListener('click', function () { cbEndCall(); });
   cb.timers.push(setTimeout(function () {
     if (cb.phase !== 'dialing') return;
     cb.phase = 'talking'; cb.startedAt = Date.now(); cb.elapsedS = 0;
@@ -608,33 +496,6 @@ function cbSwitchToText(how) {
   saveState(st);
   return true;
 }
-function cbGentleHangup() {
-  if (cb.phase !== 'talking') return false;
-  cb.phase = 'grace';
-  try { var g = document.getElementById('bi-out-grace'); if (g) g.style.display = 'block'; } catch (e) {}
-  var n = GRACE_S;
-  var num = document.getElementById('bi-out-grace-n');
-  if (num) num.textContent = String(n);
-  cb.timers.push(setInterval(function () {
-    n--;
-    var num2 = document.getElementById('bi-out-grace-n');
-    if (num2) num2.textContent = String(Math.max(0, n));
-    if (n <= 0) cbEndCall('温柔挂断');
-  }, 1000));
-  return true;
-}
-function cbCancelGrace() {
-  if (cb.phase !== 'grace') return false;
-  cbClearTimers();
-  cb.phase = 'talking';
-  try { var g = document.getElementById('bi-out-grace'); if (g) g.style.display = 'none'; } catch (e) {}
-  cb.timers.push(setInterval(function () {
-    cb.elapsedS = Math.round((Date.now() - cb.startedAt) / 1000);
-    var el = document.getElementById('bi-out-timer');
-    if (el) el.textContent = fmtDur(cb.elapsedS);
-  }, 1000));
-  return true;
-}
 function cbEndCall(how) {
   if (cb.phase === 'ended') return false;
   var dur = Math.max(0, Math.round((Date.now() - cb.startedAt) / 1000));
@@ -648,7 +509,7 @@ function cbEndCall(how) {
   return true;
 }
 function endCallback(how) {
-  if (cb.phase === 'talking' || cb.phase === 'grace') return cbEndCall(how || '已挂断');
+  if (cb.phase === 'talking') return cbEndCall(how || '已挂断');
   if (cb.phase === 'dialing') { cb.phase = 'ended'; cbClearTimers(); cbRemove(); return true; }
   return false;
 }
@@ -675,8 +536,6 @@ function injectCSS() {
       '.bi-out-btns button{border:0;border-radius:999px;padding:12px 26px;font-size:15px;color:#fff;cursor:pointer;}',
       '#bi-out-totext{background:#5856D6;}',
       '#bi-out-hangup{background:#e5484d;}',
-      '.bi-out-grace{font-size:13px;color:#ffd9a0;margin-top:16px;}',
-      '.bi-out-grace button{border:1px solid #ffd9a0;background:transparent;color:#ffd9a0;border-radius:999px;padding:6px 14px;font-size:13px;margin-left:8px;cursor:pointer;}'
     ].join('\n');
     (document.head || document.documentElement).appendChild(s);
   } catch (e) {}
@@ -694,17 +553,16 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 return {
   MARKER: 'GROUP-BI',
   getCfg: getCfg, callsEnabled: callsEnabled, setCallsEnabled: setCallsEnabled,
-  getState: getState, isNight: isNight, getQuiet: getQuiet,
+  getState: getState, isNight: isNight,
   baseGate: baseGate, canCall: canCall, pickTrigger: pickTrigger, tick: tick, fire: fire,
   resolveRingtone: resolveRingtone, ringtoneInfo: ringtoneInfo,
   ringState: ringState, onRingBurst: onRingBurst, stopRingtone: stopRingtone,
-  onGraceStart: onGraceStart, noteSoundDuringGrace: noteSoundDuringGrace, graceState: graceState,
   speakInCall: speakInCall, handleCallSpeech: handleCallSpeech, modelAvailable: modelAvailable,
   noteMissedOnce: noteMissedOnce, lastMissed: lastMissed,
   noteDeclined: noteDeclined, lastDeclineReason: lastDeclineReason,
   noteCallEnded: noteCallEnded, lastCallSummary: lastCallSummary,
   callback: callback, endCallback: endCallback, callbackState: callbackState,
-  SLOW_ANSWER_MS: SLOW_ANSWER_MS, DEFAULT_PICKUP_MS: DEFAULT_PICKUP_MS, GRACE_S: GRACE_S
+  SLOW_ANSWER_MS: SLOW_ANSWER_MS, DEFAULT_PICKUP_MS: DEFAULT_PICKUP_MS
 };
 })();
 

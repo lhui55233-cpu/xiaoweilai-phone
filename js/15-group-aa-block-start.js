@@ -216,7 +216,7 @@ window.AppTheme = (function () {
 window.AppKeyAudit = (function () {
     var domains = {
         wechat: ['phone_wechat_store_v2', 'phone_wechat_store_v1', 'phone_my_persona', 'phone_my_persona_data', 'phone_chatbg_v1', 'wx_moments_cover', 'wx_sticker_tags_v1', 'wx_pill_v1', 'phone_forum_posts_v1', 'phone_forum_replies_v1', 'phone_forum_favs', 'phone_banned_words_v1', 'wx_files_v1'],
-        cike: ['cike_cache_v1', 'cike_album_v1', 'cike_welcome_v1', 'cike_char_day_v1', 'cike_char_look_v1', 'ck_diary_meta_v1', 'ck_diary_settings', 'ck_anec_bg', 'sealed_days_v1', 'wake_lottery_v1', 'char_special_dates_v1', 'char_proactive_state_v1', 'char_humanize_v1', 'char_drives_v1', 'char_dreams_v1', 'char_goals_v1', 'char_promises_v1', 'char_quiet_v1', 'char_inner_log_v1', 'char_inner_state_v1', 'char_inner_switches_v1', 'char_card_import_v1', 'os_character'],
+        cike: ['cike_cache_v1', 'cike_album_v1', 'cike_welcome_v1', 'cike_char_day_v1', 'cike_char_look_v1', 'ck_diary_meta_v1', 'ck_diary_settings', 'ck_anec_bg', 'sealed_days_v1', 'wake_lottery_v1', 'char_special_dates_v1', 'char_proactive_state_v1', 'char_humanize_v1', 'char_drives_v1', 'char_dreams_v1', 'char_goals_v1', 'char_promises_v1', 'char_inner_log_v1', 'char_inner_state_v1', 'char_inner_switches_v1', 'char_card_import_v1', 'os_character'],
         otome: ['otome_affection_v1', 'otome_custom_char_v1', 'otome_fish_v1', 'otome_garden_v1', 'otome_home_v1', 'otome_play_v1', 'otome_cook_v1', 'otome_mochi_v1', 'otome_voice_v1', 'duet_history_v1', 'duet_playlist_v1', 'tarot_night_v1', 'tarot_history_v1'],
         focus: ['focus_log_v1', 'focus_state_v1'],
         novel: ['novel_store_v1', 'novel_annotations_v1', 'novel_theme_v1', 'novel_api_key', 'novel_base_url', 'coread_char_v1', 'read_stats_v1', 'read_words_v1', 'read_quotes_v1', 'read_daily_v1', 'novel_book_covers_v1'], /* GROUP-BU：换封面新键 */
@@ -232,7 +232,7 @@ window.AppKeyAudit = (function () {
         misc: ['b_bubble_custom_css', 'b_bubble_scope', 'ahui_notebook_photo']
     };
     var namespaces = {
-        charOwned: ['char:imported_chats_v1', 'char_inner_log_v1', 'char_chords_v1', 'char_daily_rules_v1', 'char_inner_switches_v1', 'char_goals_v1', 'char_promises_v1', 'char_quiet_v1', 'char_inner_state_v1', 'char_drives_v1', 'char_dreams_v1', 'char_card_import_v1', 'char_special_dates_v1', 'char_proactive_state_v1', 'char_humanize_v1', 'char_imported_v1', 'char_stage_v1', 'phone_my_persona', 'phone_my_persona_data', 'os_character'],
+        charOwned: ['char:imported_chats_v1', 'char_inner_log_v1', 'char_chords_v1', 'char_daily_rules_v1', 'char_inner_switches_v1', 'char_goals_v1', 'char_promises_v1', 'char_inner_state_v1', 'char_drives_v1', 'char_dreams_v1', 'char_card_import_v1', 'char_special_dates_v1', 'char_proactive_state_v1', 'char_humanize_v1', 'char_imported_v1', 'char_stage_v1', 'phone_my_persona', 'phone_my_persona_data', 'os_character'],
         systemPrefixes: ['phone_', 'cike_', 'wx_', 'ck_', 'iconsystem', 'guichao.', 'guichao_', 'mc_', 'novel_', 'coread_', 'read_', 'sys', 'desktop_', 'nobeidanci_', 'duet_', 'tarot_', 'otome_', 'focus_', 'cinema_', 'groupp_', 'b_', 'ahui_', 'sealed_', 'wake_', 'worldbook_', 'backend_', 'global_']
     };
     var seen = {}, total = 0;

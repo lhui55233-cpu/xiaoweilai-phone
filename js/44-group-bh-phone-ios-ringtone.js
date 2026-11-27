@@ -8,7 +8,7 @@
    内置铃声是 WebAudio 合成的原创短旋律，不用音频文件、不抄 iOS 原版铃声；
    本地文件上限 2MB（data URL 存本地）；链接铃声离线时自动回落默认内置铃声并提示。
    来电/通话中页是 AO 组 GroupAO 的运行时换肤：AO 的响铃计时、拒接 chips、
-   温柔挂断、通话记录逻辑全部保留，只换 DOM 与绑定；AO 内部 30 秒超时走内部
+   挂断、通话记录逻辑全部保留，只换 DOM 与绑定；AO 内部 30 秒超时走内部
    missedCall（包不到），BH 用 1 秒看门狗兜底停铃声。通话本身仍是本地模拟，
    各处都写明“模拟通话”。 */
 window.GroupBH = (function () {
@@ -582,7 +582,6 @@ window.GroupBH = (function () {
       + '</div>'
       + '<button type="button" class="bh-end" id="ao-call-hangup" aria-label="结束通话"><span class="bh-end-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 10.8a14.9 14.9 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 .82.99v3.5a1 1 0 0 1-1.09 1A19 19 0 0 1 3 5.09 1 1 0 0 1 4 4h3.5a1 1 0 0 1 .99.82 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg></span></button>'
       + '<button type="button" class="bh-ic-interrupt" id="ao-call-interrupt">打断（只停语音，不丢台词）</button>'
-      + '<div class="bh-call-grace" id="ao-call-grace" style="display:none;">说完再见，多留 <span id="ao-call-grace-n">18</span> 秒…<button type="button" id="ao-call-cancel-grace">取消挂断</button></div>'
       + '</div></div>';
     var AO = window.GroupAO;
     var note = ov.querySelector('#bh-ic-note');
@@ -605,11 +604,9 @@ window.GroupBH = (function () {
       });
     });
     var hang = ov.querySelector('#ao-call-hangup');
-    if (hang) hang.addEventListener('click', function () { try { AO.gentleHangup(); } catch (e) {} });
+    if (hang) hang.addEventListener('click', function () { try { AO.endCall(); } catch (e) {} });
     var intr = ov.querySelector('#ao-call-interrupt');
     if (intr) intr.addEventListener('click', function () { try { AO.interruptCall(); } catch (e) {} });
-    var cancel = ov.querySelector('#ao-call-cancel-grace');
-    if (cancel) cancel.addEventListener('click', function () { try { AO.cancelGrace(); } catch (e) {} });
     return true;
   }
 
@@ -726,8 +723,6 @@ window.GroupBH = (function () {
       '.bh-end{width:72px;height:72px;border-radius:50%;border:0;background:#FF3B30;color:#fff;cursor:pointer;}',
       '.bh-end-ic{font-size:0;display:inline-flex;align-items:center;justify-content:center;transform:none;}',
       '.bh-ic-interrupt{border:0;background:transparent;color:rgba(255,255,255,.65);font-size:12px;cursor:pointer;padding:6px;}',
-      '.bh-call-grace{font-size:13px;color:#ffd9a0;}',
-      '.bh-call-grace button{border:1px solid #ffd9a0;background:transparent;color:#ffd9a0;border-radius:999px;padding:6px 14px;font-size:13px;margin-left:8px;cursor:pointer;}',
       '.bh-ic-keys{width:100%;max-width:300px;}',
       '.bh-ic-dial{font-size:15px;color:rgba(255,255,255,.85);min-height:20px;text-align:center;}',
       '.bh-ic-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}',

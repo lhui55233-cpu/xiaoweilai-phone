@@ -189,8 +189,13 @@ class World {
     seed() {
         const { width: W, height: H } = this;
         const minSide = Math.min(W, H);
-        // Phone-sized fish: the original desktop demo was much too large here.
-        const baseLength = clamp(minSide * 0.26, 75, 150);
+        // Phone-sized sharks. The original's baseLength formula
+        // (clamp(minSide * 0.44, 170, 430) * 1.2) gives ~206px on a 390px
+        // phone; the earlier halving to * 0.26 (~101px, ~26% of screen width)
+        // is still too big, so shrink again to ~66px (~17% of the width).
+        // The body is still ~2 cells thick at that size, so the silhouette
+        // (snout taper, fins, tail) stays readable.
+        const baseLength = clamp(minSide * 0.17, 55, 100);
         const sharkCount = this.sharkSpecs.length;
         this.sharks = [];
         for (let i = 0; i < sharkCount; i++) {
@@ -736,6 +741,28 @@ const DOT_BASE_ALPHA = [1, 1, 1, 1, 1];
 const WAKE = DOT_RGB.length - 1;
 const ACCENTS = ["#e0892c", "#e03a32", "#b44ae0", "#33c8cc", "#3cb54a", "#3150e8", "#d9c14a"];
 const NIGHT_ACCENTS = ["#b2bfa9", "#c2b2ac", "#a79fbd", "#79bec5", "#8db3a8", "#8aabd0", "#bfba99"];
+/**
+ * The original's light theme is not a real light palette: it renders the
+ * dark scene, then the whole canvas goes through CSS
+ * filter: invert(1) hue-rotate(180deg) saturate(.48), at opacity .78 over a
+ * white page. This phone canvas has no such filter layer, so light-mode
+ * shark colours are computed here by running the original's pre-filter RGB
+ * through that exact filter chain, returning the colour the original
+ * actually shows on screen. (A plain 255 - v inversion only reproduces the
+ * first step and leaves every layer too dark — that was the old behaviour.)
+ */
+function presentLight(r, g, b) {
+    r = 255 - r; g = 255 - g; b = 255 - b; // invert(1)
+    var r2 = -0.574 * r + 1.430 * g + 0.144 * b; // hue-rotate(180deg), CSS matrix
+    var g2 = 0.426 * r + 0.430 * g + 0.144 * b;
+    var b2 = 0.426 * r + 1.430 * g - 0.856 * b;
+    var r3 = 0.59076 * r2 + 0.3718 * g2 + 0.03744 * b2; // saturate(.48)
+    var g3 = 0.11076 * r2 + 0.8518 * g2 + 0.03744 * b2;
+    var b3 = 0.11076 * r2 + 0.3718 * g2 + 0.51744 * b2;
+    return "rgb(" + Math.round(clamp(r3 * 0.78 + 255 * 0.22, 0, 255)) + "," // opacity .78 over white
+        + Math.round(clamp(g3 * 0.78 + 255 * 0.22, 0, 255)) + ","
+        + Math.round(clamp(b3 * 0.78 + 255 * 0.22, 0, 255)) + ")";
+}
 // Sparse glyphs on bright skin, dense glyphs in shadow, so the texture
 // reinforces the shading instead of fighting it.
 const SKIN_RAMP = ":;t%SX8#@";
@@ -1026,7 +1053,7 @@ class AsciiRenderer {
         this.rows = 0;
         this.fontFamily = "ui-monospace, Menlo, monospace";
         this.mode = "ascii";
-        this.pal = { bg: "#ffffff", light: true, fish: "30,39,72", fishScale: 1 };
+        this.pal = { bg: "#ffffff", light: true, fish: "67,65,73", fishScale: 1 };
         this.dotKind = new Uint8Array(0); // 0 none, 1 blue, 2 green, 3 red, 4 pale
         this.dotPhase = new Float32Array(0);
         this.dotFreq = new Float32Array(0);
@@ -1065,7 +1092,7 @@ class AsciiRenderer {
         this.frameId = 0;
         /** Fish cells bucketed by brightness, so each bucket is one fillStyle. */
         this.fishBuckets = FISH_ALPHAS.map(() => []);
-        this.fishStyles = FISH_ALPHAS.map((a) => `rgba(30,39,72,${a})`);
+        this.fishStyles = FISH_ALPHAS.map((a) => `rgba(67,65,73,${a})`);
         const ctx = canvas.getContext("2d", { alpha: false });
         if (!ctx)
             throw new Error("2D canvas unavailable");
@@ -1705,11 +1732,13 @@ class AsciiRenderer {
             if (flag === FLAG_EDGE) {
                 // Soft, anti-aliased silhouette: no block, just a light glyph.
                 const set = shade >= 0.5 ? EDGE_HEAVY : EDGE_LIGHT;
-                const g = (this.pal.light ? 255 - (70 + shade * 80) : 92 + shade * 73) * dim;
+                const g = (this.pal.light ? 70 + shade * 80 : 92 + shade * 73) * dim;
                 ctx.fillStyle =
                     roll < 0.07
                         ? accents[key % accents.length]
-                        : `rgb(${Math.round(g * tr)},${Math.round(g * tg)},${Math.min(255, Math.round(g * tb + 6))})`;
+                        : this.pal.light
+                            ? presentLight(Math.round(g * tr), Math.round(g * tg), Math.min(255, Math.round(g * tb + 6)))
+                            : `rgb(${Math.round(g * tr)},${Math.round(g * tg)},${Math.min(255, Math.round(g * tb + 6))})`;
                 ctx.fillText(set[(key >>> 8) % set.length], x + cw / 2, y + ch / 2 + 1);
                 continue;
             }
@@ -1737,25 +1766,30 @@ class AsciiRenderer {
                 glyph = SKIN_RAMP[clamp(Math.floor((1 - shade) * 8.99) + jitter, 0, SKIN_RAMP.length - 1)];
             }
             level *= dim * (this.pal.light ? 1 : 0.8);
-            if (this.pal.light) level = 255 - level;
             // Tinted per species; the classic tint is a cool blue-grey, like a back seen through deep water.
+            // Light: the pre-filter colour through presentLight() (the
+            // original's light filter chain), not a plain 255 - level.
             ctx.fillStyle = this.pal.light
-                ? `rgb(${Math.min(255, Math.round(level * tr))},${Math.min(255, Math.round(level * tg))},${Math.min(255, Math.round(level * tb + 4))})`
+                ? presentLight(Math.min(255, Math.round(level * tr)), Math.min(255, Math.round(level * tg)), Math.min(255, Math.round(level * tb + 4)))
                 : `rgb(${Math.round(level * tr * 0.78)},${Math.min(255, Math.round(level * tg * 0.99 + 8))},${Math.min(255, Math.round(level * tb * 1.08 + 15))})`;
             ctx.fillRect(x + 1, y + 1, cw - 1, ch - 1);
             let color;
             if (flag === FLAG_EYE)
-                color = this.pal.light ? "#1b1d24" : "#a9d1d5";
+                color = this.pal.light ? presentLight(154, 160, 173) : "#a9d1d5";
             else if (flag === FLAG_MARK)
-                color = `rgb(${Math.round(70 * tr)},${Math.round(70 * tg)},${Math.round(70 * tb)})`;
+                color = this.pal.light
+                    ? presentLight(Math.round(70 * tr), Math.round(70 * tg), Math.round(70 * tb))
+                    : `rgb(${Math.round(70 * tr)},${Math.round(70 * tg)},${Math.round(70 * tb)})`;
             else if (roll < 0.09)
                 color = accents[key % accents.length];
             else if (roll < 0.13)
-                color = this.pal.light ? "#1b1d24" : "#bfd5df";
+                color = this.pal.light ? presentLight(255, 255, 255) : "#bfd5df";
             else if (!this.pal.light && KINDS[sharkKind[i]] === "manta")
                 color = shade > 0.7 ? "#20313a" : "#43606e";
             else
-                color = this.pal.light ? (shade > 0.55 ? "#f1f0ec" : "#e4e2db") : (shade > 0.55 ? "#0e202b" : "#a2bac6");
+                color = this.pal.light
+                    ? (shade > 0.55 ? presentLight(14, 15, 19) : presentLight(27, 29, 36))
+                    : (shade > 0.55 ? "#0e202b" : "#a2bac6");
             ctx.fillStyle = color;
             ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
         }
@@ -1765,7 +1799,7 @@ class AsciiRenderer {
         const { ctx, cw, ch, cols, sharkFlag, sharkShade, sharkDepth, sharkKey } = this;
         ctx.save();
         ctx.font = `600 ${Math.round(ch * 0.86)}px ${this.fontFamily}`;
-        ctx.fillStyle = this.pal.light ? "#27211b" : "#dce9ee";
+        ctx.fillStyle = this.pal.light ? presentLight(216, 222, 228) : "#dce9ee";
         for (let i = 0; i < sharkFlag.length; i++) {
             const flag = sharkFlag[i];
             if (!flag)
@@ -1822,11 +1856,10 @@ class AsciiRenderer {
             }
             const [tr, tg, tb] = SHAPES[KINDS[sharkKind[i]]].tint;
             let level = (flag === FLAG_MARK ? 90 : (120 + shade * 115) * dim) * (this.pal.light ? 1 : 0.82);
-            if (this.pal.light) level = 255 - level;
             const accent = hash3(key, Math.floor(t * 1.7), 17) < 0.035;
             ctx.fillStyle = accent ? accents[key % accents.length]
                 : this.pal.light
-                    ? `rgb(${Math.min(255, Math.round(level * tr))},${Math.min(255, Math.round(level * tg))},${Math.min(255, Math.round(level * tb))})`
+                    ? presentLight(Math.min(255, Math.round(level * tr)), Math.min(255, Math.round(level * tg)), Math.min(255, Math.round(level * tb)))
                     : `rgb(${Math.round(level * tr * 0.84)},${Math.min(255, Math.round(level * tg + 8))},${Math.min(255, Math.round(level * tb * 1.06 + 12))})`;
             ctx.strokeStyle = ctx.fillStyle;
             ctx.globalAlpha = edge ? 0.45 + shade * 0.4 : 1;
@@ -1906,7 +1939,7 @@ class AsciiRenderer {
         const direction = ((Math.round(this.sharkAngle[i] / (Math.PI / 4)) % 4) + 4) % 4;
         ctx.save();
         ctx.globalAlpha = 0.75 * dim;
-        ctx.fillStyle = this.pal.light ? "#56443c" : "#b0d2df";
+        ctx.fillStyle = this.pal.light ? presentLight(169, 187, 195) : "#b0d2df";
         ctx.font = `400 ${Math.round(ch)}px ${this.fontFamily}`;
         ctx.fillText(["─", "╲", "│", "╱"][direction], x + cw / 2, y + ch / 2 + 1, cw * 1.1);
         ctx.restore();
@@ -1956,7 +1989,7 @@ class AsciiRenderer {
                 continue;
             const col = i % cols;
             const row = (i / cols) | 0;
-            ctx.fillStyle = this.mode === "type" ? (this.pal.light ? `rgba(30,39,72,${Math.min(1, h).toFixed(2)})` : `rgba(210,231,239,${Math.min(1, h).toFixed(2)})`)
+            ctx.fillStyle = this.mode === "type" ? (this.pal.light ? `rgba(67,65,73,${Math.min(1, h).toFixed(2)})` : `rgba(210,231,239,${Math.min(1, h).toFixed(2)})`)
                 : h > 0.5 ? `rgba(255,120,60,${h.toFixed(2)})` : `rgba(220,40,40,${(h * 1.6).toFixed(2)})`;
             ctx.fillText(h > 0.6 ? "*" : "·", col * cw + cw / 2, row * ch + ch / 2 + 1);
         }
@@ -2192,9 +2225,15 @@ var FISH_BG_PRESETS = [
     { id: "#f3eef7", name: "浅紫" },
     { id: "#0b3d5c", name: "深海蓝" }
 ];
-/* Small-fish colours: ink navy (maison token #1e2748) on light bg, the original's
-   blue-grey on dark bg. The palette is picked by real contrast, not a fixed cut. */
-var FISH_INK = { r: 30, g: 39, b: 72 };
+/* Small-fish colours. Light bg: the original's light-theme presented colour —
+   dark fish rgba(230,238,255,α) over the dark gradient, run through the
+   light filter chain (invert + hue-rotate 180° + saturate .48, opacity .78
+   over white), then solved back to one base RGB that reproduces those
+   presented values over this phone's light gradient with the original
+   alpha ramp [0.28, 0.42, 0.58, 0.74, 0.9]: α .28 → rgb(186,191,195),
+   .42 → (163,167,172), .58 → (137,141,146), .74 → (110,114,119),
+   .90 → (84,87,93). Dark bg: the original's dark value, unchanged. */
+var FISH_INK = { r: 67, g: 65, b: 73 };
 var FISH_FOAM = { r: 139, g: 182, b: 196 };
 
 function fishHexRgb(hex) {
@@ -2217,7 +2256,7 @@ function fishPaletteFor(bg) {
     var cInk = fishContrast(lum, fishRelLum(FISH_INK));
     var cFoam = fishContrast(lum, fishRelLum(FISH_FOAM));
     var light = cInk >= cFoam;
-    return { bg: bg, light: light, fish: light ? "30,39,72" : "139,182,196", fishScale: light ? 1 : 0.85 };
+    return { bg: bg, light: light, fish: light ? "67,65,73" : "139,182,196", fishScale: light ? 1 : 0.85 };
 }
 function fishEsc(s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

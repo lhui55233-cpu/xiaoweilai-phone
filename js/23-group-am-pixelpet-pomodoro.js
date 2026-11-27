@@ -26,7 +26,6 @@ var MEMO_KEY = 'phone_memo_v1';
 var SCHED_KEY = 'phone_schedule_v1';
 var WIDGETS_KEY = 'phone_widgets_v1';
 var DESKW_KEY = 'desktop_widgets_v2';
-var PRO_KEY = 'char_proactive_state_v1';
 function rd(k, fb) { try { var v = localStorage.getItem(k); if (v == null) return fb; return JSON.parse(v); } catch (e) { return fb; } }
 function wr(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
 function rdStr(k, fb) { try { var v = localStorage.getItem(k); return v == null ? fb : v; } catch (e) { return fb; } }
@@ -104,32 +103,16 @@ function applyTone() {
     document.documentElement.style.setProperty('--am-cike-light', t.light);
   } catch (e) {}
 }
-/* ── 文案语气规范（murmur 做法；自写）+ “不打扰”哲学 ── */
+/* ── 文案语气规范（murmur 做法；自写）── */
 var TONE_RULES = [
   '多用“也可以、没关系”，不用“你应该”。',
   '对方说累 / 焦虑 / 孤独时，先接住情绪，再给选择，不催、不评判。',
   '不把关心变成任务：不打卡、不计分、不追问“做到了吗”。',
   '一次只说一句，短一点，留白一点。'
 ];
-var DND_TEXT = '不打扰的规矩：深夜（23:00–7:00）不主动发消息；一天最多三句；同一件事 2 小时内不重复提醒；你在专注时他保持安静；任何时候，你不回也没关系，他不会追问。';
 function systemPromptTone() {
   return '语气规范（接模型后请追加进 system prompt）：说话多用“也可以、没关系”，不要说“你应该”；对方表达疲惫、焦虑或孤独时，先接住情绪再给选择，不催促、不评判、不开药方、不布置打卡任务；一次只说一句，保持简短。AG 组接模型未合入本版文件，本条目先存在这里，待 AG 合入后由接模型处引用。';
 }
-function proactiveShouldSend(nowMs) {
-  var now = new Date(nowMs || Date.now());
-  var h = now.getHours();
-  if (h >= 23 || h < 7) return { ok: false, reason: '深夜不打扰（23:00–7:00）' };
-  var st = rd(PRO_KEY, null) || {};
-  var today = dayKey(now);
-  var sentToday = 0;
-  if (st.date === today) sentToday = Number(st.sentToday || st.count || 0) || 0;
-  else if (st.lastSent) { var ld = new Date(st.lastSent); if (dayKey(ld) === today) sentToday = Number(st.sentToday || 0) || 0; }
-  if (sentToday >= 3) return { ok: false, reason: '今日主动消息已达 3 条上限' };
-  var last = Number(st.lastSent || st.last || 0) || 0;
-  if (last && nowMs - last < 45 * 60000) return { ok: false, reason: '距上一条不足 45 分钟' };
-  return { ok: true, reason: '可以发', sentToday: sentToday };
-}
-
 /* ── 3. “动作 → 反应”对照表（pixel-pet + desksprite + avocadoro 做法；自写）──
    四种心情 sleepy / calm / playful / zoomies，由最近互动推导（avocadoro 两层状态机思路）。 */
 var REACTIONS = {
@@ -1118,7 +1101,7 @@ function readerTick(force) {
   return { ok: false, reason: 'no-deco-this-time' };
 }
 
-/* ── 11. 设置页（AM）：宠物皮肤 / 天气 / 专注 / 小组件 / 话术与不打扰 / 数据承诺 ── */
+/* ── 11. 设置页（AM）：宠物皮肤 / 天气 / 专注 / 小组件 / 话术 / 数据承诺 ── */
 var _memoPending = {};
 function openSettings(section) {
   closeSettings();
@@ -1146,7 +1129,6 @@ function openSettings(section) {
     + '<div style="margin-top:6px;"><button type="button" onclick="window.GroupAM.exportFocusLog()">导出专注日志 .md</button> <button type="button" onclick="window.GroupAM.toggleMiniWindow();window.GroupAM.openSettings(\'focus\')">切换桌面小浮窗</button></div>'
     + '<h4>🧩 小组件</h4><div>' + configTableHtml() + '</div>'
     + '<h4>🌙 此刻基调：' + esc(tone.label) + '</h4><div class="am-note">char 现在会说：「' + esc(tone.char[0]) + '」<br>日记语气：' + esc(tone.diary) + '<br>此刻光线：' + esc(tone.light) + '</div>'
-    + '<h4>🤫 不打扰的规矩</h4><div class="am-note">' + esc(DND_TEXT) + '</div>'
     + '<h4>💬 说话的语气</h4><div class="am-note">' + TONE_RULES.map(function (r) { return esc(r); }).join('<br>') + '<br><br>' + esc(systemPromptTone()) + '</div>'
     + '<h4>🔒 数据承诺（AM 暂存处；AH 组数据承诺页合入后移过去）</h4><div class="am-note">桌宠的打字 / 滚动反应只用“有输入 / 滚动”这一事件，从不读输入框内容、消息文本或书本正文；专注日志只记时长与完成 / 放弃，不记你在做什么；金币只读 otome_coins_v1，不改账本；API Key 不经过本组任何代码。</div>'
     + '<div style="margin-top:14px;text-align:center;"><button type="button" onclick="window.GroupAM.closeSettings()">完成</button></div></div>';
@@ -1238,7 +1220,7 @@ if (typeof document !== 'undefined') {
 window.GroupAM = {
   SKINS: SKINS, skinPalette: skinPalette, pixelHtml: pixelHtml,
   TONE_SLOTS: TONE_SLOTS, WEEKEND_TONE: WEEKEND_TONE, toneFor: toneFor, applyTone: applyTone,
-  TONE_RULES: TONE_RULES, DND_TEXT: DND_TEXT, systemPromptTone: systemPromptTone, proactiveShouldSend: proactiveShouldSend,
+  TONE_RULES: TONE_RULES, systemPromptTone: systemPromptTone,
   REACTIONS: REACTIONS, moodFor: moodFor, reactTo: reactTo, showPetBubble: showPetBubble,
   Hooks: Hooks, petSettings: petSettings, applySkin: applySkin, ensureSkin: ensureSkin,
   weatherKind: weatherKind, weatherEnabled: weatherEnabled, setWeather: setWeather, renderWeather: renderWeather,

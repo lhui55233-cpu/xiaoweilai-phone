@@ -3,7 +3,7 @@
 Group R · 主动消息完整节流（调研报告第五节阶段一 A1 + A28 + A15）+ A2 + A8 + A36 + A19 + A35
 出处（只借设计思路，未复制代码；Hanami AGPL-3.0 代码一行没拿）：
   Pulse https://github.com/elliejayliquid/pulse（MIT）：A1 心跳三件套（固定/随机间隔、
-  离场模式 always/taper/once、免打扰、粘性静音）、A2 Lantern 状态灯、A8 日程优先级。
+  离场模式 always/taper/once、粘性静音）、A2 Lantern 状态灯、A8 日程优先级。
   Cyber Companion https://github.com/Xiaoyan43/cyber-companion（MIT）：A15 思念模型
   （亲近度 × 沉默时长，泊松随机时间）+ 三段节流（速率 → 可达性 → 信息增益）、
   A19 Mock 模式诚实标注。
@@ -12,8 +12,7 @@ Group R · 主动消息完整节流（调研报告第五节阶段一 A1 + A28 + 
 新增键：char_proactive_cfg_v1（本组唯一新增配置键）；
   char_proactive_state_v1（K2 收敛状态键名，K2 未合入时不存在则容错建空壳，
   进度写在 .r 子对象里，顶层未知字段原样保留，绝不覆盖 K2 的字段）。
-只读/复用（不改键名、不改结构）：char_quiet_v1（O 组，免打扰 + 每日上限唯一真相，
-  写经 CharInnerLife.setQuiet）、char_inner_log_v1（理由写进内心日志，经 logCycle）、
+只读/复用（不改键名、不改结构）：char_inner_log_v1（理由写进内心日志，经 logCycle）、
   char_promises_v1（O 组，读；只给条目加一个可选 priority 字段）、
   phone_schedule_v1（D 组，读；优先级字段由日程补丁写）、guichao.memories.v1（读，找值得回忆的记忆）、
   char_inner_state_v1（O 组，读 lastInteractTs 判断用户是否回了）、phone_settings_v3（读 proactiveMsg 总开关）。
@@ -22,7 +21,6 @@ Group R · 主动消息完整节流（调研报告第五节阶段一 A1 + A28 + 
 (function () {
 var CFG_KEY = 'char_proactive_cfg_v1';
 var STATE_KEY = 'char_proactive_state_v1';
-var QUIET_KEY = 'char_quiet_v1';
 var SCHED_KEY = 'phone_schedule_v1';
 var MEM_KEY = 'guichao.memories.v1';
 var INNER_STATE_KEY = 'char_inner_state_v1';
@@ -38,7 +36,6 @@ function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 function clamp(v, lo, hi, fb) { v = Number(v); if (!isFinite(v)) return fb; return Math.max(lo, Math.min(hi, v)); }
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function todayStr(d) { d = d || new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-function toMin(s) { var p = String(s || '0:0').split(':'); return ((+p[0] || 0) * 60 + (+p[1] || 0)); }
 function fmtHM(ts) { var d = new Date(ts); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
 
 // ── 配置 char_proactive_cfg_v1 ──
@@ -87,26 +84,6 @@ function readState() {
   return st;
 }
 function writeState(st) { write(STATE_KEY, st); return st; }
-
-// ── 免打扰/每日上限：唯一真相是 char_quiet_v1；键不存在时有效默认 23:00-08:00（Pulse 默认）──
-function getQuietMerged() {
-  var hasKey = false;
-  try { hasKey = localStorage.getItem(QUIET_KEY) != null; } catch (e) {}
-  if (hasKey && window.CharInnerLife && window.CharInnerLife.getQuiet) {
-    try { return window.CharInnerLife.getQuiet(); } catch (e) {}
-  }
-  var q = read(QUIET_KEY, null);
-  if (q && typeof q === 'object') {
-    return { dailyCap: typeof q.dailyCap === 'number' ? q.dailyCap : 3, quietStart: q.quietStart || '23:00', quietEnd: q.quietEnd || '08:00', sent: q.sent || {} };
-  }
-  return { dailyCap: 3, quietStart: '23:00', quietEnd: '08:00', sent: {} };
-}
-function inQuiet(now, q) {
-  var m = now.getHours() * 60 + now.getMinutes();
-  var qs = toMin(q.quietStart), qe = toMin(q.quietEnd);
-  if (qs === qe) return false;
-  return qs < qe ? (m >= qs && m < qe) : (m >= qs || m < qe);
-}
 
 // ── 心跳间隔：固定 = 设定分钟数；随机 = 20-45 分钟均匀抽取 ──
 function nextHeartbeatMs(cfg, randFn) {
@@ -296,29 +273,18 @@ function gateForTrigger(now, opts) {
   } catch (e) { return fail('proactive_off'); }
   try { syncFromInteraction(nowMs); } catch (e) {}
   var st = readState(), r = st.r;
-  // 速率段：O 组每日上限先算（cap 归速率段），其余原因留给可达性段
+  // 动手开关段：O 组 canSendProactive 只剩 hands_off（每日上限/免打扰已删）
   try {
     if (window.CharInnerLife && window.CharInnerLife.canSendProactive) {
       var og = window.CharInnerLife.canSendProactive(now);
-      if (!og.ok) {
-        if (og.reason === 'cap') return fail('cap');
-        if (og.reason === 'hands_off') return fail('hands_off');
-      }
-    }
-  } catch (e) {}
-  // K2 收敛门也在这里会诊（连续 2 次未回就停、每天最多 3 条、冷却中不发）；引擎里它还会再算一次，结果一致
-  try {
-    if (window.CharK && window.CharK.proactiveGate) {
-      var kg = window.CharK.proactiveGate(nowMs);
-      if (!kg.allowed) return fail('k2:' + (kg.reason || 'backoff'));
+      if (!og.ok && og.reason === 'hands_off') return fail('hands_off');
     }
   } catch (e) {}
   var hourAgo = nowMs - HOUR;
   r.sentTs = (r.sentTs || []).filter(function (t) { return t > nowMs - DAY; });
   var inLastHour = r.sentTs.filter(function (t) { return t > hourAgo; }).length;
   if (inLastHour >= cfg.maxPerHour) return fail('rate');
-  // 可达性段：免打扰（与 char_quiet_v1 共用同一个值）/ 用户正在聊天
-  if (inQuiet(now, getQuietMerged())) return fail('quiet');
+  // 可达性段：用户正在聊天
   var li = lastInteractTs();
   if (li && (nowMs - li) < 5 * MIN) return fail('user_active');
   // 心跳到期：没到下次心跳时间就不发
@@ -456,10 +422,9 @@ function setPromisePriority(id, pri) {
 // ── 设置页「主动消息」+ 关于页（A19/A35 诚实标注）──
 function statusLine(now) {
   now = now || new Date();
-  var cfg = getCfg(), q = getQuietMerged(), st = readState(), r = st.r;
-  var sent = (q.sent && q.sent[todayStr(now)]) || 0;
+  var cfg = getCfg(), st = readState(), r = st.r;
   var next = r.nextHeartbeatTs ? ('下次心跳约 ' + fmtHM(r.nextHeartbeatTs)) : '心跳待触发（下次到点就检查）';
-  var parts = ['今天已发 ' + sent + ' / ' + q.dailyCap + ' 条', '免打扰 ' + q.quietStart + '–' + q.quietEnd, next,
+  var parts = [next,
     '自发阶梯 ' + r.ladderStep + '/4 条', '离场 ' + cfg.awayMode + (cfg.awayMode === 'taper' ? '（第 ' + r.taperLevel + ' 级，下次间隔 ' + Math.round(taperDelayMs(r.taperLevel) / MIN) + ' 分钟）' : '')];
   if (cfg.muted) parts.push('已静音（粘性，重启后仍有效，需手动恢复）');
   return parts.join(' · ');
@@ -480,7 +445,7 @@ function renderSettingsSub(act) {
       + '</div>';
   }
   if (act !== 'proactive') return '';
-  var cfg = getCfg(), q = getQuietMerged();
+  var cfg = getCfg();
   var sel = function (cur, val) { return cur === val ? ' selected' : ''; };
   var promRows = '';
   try {
@@ -504,15 +469,12 @@ function renderSettingsSub(act) {
     + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">固定间隔（分钟）</span><div class="st-row-right"><input id="gr-heartbeat-minutes" type="number" min="5" max="120" value="' + cfg.heartbeatMinutes + '" style="width:72px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>'
     + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">离场模式</span><div class="st-row-right"><select id="gr-away-mode" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"><option value="always"' + sel(cfg.awayMode, 'always') + '>每次到点都发</option><option value="taper"' + sel(cfg.awayMode, 'taper') + '>渐渐少发（翻倍）</option><option value="once"' + sel(cfg.awayMode, 'once') + '>安静后只跳一次</option></select></div></div>'
     + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">每小时最多几条</span><div class="st-row-right"><input id="gr-max-per-hour" type="number" min="1" max="6" value="' + cfg.maxPerHour + '" style="width:72px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">免打扰开始</span><div class="st-row-right"><input id="gr-quiet-start" type="time" value="' + esc(q.quietStart) + '" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">免打扰结束</span><div class="st-row-right"><input id="gr-quiet-end" type="time" value="' + esc(q.quietEnd) + '" style="border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"></div></div>'
-    + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">每日主动消息上限</span><div class="st-row-right"><input id="gr-daily-cap" type="number" min="0" max="20" value="' + q.dailyCap + '" style="width:72px;text-align:right;border:1px solid #E5E5EA;border-radius:8px;padding:6px 8px;font-size:15px;"> 条</div></div>'
     + '<div class="st-row" style="padding:12px 14px;"><span class="st-label">粘性静音（停掉全部主动消息）</span><div class="st-row-right"><input id="gr-muted" type="checkbox"' + (cfg.muted ? ' checked' : '') + ' style="width:22px;height:22px;"></div></div>'
     + '</div>'
     + '<div class="st-foot" id="groupr-status">' + esc(statusLine(new Date())) + '</div>'
     + '<div style="margin:12px 16px;"><button id="groupr-proactive-save" style="width:100%;border:0;background:#007AFF;color:#fff;border-radius:12px;padding:12px;font-size:16px;">保存（立即生效）</button>'
     + '<div id="groupr-tip" style="text-align:center;font-size:13px;color:#34C759;margin-top:8px;min-height:18px;"></div></div>'
-    + '<div class="st-foot">离场“渐渐少发”：无人应答时间隔翻倍，30 分钟 → 1 小时 → 2 小时 → 4 小时……最多 16 倍，不超过 24 小时；你一回消息就清零。自发阶梯：沉默满 4 / 10 / 24 / 48 小时各发一条，共 4 条，最后一条是表示理解的便条，然后安静；免打扰时段内不发。</div>'
+    + '<div class="st-foot">离场“渐渐少发”：无人应答时间隔翻倍，30 分钟 → 1 小时 → 2 小时 → 4 小时……最多 16 倍，不超过 24 小时；你一回消息就清零。自发阶梯：沉默满 4 / 10 / 24 / 48 小时各发一条，共 4 条，最后一条是表示理解的便条，然后安静。</div>'
     + '<div class="st-bigtitle" style="font-size:18px;padding-top:8px;">承诺优先级</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;">标“紧急”的到期承诺会优先提醒；改完点上面“保存”一起生效。</div>'
     + '<div class="st-group">' + promRows + '</div>'
@@ -528,21 +490,14 @@ function saveProactiveForm(sub) {
     maxPerHour: parseInt(v('gr-max-per-hour'), 10),
     muted: chk('gr-muted')
   });
-  var quiet = null;
-  try {
-    if (window.CharInnerLife && window.CharInnerLife.setQuiet) {
-      quiet = window.CharInnerLife.setQuiet({ dailyCap: parseInt(v('gr-daily-cap'), 10), quietStart: v('gr-quiet-start') || '23:00', quietEnd: v('gr-quiet-end') || '08:00' });
-    }
-  } catch (e) {}
   try {
     var sels = sub.querySelectorAll('[data-groupr-pri]');
     for (var i = 0; i < sels.length; i++) setPromisePriority(sels[i].getAttribute('data-groupr-pri'), sels[i].value);
   } catch (e) {}
-  var q = quiet || getQuietMerged();
   var summary = '已保存：心跳' + (cfg.heartbeatMode === 'random' ? '随机 20–45 分钟' : '固定 ' + cfg.heartbeatMinutes + ' 分钟')
-    + ' · 离场' + cfg.awayMode + ' · 每小时最多 ' + cfg.maxPerHour + ' 条 · 每日上限 ' + q.dailyCap + ' 条'
-    + ' · 免打扰 ' + q.quietStart + '–' + q.quietEnd + (cfg.muted ? ' · 已静音（粘性）' : ' · 未静音') + '。';
-  return { summary: summary, cfg: cfg, quiet: q };
+    + ' · 离场' + cfg.awayMode + ' · 每小时最多 ' + cfg.maxPerHour + ' 条'
+    + (cfg.muted ? ' · 已静音（粘性）' : ' · 未静音') + '。';
+  return { summary: summary, cfg: cfg };
 }
 
 // ── 启动：口述门控 + 桌面 Lantern + 此刻页顶部 Lantern（包一层 O 组渲染，不改它）──
@@ -575,7 +530,6 @@ window.GroupR = {
   nextHeartbeatMs: nextHeartbeatMs, taperDelayMs: taperDelayMs,
   LADDER_HOURS: LADDER_HOURS, ladderStepFor: ladderStepFor,
   poissonWaitMs: poissonWaitMs, longingMeanMs: longingMeanMs, longingNextTs: longingNextTs,
-  inQuiet: inQuiet, getQuietMerged: getQuietMerged,
   gateForTrigger: gateForTrigger, pickReason: pickReason, recordSent: recordSent,
   noteUserReply: noteUserReply, syncFromInteraction: syncFromInteraction, lastInteractTs: lastInteractTs, getCloseness: getCloseness,
   currentState: currentState, openThreads: openThreads, lanternHTML: lanternHTML, lanternInner: lanternInner, renderLanternIntoDesktop: renderLanternIntoDesktop,
@@ -583,7 +537,7 @@ window.GroupR = {
   setPromisePriority: setPromisePriority, statusLine: statusLine,
   renderSettingsSub: renderSettingsSub, saveProactiveForm: saveProactiveForm,
   PRI_LABEL: PRI_LABEL, HONEST: HONEST,
-  _keys: { cfg: CFG_KEY, state: STATE_KEY, quiet: QUIET_KEY },
+  _keys: { cfg: CFG_KEY, state: STATE_KEY },
   _readState: readState, _writeState: writeState
 };
 })();

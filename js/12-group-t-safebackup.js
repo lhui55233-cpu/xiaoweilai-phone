@@ -73,7 +73,7 @@ char_ 前缀）之下；手机系统数据用 phone_ / cike_ / wx_ / iconsystem 
 guichao. 等前缀。旧键不动、不迁移，只定规范 + 清单页。
 char: 归属判定（见 namespaceInventory）：键以 'char:' 或 'char_' 开头，
 或在 CHAR_OWNED_KEYS 清单里。清单页列出哪些键属于 char、哪些属于手机系统。 */
-var CHAR_OWNED_KEYS = ['char:imported_chats_v1', 'char_inner_log_v1', 'char_inner_switches_v1', 'char_goals_v1', 'char_promises_v1', 'char_quiet_v1', 'char_inner_state_v1', 'char_drives_v1', 'char_dreams_v1', 'phone_my_persona', 'phone_my_persona_data', 'os_character'];
+var CHAR_OWNED_KEYS = ['char:imported_chats_v1', 'char_inner_log_v1', 'char_inner_switches_v1', 'char_goals_v1', 'char_promises_v1', 'char_inner_state_v1', 'char_drives_v1', 'char_dreams_v1', 'phone_my_persona', 'phone_my_persona_data', 'os_character'];
 var SCOPES = {
 guichao: [MEM_KEY, DIARY_KEY, INDEX_KEY],
 wx: [WX_KEY],

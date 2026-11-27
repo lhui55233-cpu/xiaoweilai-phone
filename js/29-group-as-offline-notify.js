@@ -17,10 +17,8 @@
      （没有就跳过、不报错）。各有开关。番茄钟完成不由 AS 再响一声：
      AM 的完成音（completionChime）已是完成提示音，AS 只弹横幅+记中心，
      避免双响。
-   - 勿扰：读 char_quiet_v1（键不存在时默认 23:00-08:00）；勿扰内只进
-     中心，不弹横幅、不响铃、不震动。char 主动消息每日上限由 R/O 节流
-     门在 _dispatch 前控制，AS 只呈现已发出的消息，不计数、不重 gate。
-     专注进行中（GroupN.isFocusSilent）时除番茄完成外也只进中心。
+   - 通知只呈现已发出的消息，不计数、不重 gate。专注进行中
+     （GroupN.isFocusSilent）时除番茄完成外也只进中心。
    - 开关语义：总开关关 → 仍静默记进中心（silent:true），不弹不响不
      上锁屏；分类型开关关 → 该类型直接丢弃，不进中心也不弹。
    - 触发接线（只读，不改已有键）：日程读 phone_schedule_v1，到时提醒
@@ -34,8 +32,8 @@
      ScriptAE.logEvent（script_end/script_save）；影院包
      CinemaCore.finishFilm；阅读无完成事件，留 notifyExternal 接口。
    - 查岗电话（AO 的 maybeCharCall/来电卡片）AS 不自造、不代发；若 AO
-     调 notify({kind:'char_call'})，勿扰内同样只进中心（每天最多一次、
-     不在夜间、不越过勿扰是 AO 的规矩，AS 不替它 gate，只不帮它越线）。
+     调 notify({kind:'char_call'})，同样只进中心（每天最多一次、
+     不在夜间是 AO 的规矩，AS 不替它 gate，只不帮它越线）。
    - 不做的：服务器推送（Web Push/FCM/APNs）需要服务器+网络，单文件
      离线手机没有——不做、不写假文案。打包 APK 后可改走 Capacitor
      local-notifications 插件（本地定时、无需服务器、离线可用），那是
@@ -48,7 +46,6 @@ var KEY = 'phone_notif_as_v1';
 var SCHED_KEY = 'phone_schedule_v1';
 var HABIT_KEY = 'phone_habits_v1';
 var PROM_KEY = 'char_promises_v1';
-var QUIET_KEY = 'char_quiet_v1';
 var NOTIF_KEY = 'syscenter_notif_v1';
 var PW_KEY = 'phone_lock_pw_v1';
 var HONEST = '本机通知为本地通知，离线可用；不是系统级推送，关掉手机就不会响。';
@@ -77,7 +74,6 @@ function read(k, fb) { try { var r = localStorage.getItem(k); return r == null ?
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function pad2(n) { return ('0' + n).slice(-2); }
 function todayStr(d) { d = d || new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
-function toMin(s) { var p = String(s || '0:0').split(':'); return ((+p[0] || 0) * 60 + (+p[1] || 0)); }
 
 /* ── 本组数据 phone_notif_as_v1 ── */
 function defaultData() {
@@ -124,24 +120,6 @@ function setSettings(patch) {
   return st;
 }
 
-/* ── 勿扰：唯一真相是 char_quiet_v1；键不存在时默认 23:00-08:00 ── */
-function getQuiet() {
-  var has = false;
-  try { has = localStorage.getItem(QUIET_KEY) != null; } catch (e) {}
-  if (has) {
-    try { if (window.CharInnerLife && window.CharInnerLife.getQuiet) return window.CharInnerLife.getQuiet(); } catch (e) {}
-    var q = read(QUIET_KEY, null);
-    if (q && typeof q === 'object') return { dailyCap: typeof q.dailyCap === 'number' ? q.dailyCap : 3, quietStart: q.quietStart || '23:00', quietEnd: q.quietEnd || '08:00', sent: q.sent || {} };
-  }
-  return { dailyCap: 3, quietStart: '23:00', quietEnd: '08:00', sent: {} };
-}
-function inQuiet(now, q) {
-  var m = now.getHours() * 60 + now.getMinutes();
-  var qs = toMin(q.quietStart), qe = toMin(q.quietEnd);
-  if (qs === qe) return false;
-  return qs < qe ? (m >= qs && m < qe) : (m >= qs || m < qe);
-}
-function isDND(now) { now = now || new Date(); try { return inQuiet(now, getQuiet()); } catch (e) { return false; } }
 function isFocusSilent() {
   try { if (window.GroupN && window.GroupN.isFocusSilent) return !!window.GroupN.isFocusSilent(); } catch (e) {}
   return false;
@@ -428,7 +406,6 @@ function notify(opts) {
   // 分类型开关关：该类型直接丢弃，不进中心也不弹
   if (st.types[typeKey] === false) return { delivered: false, reason: 'type_off', id: item.id };
   var now = new Date();
-  var dnd = isDND(now);
   // 总开关关：仍静默记进中心，不弹横幅、不响铃、不震动、不上锁屏列表
   if (!st.master) {
     item.silent = true;
@@ -438,15 +415,12 @@ function notify(opts) {
   }
   centerPush(item);
   try { renderLockList(); } catch (e) {}
-  // 锁屏上：只显示锁屏列表；按真机规矩仍可响一声/震一下，除非勿扰
+  // 锁屏上：只显示锁屏列表；按真机规矩仍可响一声/震一下
   if (isLocked()) {
-    if (!dnd) {
-      if (st.sound) playSound();
-      if (st.vibrate) vibrate([40]);
-    }
+    if (st.sound) playSound();
+    if (st.vibrate) vibrate([40]);
     return { delivered: true, reason: 'locked', id: item.id };
   }
-  if (dnd) return { delivered: true, reason: 'dnd_center_only', id: item.id };
   if (kind !== 'focus' && isFocusSilent()) return { delivered: true, reason: 'focus_center_only', id: item.id };
   showBanner(item);
   // 番茄完成不由 AS 再响一声：AM 的完成音已是完成提示音，AS 只弹横幅+记中心，避免双响
@@ -645,7 +619,6 @@ function injectCSS() {
 /* ── 设置子页 ── */
 function renderSettingsSub() {
   var st = getSettings();
-  var q = getQuiet();
   var sw = function (label, on, attr) {
     return '<div class="st-row"><span class="st-label">' + esc(label) + '</span><div class="st-row-right"><div class="as-switch' + (on ? ' on' : '') + '" ' + attr + '><div class="as-knob"></div></div></div></div>';
   };
@@ -668,7 +641,6 @@ function renderSettingsSub() {
     + '<div class="st-row"><span class="st-label">发送一条测试通知</span><div class="st-row-right"><button id="as-test-btn" type="button" style="padding:7px 14px;border:none;border-radius:16px;background:#34C759;color:#fff;font-size:14px;">发送</button></div></div>'
     + '</div>'
     + '<div class="st-foot" id="as-tip"></div>'
-    + '<div class="st-foot">勿扰时段 ' + esc(q.quietStart) + '–' + esc(q.quietEnd) + '（读 char_quiet_v1；改免打扰去「设置 → 免打扰与每日上限」）。勿扰时段内通知只进通知中心，不弹横幅、不响铃、不震动。char 主动消息每天最多 ' + q.dailyCap + ' 条，由 R/O 节流门控制，通知只是呈现层。</div>'
     + '<div class="st-foot">' + esc(HONEST) + '</div>'
     + '<div class="st-foot">' + esc(APK_NOTE) + '</div>'
     + '<div style="height:40px;"></div></div>';
@@ -742,7 +714,7 @@ function _debug() {
   return {
     marker: MARK, eventBusOk: _eventBusOk, focusWrapped: _focusWrapped,
     scriptWrapped: _scriptWrapped, cinemaWrapped: _cinemaWrapped,
-    settings: getSettings(), quiet: getQuiet(), dndNow: isDND(new Date()),
+    settings: getSettings(),
     locked: isLocked(), hasPw: hasPw(), unread: unreadCount(),
     lastSound: _lastSound, lastVibrate: _lastVibrate, pending: _pending,
     centerCount: centerList().length
@@ -756,7 +728,7 @@ if (typeof document !== 'undefined') {
 
 return {
   MARK: MARK, getSettings: getSettings, setSettings: setSettings,
-  isDND: isDND, getQuiet: getQuiet, hasPw: hasPw, isLocked: isLocked,
+  hasPw: hasPw, isLocked: isLocked,
   unlockIfNoPassword: unlockIfNoPassword,
   notify: notify, notifyChar: notifyChar, notifyExternal: notifyExternal,
   scanNow: scanNow, openNotificationById: openNotificationById,

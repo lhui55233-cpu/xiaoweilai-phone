@@ -18,7 +18,7 @@ Group S · 主体性内核 CharSubject（调研报告第五节阶段二：A12 + 
 接已有的好感度/看法/五条内在状态，不另起炉灶：好感度仍读
 otome_affection_v1（只读），内心日志仍走 char_inner_log_v1（只读
 复用 O 组键，决策记录同时写一份进 O 组日志供“她为什么这么做”页
-展示），免打扰时段读 char_quiet_v1（只读）。
+展示）。
 新增键见文件头注释。全部逻辑为全新自写，纯函数可单测。
 ══════════════════════════════════════════════════════════════ */
 (function () {
@@ -30,7 +30,6 @@ var PROMPT_KEY = 'char_subject_prompt_v1';
 var IMPR_KEY = 'char_subject_impressions_v1';
 var TIER_KEY = 'char_subject_tiers_v1';
 var GC_KEY = 'guichao.memories.v1';
-var QUIET_KEY = 'char_quiet_v1';
 var AFF_KEY = 'otome_affection_v1';
 
 /* RAW-DIV-BALANCE: renderSettingsSub 的 4 个分支各带一个闭合标签关闭 subHeadS 打开的 .st-sub（运行时每条路径恰好平衡）；静态计数会把 4 条互斥分支都算上，故此处补 4 个仅供静态计数、不渲染的开标签：<div> <div> <div> <div> */
@@ -208,8 +207,7 @@ function noteUserMessage(text, opts) {
 // 注释里，本文件没有已读不回反应、深夜语气、被冷落收敛的现成代码可
 // 复用——下面这张表是 S 组从头实现的，收进了这三类行为（R6/R8/R9）。
 // 决策表（按顺序查，第一条命中即出动作；先决定动作，再决定说什么）：
-//  R1 urgent → reply（救命/危险/难受/出事，压过免打扰与立场门控）
-//  R2 dnd → silence（免打扰时段，非紧急不回）
+//  R1 urgent → reply（救命/危险/难受/出事，压过立场门控）
 //  R3 untreated && severity>=60 → refuse（可以连着几轮生气）
 //  R4 untreated && kind=apology_empty → refuse（空话哄不好）
 //  R5 untreated && kind=casual → mutter（冷淡嘟囔）
@@ -224,16 +222,6 @@ var ACTION_TEXT = {
   interrupt: ['等一下——让我先说完。', '你先别急，一句一句来。'],
   silence: ['']
 };
-function inQuietHours(now) {
-  try {
-    var q = read(QUIET_KEY, null);
-    if (!q || !q.quietStart || !q.quietEnd) return false;
-    var toMin = function (s) { var p = String(s).split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
-    var m = now.getHours() * 60 + now.getMinutes(), qs = toMin(q.quietStart), qe = toMin(q.quietEnd);
-    if (qs === qe) return false;
-    return qs < qe ? (m >= qs && m < qe) : (m >= qs || m < qe);
-  } catch (e) { return false; }
-}
 function decideAction(ctx) {
   ctx = ctx || {};
   var mood = ctx.mood || {}, rel = ctx.rel || {};
@@ -244,8 +232,7 @@ function decideAction(ctx) {
   var hour = (ctx.hour == null ? new Date().getHours() : ctx.hour);
   var pick = function (arr, n) { return arr[(n || 0) % arr.length]; };
   var base = { tone: tone.tone, toneReason: tone.reason };
-  if (urgent) return Object.assign(base, { action: 'reply', rule: 'R1_urgent', reason: '紧急（救命/危险/难受），压过免打扰与立场门控' });
-  if (ctx.dnd) return Object.assign(base, { action: 'silence', rule: 'R2_dnd', reason: '现在是免打扰时段，非紧急不回' });
+  if (urgent) return Object.assign(base, { action: 'reply', rule: 'R1_urgent', reason: '紧急（救命/危险/难受），压过立场门控' });
   if (open > 0 && openSev >= 60) return Object.assign(base, { action: 'refuse', rule: 'R3_stance_severe', reason: '有未处理的严重不满（严重度 ' + openSev + '），拒绝被哄好', text: pick(ACTION_TEXT.refuse, ctx.angryRounds || 0) });
   if (open > 0 && kind === 'apology_empty') return Object.assign(base, { action: 'refuse', rule: 'R4_empty_apology', reason: '空话道歉（无实际代价），状态不变，拒绝', text: pick(ACTION_TEXT.refuse, ctx.angryRounds || 0) });
   if (open > 0 && kind === 'casual') return Object.assign(base, { action: 'mutter', rule: 'R5_stance_casual', reason: '有未处理的不满，对闲聊只嘟囔', text: pick(ACTION_TEXT.mutter, ctx.angryRounds || 0) });
@@ -276,7 +263,7 @@ function decideForMessage(text, opts) {
     mood: s.mood, rel: s.rel, slow: s.slow,
     openUntreated: untreated.length, openSeverity: sev,
     userKind: userKindOf(text),
-    hour: now.getHours(), dnd: inQuietHours(now),
+    hour: now.getHours(),
     recentUserCount: recent, angryRounds: angryRounds,
     urgent: /救命|危险|出事|难受得|快不行|帮帮我/.test(String(text || ''))
   };
@@ -586,7 +573,7 @@ getStance: getStance, openGrievances: openGrievances, openUntreated: openUntreat
 addGrievance: addGrievance, recordApology: recordApology, recordRepair: recordRepair,
 hasCost: hasCost, isApology: isApology,
 decideAction: decideAction, decideForMessage: decideForMessage,
-getDecisions: getDecisions, logDecision: logDecision, inQuietHours: inQuietHours,
+getDecisions: getDecisions, logDecision: logDecision,
 recallFor: recallFor, readGuichaoMemories: readGuichaoMemories,
 tierForMemory: tierForMemory, setTierOverride: setTierOverride, getTieredMemories: getTieredMemories,
 weeklyReflect: weeklyReflect, getImpressions: getImpressions,
