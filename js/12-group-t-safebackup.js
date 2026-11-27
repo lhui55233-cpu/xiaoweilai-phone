@@ -91,7 +91,16 @@ function uid(p) { return (p || 'id') + '_' + Date.now().toString(36) + '_' + Mat
 function nowISO() { return new Date().toISOString();}
 function fmtTime(ts) { var d = new Date(ts); return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);}
 function toast(msg) { try { if (typeof WeChatAppEngine!== 'undefined' && WeChatAppEngine.triggerToast) { WeChatAppEngine.triggerToast(msg); return;}} catch (e) {} try { if (typeof SysDialog!== 'undefined' && SysDialog.alert) { SysDialog.alert(msg); return;}} catch (e) {} try { alert(msg);} catch (e) {}}
-function allKeys() { var out = []; try { for (var i = 0; i < localStorage.length; i++) { var _k = localStorage.key(i); if (_k === 'phone_lock_pw_v1' || _k === 'phone_lock_passcode') continue; out.push(_k); } } catch (e) {} return out;} // [AJ] 归档/备份范围排除锁屏密码
+/* ── 备份排除清单（安全修复 2026-11-27）──
+   canonical 清单在 js/71 的 window.MemBackup.EXCLUDE_KEYS；下面这份字面量是
+   fallback（js/71 未必已加载）。isExcludedKey 取两者并集（宁可多排、不许漏排）。
+   所有导出/归档路径（allKeys → scopeKeys → archiveCurrent/previewDiff/_ui.doExport）
+   统一走 isExcludedKey，不要在各处另写排除条件。
+   清单口径 = 设置页安全路径 js/00 doExport（:5520-5521）+ 本次新增 3 键：
+   模型 key 3 键、锁屏 10 键、备份 token / 私语 / 已删功能残留各 1 键。 */
+var EXPORT_EXCLUDE_KEYS = ['phone_model_key_v1', 'phone_model_per_feature_v1', 'phone_model_fallback_keys_v1', 'phone_lock_pw_hash_v1', 'phone_lock_salt_v1', 'phone_lock_pw_kind_v1', 'phone_lock_pw_v1', 'phone_lock_passcode', 'phone_lock_disabled', 'phone_lock_fail_v1', 'phone_lock_cool_v1', 'phone_lock_attempts_v1', 'phone_lock_last_verified_v1', 'phone_membackup_token_v1', 'wb_whisper_v1', 'phone_iftheatre_v1'];
+function isExcludedKey(k) { if (EXPORT_EXCLUDE_KEYS.indexOf(k) >= 0) return true; try { var c = window.MemBackup && window.MemBackup.EXCLUDE_KEYS; if (Array.isArray(c) && c.indexOf(k) >= 0) return true; } catch (e) {} return false; }
+function allKeys() { var out = []; try { for (var i = 0; i < localStorage.length; i++) { var _k = localStorage.key(i); if (isExcludedKey(_k)) continue; out.push(_k); } } catch (e) {} return out; }
 function scopeKeys(scope) { if (scope === 'phone') return allKeys(); var ks = SCOPES[scope]; if (ks) return ks.slice(); return [scope];}
 
 /* ── 备份 / 归档 / 撤销（安全模型核心）── */
@@ -713,7 +722,9 @@ try { ok = window.confirm('导出预览：\n\n' + previewText(diff) + '\n点「�
 if (!ok) return;
 var bk = archiveCurrent('导出前归档（' + scope + '）', scope);
 var data = {};
-scopeKeys(scope).forEach(function (k) { if (k === '__xwl_idb_v1' || k === '__xwl_idb_note') return; /* GROUP-STEP0b: 备份块是导出时现算的，localStorage 里的旧值不带出（与 STEP0 同口径） */ var r = rawGet(k); if (r!= null) data[k] = r;});
+scopeKeys(scope).forEach(function (k) { if (k === '__xwl_idb_v1' || k === '__xwl_idb_note') return; /* GROUP-STEP0b: 备份块是导出时现算的，localStorage 里的旧值不带出（与 STEP0 同口径） */ if (isExcludedKey(k)) return; /* 安全修复：非 phone 范围（guichao/charcard/单键）不走 allKeys，这里再拦一道 */ var r = rawGet(k); if (r!= null) data[k] = r;});
+/* 安全修复：与设置页 js/00 doExport 同口径，导出前再过一遍 PhoneModel.sanitizeExportData（值里混进 key 字符串的整条删掉；未加载则只靠上面 isExcludedKey 兜底）。 */
+try { if (window.PhoneModel && window.PhoneModel.sanitizeExportData) data = window.PhoneModel.sanitizeExportData(data, scope); } catch (e) {}
 try {
 /* GROUP-STEP0b: 整机备份带上 IndexedDB（XWLDB 唯一底座）；归巢导出（guichao）不含整机数据。 */
 if (scope === 'phone' && window.XWLDB) {
@@ -835,6 +846,7 @@ try { setInterval(function () { ensureCtxMeter();}, 1500);} catch (e) {}
 window.getUiPrefs = getUiPrefs; window.setUiPrefs = setUiPrefs;
 window.SafeBackupT = {
 BACKUP_KEY: BACKUP_KEY, UNDO_KEY: UNDO_KEY, INDEX_KEY: INDEX_KEY, PREFS_KEY: PREFS_KEY, IMPORT_KEY: IMPORT_KEY, CTX_KEY: CTX_KEY,
+EXCLUDE_KEYS: EXPORT_EXCLUDE_KEYS, isExcludedKey: isExcludedKey,
 listBackups: listBackups, archiveCurrent: archiveCurrent, previewDiff: previewDiff, previewText: previewText,
 safeWrite: safeWrite, listUndo: listUndo, recordEditUndo: recordEditUndo, undoById: undoById, undoLast: undoLast,
 restoreBackup: restoreBackup, confirmExport: confirmExport, confirmImport: confirmImport,

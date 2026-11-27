@@ -3782,6 +3782,7 @@ AppManager.register('settings', (() => {
                 ROW(ICON('#30B0C7', I.exp), '导出全部数据 (备份)', {act:'exportAll'}),
                 ROW(ICON('#8E8E93', I.summary), '关于本机', {act:'aboutPhone'}),
 ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
+                ROW(ICON('#30B0C7', I.exp), '记忆备份', {value: (() => { const _s = mbLoad(); return _s.enabled ? '自动备份开' : (mbHasToken() ? '已填 token，未开启' : '未设置'); })(), act:'membackup'}),
                 ROW(ICON('#FF3B30', I.trash), '清空所有数据', {danger:true, act:'clearAll'})
             ], '「清空所有数据」会清空本机全部 localStorage（含归巢记忆），不可恢复；微信「我」页的「清空缓存恢复出厂」只清本应用缓存键，两者范围不同。')}
             ${GROUP([
@@ -3798,6 +3799,78 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
             ], '赴约借鉴（AH 组）：整屋搬家、模型连接与数据承诺、记忆审阅、环境漂浮物、玩具盒、待看、旅行手记、碎碎念、char 的手、外观包。')}
             <div class="st-gap"></div>
         </div>`;
+
+    // ── 记忆备份子页面（统一备份 · 设置 UI）──
+    // 共享键（与导出核心 / 推送 / 夜间调度共用，一字不差）：
+    //   phone_membackup_settings_v1 = JSON {enabled, repo, lastRun, lastStatus, lastError, lastCount}
+    //   phone_membackup_token_v1 = GitHub token 原字符串，只存本机，绝不进任何导出。
+    const MB_SETTINGS_KEY = 'phone_membackup_settings_v1';
+    const MB_TOKEN_KEY = 'phone_membackup_token_v1';
+    const MB_DEFAULT_REPO = 'guichao-memory-backup';
+    const mbEsc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const mbLoad = () => {
+        const d = { enabled: false, repo: MB_DEFAULT_REPO, lastRun: '', lastStatus: '', lastError: '', lastCount: null };
+        try { const r = localStorage.getItem(MB_SETTINGS_KEY); if (r) { const o = JSON.parse(r); if (o && typeof o === 'object') Object.assign(d, o); } } catch (e) {}
+        if (typeof d.repo !== 'string' || !d.repo.trim()) d.repo = MB_DEFAULT_REPO;
+        return d;
+    };
+    const mbSave = (s) => { try { localStorage.setItem(MB_SETTINGS_KEY, JSON.stringify(s)); } catch (e) {} };
+    const mbHasToken = () => { try { return !!localStorage.getItem(MB_TOKEN_KEY); } catch (e) { return false; } };
+    const mbLastText = (s) => {
+        if (!s.lastRun) return '还没有备份过';
+        let t = s.lastRun;
+        try { t = new Date(s.lastRun).toLocaleString('zh-CN', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) {}
+        let out = '上次备份：' + t + ' · ' + (s.lastStatus === 'success' ? '成功' : (s.lastStatus === 'failed' ? '失败' : '未知状态'));
+        if (typeof s.lastCount === 'number') out += ' · 共 ' + s.lastCount + ' 条';
+        if (s.lastStatus === 'failed' && s.lastError) out += '（' + s.lastError + '）';
+        return out;
+    };
+    const mbShowResult = (win, text, ok) => {
+        const el = win.querySelector('#mb-result');
+        if (el) { el.textContent = text; el.style.color = ok === true ? '#34C759' : (ok === false ? '#FF3B30' : '#666'); }
+    };
+    const mbRefreshHomeRow = (win) => {
+        const s = mbLoad();
+        const hv = win.querySelector('[data-act="membackup"] .st-val');
+        if (hv) hv.textContent = s.enabled ? '自动备份开' : (mbHasToken() ? '已填 token，未开启' : '未设置');
+    };
+    const renderMembackupSub = () => {
+        const s = mbLoad();
+        const hasToken = mbHasToken();
+        return `
+        <div class="st-sub" id="st-sub-membackup">
+            <div class="st-sub-bar">
+                <div class="st-sub-back" data-back="1">
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#007AFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    设置
+                </div>
+                <div class="st-sub-title">记忆备份</div>
+            </div>
+            <div class="st-bigtitle" style="padding-top:4px;">记忆备份</div>
+            <div class="st-group" style="margin-top:8px;">
+                <div class="st-row" data-act="mbToggle">
+                    <span class="st-label">自动备份</span>
+                    <div class="st-row-right"><span class="st-val" id="mb-enabled-val">${s.enabled ? '开' : '关'}</span><span class="st-arrow">›</span></div>
+                </div>
+                <div class="st-row" style="cursor:default;">
+                    <span class="st-label" style="font-size:15px;color:#8E8E93;">${mbEsc(mbLastText(s))}</span>
+                </div>
+            </div>
+            <div class="st-foot">每晚自动备份一次。手机页面打开时才会执行：页面关掉、浏览器退出后不会在后台推送；打开页面时会补上当天的备份。本机没有后台机制，关了页面就不会推。</div>
+            <div class="st-group" style="margin-top:8px;">
+                <div style="padding:13px 16px;border-bottom:0.5px solid #E5E5EA;"><div style="font-size:16px;color:#000;">仓库名</div><input id="mb-repo" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="guichao-memory-backup" value="${mbEsc(s.repo)}" style="width:100%;border:none;outline:none;font-size:14px;color:#333;margin-top:6px;padding:0;"></div>
+                <div style="padding:13px 16px;"><div style="font-size:16px;color:#000;">GitHub token</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><input id="mb-token" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="${hasToken ? '已保存（留空表示不改）' : '粘贴仅推此仓库的 token（只存本机）'}" style="flex:1;border:none;outline:none;font-size:14px;color:#333;padding:0;min-width:0;"><span onclick="var i=document.getElementById('mb-token');if(i){i.type=(i.type==='password'?'text':'password');this.textContent=(i.type==='password'?'👁':'🙈');}" style="font-size:17px;cursor:pointer;flex-shrink:0;">👁</span></div></div>
+            </div>
+            <div class="st-foot">token 只存在本机（localStorage），绝不会放进任何备份导出文件；推送时只发给 GitHub。请用仅能推这一个私有仓库的 token。</div>
+            <div style="padding:0 16px;">
+                <button data-act="mbSave" style="width:100%;background:#007AFF;color:#fff;border:none;border-radius:10px;padding:13px 0;font-size:16px;">保存设置</button>
+                <button data-act="mbPushNow" style="width:100%;margin-top:8px;background:#fff;color:#007AFF;border:1px solid #007AFF;border-radius:10px;padding:12px 0;font-size:15px;">立即备份</button>
+                <button data-act="mbClearToken" style="width:100%;margin-top:8px;background:#fff;color:#FF3B30;border:1px solid #FFD2D0;border-radius:10px;padding:12px 0;font-size:15px;">清除 token</button>
+                <div id="mb-result" style="font-size:13px;color:#666;text-align:center;margin-top:12px;line-height:1.7;white-space:pre-wrap;"></div>
+            </div>
+            <div style="height:40px;"></div>
+        </div>`;
+    };
 
     // ── 禁词子页面 ──
     const renderBanwordsSub = () => `
@@ -5464,6 +5537,94 @@ win.addEventListener('change', (e) => {
             case 'exportPart': if (window.SafeBackupT) window.SafeBackupT.confirmExport('part', function(){ doExport('part'); }); else doExport('part'); break;
             case 'exportAll': if (window.SafeBackupT) window.SafeBackupT.confirmExport('all', function(){ doExport('all'); }); else doExport('all'); break;
             case 'safeCenter': if (window.SafeBackupT) window.SafeBackupT.openCenter(); break;
+            // ── 记忆备份（统一备份 · 设置 UI）：子页 + 开关 / 保存 / 清除 token / 立即备份 ──
+            case 'membackup': {
+                let sub = win.querySelector('#st-sub-membackup');
+                if (sub) sub.remove();
+                const tmp = document.createElement('div');
+                tmp.innerHTML = renderMembackupSub();
+                sub = tmp.firstElementChild;
+                if (!sub) break;
+                win.appendChild(sub);
+                requestAnimationFrame(() => sub.classList.add('show'));
+                break;
+            }
+            case 'mbToggle': {
+                // 没填 token 时开关打不开：诚实提示并保持关闭，不假装在推。
+                const s = mbLoad();
+                if (!s.enabled && !mbHasToken()) { mbShowResult(win, '还没填 GitHub token，自动备份开不了。先在下面填好 token 并点“保存设置”，再打开开关。', false); break; }
+                s.enabled = !s.enabled;
+                mbSave(s);
+                const v = win.querySelector('#mb-enabled-val');
+                if (v) v.textContent = s.enabled ? '开' : '关';
+                mbRefreshHomeRow(win);
+                mbShowResult(win, s.enabled ? '自动备份已开启：每晚推一次，手机页面打开时才会执行。' : '自动备份已关闭。', true);
+                break;
+            }
+            case 'mbSave': {
+                const s = mbLoad();
+                const repoEl = win.querySelector('#mb-repo');
+                const tokEl = win.querySelector('#mb-token');
+                const repo = repoEl ? repoEl.value.trim() : '';
+                const tok = tokEl ? tokEl.value.trim() : '';
+                s.repo = repo || MB_DEFAULT_REPO;
+                mbSave(s);
+                if (tok) { try { localStorage.setItem(MB_TOKEN_KEY, tok); } catch (e) {} }
+                handleAction('membackup', win);
+                mbShowResult(win, '已保存' + (tok ? '（token 已更新，只存在本机）' : '（token 留空，没改）'), true);
+                mbRefreshHomeRow(win);
+                break;
+            }
+            case 'mbClearToken': {
+                try { if (typeof window.confirm === 'function' && !window.confirm('确定清除已保存的 GitHub token 吗？清除后自动备份会保持关闭，直到重新填写。')) break; } catch (e) {}
+                try { localStorage.removeItem(MB_TOKEN_KEY); } catch (e) {}
+                const s = mbLoad();
+                if (s.enabled) { s.enabled = false; mbSave(s); }
+                handleAction('membackup', win);
+                mbShowResult(win, 'token 已清除，自动备份已关闭（没 token 开不了）。', true);
+                mbRefreshHomeRow(win);
+                break;
+            }
+            case 'mbPushNow': {
+                // 推送模块是另一个 worker 的 js 文件提供的；不在时诚实显示，不假装推了。
+                if (typeof window.MemBackupPush === 'undefined' || !window.MemBackupPush || typeof window.MemBackupPush.pushNow !== 'function') {
+                    mbShowResult(win, '备份模块未就绪（推送模块还没加载），现在推不了，稍后再试。', false);
+                    break;
+                }
+                mbShowResult(win, '正在备份…', null);
+                try {
+                    Promise.resolve(window.MemBackupPush.pushNow({ manual: true })).then((r) => {
+                        const s = mbLoad();
+                        if (r && r.ok) {
+                            s.lastRun = new Date().toISOString();
+                            s.lastStatus = 'success';
+                            s.lastError = '';
+                            if (typeof r.count === 'number') s.lastCount = r.count;
+                            else if (typeof r.pushed === 'number') s.lastCount = r.pushed;
+                            mbSave(s);
+                            handleAction('membackup', win);
+                            mbShowResult(win, '备份成功' + (typeof s.lastCount === 'number' ? '，共 ' + s.lastCount + ' 条' : '') + '。', true);
+                        } else {
+                            const reason = (r && (r.reason || r.error || r.message)) || '备份模块没有返回结果';
+                            s.lastStatus = 'failed';
+                            s.lastError = String(reason);
+                            mbSave(s);
+                            handleAction('membackup', win);
+                            mbShowResult(win, '备份失败：' + String(reason), false);
+                        }
+                    }).catch((err) => {
+                        const s = mbLoad();
+                        s.lastStatus = 'failed';
+                        s.lastError = (err && err.message) ? String(err.message) : '推送出错';
+                        mbSave(s);
+                        handleAction('membackup', win);
+                        mbShowResult(win, '备份失败：' + s.lastError, false);
+                    });
+                } catch (err) {
+                    mbShowResult(win, '备份失败：' + ((err && err.message) || '推送出错'), false);
+                }
+                break;
+            }
             case 'clearAll':
                 if (confirm('⚠️ 确定清空所有数据吗？\n将删除全部聊天记录、角色、设置，且无法恢复！')) {
                     if (confirm('再次确认：真的要清空一切吗？')) {
