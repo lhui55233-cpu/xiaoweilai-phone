@@ -1,7 +1,6 @@
 
 /* GROUP-BI · char 主动来电做实（端到端）
-   触发来自真实数据（承诺/日程/问候），不编造；底线：动手开关 +
-   深夜 22:00-08:00 绝不打；
+   触发来自真实数据（承诺/日程/问候），不编造；底线：动手开关。
    铃声接 BH 组（phone_ringtone_v1 / window.GroupBH），BH 不在则用默认
    合成铃声；接听即停铃；挂断即结束通话；拒接原因进微信 + 通话记录；
    未接只留一条微信跟进；
@@ -18,7 +17,6 @@ var PROM_KEY = 'char_promises_v1';
 var SCHED_KEY = 'phone_schedule_v1';
 var RING_KEY = 'phone_ringtone_v1';
 var CALL_LOG_KEY = 'phone_call_log_v1';
-var NIGHT_START = 22, NIGHT_END = 8;
 var SLOW_ANSWER_MS = 10000;
 var DEFAULT_PICKUP_MS = 6000;
 
@@ -45,12 +43,10 @@ function seenMark(key) {
   saveState(st);
 }
 
-/* 底线：深夜 + 动手开关 */
-function isNight(now) { var h = (now || new Date()).getHours(); return h >= NIGHT_START || h < NIGHT_END; }
+/* 底线：动手开关 */
 function baseGate(now) {
   now = now || new Date();
   if (!callsEnabled()) return { ok: false, reason: 'calls_off' };
-  if (isNight(now)) return { ok: false, reason: 'night' };
   try {
     if (window.CharInnerLife && window.CharInnerLife.canSendProactive) {
       var g = window.CharInnerLife.canSendProactive(now);
@@ -171,7 +167,7 @@ function fire(trigger, now) {
     if (window.CharInnerLife && window.CharInnerLife.logCycle) {
       window.CharInnerLife.logCycle({
         sense: '到了该打电话的时候：' + trigger.reason,
-        appraise: '节流门放行（不在深夜、动手开关开着）',
+        appraise: '节流门放行（动手开关开着）',
         decide: '打一通电话给你', act: '来电：' + trigger.reason, reflect: '等你接听',
         trigger: 'bi_call:' + trigger.kind, memoryRef: '来电原因：' + trigger.reason
       });
@@ -553,7 +549,7 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 return {
   MARKER: 'GROUP-BI',
   getCfg: getCfg, callsEnabled: callsEnabled, setCallsEnabled: setCallsEnabled,
-  getState: getState, isNight: isNight,
+  getState: getState,
   baseGate: baseGate, canCall: canCall, pickTrigger: pickTrigger, tick: tick, fire: fire,
   resolveRingtone: resolveRingtone, ringtoneInfo: ringtoneInfo,
   ringState: ringState, onRingBurst: onRingBurst, stopRingtone: stopRingtone,

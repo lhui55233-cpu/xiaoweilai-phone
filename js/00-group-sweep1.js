@@ -32651,7 +32651,6 @@ function handsOffGateOk() {
   } catch (e) {}
   return true;
 }
-function isNight() { var h = new Date().getHours(); return h >= 22 || h < 8; }
 function todayStr() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 function markCheckin() {
   try {
@@ -32662,7 +32661,6 @@ function markCheckin() {
   } catch (e) {}
 }
 function canCheckinCall() {
-  if (isNight()) return { ok: false, reason: '现在是夜间，查岗电话不打' };
   if (!handsOffGateOk()) return { ok: false, reason: '动手开关已关，查岗电话不打' };
   try {
     var s = JSON.parse(lsGet(CHECKIN_KEY) || 'null') || {};
@@ -32685,7 +32683,6 @@ function markSeen(k) {
 function maybeCharCall() {
   try {
     if (callCur) return;
-    if (isNight()) return;
     if (!handsOffGateOk()) return;
     if (!hasNamedContact()) return; // GROUP-WECHAT · 第 9 项：没有联系人不许主动打电话
     var now = Date.now();
