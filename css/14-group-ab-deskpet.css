@@ -30,16 +30,17 @@
 .ab-set-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--st-silver,#bfc8e0);}
 .ab-set-row label{flex:0 0 90px;font-size:17px;color:var(--st-ink,#1e2748);}
 .ab-set-row input[type=range]{flex:1;min-width:0;}
-/* [设置重构浏览器问题修复] 桌宠滑杆按本轮墨色系重做：accent-color 兜底各端默认
-   样式；WebKit/Firefox 自定义轨道（4px 银蓝浅轨）+ 滑块（20px 墨色圆点），
+/* [设置重构浏览器问题修复] 桌宠滑杆按去黑填充重做：accent-color 兜底各端默认
+   样式；WebKit/Firefox 自定义轨道（4px 银蓝浅轨）+ 滑块（20px 银蓝圆点），
    不再出现浏览器默认亮蓝。 */
-.ab-set-row input[type=range]{accent-color:var(--st-ink,#1e2748);-webkit-appearance:none;appearance:none;background:transparent;height:24px;cursor:pointer;}
+.ab-set-row input[type=range]{accent-color:var(--st-silver,#bfc8e0);-webkit-appearance:none;appearance:none;background:transparent;height:24px;cursor:pointer;}
 .ab-set-row input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--st-silver-light,#dce2f1);}
-.ab-set-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:var(--st-ink,#1e2748);border:0;}
+.ab-set-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:var(--st-silver,#bfc8e0);border:0;}
 .ab-set-row input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--st-silver-light,#dce2f1);}
-.ab-set-row input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--st-ink,#1e2748);border:0;}
-/* [设置重构浏览器问题修复·2] 桌宠“跟随手指”复选框与滑杆同口径：墨色 accent-color，20px，与偏好页复选框一致，不再出现浏览器默认亮蓝。只作用于 .ab-set-row（桌宠设置面板），不动全站复选框。 */
-.ab-set-row input[type=checkbox]{accent-color:var(--st-ink,#1e2748);width:20px;height:20px;}
+.ab-set-row input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--st-silver,#bfc8e0);border:0;}
+/* [设置重构浏览器问题修复·2] 桌宠“跟随手指”复选框与滑杆同口径：自定义复选框（纸底 + 墨边框 + 墨色对勾），20px，与偏好页复选框一致，不再出现浏览器默认亮蓝。只作用于 .ab-set-row（桌宠设置面板），不动全站复选框。 */
+.ab-set-row input[type=checkbox]{-webkit-appearance:none;appearance:none;width:20px;height:20px;flex-shrink:0;margin:0;padding:0;cursor:pointer;background:var(--st-paper,#fffdf8);border:1px solid var(--st-ink,#1e2748);border-radius:4px;}
+.ab-set-row input[type=checkbox]:checked{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e2748' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E");background-size:14px;background-position:center;background-repeat:no-repeat;}
 .ab-set-val{flex:0 0 44px;text-align:right;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));}
 .ab-chip-btn{border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--st-ink,#1e2748);margin:2px;cursor:pointer;}
-.ab-chip-btn.ab-active{background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-color:var(--st-ink,#1e2748);}
+.ab-chip-btn.ab-active{background:var(--st-silver-light,#dce2f1);color:var(--st-ink,#1e2748);border-color:var(--st-ink,#1e2748);}
