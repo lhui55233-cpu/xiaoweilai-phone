@@ -169,8 +169,7 @@
   font-size: 12px;
   white-space: nowrap;
 }
-#ao-incall .bh-ic-interrupt,
-#ao-incall .bh-call-grace { color: #78857e; }
+#ao-incall .bh-ic-interrupt { color: #78857e; }
 @media (max-height: 700px) {
   #ao-incoming .bh-inc { padding-top: calc(24px + env(safe-area-inset-top)); padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
   #ao-incoming .bh-inc-av { width: 74px; height: 74px; }

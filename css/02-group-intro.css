@@ -69,3 +69,8 @@
 /* GROUP-INTRO · 锁屏淡入：XWIntro 播到 exit / 结束时触发，一次性，用完即摘（见 js/48-group-intro.js lockFadeIn） */
 #sys-lockscreen-layer.xw-lock-fadein{animation:xwLockFadeIn .6s ease both}
 @keyframes xwLockFadeIn{from{opacity:0}to{opacity:1}}
+
+/* 开场动画期间藏起灵动岛：只在播放期间给 #sys-dynamic-island 加这个类，
+   动画结束/跳过/出错/超时即摘掉，恢复原来的显示状态；!important 是为了
+   让 DynamicIsland 的活动更新也无法把它重新显示出来。 */
+#sys-dynamic-island.xw-intro-hide{display:none!important;}
