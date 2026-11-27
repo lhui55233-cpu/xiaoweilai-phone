@@ -31907,7 +31907,7 @@ const GlobalAPI = (() => {
 
     // 热门模型列表（拉取失败时的兜底 / 也用于快速选择）
     const POPULAR_MODELS = [
-        'deepseek-chat','deepseek-reasoner','deepseek-v3',
+        'deepseek-chat','deepseek-reasoner','deepseek-v3','deepseek/deepseek-v4.1-flash:free',
         'gpt-4o','gpt-4o-mini','gpt-4-turbo','gpt-3.5-turbo','o1-mini','o3-mini',
         'claude-3-5-sonnet-20241022','claude-3-5-haiku-20241022','claude-3-opus-20240229','claude-sonnet-4-20250514',
         'gemini-2.0-flash','gemini-1.5-pro','gemini-1.5-flash','gemini-2.5-pro',
