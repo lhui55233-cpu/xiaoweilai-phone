@@ -171,8 +171,7 @@ var GD_CSS = '<style>'
 + '.gd-root[data-gd="sms"] .ba-sms-inputbar{position:sticky;bottom:0;z-index:6;display:flex;align-items:flex-end;gap:10px;padding:8px 12px 32px;background:#fff;} /* GROUP-BM BM-2：底垫 10px→32px，避开 Home 条 */'
 + '.gd-root[data-gd="sms"] .ba-sms-plus{width:40px;height:40px;border-radius:50%;border:0;background:#f0f0f0;color:#111;font-size:24px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;}'
 + '.gd-root[data-gd="sms"] .ba-sms-inputwrap{flex:1;min-width:0;position:relative;display:flex;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-input{width:100%;box-sizing:border-box;border:0;border-radius:20px;padding:11px 42px 11px 16px;font-size:15px;line-height:1.4;background:#f5f5f5;color:#000;outline:none;resize:none;max-height:80px;overflow-y:auto;font-family:inherit;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-mic{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:0;background:none;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}'
++ '.gd-root[data-gd="sms"] .ba-sms-input{width:100%;box-sizing:border-box;border:0;border-radius:20px;padding:11px 16px;font-size:15px;line-height:1.4;background:#f5f5f5;color:#000;outline:none;resize:none;max-height:80px;overflow-y:auto;font-family:inherit;}'
 + '.gd-root[data-gd="sms"] .ba-sms-send{width:40px;height:40px;border-radius:50%;border:0;background:#0099ff;color:#fff;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center;padding:0 0 2px;}'
 + '.gd-root[data-gd="sms"] .ba-sms-send.on{display:flex;}'
 + '.gd-root[data-gd="sms"] .ba-sms-drawer{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#f2f2f7;border-top:1px solid #e5e5ea;}'
@@ -195,7 +194,6 @@ var GD_CSS = '<style>'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .gd-bubble.them,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .gd-bubble.them{background:#26262b;color:#f2f2f0;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar{background:#1c1c1e;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-input,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-input{background:#2c2c2e;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-mic,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-mic{color:#f2f2f0;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-plus,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-plus{background:#38383a;color:#f2f2f0;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer,html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-emoji,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-emoji{background:#1c1c1e;border-color:#38383a;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer button,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer button{background:#2c2c2e;color:#f2f2f0;border-color:#48484a;}'
@@ -642,7 +640,7 @@ GD._gdApp = gdApp;
                 + '<div id="gd-sms-stream" class="ba-sms-stream">' + streamHtml + '</div>'
                 + (smsToast ? '<div class="ba-sms-toast">' + esc(smsToast) + '</div>' : '')
                 + drawerHtml
-                + '<div class="ba-sms-inputbar"><button class="ba-sms-plus" data-act="plus" aria-label="更多">＋</button><div class="ba-sms-inputwrap"><textarea class="ba-sms-input" id="gd-sms-input" rows="1" placeholder="私信">' + esc(smsDraft) + '</textarea><button class="ba-sms-mic" data-act="sms-mic" aria-label="语音"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></button></div><button class="ba-sms-send" data-act="send" disabled aria-label="发送">' + icSvg('up',14) + '</button></div>'
+                + '<div class="ba-sms-inputbar"><button class="ba-sms-plus" data-act="plus" aria-label="更多">＋</button><div class="ba-sms-inputwrap"><textarea class="ba-sms-input" id="gd-sms-input" rows="1" placeholder="私信">' + esc(smsDraft) + '</textarea></div><button class="ba-sms-send" data-act="send" disabled aria-label="发送">' + icSvg('up',14) + '</button></div>'
                 + '<input type="file" id="ba-sms-file" accept="image/*" hidden><input type="file" id="ba-sms-file-cam" accept="image/*" capture="environment" hidden>'
                 + ovHtml;
             return html;
@@ -669,7 +667,6 @@ GD._gdApp = gdApp;
         var syncSendState = function (inpEl) {
             var b = win.querySelector('[data-act="send"]'); var has = !!((inpEl && inpEl.value) || '').trim();
             if (b) { b.disabled = !has; b.classList.toggle('on', has); }
-            var mic = win.querySelector('[data-act="sms-mic"]'); if (mic) mic.style.display = has ? 'none' : '';
             if (inpEl) { inpEl.style.height = 'auto'; inpEl.style.height = Math.min(inpEl.scrollHeight || 0, 80) + 'px'; }
         };
         var copyText = function (t) {
@@ -735,7 +732,6 @@ GD._gdApp = gdApp;
                 else if (act === 'back') { threadId = null; smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
                 else if (act === 'sms-autoreply') { smsSetAutoReply(!smsAutoReplyOn()); app._refresh(); }
                 else if (act === 'send') { send(); }
-                else if (act === 'sms-mic') { smsToast = '短信暂不支持语音消息，先打字吧'; app._refresh(); setTimeout(function () { smsToast = ''; if (threadId) app._refresh(); }, 1200); }
                 else if (act === 'plus') { smsDrawerOpen = !smsDrawerOpen; if (smsDrawerOpen) smsEmojiOpen = false; app._refresh(); }
                 else if (act === 'photo') { var f = win.querySelector('#ba-sms-file'); if (f) f.click(); }
                 else if (act === 'camera') { var fc = win.querySelector('#ba-sms-file-cam'); if (fc) fc.click(); }
