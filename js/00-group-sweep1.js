@@ -23938,28 +23938,177 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         memtree: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="4" y="2" width="8" height="3" fill="#5b8c5a"/><rect x="3" y="5" width="10" height="3" fill="#6a9a5a"/><rect x="5" y="8" width="6" height="2" fill="#5b8c5a"/><rect x="5" y="6" width="1" height="1" fill="#d96a7a"/><rect x="10" y="6" width="1" height="1" fill="#d96a7a"/><rect x="7" y="10" width="2" height="4" fill="#7a4a28"/><rect x="3" y="14" width="10" height="1" fill="#8a5a2e"/></svg>',
         garden: '<svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="7" y="2" width="2" height="2" fill="#e8c9d0"/><rect x="5" y="4" width="2" height="2" fill="#e8c9d0"/><rect x="9" y="4" width="2" height="2" fill="#e8c9d0"/><rect x="7" y="6" width="2" height="2" fill="#e8c9d0"/><rect x="7" y="4" width="2" height="2" fill="#e8c96a"/><rect x="7" y="8" width="2" height="5" fill="#5b8c5a"/><rect x="9" y="10" width="3" height="1" fill="#6a9a5a"/><rect x="9" y="11" width="2" height="1" fill="#6a9a5a"/><rect x="4" y="13" width="8" height="1" fill="#8a5a2e"/></svg>'
     };
-    const CK_HUB_FARM_SVG = '<svg class="ck-sv-scene" viewBox="0 0 360 120" shape-rendering="crispEdges" aria-hidden="true">'
-        + '<rect width="360" height="120" fill="#aed9e8"/>'
-        + '<rect x="292" y="10" width="24" height="24" fill="#ffd76e"/><rect x="296" y="6" width="16" height="4" fill="#ffd76e"/><rect x="296" y="34" width="16" height="4" fill="#ffd76e"/><rect x="288" y="14" width="4" height="16" fill="#ffd76e"/><rect x="316" y="14" width="4" height="16" fill="#ffd76e"/>'
-        + '<rect x="30" y="16" width="44" height="10" fill="#fffdf8"/><rect x="38" y="10" width="28" height="6" fill="#fffdf8"/>'
-        + '<rect x="200" y="26" width="36" height="8" fill="#fffdf8"/><rect x="208" y="21" width="20" height="5" fill="#fffdf8"/>'
-        + '<rect x="14" y="36" width="36" height="16" fill="#5b8c5a"/><rect x="20" y="28" width="24" height="8" fill="#6a9a5a"/><rect x="28" y="52" width="8" height="28" fill="#6b4226"/>'
-        + '<rect x="0" y="66" width="120" height="14" fill="#8fbf7f"/><rect x="110" y="60" width="140" height="20" fill="#7ab06a"/><rect x="240" y="68" width="120" height="12" fill="#8fbf7f"/>'
-        + '<rect x="0" y="72" width="360" height="3" fill="#6b4226"/><rect x="16" y="68" width="6" height="12" fill="#6b4226"/><rect x="90" y="68" width="6" height="12" fill="#6b4226"/><rect x="164" y="68" width="6" height="12" fill="#6b4226"/><rect x="238" y="68" width="6" height="12" fill="#6b4226"/><rect x="312" y="68" width="6" height="12" fill="#6b4226"/>'
-        + '<rect x="0" y="80" width="360" height="40" fill="#9c6b3f"/><rect x="0" y="88" width="360" height="4" fill="#7a4a28"/><rect x="0" y="100" width="360" height="4" fill="#7a4a28"/><rect x="0" y="112" width="360" height="4" fill="#7a4a28"/>'
-        + '<rect x="20" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="60" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="100" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="240" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="280" y="84" width="6" height="4" fill="#5b8c5a"/><rect x="320" y="84" width="6" height="4" fill="#5b8c5a"/>'
-        + '<rect x="40" y="96" width="6" height="4" fill="#6a9a5a"/><rect x="120" y="96" width="6" height="4" fill="#6a9a5a"/><rect x="260" y="96" width="6" height="4" fill="#6a9a5a"/><rect x="300" y="96" width="6" height="4" fill="#6a9a5a"/>'
-        + '<rect x="168" y="86" width="28" height="5" fill="#e8c96a"/><rect x="174" y="79" width="16" height="7" fill="#e8c96a"/><rect x="174" y="83" width="16" height="3" fill="#c9a227"/><rect x="176" y="91" width="12" height="10" fill="#ffe3c4"/><rect x="179" y="95" width="2" height="2" fill="#2b2b2b"/><rect x="183" y="95" width="2" height="2" fill="#2b2b2b"/><rect x="173" y="101" width="18" height="12" fill="#7aa8c9"/><rect x="175" y="113" width="6" height="7" fill="#3a3a3a"/><rect x="183" y="113" width="6" height="7" fill="#3a3a3a"/>'
-        + '</svg>';
-    // 农场头真实信息：日期 + 季节（3–5 春、6–8 夏、9–11 秋、12–2 冬）+ 时段（与 js/09 phaseForHour 同一划分）；天气没有真实来源就不写
-    const ckHubFarmInfo = () => {
+    // ── 星露谷风 Hub 做细（2026-11-27）：场景头 / HUD / 对话栏 / 角标，全部代码现画，不复制任何游戏原画/贴图 ──
+    // 本段自带 HTML 转义（ckEsc）：本闭包作用域内没有现成的 esc，不能直接引用别处的。
+    const ckEsc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    // 季节与时段：季节按月（3–5 春、6–8 夏、9–11 秋、12–2 冬），时段与 js/09 phaseForHour 同一划分（6–17 白天、17–19 黄昏、其余夜晚）。
+    const ckHubSeasonOf = (d) => { const m = d.getMonth() + 1; return (m >= 3 && m <= 5) ? { key: 'spring', cn: '春季' } : (m >= 6 && m <= 8) ? { key: 'summer', cn: '夏季' } : (m >= 9 && m <= 11) ? { key: 'autumn', cn: '秋季' } : { key: 'winter', cn: '冬季' }; };
+    const ckHubPhaseOf = (h) => (h >= 6 && h < 17) ? { key: 'day', cn: '白天' } : (h >= 17 && h < 19) ? { key: 'dusk', cn: '黄昏' } : { key: 'night', cn: '夜晚' };
+    // 季节色板（调研报告 §1.9 C 档定性方向的具体化：春嫩绿粉、夏深绿金黄、秋琥珀锈红、冬蓝白灰+暖黄窗光；色值是本项目自选区间，非官方色卡）
+    const CK_HUB_SEASONS = {
+        spring: { key: 'spring', cn: '春季', sky: '#cfe8ef', hillFar: '#b5d9a0', hillNear: '#9ccb87', field: '#a8763f', furrow: '#7a4a28', cropA: '#8fce7d', cropB: '#e8c9d0', tree: '#7fbf6a', treeDark: '#5b8c5a', sun: '#ffd76e', cloud: '#fffdf8' },
+        summer: { key: 'summer', cn: '夏季', sky: '#aed9e8', hillFar: '#8fbf7f', hillNear: '#6a9a5a', field: '#9c6b3f', furrow: '#7a4a28', cropA: '#4e8a3e', cropB: '#daa520', tree: '#4e8a3e', treeDark: '#3e7030', sun: '#ffd76e', cloud: '#fffdf8' },
+        autumn: { key: 'autumn', cn: '秋季', sky: '#eed9b8', hillFar: '#d8a04c', hillNear: '#c98a3e', field: '#8a5a30', furrow: '#5b3a1e', cropA: '#c96a2e', cropB: '#b5541e', tree: '#d8722e', treeDark: '#b5541e', sun: '#f2b04c', cloud: '#fdf6e3' },
+        winter: { key: 'winter', cn: '冬季', sky: '#dce2f1', hillFar: '#e8ecf5', hillNear: '#dfe4ef', field: '#ddd5c4', furrow: '#b9b2a4', cropA: '#fbf9f4', cropB: '#d8cfae', tree: '#6b4a2e', treeDark: '#5b3a1e', sun: '#f2ead8', cloud: '#fffdf8' }
+    };
+    // 他的实时模拟状态（只读 js/33 AWGroup 的唯一实现；AWGroup 未加载时诚实返回 ok:false，不编状态）
+    const ckHubSimNow = () => {
+        try {
+            const AW = window.AWGroup;
+            if (!AW || typeof AW.currentActivity !== 'function') return { ok: false };
+            const cur = AW.currentActivity();
+            let mood = null;
+            try { const s = AW.loadSim(); if (s && s.needs && typeof s.needs.mood === 'number') mood = s.needs.mood; } catch (e) {}
+            const moodWord = (mood === null) ? '' : (mood >= 70 ? '心情不错' : (mood >= 40 ? '心情还行' : '有点累'));
+            return { ok: true, place: cur.place || '', activity: cur.activity || '', text: cur.text || '', mood: mood, moodWord: moodWord, isDefault: !!cur.isDefault };
+        } catch (e) { return { ok: false }; }
+    };
+    // 好感（只读 js/33 AWGroup.affectionValue / tierOf；10 颗心 = 好感值 0–100 每 10 点一颗，0 点就是 0 颗，不编满心）
+    const ckHubAffection = () => {
+        let v = 0;
+        try {
+            if (window.AWGroup && typeof window.AWGroup.affectionValue === 'function') v = window.AWGroup.affectionValue() || 0;
+            else { const all = JSON.parse(localStorage.getItem('otome_affection_v1') || '{}'); const ks = Object.keys(all || {}); if (ks.length && all[ks[0]] && typeof all[ks[0]].value === 'number') v = all[ks[0]].value; }
+        } catch (e) {}
+        v = Math.max(0, Math.min(100, Number(v) || 0));
+        let tier = '相识';
+        try { if (window.AWGroup && typeof window.AWGroup.tierOf === 'function') tier = window.AWGroup.tierOf(v).label; } catch (e) { tier = v >= 85 ? '恋人' : v >= 60 ? '暧昧' : v >= 30 ? '朋友' : '相识'; }
+        return { value: v, hearts: Math.max(0, Math.min(10, Math.round(v / 10))), tier: tier };
+    };
+    // 真实天气核查结论（2026-11-27）：此刻作用域内真实天气来源是 AF 天气 app 的 Open-Meteo 缓存 af_weather_cache_v1
+    // （js/28 AFWeather.saveCache 写入，锁屏天气 js/00 refreshLockWeather 也读它；新鲜度与锁屏同一口径：6 小时内）。
+    // phone_weather_v1 全仓无写入方，读不到，不用。无缓存或过期就不显示天气，只显示季节，绝不编。
+    const CK_HUB_WMO = { 0: '晴', 1: '大致晴', 2: '多云', 3: '阴', 45: '雾', 48: '雾凇', 51: '毛毛雨', 53: '毛毛雨', 55: '毛毛雨', 56: '冻毛毛雨', 57: '冻毛毛雨', 61: '小雨', 63: '雨', 65: '大雨', 66: '冻雨', 67: '冻雨', 71: '小雪', 73: '雪', 75: '大雪', 77: '雪粒', 80: '阵雨', 81: '阵雨', 82: '暴雨', 85: '阵雪', 86: '阵雪', 95: '雷阵雨', 96: '冰雹雷雨', 99: '冰雹雷雨' };
+    const ckHubWeather = () => {
+        try {
+            let raw = null;
+            try { raw = JSON.parse(localStorage.getItem('af_weather_cache_v1') || 'null'); } catch (e) {}
+            if (!raw || typeof raw.temp !== 'number') { try { raw = JSON.parse(localStorage.getItem('phone_weather_v1') || 'null'); } catch (e) {} }
+            if (!raw || typeof raw.temp !== 'number' || !raw.fetchedAt) return null;
+            if (Date.now() - raw.fetchedAt > 6 * 3600 * 1000) return null;
+            let label = '';
+            try { if (window.AFWeather && typeof window.AFWeather.wmoText === 'function') label = window.AFWeather.wmoText(raw.code); } catch (e) {}
+            if (!label) label = CK_HUB_WMO[raw.code] || '未知天气';
+            const code = Number(raw.code);
+            const icon = (code === 0 || code === 1) ? 'sun' : ([71, 73, 75, 77, 85, 86].indexOf(code) !== -1) ? 'snow' : ((code >= 51 && code <= 57) || [61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].indexOf(code) !== -1) ? 'rain' : 'cloud';
+            return { label: label, temp: Math.round(raw.temp), icon: icon };
+        } catch (e) { return null; }
+    };
+    // 真实计数：记忆树 = guichao.memories.v1 总条数；花园 = 已种下且记忆仍在的株数；信件箱 = cike_album_v1 总数，未读 = 总数 - 已读标记
+    const CK_HUB_SEEN_KEY = 'ck_hub_seen_v1';
+    const ckHubCounts = () => {
+        let mems = []; try { mems = JSON.parse(localStorage.getItem('guichao.memories.v1') || '[]') || []; } catch (e) { mems = []; }
+        if (!Array.isArray(mems)) mems = [];
+        let planted = 0;
+        try {
+            const g = JSON.parse(localStorage.getItem('gv_garden_v1') || 'null');
+            const ids = {}; mems.forEach((mm) => { if (mm && mm.id) ids[mm.id] = 1; });
+            if (g && g.plants) Object.keys(g.plants).forEach((k) => { if (ids[k]) planted++; });
+        } catch (e) {}
+        let album = []; try { album = JSON.parse(localStorage.getItem('cike_album_v1') || '[]') || []; } catch (e) { album = []; }
+        if (!Array.isArray(album)) album = [];
+        let seen = 0;
+        try { const s = JSON.parse(localStorage.getItem(CK_HUB_SEEN_KEY) || 'null'); if (s && typeof s.album === 'number') seen = s.album; } catch (e) {}
+        return { mems: mems.length, planted: planted, album: album.length, unread: Math.max(0, album.length - seen) };
+    };
+    const ckHubMarkAlbumSeen = (n) => { try { localStorage.setItem(CK_HUB_SEEN_KEY, JSON.stringify({ album: n, at: Date.now() })); } catch (e) {} };
+    // 像素小图标（代码现画）：天气 / 季节
+    const ckHubWxIcon = (icon) => {
+        if (icon === 'sun') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="4" y="4" width="4" height="4" fill="#e8c96a"/><rect x="5" y="1" width="2" height="2" fill="#e8c96a"/><rect x="5" y="9" width="2" height="2" fill="#e8c96a"/><rect x="1" y="5" width="2" height="2" fill="#e8c96a"/><rect x="9" y="5" width="2" height="2" fill="#e8c96a"/></svg>';
+        if (icon === 'rain') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="2" y="2" width="8" height="4" fill="#fffdf8"/><rect x="4" y="1" width="4" height="1" fill="#fffdf8"/><rect x="3" y="8" width="1" height="2" fill="#7aa8c9"/><rect x="6" y="8" width="1" height="2" fill="#7aa8c9"/><rect x="9" y="8" width="1" height="2" fill="#7aa8c9"/></svg>';
+        if (icon === 'snow') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="2" y="2" width="8" height="4" fill="#fffdf8"/><rect x="4" y="1" width="4" height="1" fill="#fffdf8"/><rect x="3" y="8" width="2" height="2" fill="#bfc8e0"/><rect x="7" y="8" width="2" height="2" fill="#bfc8e0"/></svg>';
+        return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="2" y="3" width="8" height="4" fill="#fffdf8"/><rect x="4" y="2" width="4" height="1" fill="#fffdf8"/><rect x="1" y="7" width="10" height="2" fill="#dce2f1"/></svg>';
+    };
+    const ckHubSeasonIcon = (key) => {
+        if (key === 'spring') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="5" width="2" height="2" fill="#e8c96a"/><rect x="5" y="2" width="2" height="2" fill="#e8c9d0"/><rect x="5" y="8" width="2" height="2" fill="#e8c9d0"/><rect x="2" y="5" width="2" height="2" fill="#e8c9d0"/><rect x="8" y="5" width="2" height="2" fill="#e8c9d0"/></svg>';
+        if (key === 'summer') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#4e8a3e"/><rect x="3" y="3" width="6" height="2" fill="#6a9a5a"/><rect x="2" y="5" width="8" height="2" fill="#6a9a5a"/><rect x="4" y="7" width="4" height="2" fill="#5b8c5a"/></svg>';
+        if (key === 'autumn') return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#c96a2e"/><rect x="3" y="3" width="6" height="2" fill="#d8722e"/><rect x="2" y="5" width="8" height="2" fill="#b5541e"/><rect x="4" y="7" width="4" height="2" fill="#d8722e"/></svg>';
+        return '<svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges"><rect x="5" y="1" width="2" height="10" fill="#bfc8e0"/><rect x="1" y="5" width="10" height="2" fill="#bfc8e0"/><rect x="3" y="3" width="2" height="2" fill="#dce2f1"/><rect x="7" y="7" width="2" height="2" fill="#dce2f1"/></svg>';
+    };
+    // 像素红心（7×6 格，代码现画；空心不涂满）
+    const ckHubHeartSVG = (filled) => '<svg viewBox="0 0 7 6" width="11" height="10" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="2" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="4" y="0" width="2" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="0" y="1" width="7" height="2" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="1" y="3" width="5" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="2" y="4" width="3" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/><rect x="3" y="5" width="1" height="1" fill="' + (filled ? '#d96a7a' : '#e8d5b5') + '"/></svg>';
+    // HUD（星露谷右上堆叠的手机改法：叠在场景头右上角的一组小盒；日期 / 天气+季节 / 表盘+数字时间 / 有新信才出现的 !）
+    const ckHubHudHTML = () => {
         const n = new Date();
-        const m = n.getMonth() + 1;
-        const season = (m >= 3 && m <= 5) ? '春季' : (m >= 6 && m <= 8) ? '夏季' : (m >= 9 && m <= 11) ? '秋季' : '冬季';
-        const h = n.getHours();
-        const phase = (h >= 6 && h < 17) ? '白天' : (h >= 17 && h < 19) ? '黄昏' : '夜晚';
+        const season = ckHubSeasonOf(n);
         const w = ['日', '一', '二', '三', '四', '五', '六'][n.getDay()];
-        return '<span>' + n.getFullYear() + '年' + m + '月' + n.getDate() + '日 周' + w + '</span><span>' + season + ' · ' + phase + '</span>';
+        const h = n.getHours(), mi = n.getMinutes();
+        const phase = ckHubPhaseOf(h);
+        const wx = ckHubWeather();
+        const unread = ckHubCounts().unread;
+        const ha = (h % 12 + mi / 60) * 30, ma = mi * 6;
+        const hx = (11 + 5 * Math.sin(ha * Math.PI / 180)).toFixed(1), hy = (11 - 5 * Math.cos(ha * Math.PI / 180)).toFixed(1);
+        const mx = (11 + 7 * Math.sin(ma * Math.PI / 180)).toFixed(1), my = (11 - 7 * Math.cos(ma * Math.PI / 180)).toFixed(1);
+        const pad2 = (x) => (x < 10 ? '0' + x : '' + x);
+        return '<div class="ck-hud-box ck-hud-date"><span>' + (n.getMonth() + 1) + '月' + n.getDate() + '日</span><span>周' + w + '</span></div>'
+            + '<div class="ck-hud-box ck-hud-wx">' + (wx ? ckHubWxIcon(wx.icon) + '<span>' + wx.label + ' ' + wx.temp + '°</span><i class="ck-hud-sep"></i>' : '') + ckHubSeasonIcon(season.key) + '<span>' + season.cn + '</span></div>'
+            + '<div class="ck-hud-box ck-hud-time"><svg class="ck-hud-dial" viewBox="0 0 22 22" width="18" height="18" shape-rendering="crispEdges"><circle cx="11" cy="11" r="10" fill="#fdf6e3" stroke="#56160c" stroke-width="1"/><line x1="11" y1="11" x2="' + hx + '" y2="' + hy + '" stroke="#56160c" stroke-width="2"/><line x1="11" y1="11" x2="' + mx + '" y2="' + my + '" stroke="#56160c" stroke-width="1"/><circle cx="11" cy="11" r="1" fill="#56160c"/></svg><span class="ck-px">' + pad2(h) + ':' + pad2(mi) + '</span><span>' + phase.cn + '</span></div>'
+            + (unread > 0 ? '<button type="button" class="ck-hud-box ck-hud-alert" id="ck-hud-alert" title="有 ' + unread + ' 封未读新信，点开进信件箱">!</button>' : '');
+    };
+    // 头像对话栏（头像用手机现有的自绘角色形象 avatarHtml，绝不用星露谷村民头像；状态与心情来自真实模拟数据）
+    const ckHubTalkHTML = () => {
+        const sim = ckHubSimNow();
+        const af = ckHubAffection();
+        let hearts = '';
+        for (let i = 0; i < 10; i++) hearts += ckHubHeartSVG(i < af.hearts);
+        const status = sim.ok ? (sim.text + (sim.moodWord ? ' ' + sim.moodWord : '') + (sim.isDefault ? '（默认日程）' : '')) : '今天还没看到他的动态';
+        return '<div class="ck-hub-av">' + avatarHtml(curRole) + '</div>'
+            + '<div class="ck-hub-talk-tx"><div class="ck-hub-talk-nm">' + ckEsc(curRole || 'TA') + '</div>'
+            + '<div class="ck-hub-talk-st">' + ckEsc(status) + '</div>'
+            + '<div class="ck-hub-hearts" title="好感 ' + af.value + '/100 · ' + af.tier + '">' + hearts + '<span class="ck-hub-tier">' + af.tier + '</span></div></div>';
+    };
+    // 格子右下角数字角标（背包数量角标做法）：有真实数才压，0 条不压，不编数
+    const ckHubBadgeHTML = (which) => {
+        const c = ckHubCounts();
+        const n = which === 'memtree' ? c.mems : c.planted;
+        if (n <= 0) return '';
+        return '<span class="ck-hub-badge ck-px" id="ck-hub-badge-' + which + '">' + n + '</span>';
+    };
+    // 农场场景头（360×120 代码画 SVG 矩形像素画）：分季节换色 + 小人姿态随真实模拟状态变 + 手机自己的橘猫
+    const ckHubFarmSVG = () => {
+        const season = CK_HUB_SEASONS[ckHubSeasonOf(new Date()).key];
+        const sim = ckHubSimNow();
+        const act = sim.ok ? ((sim.place || '') + ' ' + (sim.activity || '')) : '';
+        const pose = (/吃|饭|面|咖啡|早餐|午餐|晚餐|喝/.test(act)) ? 'eat' : (/写|读|书|信|看/.test(act)) ? 'read' : (/散步|走路|去|出门|跑步|逛/.test(act)) ? 'walk' : 'stand';
+        const isWinter = season.key === 'winter';
+        const roofCol = isWinter ? '#fbf9f4' : '#b5541e';
+        const winCol = isWinter ? '#ffd76e' : '#5b6b8a';
+        const tree = isWinter
+            ? '<g class="ck-sv-tree"><rect x="24" y="52" width="8" height="28" fill="#6b4226"/><rect x="16" y="44" width="8" height="4" fill="#6b4226"/><rect x="32" y="40" width="8" height="4" fill="#6b4226"/><rect x="28" y="34" width="4" height="8" fill="#6b4226"/></g>'
+            : '<g class="ck-sv-tree"><rect x="14" y="36" width="36" height="16" fill="' + season.tree + '"/><rect x="20" y="28" width="24" height="8" fill="' + season.treeDark + '"/><rect x="24" y="52" width="8" height="28" fill="#6b4226"/></g>';
+        const house = '<g class="ck-sv-house">'
+            + '<rect x="108" y="38" width="8" height="12" fill="#8a5a2e"/>'
+            + '<rect x="74" y="44" width="32" height="4" fill="' + roofCol + '"/><rect x="66" y="48" width="48" height="4" fill="' + roofCol + '"/><rect x="58" y="52" width="64" height="4" fill="' + roofCol + '"/>'
+            + '<rect x="58" y="56" width="64" height="24" fill="#e8b478"/>'
+            + '<rect x="64" y="60" width="12" height="10" fill="' + winCol + '"/><rect x="64" y="60" width="12" height="2" fill="#7a4a28"/><rect x="69" y="60" width="2" height="10" fill="#7a4a28"/>'
+            + '<rect x="88" y="64" width="12" height="16" fill="#7a4a28"/></g>';
+        const fencePosts = [0, 40, 130, 190, 235, 280, 325].map((x) => '<rect x="' + x + '" y="66" width="6" height="14" fill="#6b4226"/>').join('');
+        const fence = '<g class="ck-sv-fence"><rect x="0" y="68" width="360" height="3" fill="#8a5a2e"/><rect x="0" y="75" width="360" height="3" fill="#8a5a2e"/>' + fencePosts + '</g>';
+        const furrows = '<g class="ck-sv-furrows">' + [89, 98, 107, 115].map((y) => '<rect x="0" y="' + y + '" width="360" height="2" fill="' + season.furrow + '"/>').join('') + '</g>';
+        let crops = '<g class="ck-sv-crops">';
+        [84, 93, 102, 111].forEach((y, ri) => { [14, 54, 94, 134, 174, 214, 254, 294, 334].forEach((x, ci) => { crops += '<rect x="' + x + '" y="' + y + '" width="6" height="5" fill="' + (((ri + ci) % 2 === 0) ? season.cropA : season.cropB) + '"/>'; }); });
+        crops += '</g>';
+        const cat = '<g class="ck-sv-cat"><rect x="248" y="108" width="16" height="12" fill="#e08a3c"/><rect x="250" y="100" width="12" height="10" fill="#e08a3c"/><rect x="250" y="96" width="4" height="4" fill="#e08a3c"/><rect x="258" y="96" width="4" height="4" fill="#e08a3c"/><rect x="264" y="100" width="4" height="12" fill="#c96a2e"/><rect x="252" y="104" width="2" height="2" fill="#2b2b2b"/><rect x="257" y="104" width="2" height="2" fill="#2b2b2b"/></g>';
+        const bx = pose === 'walk' ? 184 : 168;
+        let man = '<g class="ck-sv-man">'
+            + '<rect x="' + (bx - 8) + '" y="86" width="28" height="5" fill="#e8c96a"/><rect x="' + (bx - 2) + '" y="79" width="16" height="7" fill="#e8c96a"/><rect x="' + (bx - 2) + '" y="83" width="16" height="3" fill="#c9a227"/>'
+            + '<rect x="' + bx + '" y="91" width="12" height="10" fill="#ffe3c4"/><rect x="' + (bx + 2) + '" y="95" width="2" height="2" fill="#2b2b2b"/><rect x="' + (bx + 8) + '" y="95" width="2" height="2" fill="#2b2b2b"/>'
+            + '<rect x="' + (bx - 3) + '" y="101" width="18" height="12" fill="#7aa8c9"/>';
+        if (pose === 'walk') man += '<rect x="' + (bx - 1) + '" y="113" width="6" height="7" fill="#3a3a3a"/><rect x="' + (bx + 7) + '" y="115" width="6" height="5" fill="#3a3a3a"/>';
+        else man += '<rect x="' + (bx - 1) + '" y="113" width="6" height="7" fill="#3a3a3a"/><rect x="' + (bx + 7) + '" y="113" width="6" height="7" fill="#3a3a3a"/>';
+        if (pose === 'eat') man += '<rect x="' + (bx + 15) + '" y="104" width="9" height="6" fill="#f5deb3"/><rect x="' + (bx + 15) + '" y="104" width="9" height="2" fill="#d96a7a"/>';
+        if (pose === 'read') man += '<rect x="' + (bx + 15) + '" y="103" width="10" height="9" fill="#fffdf8"/><rect x="' + (bx + 19) + '" y="103" width="1" height="9" fill="#bfc8e0"/>';
+        man += '</g>';
+        return '<svg class="ck-sv-scene" viewBox="0 0 360 120" shape-rendering="crispEdges" data-season="' + season.key + '" data-pose="' + pose + '" aria-hidden="true">'
+            + '<rect width="360" height="120" fill="' + season.sky + '"/>'
+            + '<rect x="196" y="8" width="24" height="24" fill="' + season.sun + '"/><rect x="200" y="4" width="16" height="4" fill="' + season.sun + '"/><rect x="200" y="32" width="16" height="4" fill="' + season.sun + '"/><rect x="192" y="12" width="4" height="16" fill="' + season.sun + '"/><rect x="220" y="12" width="4" height="16" fill="' + season.sun + '"/>'
+            + '<rect x="84" y="12" width="40" height="8" fill="' + season.cloud + '"/><rect x="92" y="8" width="24" height="4" fill="' + season.cloud + '"/>'
+            + '<rect x="140" y="24" width="36" height="8" fill="' + season.cloud + '"/><rect x="148" y="20" width="20" height="4" fill="' + season.cloud + '"/>'
+            + '<rect x="0" y="56" width="360" height="12" fill="' + season.hillFar + '"/><rect x="0" y="62" width="360" height="18" fill="' + season.hillNear + '"/>'
+            + house + tree + fence
+            + '<rect x="0" y="80" width="360" height="40" fill="' + season.field + '"/>'
+            + furrows + crops + cat + man
+            + '</svg>';
     };
 
     const renderView = () => `
@@ -25379,19 +25528,55 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 .ck-tl-date { font-size:11px; font-weight:800; color:#1e2748;}
 .ck-tl-place { font-size:10px; color:#46536f; line-height:1.35; margin-top:1px; min-height:26px;}
 .ck-tl-sample { font-size:8px; color:#b45309; background:#fef3c7; border-radius:6px; padding:0 4px;}
-/* ── 星露谷风 Hub：农场场景头 + 2 列木质像素按钮（仅此刻 app，ck-hub-/ck-sv- 作用域）── */
-.ck-hub-farm { display:block; width:100%; box-sizing:border-box; margin:2px 0 12px; padding:0 0 8px; background:#fbf3df; border:2px solid #7a4a28; border-radius:4px; box-shadow:0 3px 0 #6b4226, 0 8px 18px rgba(90,50,20,.18); cursor:pointer; overflow:hidden; }
-.ck-hub-farm:active { transform:translateY(2px); box-shadow:0 1px 0 #6b4226, 0 4px 10px rgba(90,50,20,.16); }
+/* ── 星露谷风 Hub：阶梯木框 + 缺角 + 米色纸 + 李色字（仅此刻 app，ck-hub-/ck-hud-/ck-sv- 作用域）── */
+/* 色板可信度：A 档（对话底 #F5DEB3 / 字体棕 #56160C / 金 #DAA520 / 淡金 #EEE8AA，社区整理自源码，非官方发布，仅作区间）
+   + B 档面板区间（木框 #FFC878→#F8BA70→#EBA867 / 正文 #331F28，粉丝复刻，非官方）。
+   蓝色：星露谷无统一蓝色按钮色值；深蓝描边 #34327A（Joja 蓝）+ 浅蓝填充 #ADD8E6（Bundle 蓝）取自 A 档区间，
+   此处为推断、非原样复刻（见调研报告 §1.3/§1.9）。不用渐变、不用模糊、不用柔和阴影、不用玻璃拟态。 */
+/* 拉丁字母/数字小标题像素字体：Press Start 2P / VT323（index.html 里 Google Fonts CDN 引入，离线回落系统等宽字体；中文仍用系统中文，不套像素英文字体） */
+.ck-px { font-family:'Press Start 2P','VT323',ui-monospace,Menlo,monospace; }
+.ck-hub-scene-wrap { position:relative; margin:2px 0 10px; }
+.ck-hub-farm { display:block; width:100%; box-sizing:border-box; margin:0; padding:0 0 8px; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 6px #f8c878, inset 0 0 0 8px #a86a2e; clip-path:polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px); cursor:pointer; overflow:hidden; }
+.ck-hub-farm:active { transform:translateY(2px); box-shadow:inset 0 0 0 4px #c97a2e, inset 0 0 0 6px #e8a04c, inset 0 0 0 8px #8a5a2e; }
 .ck-hub-farm .ck-sv-scene { display:block; width:100%; height:auto; }
-.ck-hub-farm-info { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:8px 10px 0; font-size:12px; color:#5b3a1e; font-weight:700; }
-.ck-hub-farm-hint { padding:2px 10px 0; font-size:10px; color:#a08a7a; text-align:left; }
+.ck-hub-farm-scene { display:block; }
+.ck-hub-farm-hint { display:inline-block; margin:6px 0 0 10px; padding:3px 8px; font-size:10px; color:#34327a; background:#add8e6; border:2px solid #34327a; }
+.ck-hud { position:absolute; top:6px; right:6px; display:flex; flex-direction:column; align-items:flex-end; gap:4px; z-index:2; }
+.ck-hud-box { box-sizing:border-box; font-family:inherit; background:#f5deb3; border:1px solid #331f28; box-shadow:inset 0 0 0 2px #e8a04c; padding:2px 5px; font-size:10px; line-height:1.5; color:#56160c; font-weight:700; text-align:right; }
+.ck-hud-date { display:flex; gap:6px; }
+.ck-hud-wx { display:flex; align-items:center; gap:4px; }
+.ck-hud-wx svg { display:block; }
+.ck-hud-sep { width:1px; height:12px; background:#a86a2e; }
+.ck-hud-time { display:flex; align-items:center; gap:5px; }
+.ck-hud-dial { display:block; }
+.ck-hud-time .ck-px { font-size:11px; }
+.ck-hud-alert { cursor:pointer; min-width:22px; min-height:22px; padding:0 6px; font-size:14px; font-weight:800; color:#56160c; background:#daa520; animation:ck-hud-blink 1s steps(1,end) infinite; }
+@keyframes ck-hud-blink { 0%,49% { background:#daa520; } 50%,100% { background:#f5deb3; } }
+.ck-hub-talk { display:flex; gap:10px; align-items:flex-start; box-sizing:border-box; margin:0 0 10px; padding:8px 10px; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 4px #e8a04c, inset 0 0 0 6px #f8c878; clip-path:polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); cursor:pointer; }
+.ck-hub-talk:active { transform:translateY(2px); }
+.ck-hub-av { width:44px; height:44px; flex-shrink:0; border:2px solid #7a4a28; box-shadow:inset 0 0 0 2px #f8c878; background:#fdf6e3; overflow:hidden; }
+.ck-hub-av img { width:100%; height:100%; object-fit:cover; display:block; }
+.ck-hub-talk-tx { flex:1; min-width:0; }
+.ck-hub-talk-nm { font-size:13px; font-weight:800; color:#56160c; }
+.ck-hub-talk-st { font-size:12px; line-height:1.5; color:#331f28; margin-top:1px; }
+.ck-hub-hearts { display:flex; align-items:center; gap:1px; margin-top:3px; }
+.ck-hub-hearts svg { display:block; }
+.ck-hub-tier { margin-left:6px; font-size:11px; font-weight:700; color:#56160c; }
 .ck-hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.ck-hub-btn { display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 8px 10px; background:linear-gradient(180deg,#fdf6e3,#f7ead0); border:2px solid #7a4a28; border-radius:4px; box-shadow:inset 0 0 0 2px #fffdf8, inset 0 -4px 0 rgba(122,74,40,.14), 0 3px 0 #6b4226, 0 6px 14px rgba(90,50,20,.16); cursor:pointer; text-align:center; }
-.ck-hub-btn:active { transform:translateY(2px); box-shadow:inset 0 0 0 2px #fffdf8, inset 0 -2px 0 rgba(122,74,40,.14), 0 1px 0 #6b4226, 0 3px 8px rgba(90,50,20,.14); }
+.ck-hub-btn { position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 8px 10px; background:#f5deb3; border:2px solid #331f28; box-shadow:inset 0 0 0 3px #e8a04c, inset 0 0 0 4px #f8c878; clip-path:polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); cursor:pointer; text-align:center; }
+.ck-hub-btn:active { transform:translateY(2px); box-shadow:inset 0 0 0 3px #c97a2e, inset 0 0 0 4px #e8a04c; }
+.ck-hub-btn-main { background:#e8a04c; }
+.ck-hub-btn-main::before, .ck-hub-btn-main::after { content:''; position:absolute; left:8px; right:8px; height:2px; background:#a86a2e; }
+.ck-hub-btn-main::before { top:5px; }
+.ck-hub-btn-main::after { bottom:5px; }
+.ck-hub-nail { position:absolute; top:8px; width:4px; height:4px; background:#5b3a1e; }
+.ck-hub-nail.nl { left:8px; }
+.ck-hub-nail.nr { right:8px; }
 .ck-hub-ico { width:40px; height:40px; }
 .ck-hub-ico svg { width:40px; height:40px; display:block; }
-.ck-hub-nm { font-size:15px; font-weight:800; color:#5b3a1e; letter-spacing:1px; }
-.ck-hub-sub { font-size:10px; color:#a08a7a; line-height:1.4; }
+.ck-hub-nm { font-size:15px; font-weight:800; color:#56160c; letter-spacing:1px; }
+.ck-hub-sub { font-size:10px; color:#6e4a35; line-height:1.4; }
+.ck-hub-badge { position:absolute; right:5px; bottom:5px; min-width:16px; height:16px; padding:0 3px; box-sizing:border-box; background:#daa520; border:1px solid #56160c; color:#56160c; font-size:11px; font-weight:700; line-height:15px; text-align:center; }
         .gm-memtree { background:rgba(255,255,255,.82); border-radius:18px; padding:12px 14px; box-shadow:0 8px 24px rgba(160,110,80,.14), 0 0 0 1px rgba(255,255,255,.9); }
         .gm-mt-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
         .gm-mt-head span:first-child { font-size:15px; font-weight:800; color:#3a1e14; }
@@ -25428,21 +25613,24 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             </div>
         </div>
 
-        <div class="ck-hub-farm" id="ck-hub-farm" role="button" title="进入小世界">
-            ${CK_HUB_FARM_SVG}
-            <div class="ck-hub-farm-info">${ckHubFarmInfo()}</div>
-            <div class="ck-hub-farm-hint">点场景进入小世界 · 看看 TA 的立体书</div>
+        <div class="ck-hub-scene-wrap">
+            <div class="ck-hub-farm" id="ck-hub-farm" role="button" title="进入小世界">
+                <span class="ck-hub-farm-scene" id="ck-hub-farm-scene">${ckHubFarmSVG()}</span>
+                <div class="ck-hub-farm-hint">点场景进入小世界 · 看看 TA 的立体书</div>
+            </div>
+            <div class="ck-hud" id="ck-hud">${ckHubHudHTML()}</div>
         </div>
+        <div class="ck-hub-talk" id="ck-hub-talk" role="button" title="看看他的一天">${ckHubTalkHTML()}</div>
         <div class="ck-hub-grid">
-            <div class="ck-hub-btn" id="ck-hub-simday" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.simday}</span><span class="ck-hub-nm">他的一天</span><span class="ck-hub-sub">看看他今天在干嘛</span></div>
+            <div class="ck-hub-btn ck-hub-btn-main" id="ck-hub-simday" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.simday}</span><span class="ck-hub-nm">他的一天</span><span class="ck-hub-sub">看看他今天在干嘛</span></div>
             <div class="ck-hub-btn" id="ck-hub-beside" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.beside}</span><span class="ck-hub-nm">日记</span><span class="ck-hub-sub">写给他的手写日记</span></div>
             <div class="ck-hub-btn" id="ck-hub-photo" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.photo}</span><span class="ck-hub-nm">查手机</span><span class="ck-hub-sub">看看他手机里有什么</span></div>
             <div class="ck-hub-btn" id="ck-hub-inner" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.inner}</span><span class="ck-hub-nm">她在干嘛</span><span class="ck-hub-sub">他的内心小世界</span></div>
             <div class="ck-hub-btn" id="ck-hub-trip" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.trip}</span><span class="ck-hub-nm">相遇</span><span class="ck-hub-sub">和他线下见一面</span></div>
             <!-- 信件箱按钮保留 id="ck-album-btn"：js/33 写信过程“去信件箱打开原信”靠这个 id 定位 -->
             <div class="ck-hub-btn" id="ck-album-btn" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.album}</span><span class="ck-hub-nm">信件箱</span><span class="ck-hub-sub">他寄来的信都在这</span></div>
-            <div class="ck-hub-btn" id="ck-hub-memtree" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.memtree}</span><span class="ck-hub-nm">记忆树</span><span class="ck-hub-sub">每天的记忆挂成木牌</span></div>
-            <div class="ck-hub-btn" id="ck-hub-garden" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.garden}</span><span class="ck-hub-nm">记忆花园</span><span class="ck-hub-sub">把记忆种成花</span></div>
+            <div class="ck-hub-btn" id="ck-hub-memtree" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.memtree}</span><span class="ck-hub-nm">记忆树</span><span class="ck-hub-sub">每天的记忆挂成木牌</span>${ckHubBadgeHTML('memtree')}</div>
+            <div class="ck-hub-btn" id="ck-hub-garden" role="button"><span class="ck-hub-ico">${CK_HUB_ICONS.garden}</span><span class="ck-hub-nm">记忆花园</span><span class="ck-hub-sub">把记忆种成花</span>${ckHubBadgeHTML('garden')}</div>
         </div>
         <div class="ck-sub" id="ck-simday">
             <div class="ck-sub-back" id="ck-simday-back">
@@ -25642,6 +25830,26 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             // 关掉所有此刻子页面（#ck-sub / #ck-album / 4 个 Hub 新页）
             const closeAllCkSubs = () => { win.querySelectorAll('.ck-sub').forEach(el => el.classList.remove('show')); };
 
+            // ── Hub 做细（2026-11-27，星露谷对照）：HUD / 对话栏 / 场景头 / 角标的原地刷新 ──
+            // 模板只在 mount 时画一次；回 Hub、换角色、收信、时间流逝后都要重画动态部分，刷新集中在这里一份实现。
+            const ckHubSyncBadge = (which, btnId) => {
+                const btn = win.querySelector('#' + btnId); if (!btn) return;
+                const c = ckHubCounts(); const n = which === 'memtree' ? c.mems : c.planted;
+                let el = win.querySelector('#ck-hub-badge-' + which);
+                if (n <= 0) { if (el) el.remove(); return; }
+                if (!el) btn.insertAdjacentHTML('beforeend', ckHubBadgeHTML(which));
+                else el.textContent = String(n);
+            };
+            const ckHubRefresh = () => {
+                const hud = win.querySelector('#ck-hud'); if (hud) hud.innerHTML = ckHubHudHTML();
+                const talk = win.querySelector('#ck-hub-talk'); if (talk) talk.innerHTML = ckHubTalkHTML();
+                const scene = win.querySelector('#ck-hub-farm-scene'); if (scene) scene.innerHTML = ckHubFarmSVG();
+                const alertBtn = win.querySelector('#ck-hud-alert');
+                if (alertBtn) alertBtn.addEventListener('click', (e) => { e.stopPropagation(); openAlbum(); });
+                ckHubSyncBadge('memtree', 'ck-hub-memtree');
+                ckHubSyncBadge('garden', 'ck-hub-garden');
+            };
+
             const refreshRole = () => {
                 win.querySelector('#ck-role-nm').textContent = curRole || 'TA';
                 win.querySelector('#ck-role-av').innerHTML = avatarHtml(curRole);
@@ -25665,6 +25873,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                     win.querySelector('#ck-sub-av').innerHTML = avatarHtml(curRole);
                     renderSub(sub._openedMod);
                 }
+                // 2026-11-27 Hub 做细：换角色后 Hub 对话栏头像/名字/好感也要换
+                try { ckHubRefresh(); } catch (e) {}
             };
 
             // P0 修复：懒查询系统返回按钮，用 MutationObserver 自动同步显隐
@@ -27007,6 +27217,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 const albumAv = win.querySelector('#ck-album-av');
                 if (albumAv) albumAv.innerHTML = avatarHtml(curRole);
                 const list = getAlbum(); // index 0 = 最新
+                // 2026-11-27 Hub 做细：打开信件箱即视为已读，HUD 的 ! 随之消失（ck_hub_seen_v1 只记已读信数）
+                try { ckHubMarkAlbumSeen(list.length); ckHubRefresh(); } catch (e) {}
                 const settingsBtn = win.querySelector('#ck-diary-settings-btn');
                 if (settingsBtn) settingsBtn.style.display = 'none';
 
@@ -27154,6 +27366,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             // ── Hub 按钮：#ck-album-btn 的 id 现在长在 Hub 信件箱按钮上（js/33 写信过程“去信件箱打开原信”靠它定位），绑定行不动 ──
             win.querySelector('#ck-album-btn')?.addEventListener('click', openAlbum);
             win.querySelector('#ck-hub-farm')?.addEventListener('click', openDiorama);
+            win.querySelector('#ck-hub-talk')?.addEventListener('click', openSimday);
             win.querySelector('#ck-hub-simday')?.addEventListener('click', openSimday);
             win.querySelector('#ck-hub-beside')?.addEventListener('click', () => openSub('beside'));
             win.querySelector('#ck-hub-photo')?.addEventListener('click', () => openSub('photo'));
@@ -27167,13 +27380,16 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 win.addEventListener('ck-open-sub', (e) => { if (e.detail && MODULES[e.detail]) openSub(e.detail); });
             }
 
-            // ── 返回按钮绑定 ──
-            win.querySelector('#ck-sub-back')?.addEventListener('click', () => sub?.classList.remove('show'));
-            win.querySelector('#ck-album-back')?.addEventListener('click', () => album?.classList.remove('show'));
-            win.querySelector('#ck-simday-back')?.addEventListener('click', () => simday?.classList.remove('show'));
-            win.querySelector('#ck-memtree-back')?.addEventListener('click', () => memtreePage?.classList.remove('show'));
-            win.querySelector('#ck-garden-back')?.addEventListener('click', () => gardenPage?.classList.remove('show'));
-            win.querySelector('#ck-diorama-back')?.addEventListener('click', () => diorama?.classList.remove('show'));
+            // ── 返回按钮绑定（回 Hub 时重画 HUD / 对话栏 / 场景 / 角标）──
+            win.querySelector('#ck-sub-back')?.addEventListener('click', () => { sub?.classList.remove('show'); try { ckHubRefresh(); } catch (e) {} });
+            win.querySelector('#ck-album-back')?.addEventListener('click', () => { album?.classList.remove('show'); try { ckHubRefresh(); } catch (e) {} });
+            win.querySelector('#ck-simday-back')?.addEventListener('click', () => { simday?.classList.remove('show'); try { ckHubRefresh(); } catch (e) {} });
+            win.querySelector('#ck-memtree-back')?.addEventListener('click', () => { memtreePage?.classList.remove('show'); try { ckHubRefresh(); } catch (e) {} });
+            win.querySelector('#ck-garden-back')?.addEventListener('click', () => { gardenPage?.classList.remove('show'); try { ckHubRefresh(); } catch (e) {} });
+            win.querySelector('#ck-diorama-back')?.addEventListener('click', () => { diorama?.classList.remove('show'); try { ckHubRefresh(); } catch (e) {} });
+            // Hub 动态部分首画（模板已画过一次，这里补绑 ! 按钮并对齐最新数据）+ 每 60 秒只刷新时钟/日期/状态
+            ckHubRefresh();
+            if (!win._ckHubTimer) { win._ckHubTimer = setInterval(() => { try { if (win.document.getElementById('ck-hub-farm')) ckHubRefresh(); } catch (e) {} }, 60000); }
 
             initPopBook();
         },
