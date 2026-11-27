@@ -33,15 +33,22 @@
 .bt-card-mood b{background:#f7f7f8;border:1px solid #ececef;border-radius:12px;padding:2px 10px;font-size:13px}
 .bt-card-reason{margin-top:10px;font-size:14px;line-height:1.8;background:#f7f7f8;border:1px solid #ececef;border-radius:12px;padding:10px 12px}
 .bt-card-extra{margin-top:10px;font-size:12px;color:#8a857e;line-height:1.8}
-.bt-settings{position:fixed;inset:0;z-index:99990;background:#f2f2f7;overflow-y:auto;color:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
-.bt-settings-bar{display:flex;align-items:center;gap:10px;padding:14px 14px 6px;position:sticky;top:0;background:#f2f2f7;z-index:2}
-.bt-settings-title{font-size:17px;font-weight:800}
-.bt-settings-body{padding:6px 14px 40px}
-.bt-set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;font-size:14px}
-.bt-set-sec{font-size:13px;font-weight:700;color:#8a857e;margin:16px 2px 8px}
-.bt-set-note{font-size:12px;color:#8a857e;line-height:1.7;margin:4px 2px 10px}
-.bt-settings details{background:#fff;border-radius:12px;padding:12px;font-size:12px;line-height:1.7;color:#555;margin-top:8px}
-.bt-settings summary{cursor:pointer;font-weight:700;font-size:13px}
+/* ── 已读不回设置浮层 ──
+   设置重构新基准：页底 #eef0f5、分组卡片圆角 10px、1px 边框、无阴影；
+   顶栏高 56px、页面标题 20px/600、分组标题 13px/600 墨色 60%、行高 56px、行主文字 17px；
+   浮层内按钮按 Secondary（#eef0f5 底墨字），按压不用缩放改用底色加深；动效 180ms ease-out。
+   本文件其余规则（.bt-seen-stamp/.bt-lock-*/.bt-panel*/.bt-card-*/.bt-toast 等）不属设置浮层，一律不动。 */
+.bt-settings{position:fixed;inset:0;z-index:99990;background:var(--st-paper-cool,#eef0f5);overflow-y:auto;color:var(--st-ink,#1e2748);font-family:"Noto Serif SC","PingFang SC",sans-serif}
+.bt-settings-bar{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;position:sticky;top:0;background:var(--st-paper-cool,#eef0f5);z-index:2}
+.bt-settings-title{font-size:20px;font-weight:600;line-height:1.25;color:var(--st-ink,#1e2748)}
+.bt-settings-body{padding:8px 16px 32px}
+.bt-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;box-sizing:border-box;background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-lg,10px);padding:12px 16px;margin-bottom:8px;font-size:17px;line-height:1.4;color:var(--st-ink,#1e2748)}
+.bt-set-sec{font-size:13px;font-weight:600;color:var(--st-ink-60,rgba(30,39,72,.6));margin:24px 16px 8px}
+.bt-set-note{font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin:8px 16px 24px}
+.bt-settings details{background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-lg,10px);padding:12px 16px;font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px}
+.bt-settings summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--st-ink,#1e2748)}
+.bt-settings .bt-btn{min-height:40px;padding:0 16px;border-radius:var(--st-radius-md,8px);background:var(--st-paper-cool,#eef0f5);color:var(--st-ink,#1e2748);border:1px solid var(--st-silver,#bfc8e0);font-size:17px;font-weight:500;transition:background-color .18s ease-out}
+.bt-settings .bt-btn:active{transform:none;background:var(--st-silver-light,#dce2f1)}
 .bt-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:8px 14px;border-radius:16px;font-size:13px;z-index:99999;display:none;max-width:86vw;text-align:center;line-height:1.6}
 .bt-toast.show{display:block}
 .bt-shake{animation:bt-shake.3s ease}

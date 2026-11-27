@@ -36,12 +36,16 @@ html[data-af-theme] .gd-card{background:var(--af-panel) !important;color:var(--a
 .af-duet-note{font-size:12px;color:#8a8580;line-height:1.6;}
 .af-duet-yt{margin-top:8px;}
 .af-duet-yt iframe{width:100%;height:220px;border:none;border-radius:10px;background:#000;}
-/* ── 1. 深色主题选择浮层 ── */
-#af-theme-chooser{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;}
-#af-theme-chooser .af-theme-sheet{width:100%;background:#f2f2f7;border-radius:14px 14px 0 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom,16px));}
-#af-theme-chooser .af-theme-opt{display:block;width:100%;background:#fff;border:none;border-bottom:1px solid #eee;padding:15px;font-size:16px;text-align:left;cursor:pointer;color:#1c1c1e;}
-#af-theme-chooser .af-theme-opt.af-cur{color:#007aff;font-weight:600;}
-#af-theme-chooser .af-theme-note{text-align:center;font-size:12px;color:#8e8e93;padding:10px 4px 2px;line-height:1.6;}
+/* ── 1. 深色主题选择浮层 ──
+   设置重构新基准：浮层遮罩墨色 40%、片圆角 10px、行高 56px、字阶 17/13/12；
+   深色主题本体的 .st-root 覆盖（上节 :24-25）只设底色/字色，无字阶可对齐，保持原样。 */
+#af-theme-chooser{position:fixed;inset:0;z-index:99999;background:var(--st-ink-40,rgba(30,39,72,.4));display:flex;align-items:flex-end;}
+#af-theme-chooser .af-theme-sheet{width:100%;background:var(--st-paper-cool,#eef0f5);border-radius:var(--st-radius-lg,10px) var(--st-radius-lg,10px) 0 0;padding:12px 12px calc(12px + env(safe-area-inset-bottom,16px));}
+#af-theme-chooser .af-theme-opt{display:block;width:100%;min-height:56px;background:var(--st-paper,#fffdf8);border:none;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));padding:12px 16px;font-size:17px;line-height:1.4;text-align:left;cursor:pointer;color:var(--st-ink,#1e2748);}
+#af-theme-chooser .af-theme-opt:last-child{border-bottom:none;}
+#af-theme-chooser .af-theme-opt.af-cur{color:var(--st-ink,#1e2748);font-weight:600;}
+#af-theme-chooser .af-cur-check{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-left:8px;color:var(--st-ink,#1e2748);}
+#af-theme-chooser .af-theme-note{text-align:center;font-size:12px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:8px 4px 4px;line-height:1.5;}
 /* ── 2. 天气实时块 ── */
 #af-weather-live .af-wx-src{font-size:12px;color:#8a8580;margin-top:6px;line-height:1.7;}
 #af-weather-live .af-wx-note{font-size:12px;color:#8a8580;margin-top:8px;line-height:1.7;}

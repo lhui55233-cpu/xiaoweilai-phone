@@ -41,39 +41,42 @@
   padding: 7px 6px; text-align: center; cursor: pointer; }
 .ac-dock-cell .ac-dock-k { font-size: 10px; color: #9a958f; }
 .ac-dock-cell .ac-dock-v { font-size: 12px; font-weight: 700; color: #25262a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* 商店浮层 */
-#ac-store-modal { position: fixed; inset: 0; background: rgba(20,20,40,.55); z-index: 9999; display: flex;
+/* 商店浮层
+   设置重构新基准：遮罩墨色 40%、卡片圆角 14px、1px 边框、唯一可用浮层阴影；
+   标题 20px/600、说明 13px 墨色 60%、商品卡圆角 10px、按钮只许 Primary/Secondary 两级；
+   本文件 1 处 linear-gradient（#sys-shell.ac-wall-anim 动画壁纸）已删，见文件末尾；
+   .ac-wheel 的 conic-gradient 是功能性色相选择器（不是装饰渐变），保留。 */
+#ac-store-modal { position: fixed; inset: 0; background: var(--st-ink-40,rgba(30,39,72,.4)); z-index: 9999; display: flex;
   align-items: flex-end; justify-content: center; }
-.ac-store-card { background: #fff; border-radius: 18px 18px 0 0; width: 100%; max-width: 430px; max-height: 86vh;
-  overflow-y: auto; padding: 16px 16px 24px; box-sizing: border-box; }
-.ac-store-title { font-size: 16px; font-weight: 800; color: #25262a; }
-.ac-store-sub { font-size: 12px; color: #8a857e; margin: 4px 0 12px; line-height: 1.6; }
-.ac-store-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.ac-store-item { border: 1px solid #ececef; border-radius: 12px; padding: 10px; }
-.ac-store-item .ac-si-ico { font-size: 22px; }
-.ac-store-item .ac-si-name { font-size: 13px; font-weight: 800; color: #25262a; margin-top: 4px; }
-.ac-store-item .ac-si-desc { font-size: 11px; color: #8a857e; line-height: 1.6; margin: 2px 0 8px; min-height: 34px; }
+.ac-store-card { background: var(--st-paper,#fffdf8); border: 1px solid var(--st-silver,#bfc8e0); border-radius: 14px 14px 0 0; width: 100%; max-width: 430px; max-height: 86vh;
+  overflow-y: auto; padding: 16px 16px 24px; box-sizing: border-box; box-shadow: var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12)); }
+.ac-store-title { font-size: 20px; font-weight: 600; line-height: 1.25; color: var(--st-ink,#1e2748); }
+.ac-store-sub { font-size: 13px; color: var(--st-ink-60,rgba(30,39,72,.6)); margin: 8px 0 16px; line-height: 1.5; }
+.ac-store-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ac-store-item { border: 1px solid var(--st-silver,#bfc8e0); border-radius: var(--st-radius-lg,10px); padding: 12px; background: var(--st-paper,#fffdf8); }
+.ac-store-item .ac-si-ico { font-size: 20px; }
+.ac-store-item .ac-si-name { font-size: 13px; font-weight: 600; color: var(--st-ink,#1e2748); margin-top: 4px; }
+.ac-store-item .ac-si-desc { font-size: 12px; color: var(--st-ink-60,rgba(30,39,72,.6)); line-height: 1.5; margin: 4px 0 8px; min-height: 32px; }
 .ac-store-item .ac-si-sizes { display: flex; gap: 4px; }
-.ac-store-item .ac-si-sizes button { flex: 1; border: 0; border-radius: 8px; background: #f0f0f2; font-size: 11px;
-  font-weight: 700; padding: 6px 0; cursor: pointer; color: #25262a; }
-.ac-store-item .ac-si-sizes button.ac-on { background: var(--ac-accent, #7a9cc6); color: #fff; }
-.ac-store-item .ac-si-state { font-size: 10px; color: #9a958f; margin-top: 6px; }
-.ac-store-sec { font-size: 13px; font-weight: 800; color: #25262a; margin: 16px 0 8px; }
+.ac-store-item .ac-si-sizes button { flex: 1; min-height: 32px; border: 0; border-radius: var(--st-radius-md,8px); background: var(--st-paper-cool,#eef0f5); font-size: 12px;
+  font-weight: 600; padding: 8px 0; cursor: pointer; color: var(--st-ink,#1e2748); }
+.ac-store-item .ac-si-sizes button.ac-on { background: var(--st-ink,#1e2748); color: var(--st-paper,#fffdf8); }
+.ac-store-item .ac-si-state { font-size: 12px; color: var(--st-ink-40,rgba(30,39,72,.4)); margin-top: 8px; }
+.ac-store-sec { font-size: 13px; font-weight: 600; color: var(--st-ink-60,rgba(30,39,72,.6)); margin: 16px 0 8px; }
 .ac-wheel { width: 148px; height: 148px; border-radius: 50%; margin: 0 auto; cursor: crosshair;
   background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); position: relative; }
 .ac-wheel::after { content: ''; position: absolute; inset: 34px; border-radius: 50%; background: #fff; }
 .ac-wheel-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,.35); z-index: 1; transform: translate(-50%,-50%); pointer-events: none; }
-.ac-hsl-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #55565c; margin-top: 8px; }
-.ac-hsl-row input[type="range"] { flex: 1; accent-color: var(--ac-accent, #7a9cc6); }
-.ac-preview { margin-top: 10px; border-radius: 12px; padding: 10px 12px; font-size: 12px; font-weight: 700; color: #fff;
+.ac-hsl-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--st-ink-60,rgba(30,39,72,.6)); margin-top: 8px; }
+.ac-hsl-row input[type="range"] { flex: 1; accent-color: var(--st-ink,#1e2748); }
+.ac-preview { margin-top: 12px; border-radius: var(--st-radius-lg,10px); padding: 12px; font-size: 12px; font-weight: 600; color: #fff;
   background: var(--ac-accent, #7a9cc6); }
 .ac-store-checks label { display: flex; justify-content: space-between; align-items: center; font-size: 13px;
-  color: #25262a; padding: 8px 0; border-bottom: 1px solid #f0f0f2; }
-.ac-store-close { width: 100%; border: 0; border-radius: 12px; background: #25262a; color: #fff; font-size: 14px;
-  font-weight: 700; padding: 11px 0; margin-top: 16px; cursor: pointer; }
-/* CSS 动画壁纸兜底：纯渐变流动，默认关闭，不改白色默认壁纸 */
-#sys-shell.ac-wall-anim { background: linear-gradient(120deg, #f6e8ff, #dfeeff, #e4fff1, #fff6d8, #f6e8ff);
-  background-size: 300% 300%; animation: ac-wall-flow 18s ease infinite; }
-@keyframes ac-wall-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-@media (prefers-reduced-motion: reduce) { #sys-shell.ac-wall-anim { animation: none; } .ac-widget.ac-moving { animation: none; } }
+  color: var(--st-ink,#1e2748); padding: 8px 0; border-bottom: 1px solid var(--st-ink-08,rgba(30,39,72,.08)); }
+.ac-store-close { width: 100%; min-height: 44px; border: 1px solid var(--st-ink,#1e2748); border-radius: var(--st-radius-md,8px); background: var(--st-ink,#1e2748); color: var(--st-paper,#fffdf8); font-size: 17px;
+  font-weight: 500; padding: 12px 0; margin-top: 16px; cursor: pointer; }
+/* CSS 动画壁纸（扁平版）：原规则用 linear-gradient 做流动底色，已按“不要任何渐变”改为扁平纯色轮替；开关、类名、时长（18s）与原规则一致。 */
+#sys-shell.ac-wall-anim { background-color:#f6e8ff; animation:ac-wall-flow 18s ease infinite; }
+@keyframes ac-wall-flow { 0% { background-color:#f6e8ff; } 25% { background-color:#dfeeff; } 50% { background-color:#e4fff1; } 75% { background-color:#fff6d8; } 100% { background-color:#f6e8ff; } }
+@media (prefers-reduced-motion: reduce) { #sys-shell.ac-wall-anim { animation:none; } .ac-widget.ac-moving { animation: none; } }

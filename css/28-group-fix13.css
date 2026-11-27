@@ -19,6 +19,7 @@ html[data-phone-theme="trianon"] #sys-shell{background-color:var(--mdm-paper) !i
 html[data-phone-theme="trianon"] #sys-desktop-layer{background-color:var(--mdm-paper) !important;}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window{background:var(--mdm-paper-light) !important;color:var(--mdm-ink);border-color:var(--mdm-hairline);}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window h1,html[data-phone-theme="trianon"] #sys-shell .sys-app-window h2,html[data-phone-theme="trianon"] #sys-shell .sys-app-window h3,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-bigtitle,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-header-title{font-family:var(--mdm-title);color:var(--mdm-ink);}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-bigtitle{font-size:28px;line-height:1.25;font-weight:600;}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gd-root{background:var(--mdm-paper-light) !important;color:var(--mdm-ink) !important;}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .ck-root{background:var(--mdm-paper) !important;color:var(--mdm-ink);}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .cx-root,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wy-root{background:var(--mdm-paper-light) !important;color:var(--mdm-ink);}
@@ -32,10 +33,12 @@ html[data-phone-theme="trianon"] #sys-shell.is-edit-mode .sys-app-icon{transform
 /* ── 卡片与列表行（卡片共用一套纸感阴影 --mdm-paper-shadow）── */
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gd-card,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .sc-notif-card,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wy-card,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gv-sprout,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-bc-card{background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;border-radius:16px !important;box-shadow:var(--mdm-paper-shadow) !important;}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-cell,html[data-phone-theme="trianon"] #sys-shell .sys-app-window .wx-session-item{background:var(--mdm-paper-light) !important;border-color:var(--mdm-hairline) !important;color:var(--mdm-ink) !important;}
-html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-row{color:var(--mdm-ink) !important;border-color:var(--mdm-hairline) !important;}
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-row{color:var(--mdm-ink) !important;border-color:var(--mdm-hairline) !important;min-height:56px;font-size:17px;}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .gv-theme-btn-on{border-color:var(--mdm-fog) !important;}
-/* ── 设置页：卷宗（纸夹卡片 + 顶部银夹）── */
-html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-group{background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;border-radius:16px !important;box-shadow:var(--mdm-paper-shadow) !important;position:relative;}
+/* ── 设置页：卷宗（纸夹卡片 + 顶部银夹）──
+   设置重构新基准：分组卡片圆角 10px、1px 边框；阴影已删（边框与阴影二选一）；
+   !important 保留——须压过 css/05 的 .st-group !important 覆盖规则；顶部银夹 ::before 是 Trianon 主题标识，保留。 */
+html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-group{background:var(--mdm-paper-light) !important;border:1px solid var(--mdm-hairline) !important;border-radius:var(--st-radius-lg,10px) !important;box-shadow:none !important;position:relative;}
 html[data-phone-theme="trianon"] #sys-shell .sys-app-window .st-group::before{content:"";position:absolute;top:0;left:20px;width:36px;height:9px;background:var(--mdm-silver);border-radius:0 0 6px 6px;}
 /* ── 微信：变量收敛（手机主题优先于微信自选主题；切回默认即恢复）── */
 html[data-phone-theme="trianon"] #wx-app-root{--wx-accent:#5c6884 !important;--wx-theme-color:#5c6884 !important;--wx-bg:#fbf9f4 !important;--wx-bg-page:#fffdf8 !important;--wx-bg-card:#fffdf8 !important;--wx-text:#1e2748 !important;--wx-dim:#46536f !important;--wx-line:rgba(30,39,72,.16) !important;--wx-chat-bg:#fbf9f4 !important;--wx-bg-self:#dce2f1 !important;--wx-bg-friend:#fffdf8 !important;--wx-bubble-self-bg:#dce2f1 !important;--wx-bubble-friend-bg:#fffdf8 !important;--wx-bubble-self-color:#1e2748 !important;--wx-bubble-friend-color:#1e2748 !important;--wx-bubble-radius:14px !important;}

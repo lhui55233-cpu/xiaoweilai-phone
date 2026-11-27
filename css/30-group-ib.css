@@ -42,15 +42,18 @@ body.quiet .echo-record, body.quiet .echo-record-wrap{ animation-play-state:paus
 /* 音乐 48 频段波形 */
 .ib-wave{ display:block; width:100%; max-width:620px; height:44px; margin:10px auto 4px; }
 .ib-wave-note{ font-size:11px; color:var(--ib-token-content-muted); text-align:center; }
-/* 诊断页药丸：正常绿 / 注意黄 / 故障红 / 可选灰 / 检查中 */
-.ib-pill{ display:inline-block; border-radius:999px; padding:3px 10px; font-size:12px; font-weight:600; border:1px solid; }
+/* 诊断页药丸：正常绿 / 注意黄 / 故障红 / 可选灰 / 检查中
+   设置重构新基准：徽章 12px/600；语义色保留（药丸文字本身即含义，不只靠颜色），
+   内边距取 4 的倍数。 */
+.ib-pill{ display:inline-block; border-radius:999px; padding:4px 12px; font-size:12px; font-weight:600; line-height:1.4; border:1px solid; }
 .ib-pill.ok{ color:#3d6b4f; border-color:rgba(111,159,131,.45); background:rgba(111,159,131,.12); }
 .ib-pill.warn{ color:#8a6a35; border-color:rgba(181,138,85,.45); background:rgba(181,138,85,.12); }
-.ib-pill.bad{ color:#9a4a4a; border-color:rgba(199,130,130,.45); background:rgba(199,130,130,.12); }
+.ib-pill.bad{ color:var(--st-danger,#7c2d2d); border-color:rgba(124,45,45,.45); background:rgba(124,45,45,.12); }
 .ib-pill.opt{ color:#5c6884; border-color:rgba(92,104,132,.45); background:rgba(92,104,132,.10); }
 .ib-pill.check{ color:#8a8b91; border-color:rgba(138,139,145,.45); background:rgba(138,139,145,.08); }
-.ib-diag-card{ border:1px solid var(--ib-token-boundary-subtle); border-radius:var(--ib-token-radius-md); padding:12px 14px; background:var(--ib-token-surface); }
-.ib-diag-card .ib-diag-note{ font-size:13px; color:var(--ib-token-content-secondary); margin-top:6px; line-height:1.55; }
+/* 诊断页分组卡片：圆角 10px、1px 边框、无阴影（本文件其余 IB 玻璃/日历/私聊规则不动） */
+.ib-diag-card{ border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px); padding:12px 16px; background:var(--st-paper,#fffdf8); }
+.ib-diag-card .ib-diag-note{ font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:8px; line-height:1.5; }
 /* 日历悬浮窗 + 挂历 */
 .ib-cal-float{ position:fixed; z-index:9500; width:min(360px,92vw); background:rgba(250,253,255,.84); backdrop-filter:blur(24px) saturate(1.20); -webkit-backdrop-filter:blur(24px) saturate(1.20); border:1px solid rgba(165,188,230,.20); border-radius:16px; box-shadow:0 10px 28px rgba(30,39,72,.12), inset 0 1px 0 rgba(255,255,255,.76); overflow:hidden; }
 .ib-cal-head{ display:flex; align-items:center; gap:8px; padding:10px 12px; cursor:grab; touch-action:none; user-select:none; }

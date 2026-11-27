@@ -93,25 +93,26 @@
 }
 
 /* ── 6. 各应用通用（排除微信与此刻）：卡片更圆、描边更淡、阴影更轻 ── */
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]){
+/* 2026-11-27 设置/番茄重构：设置、番茄、美化三窗走自己的设计系统（--st-* token），不在此节的软化规则内；照本节已有排除写法追加 :not() */
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]){
   background-color:#fffdfb !important;
 }
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="card"],
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="tile"],
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="module"],
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="panel"]{
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) [class*="card"],
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) [class*="tile"],
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) [class*="module"],
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) [class*="panel"]{
   border-radius:18px !important;
   border-color:rgba(60,50,40,.07) !important;
   box-shadow:0 4px 16px rgba(90,75,60,.06) !important;
 }
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) button,
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) [class*="btn"]{
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) button,
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) [class*="btn"]{
   border-radius:16px !important;
   font-weight:500 !important;
 }
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) input,
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) textarea,
-.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]) select{
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) input,
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) textarea,
+.sys-app-window:not([data-app-sandbox="wechat"]):not([data-app-sandbox="cike"]):not([data-app-sandbox="settings"]):not([data-app-sandbox="pomodoro"]):not([data-app-sandbox="beautify"]) select{
   border-radius:14px !important;
   border-color:rgba(60,50,40,.09) !important;
 }
