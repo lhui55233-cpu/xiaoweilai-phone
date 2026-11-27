@@ -17681,6 +17681,10 @@ const GW_CSS = '.gw-hidden{display:none!important}' +
 '.gw-switch.on{background:var(--st-ink,#1e2748)}' +
 '.gw-switch:after{content:"";position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;background:var(--st-paper,#fffdf8);transition:left 180ms ease-out}' +
 '.gw-switch.on:after{left:22px}' +
+/* 设置·桌面与外观页变体：基规则与番茄浮层共用（番茄 app 不动），仅 #st-sub-w-desktop 内改浅色 */
+'#st-sub-w-desktop .gw-seg button.on{background:var(--st-silver-light,#dce2f1);color:var(--st-ink,#1e2748);border-color:var(--st-ink,#1e2748)}' +
+'#st-sub-w-desktop .gw-switch.on{background:var(--st-silver,#bfc8e0)}' +
+'#st-sub-w-desktop .gw-switch.on:after{background:var(--st-ink,#1e2748)}' +
 '.gw-set-row{display:flex;align-items:center;gap:12px;padding:0;min-height:56px;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));font-size:17px;color:var(--st-ink,#1e2748)}' +
 '.gw-set-row .lb{flex:1}' +
 '.gw-set-row .sub{font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5}' +

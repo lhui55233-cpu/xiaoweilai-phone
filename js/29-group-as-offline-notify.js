@@ -607,9 +607,9 @@ function injectCSS() {
     '.as-lock-text{flex:1;font-size:13px;color:#fff;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
     '.as-lock-go{color:rgba(255,255,255,.7);}',
     '.as-switch{width:44px;height:24px;border-radius:999px;background:var(--st-silver,#bfc8e0);position:relative;transition:background 180ms ease-out;flex-shrink:0;}',
-    '.as-switch.on{background:var(--st-ink,#1e2748);}',
+    '.as-switch.on{background:var(--st-silver,#bfc8e0);}',
     '.as-knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 180ms ease-out;box-shadow:0 1px 3px rgba(30,39,72,.25);}',
-    '.as-switch.on .as-knob{left:20px;}',
+    '.as-switch.on .as-knob{left:20px;background:var(--st-ink,#1e2748);}',
     '.sc-notif-card.sc-notif-unread{box-shadow:inset 3px 0 0 #ff3b30;}',
     '.sc-notif-note{font-size:12px;color:rgba(255,255,255,.65);text-align:center;padding:6px 18px 18px;line-height:1.6;}'
   ].join('\n');
