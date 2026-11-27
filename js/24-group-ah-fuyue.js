@@ -745,9 +745,7 @@ var AH_CSS = '<style id="ah-style">'
 function ensureCss() { if (!document.getElementById('ah-style')) { var d = document.createElement('div'); d.innerHTML = AH_CSS; document.body.appendChild(d.firstChild); } }
 function pageShell(title, sub, bodyHtml) {
   return '<div class="st-sub show" id="ah-sub">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1" data-ah-act="close">'
-    + '<svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div>'
-    + '<div class="st-sub-title">' + esc(title) + '</div></div>'
+    + stSubBar(esc(title), {extra: 'data-ah-act="close"'})
     + '<div class="st-bigtitle" style="padding-top:4px;">' + esc(title) + '</div>'
     + '<div style="padding:0 16px 8px;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(sub) + '</div>'
     + '<div id="ah-body">' + bodyHtml + '</div><div style="height:40px;"></div></div>';

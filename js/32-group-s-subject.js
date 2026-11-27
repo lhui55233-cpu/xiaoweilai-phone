@@ -472,8 +472,7 @@ return '<div style="display:flex;align-items:center;gap:8px;margin:8px 0;font-si
 }
 function subHeadS(title, en, id) {
 return '<div class="st-sub" id="st-sub-' + esc(id) + '">' +
-'<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div>' +
-'<div class="st-sub-title">' + esc(title) + '</div></div>' +
+stSubBar(esc(title), {glyph: 'chev'}) +
 '<div class="st-bigtitle" style="padding-top:4px;">' + esc(title) + '</div>' +
 '<div class="st-foot" style="margin:0 16px 8px;">' + esc(en) + '</div>';
 }

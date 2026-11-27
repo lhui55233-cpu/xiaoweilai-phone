@@ -4,8 +4,16 @@
    春粉/秋红/薄荷点缀是给定 token 的混合值（见 patch_groupFIX13.py 头注释），
    不再用旧自编色板；截图里的文字、诗句、英文、插画元素一律不出现，
    主题只用颜色 + 手机自己的排版与图形。
-   主题变量收敛在两处：V 组 GroupV.THEMES（两色）与 AA 组 AppTheme.THEMES（全套
-   --app-*）；本脚本只做接线（跟随 V 组当前主题落盘、桌面底色同步、设置页九宫格）。
+   2026-11-28 批量 0020（项 1）：主题表唯一来源是 V 组 GroupV.THEMES（js/19，14 套，
+   含每套 5 配色 + 全套 --app-* vars + 深浅）；本文件不再自带第二份 BU_THEMES 表，
+   buThemes() 每次都读 GroupV 的表。js/15 AppTheme.THEMES 是同一组值的静态副本
+   （加载顺序兜底，apply() 时以 GroupV 的 vars 为准）。
+   2026-11-28 批量 0020（项 4）：删掉了 injectStyle 里那条
+   html[data-app-theme^="bu-"] .st-group{background:var(--app-card)} 覆盖——它是四张
+   截图深蓝卡片的唯一成因：深色主题下 --app-card #46536f 染蓝全部 .st-group 卡片壳，
+   而 .st-row 仍是白底、文字仍是固定深色 ink。删后设置页卡片回到 js/00 的 --st-paper
+   浅色底（#fffdf8），深色主题下设置页保持浅色卡片。css/28-group-fix13.css:41 那条
+   trianon 下的 .st-group 覆盖是另一个属性（data-phone-theme）下的浅色纸底，不受影响。
    封面存在新键 novel_book_covers_v1，不动 novel_store_v1 与任何既有键。 */
 (function () {
   'use strict';
@@ -13,18 +21,12 @@
   var COVER_KEY = 'novel_book_covers_v1';
   var esc = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 
-  /* ── 八款主题：一处定义（名字/描述/两色/深浅/全套变量）── */
-  var BU_THEMES = [
-    { id: 'bu-spring-pink', name: '春·槐花粉', desc: '奶白纸底，藕粉只一点点。', c1: '#fbf9f4', c2: '#6f687e', dark: false, vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#1e2748', '--app-muted': '#46536f', '--app-line': 'rgba(30,39,72,.16)', '--app-accent': '#6f687e', '--app-accent-soft': '#e8c9d0' } },
-    { id: 'bu-autumn-red', name: '秋·枫叶红', desc: '信笺纸底，深藕粉点缀。', c1: '#fffdf8', c2: '#5b5871', dark: false, vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#1e2748', '--app-muted': '#46536f', '--app-line': 'rgba(30,39,72,.16)', '--app-accent': '#5b5871', '--app-accent-soft': '#e8c9d0' } },
-    { id: 'bu-night-black', name: '夜·蜕茧黑', desc: '墨蓝底，藕粉点缀（深色款）。', c1: '#1e2748', c2: '#e8c9d0', dark: true, vars: { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#e8c9d0', '--app-accent-soft': '#5c6884' } },
-    { id: 'bu-winter-blue', name: '冬·雪河蓝', desc: '画布底，墨蓝柔点缀。', c1: '#eef0f5', c2: '#46536f', dark: false, vars: { '--app-bg': '#eef0f5', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#1e2748', '--app-muted': '#46536f', '--app-line': 'rgba(30,39,72,.16)', '--app-accent': '#46536f', '--app-accent-soft': '#dce2f1' } },
-    { id: 'bu-mint', name: '薄荷绿', desc: '奶白纸底，银蓝点缀。', c1: '#fbf9f4', c2: '#6e7894', dark: false, vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#1e2748', '--app-muted': '#46536f', '--app-line': 'rgba(30,39,72,.16)', '--app-accent': '#6e7894', '--app-accent-soft': '#dce2f1' } },
-    { id: 'bu-lavender', name: '薰衣草紫', desc: '奶白纸底，雾蓝点缀。', c1: '#fbf9f4', c2: '#5c6884', dark: false, vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#1e2748', '--app-muted': '#5c6884', '--app-line': 'rgba(30,39,72,.16)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' } },
-    { id: 'bu-cream', name: '奶油黄', desc: '信笺纸底，墨蓝柔点缀。', c1: '#fffdf8', c2: '#46536f', dark: false, vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#1e2748', '--app-muted': '#46536f', '--app-line': 'rgba(30,39,72,.16)', '--app-accent': '#46536f', '--app-accent-soft': '#eef0f5' } },
-    { id: 'bu-forest', name: '墨绿', desc: '墨蓝底，雾蓝浅点缀（深色款）。', c1: '#1e2748', c2: '#a9b3cc', dark: true, vars: { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#a9b3cc', '--app-accent-soft': '#5c6884' } }
-  ];
-  var byId = function (id) { for (var i = 0; i < BU_THEMES.length; i++) if (BU_THEMES[i].id === id) return BU_THEMES[i]; return null; };
+  /* ── 主题表唯一来源：V 组 GroupV.THEMES（js/19）──
+     本文件不再自带第二份表；每次都读 GroupV 的表（js/19 在 js/54 之前加载）。
+     GroupV 未加载时返回空表，各调用方已有兜底（currentId 认 GroupV.currentTheme，
+     desktopSettingsHtml 只剩归巢默认一项，injectStyle 不注入主题规则）。 */
+  var buThemes = function () { try { if (window.GroupV && window.GroupV.THEMES) return window.GroupV.THEMES; } catch (e) {} return []; };
+  var byId = function (id) { var all = buThemes(); for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; };
   /* GROUP-THROTTLE: 主题 id 解析结果缓存（500ms TTL + 写版本号失效）；原两处直读
      JSON.parse 合并为一次解析（p2 与 p 同键同刻，复读无意义）。语义不变：raw.theme
      认表优先，其次 GroupV.currentTheme() 兜底，再次 raw.theme 原样，最后 'light'。 */
@@ -50,7 +52,8 @@
   var injectStyle = function () {
     if (document.getElementById('groupbu-style')) return;
     var css = '';
-    BU_THEMES.forEach(function (t) {
+    buThemes().forEach(function (t) {
+      if (!t.vars) return;
       var parts = [];
       Object.keys(t.vars).forEach(function (k) { parts.push(k + ':' + t.vars[k]); });
       parts.push('--al-bg:' + t.vars['--app-bg']);
@@ -61,8 +64,11 @@
       parts.push('--al-focus:' + t.vars['--app-accent']);
       css += 'html[data-app-theme="' + t.id + '"]{' + parts.join(';') + ';}';
     });
+    /* 2026-11-28 批量 0020（项 4）：下面原来还有一条
+       html[data-app-theme^="bu-"] .st-group{background:var(--app-card)!important;...}，
+       已删除——它是深蓝卡片的唯一成因（见文件头注释）。设置页卡片回到 --st-paper 浅色底，
+       .st-row 的边框/按压态两条规则保留（只改线色与按压底色，不动卡片底色）。 */
     css += 'html[data-app-theme^="bu-"] #sys-shell{background-color:var(--app-bg);}'
-      + 'html[data-app-theme^="bu-"] .st-group{background:var(--app-card)!important;border-color:var(--app-line)!important;}'
       + 'html[data-app-theme^="bu-"] .sys-app-window .st-row{border-color:var(--app-line)!important;}'
       + 'html[data-app-theme^="bu-"] .sys-app-window .st-row:active{background:var(--app-surface)!important;}'
       + '.bu-theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}'
@@ -93,13 +99,13 @@
   var desktopSettingsHtml = function () {
     var cur = currentId();
     var items = [];
-    try { if (window.GroupV && window.GroupV.THEMES) { var all = window.GroupV.THEMES; for (var i = 0; i < all.length; i++) if (all[i].id === 'guichao' || all[i].id.indexOf('bu-') === 0) items.push(all[i]); } } catch (e) {}
-    if (!items.length) { items = [{ id: 'guichao', name: '归巢默认', c1: '#ffffff', c2: '#34363b', desc: '归巢黑白灰，默认主题' }].concat(BU_THEMES); }
+    try { var all = buThemes(); for (var i = 0; i < all.length; i++) if (all[i].id === 'guichao' || all[i].id.indexOf('bu-') === 0) items.push(all[i]); } catch (e) {}
+    if (!items.length) { items = [{ id: 'guichao', name: '归巢默认', c1: '#ffffff', c2: '#34363b', desc: '归巢黑白灰，默认主题' }]; }
     var curName = currentName() || '归巢默认';
     var grid = items.map(function (t) {
       return '<button type="button" class="bu-theme-btn' + (cur === t.id ? ' on' : '') + '" data-bu-theme="' + t.id + '" title="' + esc(t.desc) + '"><span class="bu-theme-sw" style="background:' + t.c1 + ';border-color:' + t.c2 + ';"></span><span><span style="display:block;font-size:13px;font-weight:700;">' + esc(t.name) + (cur === t.id ? ' <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') + '</span><span style="display:block;font-size:11px;color:#8a857e;line-height:1.5;">' + esc(t.desc) + '</span></span></button>';
     }).join('');
-    return '<div class="gw-set-row"><div class="lb">当前主题：<span data-bu-cur-theme>' + esc(curName) + '</span><div class="sub">点下面任意一款立即切换，全机跟随；其余 5 套（晨光暖阳、薄荷清晨、暮山紫、海盐蓝、特里亚农 · 洛可可）与自定义两色在设置 → 主题里。</div></div><button data-gw-theme="info" style="border:1px solid #e8ddd2;background:#fff;border-radius:8px;padding:7px 10px;font-size:12px">主题入口</button></div>'
+    return '<div class="gw-set-row"><div class="lb">当前主题：<span data-bu-cur-theme>' + esc(curName) + '</span><div class="sub">点下面任意一款立即切换，全机跟随；其余 5 套（晨光暖阳、薄荷清晨、暮山紫、海盐蓝、特里亚农 · 洛可可）在设置 → 主题里，点封面可进详情选 5 个配色。</div></div><button data-gw-theme="info" style="border:1px solid #e8ddd2;background:#fff;border-radius:8px;padding:7px 10px;font-size:12px">主题入口</button></div>'
       + '<div class="bu-theme-grid">' + grid + '</div>';
   };
 
@@ -149,7 +155,7 @@
   };
 
   window.BuThemes = {
-    list: BU_THEMES, byId: byId, apply: applyThemeId, currentId: currentId, currentName: currentName,
+    list: buThemes(), byId: byId, apply: applyThemeId, currentId: currentId, currentName: currentName,
     shellBg: shellBg, syncShellBg: syncShellBg, desktopSettingsHtml: desktopSettingsHtml,
     isDarkId: function (id) { var t = byId(id); return !!(t && t.dark); }
   };

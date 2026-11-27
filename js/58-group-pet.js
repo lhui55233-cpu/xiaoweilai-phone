@@ -3,9 +3,12 @@
    ── 直接复用（原样用，没重写）──
    · desksprite（welltilln/desksprite，MIT）真实像素皮肤数据：FIX2 SKINS.boy（blue-boy.json，
      14x14）与 SKINS.cat（cat.json，13x13）帧点阵逐字照录——本组不画一格新像素。
-     desksprite 官方 skins/ 只有 blue-boy 与 cat 两款，没有 Claude / ChatGPT / Muse 原生皮肤，
-     所以市场里这三款是“同一套 blue-boy 帧行，只换发色/衣服色”（调色板见 MARKET_PALETTES），
-     界面与说明里都写明，不冒充原生皮肤。
+   · GROUP-PET-MERGE：市场三款不再是 boy 帧换色——Claude 是本站手画的像素螃蟹
+     （FIX2 SKINS.crab，13x13，照图 3 像素风），ChatGPT 是本站手画的像素黑狐
+     （FIX2 SKINS.fox，14x13，蓝丝带占 R/r 专属键），Muse 是本站手画的 Jolly
+     像素版（FIX2 SKINS.jolly，13x13，照当前默认头像的奶油毛绒形象）；三款各
+     5 张帧 + 独立调色板，MARKET_PALETTES 换色表已随换色款一起删除。
+     旧存档里已领养 pet-claude / pet-chatgpt / pet-muse 的用户会直接看到新模型。
    · P 组 VRM 预览链路（three@0.128.0 + three-vrm@0.6.7，jsdelivr CDN，UMD 全局加载）：
      导入入口直接调 window.GroupP.importVRMFile；口型复用 GroupP.attachBoundary（TTS 词边界）
      与 GroupP.startAudioLipsync（已播音频按振幅，ARPAHLS 方案）；手势名沿用 GroupP.motion。
@@ -27,19 +30,16 @@
      不假装在播 3D。3D 桌宠默认不开，由用户在桌宠市场里打开。 */
 (function () {
 'use strict';
-/* ── 0. 清单（唯一事实来源；FIX2 的市场调色板也读这里，不另抄一份） ── */
+/* ── 0. 清单（唯一事实来源；桌宠设置页的皮肤注册表与这里合并，见 js/16 SKINS） ── */
 var MARKET = [
-  { id: 'cat', skin: 'cat', name: '小猫', note: 'desksprite cat.json 原始帧（13x13 橘猫），逐字照录。' },
-  { id: 'pet-claude', skin: 'pet-claude', name: 'Claude', note: '换色款：desksprite blue-boy 原始帧行，只换发色/衣服色。' },
-  { id: 'pet-chatgpt', skin: 'pet-chatgpt', name: 'ChatGPT', note: '换色款：desksprite blue-boy 原始帧行，只换发色/衣服色。' },
-  { id: 'pet-muse', skin: 'pet-muse', name: 'Muse', note: '换色款：desksprite blue-boy 原始帧行，只换发色/衣服色。' }
+  { id: 'cat', skin: 'cat', frame: 'cat', name: '小猫', note: 'desksprite cat.json 原始帧（13x13 橘猫），逐字照录。' },
+  { id: 'pet-claude', skin: 'pet-claude', frame: 'crab', name: 'Claude', note: '像素螃蟹（本站手画，13x13，照图 3 像素风：扁平暖色、无描边）。' },
+  { id: 'pet-chatgpt', skin: 'pet-chatgpt', frame: 'fox', name: 'ChatGPT', note: '像素黑狐（本站手画，14x13：尖耳、吻部、蓬松尾巴，脖子上系着蓝丝带）。' },
+  { id: 'pet-muse', skin: 'pet-muse', frame: 'jolly', name: 'Muse', note: 'Jolly 像素版（本站手画，13x13：圆乎乎的奶油色毛绒身子，大脸、黑眼睛、粉腮红）。' }
 ];
-var MARKET_PALETTES = {
-  /* 键与 FIX2 BOY_PALETTE 一致：H/h 发色、S/s 肤色、e 眼、B/b 衣服、T/t 红配饰、o 白、g 金。只改发色与衣服色，脸不动。 */
-  'pet-claude': { H: '#7A3B1E', h: '#5E2E16', B: '#D97757', b: '#B85C3E', T: '#E8A87C', t: '#C97E4E' },
-  'pet-chatgpt': { H: '#1F1F1F', h: '#3A3A3A', B: '#10A37F', b: '#0B7A5E', T: '#74AA9C', t: '#4E8A7A' },
-  'pet-muse': { H: '#2E2350', h: '#241B40', B: '#7C6AAE', b: '#5F4E8C', T: '#A89CC8', t: '#7E6FA8' }
-};
+/* GROUP-PET-MERGE：MARKET_PALETTES 换色表已删除——三款不再是 boy 帧换色，
+   各自有真模型（frame 指向 FIX2 SKINS 的 crab / fox / jolly）；领养与设置
+   写同一个 petSkin，effectiveSkin 只认 frame。 */
 var SEED_SAN = {
   id: 'seed-san', name: 'Seed-san',
   url: 'https://raw.githubusercontent.com/Undi95/Hanami/main/vrm/Seed-san.vrm',
@@ -104,25 +104,28 @@ function injectCSS() {
   } catch (e) {}
 }
 
-/* ── 1. 像素市场：预览与领养（只换 petSkin，不换猫） ── */
+/* ── 1. 像素市场：预览与领养（只换 petSkin，不换猫） ──
+   预览按 MARKET 的 frame 取 FIX2 SKINS 的真帧画，不再是 cat/boy 二选一，
+   也不再叠 MARKET_PALETTES 换色。 */
 function drawMarketPreview(canvas, modelId) {
   try {
     var sk = (window.GroupFIX2 && window.GroupFIX2.SKINS) || null;
     if (!sk || !canvas || !canvas.getContext) return false;
+    var m = null;
+    MARKET.forEach(function (x) { if (x.id === modelId) m = x; });
+    if (!m) return false;
+    /* 按 MARKET 的 frame 取真帧；GroupFIX2.skinKeyForPetSkin 是同一映射的
+       另一头（petSkin → 帧键），frame 缺失时才用它兜底。 */
+    var key = m.frame || null;
+    if (!key && window.GroupFIX2 && GroupFIX2.skinKeyForPetSkin) key = GroupFIX2.skinKeyForPetSkin(m.skin);
+    if (!key) key = (modelId === 'cat') ? 'cat' : 'boy';
+    var skin = sk[key];
+    if (!skin) return false;
+    var rows = (skin.frames && skin.frames.idle) || null;
+    if (!rows) return false;
+    var pal = skin.palette || {};
     var ctx = canvas.getContext('2d');
     if (!ctx) return false;
-    var skin, pal, rows;
-    if (modelId === 'cat') {
-      skin = sk.cat; if (!skin) return false;
-      rows = (skin.frames && skin.frames.idle) || null; pal = skin.palette;
-    } else {
-      skin = sk.boy; if (!skin) return false;
-      rows = (skin.frames && skin.frames.idle) || null;
-      pal = {}; Object.keys(skin.palette || {}).forEach(function (k) { pal[k] = skin.palette[k]; });
-      var mp = MARKET_PALETTES[modelId];
-      if (mp) Object.keys(mp).forEach(function (k) { pal[k] = mp[k]; });
-    }
-    if (!rows) return false;
     canvas.width = skin.w; canvas.height = skin.h;
     ctx.clearRect(0, 0, skin.w, skin.h);
     for (var y = 0; y < rows.length; y++) {
@@ -957,7 +960,7 @@ else bootRestore();
 
 window.GroupPET = {
   version: 'GroupPET-v1',
-  MARKET: MARKET, MARKET_PALETTES: MARKET_PALETTES,
+  MARKET: MARKET,
   SEED_SAN: SEED_SAN, ROOMS: ROOMS, CDN: CDN, VERSION_NOTE: VERSION_NOTE,
   previewInto: drawMarketPreview, adopt: adopt, currentModel: currentModel,
   ensureThree: ensureThree, threeError: threeError,

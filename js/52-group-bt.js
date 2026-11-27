@@ -755,7 +755,7 @@ sealedRows += '<div class="bt-set-row"><span>' + esc(s.name) + ' · 封于 ' + f
 });
 if (!sealedRows) sealedRows = '<div class="bt-set-note">现在没有封着的聊天窗口。</div>';
 ov.innerHTML = '<div class="bt-settings-bar">'
-+ '<button type="button" class="bt-btn" data-bt-act="close-panel">‹ 设置</button>'
++ '<button type="button" class="bt-btn" data-bt-act="close-panel" aria-label="返回设置">‹</button>'
 + '<div class="bt-settings-title">已读不回与封窗</div></div>'
 + '<div class="bt-settings-body">'
 + '<div class="bt-set-row"><span>总开关（默认开）</span><button type="button" class="bt-btn" data-bt-act="toggle-global">' + (state.globalEnabled === false? '关': '开') + '</button></div>'

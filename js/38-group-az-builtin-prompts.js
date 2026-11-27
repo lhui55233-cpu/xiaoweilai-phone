@@ -489,7 +489,7 @@ function renderSettingsSub(act) {
   var mapRows = Object.keys(CAT_MAP).map(function (k) { return '<div class="st-row" style="font-size:17px;"><span class="st-label">' + k + '</span><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">→ ' + CAT_MAP[k] + '</span></div>'; }).join('');
   var lastLog = (s.log || []).slice(0, 3).map(function (l) { return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;">· ' + esc(l.detail) + '（' + esc(l.via || '') + '）</div>'; }).join('') || '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">还没有主动行为记录。</div>';
   return '<div class="st-sub" id="st-sub-prompts">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">内置提示词</div></div>'
+    + stSubBar('内置提示词')
     + '<div class="st-bigtitle" style="padding-top:4px;">内置提示词</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;">每条提示词可看、可改、可恢复默认、可单独开关。提示词存在自己的命名空间 phone_prompts_v1 里（没有 key），随整屋备份/导出一起走。' + esc(modelStatusLine()) + '</div>'
     + '<div id="az-tip" style="margin:0 16px 8px;font-size:13px;color:var(--st-ink,#1e2748);min-height:18px;"></div>'

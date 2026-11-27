@@ -509,6 +509,12 @@ var CX_CSS = '<style>'
 + '.cx-empty{text-align:center;color:#a8a29c;font-size:13px;line-height:2;padding:34px 20px;}'
 + '</style>';
 
+/* 返回按钮只留箭头（BACK-ICON-ONLY）：文字进 aria-label，读屏/自动化仍可读；
+   data-cx="lib" 是 css/00 圆钮钩子 + bind 分流依据，保持不变 */
+function cxBackHTML(label) {
+  return '<span class="cx-back" data-cx="lib" aria-label="' + label + '">‹</span>';
+}
+
 /* ── 渲染 ── */
 function seatHTML() {
   var lk = look();
@@ -520,11 +526,11 @@ function seatHTML() {
   return h;
 }
 function renderLib() {
-  // 首页头也有文字返回“‹ 返回桌面”（与天气/备忘录的 .gd-back 同款）：
+  // 首页头是箭头返回（与天气/备忘录的 .gd-back 同款，文字已进 aria-label）：
   // data-cx="lib" 一身两用——①它是 css/00 里隐藏注入圆钮的 :has([data-cx="lib"]) 钩子，
   // 首页有了它，圆钮不再出现，也就不再需要 56px 左内边距让位；②bind() 里按
-  // state.view 分流：已在片库时点它回桌面，子页点“‹ 片库”时回片库。
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 返回桌面</span><div class="cx-title">影院 · 一起看</div><div class="cx-sub">和 ' + esc(charName()) + ' 一起看短片 · 片是手机里的模拟短片</div></div>'
+  // state.view 分流：已在片库时点它回桌面，子页点箭头时回片库。
+  var h = '<div class="cx-head">' + cxBackHTML('返回桌面') + '<div class="cx-title">影院 · 一起看</div><div class="cx-sub">和 ' + esc(charName()) + ' 一起看短片 · 片是手机里的模拟短片</div></div>'
     + '<div class="cx-note">本地模拟短片，非真实影片文件：没有真实视频，只有立体书世界场景 + 对白 + 分镜卡（CSS 画的），不连网、不下载影片。</div>'
     + (state.notice ? '<div class="cx-note">' + esc(state.notice) + '</div>' : '')
     + '<div class="cx-note">' + esc(CinemaServer.status().label) + '</div>'
@@ -559,7 +565,7 @@ function renderScreen() {
   var sc = film.scenes[state.sceneIdx];
   var pct = Math.round(((state.sceneIdx) / film.scenes.length) * 100);
   var msgs = chatFor(film.id);
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">' + esc(film.title) + '</div>'
+  var h = '<div class="cx-head">' + cxBackHTML('返回片库') + '<div class="cx-title" style="font-size:20px;">' + esc(film.title) + '</div>'
     + '<div class="cx-sub">第 ' + (state.sceneIdx + 1) + ' / ' + film.scenes.length + ' 幕 · ' + esc(sc.place) + ' · 剩余 <span id="cx-remain">' + fmtClock(state.remain) + '</span></div></div>'
     + '<div class="cx-body">'
     + '<div class="cx-screen" id="cx-screen">'
@@ -595,7 +601,7 @@ function renderNotes() {
   var film = filmById(state.filmId) || FILMS[0];
   if (!film) { state.view = 'lib'; state.notice = '这部短片已不在片库。'; return renderLib(); } // GROUP-CINEMA-OWC：修 B1，空库/旧 filmId 不再读 film.id 抛错
   var n = notesFor(film.id);
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">' + esc(film.title) + ' · 手记</div>'
+  var h = '<div class="cx-head">' + cxBackHTML('返回片库') + '<div class="cx-title" style="font-size:20px;">' + esc(film.title) + ' · 手记</div>'
     + '<div class="cx-sub">每部片一本共享手记，跨场次保留 · 你和 ' + esc(charName()) + ' 都能写</div></div>'
     + '<div class="cx-body">'
     + '<div class="cx-label">人物关系图</div><textarea class="cx-ta" id="cx-n-relations">' + esc(n.relations) + '</textarea>'
@@ -617,7 +623,7 @@ function renderNotes() {
 }
 function renderTickets() {
   var tk = tickets();
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">票根</div>'
+  var h = '<div class="cx-head">' + cxBackHTML('返回片库') + '<div class="cx-title" style="font-size:20px;">票根</div>'
     + '<div class="cx-sub">看完的场次 · 可以导出成 HTML 留念，或存入相册</div></div><div class="cx-body">';
   if (!tk.length) h += '<div class="cx-empty">还没有票根<br><span style="font-size:12px;">看完一部短片，就会得到一张票根。</span></div>';
   tk.forEach(function (t) {
@@ -637,7 +643,7 @@ function renderTickets() {
 function renderTicket() {
   var t = null; tickets().forEach(function (x) { if (x.id === state.lastTicketId) t = x; });
   if (!t) return renderTickets();
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">看完啦！</div>'
+  var h = '<div class="cx-head">' + cxBackHTML('返回片库') + '<div class="cx-title" style="font-size:20px;">看完啦！</div>'
     + '<div class="cx-sub">这场一起看结束了，票根留给你</div></div><div class="cx-body">'
     + '<div class="cx-ticket"><h3>' + esc(t.title) + '</h3>'
     + '<div class="row"><span>日期</span><b>' + esc(t.date) + '</b></div>'
@@ -675,7 +681,7 @@ function bind(win) {
     var act = el.getAttribute('data-cx');
     var id = el.getAttribute('data-id');
     if (act === 'lib') {
-      if (state.view === 'lib') { // 首页“‹ 返回桌面”：已在片库，点按直接回桌面。
+      if (state.view === 'lib') { // 首页返回箭头：已在片库，点按直接回桌面。
         // 注意不能走 NavigationManager.back()：js/00 的 5k 子页条款看到 [data-cx="lib"]
         // 就会点它（原意是“子页先回片库”，并假定“片库首页无该按钮”），back() 点它又
         // 回到这里，_busy 防重入直接吞掉，什么都不发生。直接 minimize 也能接住系统

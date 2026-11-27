@@ -334,7 +334,7 @@ window.GroupBH = (function () {
       return '<div class="st-row"><span class="st-label">' + esc(n) + ' · ' + esc(entryLabel(st.perContact[n])) + '</span><div class="st-row-right"><button type="button" data-bh="del-pc" data-name="' + esc(n) + '" style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);color:var(--st-danger, #7c2d2d);font-size:17px;">删除</button></div></div>';
     }).join('') || '<div class="st-foot">还没有专属铃声。</div>';
     return '<div class="st-sub" id="st-sub-bhRingtone">'
-      + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">电话铃声</div></div>'
+      + stSubBar('电话铃声')
       + '<div class="st-bigtitle" style="padding-top:4px;">电话铃声</div>'
       + '<div class="st-foot">当前全局铃声：' + esc(globalLabel()) + '。通话是本地模拟，来电响铃用这里的铃声。</div>'
       + '<div class="st-group">' + builtinRows + '</div>'

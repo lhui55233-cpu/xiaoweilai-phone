@@ -397,7 +397,7 @@
         + '<div class="ib-diag-note" data-ib-diag-note="' + pair[0] + '">正在检查……</div></div>';
     }).join('');
     return '<div class="st-sub" id="st-sub-ibDiag">'
-      + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">诊断</div></div>'
+      + stSubBar('诊断', {glyph: 'chev'})
       + '<div class="st-bigtitle" style="padding-top:4px;">哪里不对劲，一眼看懂</div>'
       + '<div class="st-foot" style="margin-top:0;">这里只说结论：哪项正常、哪项要注意、会不会影响聊天、能不能一键恢复。技术细节收在下面，不含密钥、不含记忆正文。</div>'
       + cards
@@ -602,7 +602,7 @@
       + '<label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-size:17px;"><input type="checkbox" id="ib-roledm-auto"' + (auto ? ' checked' : '') + ' style="width:20px;height:20px;accent-color:var(--st-ink,#1e2748);"> 允许角色自主发起私聊</label>'
       + '<div class="st-foot" style="margin:8px 0 0;">开启后也只在打开手机时本地检查：一天最多 3 条，间隔至少 30 分钟，免打扰 23:00–08:00；关页后不发送（见 ActiveScheduler 接口，单文件没有后台调度）。</div></details>';
     return '<div class="st-sub" id="st-sub-ibRoleDM">'
-      + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">角色私聊观察</div></div>'
+      + stSubBar('角色私聊观察', {glyph: 'chev'})
       + '<div class="st-bigtitle" style="padding-top:4px;">角色私聊</div>'
       + '<div style="margin:0 16px 12px;">' + scene + '</div>'
       + '<div style="margin:0 16px;">' + thread + '</div>'

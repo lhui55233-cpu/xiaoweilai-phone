@@ -96,10 +96,169 @@ var CAT_HELD = [
   '.............'
 ];
 var CAT_PALETTE = { '.': null, B: '#D97B29', b: '#E89B4A', G: '#F2A950', g: '#F7BE78', W: '#FFF3E0', P: '#FF9EAD', N: '#3A2A1E' }; /* GROUP-DESKPET: 猫按截图改成橘色（只改色值，帧的行数据不动；W 仍是白胸、P 仍是粉鼻、N 仍是深色眼） */
+/* FIX2-SKIN crab 13x13 — Claude：像素螃蟹（本站手画，照图 3 像素风：扁平暖色、
+   无描边、两只竖条眼；不是 desksprite 皮肤，也不是 boy 帧换色）。
+   键位（本皮肤内含义）：B 壳、b 壳暗、H 螯、h 腿、S 肚、s 闭眼/口、e 眼、
+   W 眼光、T 螯尖、t 螯暗、o 肚光、g 携带物金。 */
+var CRAB_IDLE = [
+  '.............',
+  '.............',
+  '...BBBBBBB...',
+  '..BBBBBBBBB..',
+  '.HBBBeBeBBBH.',
+  'THBBBeBeBBHT.',
+  '.HBBBBBBBBBH.',
+  '..BBbSSSbBB..',
+  '..BBBBBBBBB..',
+  '.h.BBBBBBB.h.',
+  '..h.......h..',
+  '..h.......h..',
+  '.............'
+];
+var CRAB_WALK_A = CRAB_IDLE.slice(0, 11).concat(['...h.....h...', '.............']);
+var CRAB_WALK_B = CRAB_IDLE.slice(0, 10).concat(['...h.....h...', '..h.......h..', '.............']);
+var CRAB_HELD = [
+  '.............',
+  '.HH.......HH.',
+  '.tH.......Ht.',
+  '...BBBBBBB...',
+  '..BBBsBsBBB..',
+  '..BBBsBsBBB..',
+  '...BBBBBBB...',
+  '..BBbSSSbBB..',
+  '..BBBBBBBBB..',
+  '.h.BBBBBBB.h.',
+  '..h.......h..',
+  '..h.......h..',
+  '.............'
+];
+var CRAB_CARRY = [
+  '.............',
+  '.............',
+  '.............',
+  '.............',
+  '.............',
+  '.............',
+  '..........ggg',
+  '..........gog',
+  '..........gog',
+  '..........ggg',
+  '.............',
+  '.............',
+  '.............'
+];
+var CRAB_PALETTE = { '.': null, H: '#F2A950', h: '#D97B29', S: '#FBE3C8', s: '#A03A1A', e: '#1A1A2E', W: '#FFFFFF', B: '#E2603A', b: '#B8431F', T: '#E8590C', t: '#8C2F14', o: '#FFF3E0', g: '#E8C36A' };
+/* FIX2-SKIN fox 14x13 — ChatGPT：像素黑狐（本站手画：尖耳、吻部、蓬松尾巴、
+   脖子上的蓝丝带）。蓝丝带单独占 R/r 两个键，不复用 T/t 红配饰键。
+   键位：B 黑毛、b 毛暗、H 耳外、h 尾尖、S 吻部、s 灰、e 琥珀眼、W 白胸、
+   T 鼻、t 耳内、o 尾环、g 携带物金、R 丝带蓝、r 丝带暗。 */
+var FOX_IDLE = [
+  '..H........H..',
+  '..HH......HH..',
+  '..HtbbbbbbtH..',
+  '..BBBBBBBBBB..',
+  '..BBBeBBeBBB..',
+  '..BBBSSSSBBB..',
+  '...BBSTTSBB...',
+  '....RRrrRR....',
+  '..BBBBBBBBBBBh',
+  '..BBWWWWBBBBBo',
+  '..BBWWWWBBBbhh',
+  '..BBBBBBBBBBhh',
+  '...BB....BB...'
+];
+var FOX_WALK_A = FOX_IDLE.slice();
+var FOX_WALK_B = FOX_IDLE.slice(0, 11).concat(['..BBBBBBBBBBbh', '....BB..BB....']);
+var FOX_HELD = [
+  '..H........H..',
+  '..HH......HH..',
+  '..HtbbbbbbtH..',
+  '..BBBBBBBBBB..',
+  '..BBBsBBsBBB..',
+  '..BBBSSSSBBB..',
+  '...BBSTTSBB...',
+  '....RRrrRR....',
+  '.hBBBBBBBBBBhh',
+  '.hBBWWWWBBBBBo',
+  '..BBWWWWBBBbhh',
+  '..BBBBBBBBBBhh',
+  '...BB....BB...'
+];
+var FOX_CARRY = [
+  '..............',
+  '..............',
+  '..............',
+  '..............',
+  '..............',
+  '..............',
+  '...........ggg',
+  '...........gog',
+  '...........gog',
+  '...........ggg',
+  '..............',
+  '..............',
+  '..............'
+];
+var FOX_PALETTE = { '.': null, H: '#141414', h: '#E8E0D0', S: '#F5EFE6', s: '#8A7A6A', e: '#F2B705', W: '#FFFFFF', B: '#232323', b: '#3A3A3A', T: '#0D0D0D', t: '#8A5A4A', o: '#6B5A4A', g: '#E8C36A', R: '#2E7DE9', r: '#1D5FBE' };
+/* FIX2-SKIN jolly 13x13 — Muse：Jolly 像素化（本站手画，照当前默认头像：
+   圆乎乎奶油色毛绒身子、浅色大脸、两只黑眼睛、笑嘴、粉腮红、短手短脚）。
+   键位：B 绒毛、b 毛暗、H 脸、h 手、S 腮红、s 嘴、e 眼、W 肚白、T 脚、t 脚暗、
+   o 脸光、g 携带物金。 */
+var JOLLY_IDLE = [
+  '....BBBBB....',
+  '...BBBBBBB...',
+  '..bBBBBBBBb..',
+  '..BBoHHHHBB..',
+  '..BHHeHeHHB..',
+  '..BHHeHeHHB..',
+  '..BHSsssSHB..',
+  '..BHHHHHHHB..',
+  '..BBBBBBBBB..',
+  '.hBBBWWWBBBh.',
+  '.hBBBBBBBBBh.',
+  '.hBBBBBBBBBh.',
+  '..TTt...tTT..'
+];
+var JOLLY_WALK_A = JOLLY_IDLE.slice(0, 12).concat(['..TTT........']);
+var JOLLY_WALK_B = JOLLY_IDLE.slice(0, 12).concat(['........TTT..']);
+var JOLLY_HELD = [
+  '....BBBBB....',
+  '.h.BBBBBBB.h.',
+  '.hBBBBBBBBBh.',
+  '..BBoHHHHBB..',
+  '..BHHsHsHHB..',
+  '..BHHsHsHHB..',
+  '..BHSsssSHB..',
+  '..BHHHHHHHB..',
+  '..BBBBBBBBB..',
+  '.hBBBWWWBBBh.',
+  '.hBBBBBBBBBh.',
+  '.hBBBBBBBBBh.',
+  '..TTt...tTT..'
+];
+var JOLLY_CARRY = [
+  '.............',
+  '.............',
+  '.............',
+  '.............',
+  '.............',
+  '.............',
+  '..........ggg',
+  '..........gog',
+  '..........gog',
+  '..........ggg',
+  '.............',
+  '.............',
+  '.............'
+];
+var JOLLY_PALETTE = { '.': null, H: '#FBF3DF', h: '#E8D5AC', S: '#FFB3A0', s: '#8A5A40', e: '#1A1A2E', W: '#FFFFFF', B: '#F3E6C8', b: '#DCC79C', T: '#C9B184', t: '#B89B6E', o: '#FFFDF5', g: '#E8C36A' };
 /* FIX2-SKIN end */
 var SKINS = {
   boy: { w: 14, h: 14, palette: BOY_PALETTE, frames: { idle: BOY_IDLE, walk: [BOY_WALK_A, BOY_WALK_B], held: BOY_HELD, carry: BOY_CARRY } },
-  cat: { w: 13, h: 13, palette: CAT_PALETTE, frames: { idle: CAT_IDLE, walk: [CAT_WALK_A, CAT_WALK_B], held: CAT_HELD, carry: null } }
+  cat: { w: 13, h: 13, palette: CAT_PALETTE, frames: { idle: CAT_IDLE, walk: [CAT_WALK_A, CAT_WALK_B], held: CAT_HELD, carry: null } },
+  crab: { w: 13, h: 13, palette: CRAB_PALETTE, frames: { idle: CRAB_IDLE, walk: [CRAB_WALK_A, CRAB_WALK_B], held: CRAB_HELD, carry: CRAB_CARRY } },
+  fox: { w: 14, h: 13, palette: FOX_PALETTE, frames: { idle: FOX_IDLE, walk: [FOX_WALK_A, FOX_WALK_B], held: FOX_HELD, carry: FOX_CARRY } },
+  jolly: { w: 13, h: 13, palette: JOLLY_PALETTE, frames: { idle: JOLLY_IDLE, walk: [JOLLY_WALK_A, JOLLY_WALK_B], held: JOLLY_HELD, carry: JOLLY_CARRY } }
 };
 
 /* ── 小工具 ── */
@@ -259,6 +418,17 @@ var readPrefs = function () {
   _throttlePrefsCache = fresh; _throttlePrefsAt = _now; _throttlePrefsRev = _rev;
   return (fresh && typeof fresh === 'object') ? Object.assign({}, fresh) : {};
 };
+/* GROUP-PET-MERGE: petSkin（phone_ui_prefs_v1）→ SKINS 键的唯一映射。
+   市场领养与桌宠设置写同一个 petSkin，这里是唯一的读口：pet-claude /
+   pet-chatgpt / pet-muse 不再是 boy 帧换色，各自有真模型（crab / fox /
+   jolly）。旧存档里已领养的 pet-claude 等会直接变成新模型（换色款已下线，
+   见 js/58 MARKET）。 */
+var PETSKIN_TO_SKIN = { 'cat': 'cat', 'pet-claude': 'crab', 'pet-chatgpt': 'fox', 'pet-muse': 'jolly' };
+var skinKeyForPetSkin = function (petSkin) {
+  if (petSkin === 'cutout') return 'cutout';
+  if (PETSKIN_TO_SKIN[petSkin]) return PETSKIN_TO_SKIN[petSkin];
+  return 'boy';
+};
 var effectiveSkin = function () {
   try {
     var pet = $id('desk-pet');
@@ -268,19 +438,25 @@ var effectiveSkin = function () {
     var ov = pet.querySelector('#gw-pet-skin');
     if (ov && ov.querySelector('img.gw-cutout')) return 'cutout';
     var prefs = readPrefs();
-    if (prefs.petSkin === 'cat') return 'cat';
     if (prefs.petSkin === 'cutout') return 'cutout';
+    if (prefs.petSkin) return skinKeyForPetSkin(prefs.petSkin);
     var ab = readJSON('pet_state_ab_v1', null);
-    if (ab && ab.skin && ab.skin.id === 'cat') return 'cat';
-    if (ab && ab.skin && (ab.skin.id === 'cutout' || ab.skin.id === 'custom')) return 'cutout';
+    if (ab && ab.skin && ab.skin.id) {
+      if (ab.skin.id === 'cat') return 'cat';
+      if (ab.skin.id === 'cutout' || ab.skin.id === 'custom') return 'cutout';
+      if (PETSKIN_TO_SKIN[ab.skin.id]) return PETSKIN_TO_SKIN[ab.skin.id];
+      if (ab.skin.id === 'qqboy') return 'boy';
+    }
   } catch (e) {}
   return 'boy';
 };
 var customPalette = function (skinId) {
-  var base = SKINS[skinId].palette;
+  var base = (SKINS[skinId] || {}).palette || {};
   var pal = {};
   Object.keys(base).forEach(function (k) { pal[k] = base[k]; });
   try {
+    /* 此刻换装跟随（只对 boy / cat：发色瞳色跟 cike_char_look_v1 走）。
+       crab / fox / jolly 是独立模型，不跟换装、不走任何换色分支。 */
     var look = readJSON('cike_char_look_v1', null);
     if (look && isHex(look.hair) && look.hair.toLowerCase() !== '#3a2a1e') {
       if (skinId === 'boy') { pal.H = look.hair; pal.h = shade(look.hair, -18); }
@@ -289,15 +465,6 @@ var customPalette = function (skinId) {
     if (look && isHex(look.eye) && look.eye.toLowerCase() !== '#2b2b2b' && look.eye.toLowerCase() !== '#3a2a1e') {
       if (skinId === 'boy') pal.e = look.eye;
       if (skinId === 'cat') pal.N = look.eye;
-    }
-  } catch (e) {}
-  try {
-    /* GROUP-PET：市场三款（pet-claude / pet-chatgpt / pet-muse）是 BOY 帧的换色；
-       调色板以 GroupPET.MARKET_PALETTES 为唯一来源；GroupPET 不在时保持原色。 */
-    if (skinId === 'boy' && window.GroupPET && GroupPET.MARKET_PALETTES) {
-      var _ps = readPrefs().petSkin || '';
-      var _mp = GroupPET.MARKET_PALETTES[_ps];
-      if (_mp) Object.keys(_mp).forEach(function (k) { pal[k] = _mp[k]; });
     }
   } catch (e) {}
   return pal;
@@ -526,7 +693,7 @@ var init = function () {
   } catch (e) {}
 };
 window.GroupFIX2 = {
-  MARKER: 'GROUP-FIX2', version: 1, SKINS: SKINS,
+  MARKER: 'GROUP-FIX2', version: 1, SKINS: SKINS, skinKeyForPetSkin: skinKeyForPetSkin,
   applyTheme: applyTheme, repaintIcons: repaintIcons, renderHero: renderHero,
   ensurePetCanvas: ensurePetCanvas, openApp: openApp, currentThemeId: currentThemeId
 };

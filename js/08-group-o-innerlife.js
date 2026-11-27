@@ -466,8 +466,7 @@ var STATE_LABEL = { ENGAGED: '在线聊天中', IDLE: '白天待机', DORMANT: '
 var SUB_CLOSE = '</div>'; // SUB_CLOSE closes the .st-sub opened by subHead (shared by 3 sub-pages; keeps raw div counts balanced)
 function subHead(title, en) {
 return '<div class="st-sub" id="st-sub-PLACEHOLDER">' +
-'<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div>' +
-'<div class="st-sub-title">' + esc(title) + '</div></div>' +
+stSubBar(esc(title), {glyph: 'chev'}) +
 '<div class="st-bigtitle" style="padding-top:4px;">' + esc(title) + '</div>' +
 '<div class="st-foot" style="margin:0 16px 8px;">' + esc(en) + '</div>';
 }

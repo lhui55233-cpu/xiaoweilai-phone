@@ -189,7 +189,7 @@ const AKDesktop = (() => {
       let sub = host.querySelector('#st-sub-ak-desktop');
       if (!sub) {
         const tmp = document.createElement('div');
-        tmp.innerHTML = '<div class="st-sub" id="st-sub-ak-desktop"><div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 设置</div><div class="st-sub-title">桌面与外观</div></div><div id="ak-desk-body" style="padding:0 16px 30px"></div></div>';
+        tmp.innerHTML = '<div class="st-sub" id="st-sub-ak-desktop">' + stSubBar('桌面与外观', {glyph: 'chev'}) + '<div id="ak-desk-body" style="padding:0 16px 30px"></div></div>';
         sub = tmp.firstElementChild;
         host.appendChild(sub);
         sub.addEventListener('click', (e) => {

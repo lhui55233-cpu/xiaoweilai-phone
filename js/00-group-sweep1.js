@@ -363,7 +363,7 @@ const NavigationManager = (() => {
             gbOv.remove();
             return true;
         }
-        // [AT] 发现页浮层（#wx-discover-overlay，z400，自带 1 个 ‹ 发现）：系统返回先关它，
+        // [AT] 发现页浮层（#wx-discover-overlay，z400，自带 1 个返回箭头）：系统返回先关它，
         // 调它自己的 _closeDiscoverOverlay（顺带解绑摇一摇监听），不直接最小化微信。
         const dvOv = document.getElementById('wx-discover-overlay');
         if (dvOv) {
@@ -513,7 +513,7 @@ const NavigationManager = (() => {
                 }
             } catch (e) {}
         }
-        // [AT GROUP-AT-BACK-DEDUP] 5k. 影院放映室：详情/放映/手记/票根页自带 ‹ 片库
+        // [AT GROUP-AT-BACK-DEDUP] 5k. 影院放映室：详情/放映/手记/票根页自带返回箭头
         // （[data-cx="lib"]），系统返回先点它回片库，不直接最小化跳层；
         // 片库首页无该按钮，不消费，继续走最小化。
         if (AppManager.getActiveId() === 'cinema') {
@@ -3914,13 +3914,26 @@ AppManager.register('settings', (() => {
         }
     </style>`;
 
+    // [BACK-ICON-ONLY] 设置类子页统一返回头：只留箭头，不写文字（aria-label 供读屏/自动化）。
+    // 22 处复制粘贴的 .st-sub-back 在此收成一个入口；glyph:'chev' 沿用原页的 ‹ 字符箭头，默认 22px SVG 箭头。
+    // stroke 用 --st-ink token：.st-sub 下它就是 #171717，与原先写死的 #171717 渲染一致。
+    // barClass 透传 bar 上的额外 class（如 Token 页的 st-sub-bar-solid），不丢原页样式。
+    window.stSubBar = function (title, opts) {
+        opts = opts || {};
+        var arrow = opts.glyph === 'chev'
+            ? '‹'
+            : '<svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+        var extra = opts.extra ? ' ' + opts.extra : '';
+        var barClass = 'st-sub-bar' + (opts.barClass ? ' ' + opts.barClass : '');
+        return '<div class="' + barClass + '"><div class="st-sub-back" data-back="1"' + extra + ' aria-label="返回设置">' + arrow + '</div><div class="st-sub-title">' + title + '</div></div>';
+    };
+
     const renderHome = () => `
         ${styleBlock}
         <div class="st-root" id="st-root">
             <div class="st-statusbar"></div>
-            <div class="st-home-backrow" onclick="(window.NavigationManager?NavigationManager.back():AppManager.minimize())">
+            <div class="st-home-backrow" onclick="(window.NavigationManager?NavigationManager.back():AppManager.minimize())" aria-label="返回桌面">
                 <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#171717" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                <span>返回桌面</span>
             </div>
             <div class="st-bigtitle">设置</div>
             <div class="st-search">
@@ -4055,13 +4068,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         const hasToken = mbHasToken();
         return `
         <div class="st-sub" id="st-sub-membackup">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">记忆备份</div>
-            </div>
+            ${stSubBar('记忆备份')}
             <div class="st-bigtitle" style="padding-top:4px;">记忆备份</div>
             <div class="st-group" style="margin-top:8px;">
                 <div class="st-row" data-act="mbToggle">
@@ -4091,13 +4098,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
     // ── 禁词子页面 ──
     const renderBanwordsSub = () => `
         <div class="st-sub" id="st-sub-banwords">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">禁词管理</div>
-            </div>
+            ${stSubBar('禁词管理')}
             <div class="st-bigtitle" style="padding-top:4px;">禁词</div>
             <div class="st-ban-input-row">
                 <input class="st-ban-input" id="st-ban-input" placeholder="输入要禁止的词汇">
@@ -4121,13 +4122,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         const attempts = AO ? AO.attemptsText() : '还没有输错记录';
         return `
         <div class="st-sub" id="st-sub-passcode">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">锁屏密码</div>
-            </div>
+            ${stSubBar('锁屏密码')}
             <div class="st-bigtitle" style="padding-top:4px;">密码</div>
             <div class="st-foot" id="st-pc-status" style="margin-top:0;">${status}</div>
             <div class="st-group" style="margin-top:8px;">
@@ -4172,13 +4167,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         const reduce = AO ? (AO.reduceOn() ? '开' : '关') : '关';
         return `
         <div class="st-sub" id="st-sub-motion">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">动效与省电</div>
-            </div>
+            ${stSubBar('动效与省电')}
             <div class="st-bigtitle" style="padding-top:4px;">动效</div>
             <div class="st-group" style="margin-top:8px;">
                 <div class="st-row" data-act="aoAmbient">
@@ -4201,13 +4190,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
     const renderBeautySub = () => {
         return `
         <div class="st-sub" id="st-sub-beauty">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">主题美化</div>
-            </div>
+            ${stSubBar('主题美化')}
             <div class="st-bigtitle" style="padding-top:4px;">主题美化</div>
             ${GROUP([
                 ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '壁纸', {act:'b_wallpaper'}),
@@ -4228,7 +4211,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                 ROW(ICON('var(--st-ink,#171717)', I.iconStyle), '图标挑选器', {act:'w_desktop:iconpicker'}),
                 ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟样式', {act:'w_desktop:clock'}),
                 ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面小组件', {act:'w_desktop:widgets'}),
-                ROW(ICON('var(--st-ink,#171717)', I.bubble), '桌宠', {act:'w_desktop:pet'})
+                ROW(ICON('var(--st-ink,#171717)', I.bubble), '桌宠', {act:'petSettings'})
             ], '桌面独有的设置：点一行直接跳到对应位置；长按桌面空白处也能进。')}
             <div style="height:40px;"></div>
         </div>`;
@@ -4239,13 +4222,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         const cur = (window.IslandManager && window.IslandManager.get()) || { width:122, height:36, top:0, radius:999, offsetX:0 };
         return `
         <div class="st-sub" id="st-sub-island">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">灵动岛</div>
-            </div>
+            ${stSubBar('灵动岛')}
             <div class="st-bigtitle" style="padding-top:4px;">灵动岛</div>
 
             <!-- 实时预览区 -->
@@ -4346,13 +4323,7 @@ let visionCfg = {};
               </div>`;
         return `
         <div class="st-sub" id="st-sub-voice">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">克隆音色</div>
-            </div>
+            ${stSubBar('克隆音色')}
             <div class="st-bigtitle" style="padding-top:4px;">音色</div>
 
             <!-- MiniMax API 配置 -->
@@ -4546,13 +4517,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
 
         return `
         <div class="st-sub" id="st-sub-token">
-            <div class="st-sub-bar st-sub-bar-solid">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">Token 统计与分析</div>
-            </div>
+            ${stSubBar('Token 统计与分析', {barClass: 'st-sub-bar-solid'})}
             <!-- 资料卡：点封面/头像/名称可编辑（接通 handleTokenEdit，原页面无 data-tk 入口） -->
             <div class="st-tk-cover" id="st-tk-cover" data-tk="cover">${tokenStats.cover ? `<img src="${tokenStats.cover}">` : ''}<div class="st-tk-cover-edit">更换封面</div></div>
             <div class="st-tk-profile">
@@ -4623,13 +4588,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
 
         return `
         <div class="st-sub" id="st-sub-profile">
-            <div class="st-sub-bar">
-                <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                    设置
-                </div>
-                <div class="st-sub-title">我的账户</div>
-            </div>
+            ${stSubBar('我的账户')}
 
             <!-- 头像区 -->
             <div class="st-pf-hero">
@@ -5783,14 +5742,15 @@ win.addEventListener('change', (e) => {
                 break;
             }
             case 'petSettings': {
-                let sub = win.querySelector('#st-sub-petSettings');
-                if (sub) sub.remove();
-                const tmp = document.createElement('div');
-                tmp.innerHTML = window.GroupAB ? window.GroupAB.renderPetSettingsHTML() : '';
-                sub = tmp.firstElementChild;
-                if (!sub) break;
-                win.appendChild(sub);
-                requestAnimationFrame(() => sub.classList.add('show'));
+                /* GROUP-PET-MERGE：桌宠设置已并进桌宠市场 app（catos）的“设置”页签，
+                   这里只改跳转目标，不再在设置里另建子页；行本身保留。
+                   注意：js/07 的 GD 只是文件内 IIFE 局部变量（window 上没有 GD），
+                   对外出口是 window.GroupD（js/07 末尾 window.GroupD = GD）。 */
+                try {
+                    if (window.GroupD && GroupD.catosOpenTab) { GroupD.catosOpenTab('settings'); }
+                    else if (window.GroupFIX2 && GroupFIX2.openApp) { GroupFIX2.openApp('catos'); }
+                    else if (typeof AppManager !== 'undefined' && AppManager.launch) { AppManager.launch('catos'); }
+                } catch (e) {}
                 break;
             }
             case 'sound': {
@@ -8656,6 +8616,17 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
       </style>
   `;
 
+  // [BACK-ICON-ONLY] 微信子页返回只留 ‹ 箭头，不写文字（aria-label 供读屏/自动化）。
+  // 各子页原来把 ‹ 返回 / ‹ 我 / ‹ 微信逐字写在自己的头里，在此收成一个入口。
+  // glyph 可传原页已有的大号 ‹（转账/红包页的 24px span）；label 默认“返回”，回微信列表那处传“返回微信”。
+  const wxBack = (onclick, opts) => {
+      opts = opts || {};
+      const glyph = opts.glyph || '‹';
+      const extra = opts.extra ? ' ' + opts.extra : '';
+      const label = opts.label || '返回';
+      return `<div class="wx-header-left" onclick="${onclick}"${extra} aria-label="${label}">${glyph}</div>`;
+  };
+
   return {
       wxStore: wxStore,
       activeContextMsgId: null,
@@ -8955,7 +8926,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-view-chat-detail">
                   <div class="wx-header" style="background:#ededed;">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeChatDetail()">‹ 微信</div>
+                      ${wxBack("WeChatAppEngine.closeChatDetail()", {label: '返回微信'})}
                       <div class="wx-header-title" id="wx-chat-title" onclick="WeChatAppEngine.otomeMenuGo('profile', event)">详情</div>
                       <div class="wx-header-right" id="wx-chat-more-btn" onclick="WeChatAppEngine.toggleChatMoreMenu(event)" style="display:flex;align-items:center;" aria-haspopup="true" aria-expanded="false">
                           <svg viewBox="0 0 24 24" width="22" height="22" fill="#111111"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
@@ -9082,7 +9053,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                             <!-- F组：TA的主页（读 wxStore 会话真实字段 + 朋友圈按作者匹配 + 此刻同名手记） -->
               <div class="wx-subpage-box ot-overlay" id="wx-otome-profile">
                   <div class="wx-header" style="background:#ededed;">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeOtomeOverlay('wx-otome-profile')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeOtomeOverlay('wx-otome-profile')")}
                       <div class="wx-header-title">TA的主页</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9091,7 +9062,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <!-- F组：日记阅读页（读此刻 ck_diary_meta_v1 + cike_cache_v1，朴素分页阅读器） -->
               <div class="wx-subpage-box ot-overlay" id="wx-otome-diary">
                   <div class="wx-header" style="background:#ededed;">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeOtomeOverlay('wx-otome-diary')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeOtomeOverlay('wx-otome-diary')")}
                       <div class="wx-header-title">日记</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9100,7 +9071,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <!-- F组：乙游模式（竖屏全屏，占满微信窗口）—— 3D立体书之家为主场景/枢纽 -->
               <div class="wx-subpage-box ot-overlay" id="wx-otome-home">
                   <div class="ot-home-top">
-                      <span class="ot-back" onclick="WeChatAppEngine.closeOtomeHome()">‹ 返回聊天</span>
+                      <span class="ot-back" onclick="WeChatAppEngine.closeOtomeHome()" aria-label="返回聊天">‹</span>
                       <span class="ot-title" id="ot-home-title">我们的家</span>
                       <span class="ot-aff-pill" id="ot-aff-pill" onclick="WeChatAppEngine.otomeShowPanel('perception')">好感 --</span>
                   </div>
@@ -9146,9 +9117,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-transfer-detail" style="background-color: #ededed; z-index: 5000;">
     <div class="wx-header" style="background:#ededed;border-bottom:none;">
-        <div class="wx-header-left" onclick="WeChatAppEngine.closeTransferDetail()">
-            <span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span> 返回
-        </div>
+        ${wxBack("WeChatAppEngine.closeTransferDetail()", {glyph: '<span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span>'})}
         <div class="wx-header-title"></div>
         <div class="wx-header-right"></div>
     </div>
@@ -9179,9 +9148,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
 </div>
               <div class="wx-subpage-box wx-slide-right" id="wx-page-av-transfer" style="background-color: #ededed; z-index: 5000;">
     <div class="wx-header" style="background:#ededed;border-bottom:none;">
-        <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('av-transfer')">
-            <span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span> 返回
-        </div>
+        ${wxBack("WeChatAppEngine.closeSubPage('av-transfer')", {glyph: '<span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span>'})}
         <div class="wx-header-title">转账</div>
         <div class="wx-header-right"></div>
     </div>
@@ -9204,9 +9171,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
 </div>
               <div class="wx-subpage-box wx-slide-right" id="wx-page-av-redpacket" style="background-color: #ededed; z-index: 5000;">
     <div class="wx-header" style="background:#ededed;border-bottom:none;">
-        <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('av-redpacket')">
-            <span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span> 返回
-        </div>
+        ${wxBack("WeChatAppEngine.closeSubPage('av-redpacket')", {glyph: '<span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span>'})}
         <div class="wx-header-title">发红包</div>
         <div class="wx-header-right"></div>
     </div>
@@ -9235,7 +9200,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
 </div>
               <div class="wx-subpage-box wx-slide-right" id="wx-page-walletSandbox">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('walletSandbox')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('walletSandbox')")}
                       <div class="wx-header-title">我的账户</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9296,7 +9261,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-dataCenter">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('dataCenter')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('dataCenter')")}
                       <div class="wx-header-title">数据管道</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9320,7 +9285,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-api">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('api')">‹ 我</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('api')", {label: '返回「我」'})}
                       <div class="wx-header-title">API连接</div>
                       <div class="wx-header-right" onclick="WeChatAppEngine.addNewApiProvider()">添加</div>
                   </div>
@@ -9329,7 +9294,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-words">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('words')">‹ 我</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('words')", {label: '返回「我」'})}
                       <div class="wx-header-title">离线字卡</div>
                       <div class="wx-header-right" onclick="WeChatAppEngine.triggerCardManagerAction()">建词</div>
                   </div>
@@ -9347,7 +9312,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-accountRoot">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('accountRoot')">‹ 我</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('accountRoot')", {label: '返回「我」'})}
                       <div class="wx-header-title">系统底层</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9393,7 +9358,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-beautifier">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('beautifier')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('beautifier')")}
                       <div class="wx-header-title">美化器</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9435,7 +9400,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               <div class="wx-subpage-box wx-slide-right" id="wx-page-accAsset">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('accAsset')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('accAsset')")}
                       <div class="wx-header-title">标证权限</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9459,7 +9424,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-accOs">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('accOs')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('accOs')")}
                       <div class="wx-header-title">运行快照</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9495,7 +9460,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-right" id="wx-page-accDisk">
                   <div class="wx-header">
-                      <div class="wx-header-left" onclick="WeChatAppEngine.closeSubPage('accDisk')">‹ 返回</div>
+                      ${wxBack("WeChatAppEngine.closeSubPage('accDisk')")}
                       <div class="wx-header-title">存储同步</div>
                       <div class="wx-header-right"></div>
                   </div>
@@ -9540,7 +9505,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               
               <div class="wx-subpage-box wx-slide-up" id="wx-view-moments-page" style="z-index:3000;">
                   <div class="wx-header" style="background:transparent;border:none;">
-                      <div class="wx-header-left" style="color:#ffffff;text-shadow:0 1px 2px #000000;" onclick="NavigationManager.back()">‹ 返回</div>
+                      ${wxBack("NavigationManager.back()", {extra: 'style="color:#ffffff;text-shadow:0 1px 2px #000000;"'})}
                       <div class="wx-header-title" style="color:#ffffff;" id="wx-moments-top-title">朋友圈</div>
                       <div class="wx-header-right" style="color:#ffffff;text-shadow:0 1px 2px #000000;" onclick="WeChatAppEngine.publishUserMoment()">发表</div>
                   </div>
@@ -14814,7 +14779,7 @@ handleImgUpload: (input) => {
       const o = document.createElement('div');
       o.id = 'wx-discover-overlay';
       o.className = 'wx-discover-overlay';
-      o.innerHTML = `<div class="wx-header"><div class="wx-header-left" onclick="WeChatAppEngine._closeDiscoverOverlay()">‹ 发现</div><div class="wx-header-title">${title}</div><div class="wx-header-right"></div></div><div style="flex:1;overflow-y:auto;padding:12px 16px;">${bodyHTML}</div>`;
+      o.innerHTML = `<div class="wx-header"><div class="wx-header-left" onclick="WeChatAppEngine._closeDiscoverOverlay()" aria-label="返回发现">‹</div><div class="wx-header-title">${title}</div><div class="wx-header-right"></div></div><div style="flex:1;overflow-y:auto;padding:12px 16px;">${bodyHTML}</div>`;
       root.appendChild(o);
   },
   _closeDiscoverOverlay: () => { document.getElementById('wx-discover-overlay')?.remove(); if (WeChatAppEngine._shakeHandler) { window.removeEventListener('devicemotion', WeChatAppEngine._shakeHandler); WeChatAppEngine._shakeHandler = null; } },
@@ -17248,7 +17213,7 @@ const ICON_STYLES = [
 const CLOCK_STYLES = [ { id: 'digital', name: '数字' }, { id: 'analog', name: '模拟表盘' }, { id: 'minimal', name: '简约' } ];
 const PET_MODES = [ { id: 'full', name: '完整（书桌 + 溜达）' }, { id: 'walk-only', name: '只走路' }, { id: 'desk-only', name: '只坐桌' } ];
 const PET_SIZES = [ { id: 'small', name: '小', px: 44 }, { id: 'medium', name: '中', px: 52 }, { id: 'large', name: '大', px: 68 } ]; /* GROUP-FIX2: 桌宠比原来小一圈（中号 64 -> 52） */
-const PET_SKINS = [ { id: 'default', name: 'QQ 小人（默认）' }, { id: 'cat', name: '小猫' }, { id: 'cutout', name: '抠图立绘' }, { id: 'pet-claude', name: 'Claude' }, { id: 'pet-chatgpt', name: 'ChatGPT' }, { id: 'pet-muse', name: 'Muse' } ]; /* GROUP-PET: 市场三款是 BOY 14x14 帧的换色（调色板见 GroupPET.MARKET_PALETTES），不是原生 desksprite 皮肤；「家里的猫」改名「小猫」 */
+const PET_SKINS = [ { id: 'default', name: 'QQ 小人（默认）' }, { id: 'cat', name: '小猫' }, { id: 'cutout', name: '抠图立绘' }, { id: 'pet-claude', name: 'Claude' }, { id: 'pet-chatgpt', name: 'ChatGPT' }, { id: 'pet-muse', name: 'Muse' } ]; /* GROUP-PET: 市场三款是真模型（Claude 像素螃蟹 / ChatGPT 像素黑狐 / Muse Jolly 像素化，各自 5 张帧 + 独立调色板，见 js/57 SKINS），不是 boy 帧换色；「家里的猫」改名「小猫」 */
 
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const _read = (k, dflt) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined) ? dflt : v; } catch (e) { return dflt; } };
@@ -19041,7 +19006,7 @@ const openDesktopSettings = (win, section) => {
     let sub = host.querySelector('#st-sub-w-desktop');
     if (!sub) {
       const tmp = document.createElement('div');
-      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌面与外观</div></div><div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
+      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop">' + stSubBar('桌面与外观') + '<div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
       sub = tmp.firstElementChild;
       host.appendChild(sub);
       sub.addEventListener('click', (e) => {

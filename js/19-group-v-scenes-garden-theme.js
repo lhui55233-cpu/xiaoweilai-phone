@@ -24,28 +24,31 @@ var hexRgb = function (hex) { var h = String(hex || '').replace('#', ''); return
 var hexLum = function (hex) { var r = hexRgb(hex); return (0.299 * r[0] + 0.587 * r[1] + 0.114 * r[2]) / 255; };
 var dayNum = function () { return new Date().getDate(); };
 
-/* ══════════ A32 主题：5 套 + 自定义两色 + 可分享代码 ══════════
+/* ══════════ A32 主题：14 套 + 每套 5 配色 + 可分享代码 ══════════
    写进 T 组已合入的 phone_ui_prefs_v1（theme=light|dark|auto 不动其含义；主题两色写 themeCustom.c1/c2，
    c1=浅色/背景，c2=主色/强调——与 T 的默认值 {c1:'#ffffff', c2:'#34363b'} 语义一致）。
-   当前是哪一套由 c1/c2 的值反推，不加新字段（T 的 getUiPrefs 只认白名单字段，新字段会被它下次保存时丢掉）。
-   归巢默认套装的 c1 取 '#ffffff'，与 T 的默认值完全一致，这样全新手机直接识别为“归巢默认”而不是“自定义”。 */
+   2026-11-28 批量 0020（项 1）：主题是唯一数据源（js/54 BU_THEMES 与 js/15 AppTheme.THEMES
+   都以这里为准，不再各存一份）；每套主题 = {封面(由 c1/c2 + 配色画), 配色方案 colors[5]}，
+   colors[0] 永远是主题原配色 c2，5 个配色全部不含纯黑 #000000；vars 是全套 --app-*（与
+   AppTheme.THEMES / BuThemes 注入的样式同值），dark 标深色款。选颜色只改 themeCustom.c2，
+   theme 字段始终保留主题 id（setCustomColor 也不再把它写成 'light'）。 */
 var PREFS_KEY = 'phone_ui_prefs_v1';
 var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
 var THEMES = [
-  { id: 'guichao', name: '归巢默认', c1: '#ffffff', c2: '#34363b', desc: '归巢黑白灰，默认主题' },
-  { id: 'warm', name: '晨光暖阳', c1: '#fdf6ec', c2: '#c87a5a', desc: '陶土暖阳' },
-  { id: 'mint', name: '薄荷清晨', c1: '#eef7f2', c2: '#2f9e7e', desc: '薄荷绿' },
-  { id: 'dusk', name: '暮山紫', c1: '#f4f0fa', c2: '#7a5fb5', desc: '暮山紫' },
-  { id: 'sea', name: '海盐蓝', c1: '#eef4fb', c2: '#3a7bd5', desc: '海盐蓝' },
-  { id: 'trianon', name: '特里亚农 · 洛可可', c1: '#fbf9f4', c2: '#5c6884', desc: '雾蓝银蓝奶白，洛可可信笺风' },
-  { id: 'bu-spring-pink', name: '春·槐花粉', c1: '#fbf9f4', c2: '#6f687e', desc: '奶白纸底，藕粉只一点点。' },
-  { id: 'bu-autumn-red', name: '秋·枫叶红', c1: '#fffdf8', c2: '#5b5871', desc: '信笺纸底，深藕粉点缀。' },
-  { id: 'bu-night-black', name: '夜·蜕茧黑', c1: '#1e2748', c2: '#e8c9d0', desc: '墨蓝底，藕粉点缀（深色款）。' },
-  { id: 'bu-winter-blue', name: '冬·雪河蓝', c1: '#eef0f5', c2: '#46536f', desc: '画布底，墨蓝柔点缀。' },
-  { id: 'bu-mint', name: '薄荷绿', c1: '#fbf9f4', c2: '#6e7894', desc: '奶白纸底，银蓝点缀。' },
-  { id: 'bu-lavender', name: '薰衣草紫', c1: '#fbf9f4', c2: '#5c6884', desc: '奶白纸底，雾蓝点缀。' },
-  { id: 'bu-cream', name: '奶油黄', c1: '#fffdf8', c2: '#46536f', desc: '信笺纸底，墨蓝柔点缀。' },
-  { id: 'bu-forest', name: '墨绿', c1: '#1e2748', c2: '#a9b3cc', desc: '墨蓝底，雾蓝浅点缀（深色款）。' }
+  { id: 'guichao', name: '归巢默认', c1: '#ffffff', c2: '#34363b', desc: '归巢黑白灰，默认主题', dark: false, colors: ['#34363b', '#4a4d52', '#6e7278', '#9aa0a6', '#b08d57'], vars: { '--app-bg': '#ffffff', '--app-surface': '#f9f9f9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': '#e5e5e5', '--app-accent': '#34363b', '--app-accent-soft': '#e5e5e5' } },
+  { id: 'warm', name: '晨光暖阳', c1: '#fdf6ec', c2: '#c87a5a', desc: '陶土暖阳', dark: false, colors: ['#c87a5a', '#b96a4b', '#d99a76', '#e8b48f', '#8a5a44'], vars: { '--app-bg': '#fdf6ec', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#c87a5a', '--app-accent-soft': '#f3ddd2' } },
+  { id: 'mint', name: '薄荷清晨', c1: '#eef7f2', c2: '#2f9e7e', desc: '薄荷绿', dark: false, colors: ['#2f9e7e', '#27856c', '#57b89a', '#7ccbb3', '#1f6f57'], vars: { '--app-bg': '#eef7f2', '--app-surface': '#f7fbf9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#2f9e7e', '--app-accent-soft': '#d2ece3' } },
+  { id: 'dusk', name: '暮山紫', c1: '#f4f0fa', c2: '#7a5fb5', desc: '暮山紫', dark: false, colors: ['#7a5fb5', '#6a4ea3', '#9783c9', '#b3a6d8', '#54428a'], vars: { '--app-bg': '#f4f0fa', '--app-surface': '#faf8fd', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#7a5fb5', '--app-accent-soft': '#e3dcf2' } },
+  { id: 'sea', name: '海盐蓝', c1: '#eef4fb', c2: '#3a7bd5', desc: '海盐蓝', dark: false, colors: ['#3a7bd5', '#2f68b8', '#5f97dd', '#8db6e6', '#1f4e8c'], vars: { '--app-bg': '#eef4fb', '--app-surface': '#f7fafd', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#3a7bd5', '--app-accent-soft': '#d8e6f7' } },
+  { id: 'trianon', name: '特里亚农 · 洛可可', c1: '#fbf9f4', c2: '#5c6884', desc: '雾蓝银蓝奶白，洛可可信笺风', dark: false, colors: ['#5c6884', '#4c5670', '#7c88a3', '#9aa5bb', '#3d465e'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' } },
+  { id: 'bu-spring-pink', name: '春·槐花粉', c1: '#fbf9f4', c2: '#6f687e', desc: '奶白纸底，藕粉只一点点。', dark: false, colors: ['#6f687e', '#5d5768', '#8a8494', '#a9a3b1', '#4a4456'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6f687e', '--app-accent-soft': '#e8c9d0' } },
+  { id: 'bu-autumn-red', name: '秋·枫叶红', c1: '#fffdf8', c2: '#5b5871', desc: '信笺纸底，深藕粉点缀。', dark: false, colors: ['#5b5871', '#4a475e', '#75718a', '#9793a8', '#38354a'], vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5b5871', '--app-accent-soft': '#e8c9d0' } },
+  { id: 'bu-night-black', name: '夜·蜕茧黑', c1: '#1e2748', c2: '#e8c9d0', desc: '墨蓝底，藕粉点缀（深色款）。', dark: true, colors: ['#e8c9d0', '#d9aeb8', '#f0dde1', '#c99aa6', '#b98a96'], vars: { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#e8c9d0', '--app-accent-soft': '#5c6884' } },
+  { id: 'bu-winter-blue', name: '冬·雪河蓝', c1: '#eef0f5', c2: '#46536f', desc: '画布底，墨蓝柔点缀。', dark: false, colors: ['#46536f', '#39435c', '#5f6d8c', '#7f8ca8', '#2e3648'], vars: { '--app-bg': '#eef0f5', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#dce2f1' } },
+  { id: 'bu-mint', name: '薄荷绿', c1: '#fbf9f4', c2: '#6e7894', desc: '奶白纸底，银蓝点缀。', dark: false, colors: ['#6e7894', '#5d667f', '#8b93a8', '#a8adbd', '#4a5165'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6e7894', '--app-accent-soft': '#dce2f1' } },
+  { id: 'bu-lavender', name: '薰衣草紫', c1: '#fbf9f4', c2: '#5c6884', desc: '奶白纸底，雾蓝点缀。', dark: false, colors: ['#5c6884', '#6e5f9e', '#8f83b5', '#b0a6cc', '#4a4468'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' } },
+  { id: 'bu-cream', name: '奶油黄', c1: '#fffdf8', c2: '#46536f', desc: '信笺纸底，墨蓝柔点缀。', dark: false, colors: ['#46536f', '#39435c', '#5f6d8c', '#8a7a52', '#b08d57'], vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#eef0f5' } },
+  { id: 'bu-forest', name: '墨绿', c1: '#1e2748', c2: '#a9b3cc', desc: '墨蓝底，雾蓝浅点缀（深色款）。', dark: true, colors: ['#a9b3cc', '#93a0bd', '#c2cadb', '#d8dde8', '#7c88a3'], vars: { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#a9b3cc', '--app-accent-soft': '#5c6884' } }
 ];
 var themeById = function (id) { for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return THEMES[i]; return null; };
 /* GROUP-THROTTLE: 缓存 prefs 原始解析结果（500ms TTL + 写版本号失效；与 FIXAPPS 的
@@ -79,15 +82,29 @@ var readCustom = function () {
   if (isHex(tc.hex)) return { c1: '#ffffff', c2: tc.hex };
   return { c1: PREFS_DEFAULT.themeCustom.c1, c2: PREFS_DEFAULT.themeCustom.c2 };
 };
+/* 2026-11-28 批量 0020（项 1）：生效主题 = 主题定义 + themeCustom 里选中的配色。
+   themeCustom.c2 是该主题 colors 里的配色时（详情页点的 5 色之一）即生效；非 BU 主题时，
+   高级取色器点的任意合法颜色也生效（老“自定义两色”行为）；BU 主题只认 colors 里的配色，
+   与 AppTheme.apply “BU 主题不吃 themeCustom 覆盖”的保护口径一致（AC 组启动时会重写
+   themeCustom，任意色会把 BU 点缀色改错）。不加新字段，配色只存在 themeCustom.c1/c2 里。 */
+var effectiveTheme = function (t, tc) {
+  var c1 = t.c1, c2 = t.c2;
+  tc = tc || {};
+  var inColors = function (v) { return !!(t.colors && isHex(v) && t.colors.indexOf(String(v).toLowerCase()) >= 0); };
+  var isBu = String(t.id || '').indexOf('bu-') === 0;
+  if (isHex(tc.c2) && (inColors(tc.c2) || !isBu)) c2 = tc.c2;
+  if (isHex(tc.c1) && (inColors(tc.c1) || !isBu)) c1 = tc.c1;
+  return { id: t.id, name: t.name, c1: c1, c2: c2, desc: t.desc, colors: t.colors, dark: t.dark, vars: t.vars };
+};
 var currentTheme = function () {
   /* GROUP-BU：theme 字段存着主题 id 时优先认它（AC 组启动时重写 themeCustom 两色，theme 字段不受影响，重启后主题靠它恢复）。 */
   /* GROUP-THROTTLE: 原直读 localStorage 解析改走带缓存的 readPrefs（theme 字段值与 raw 一致，语义不变）。 */
-  try { var _pt2 = readPrefs(); if (_pt2 && typeof _pt2.theme === 'string') { var _bt = themeById(_pt2.theme); if (_bt) return _bt; } } catch (e1) {}
+  try { var _pt2 = readPrefs(); if (_pt2 && typeof _pt2.theme === 'string') { var _bt = themeById(_pt2.theme); if (_bt) return effectiveTheme(_bt, _pt2.themeCustom); } } catch (e1) {}
   var c = readCustom();
   for (var i = 0; i < THEMES.length; i++) {
-    if (THEMES[i].c1.toLowerCase() === String(c.c1).toLowerCase() && THEMES[i].c2.toLowerCase() === String(c.c2).toLowerCase()) return THEMES[i];
+    if (THEMES[i].c1.toLowerCase() === String(c.c1).toLowerCase() && THEMES[i].c2.toLowerCase() === String(c.c2).toLowerCase()) return effectiveTheme(THEMES[i], c);
   }
-  return { id: 'custom', name: '自定义', c1: c.c1, c2: c.c2, desc: '自定义两色' };
+  return { id: 'custom', name: '自定义', c1: c.c1, c2: c.c2, desc: '自定义两色', colors: null, dark: false, vars: null };
 };
 var applyTheme = function () {
   var cur = currentTheme();
@@ -121,21 +138,47 @@ var setCustomColor = function (which, val) {
   if (!isHex(val)) return null;
   var c = readCustom();
   if (which === 1) c.c1 = val; else c.c2 = val;
-  writePrefs({ theme: 'light', themeCustom: { c1: c.c1, c2: c.c2 } });
+  /* 2026-11-28 批量 0020（项 1）：以前这里写死 theme:'light'，选颜色就丢了主题 id，
+     currentTheme() 只能靠 c1/c2 反推，推不出就是 custom。改为保留当前主题 id；
+     生效与否由 effectiveTheme() 按“BU 只认 5 配色 / 非 BU 认任意色”判定。 */
+  var cur = currentTheme();
+  var id = (cur && cur.id && cur.id !== 'custom') ? cur.id : 'light';
+  writePrefs({ theme: id, themeCustom: { c1: c.c1, c2: c.c2 } });
+  var cur2 = applyTheme();
+  return cur2;
+};
+/* 2026-11-28 批量 0020（项 1）：详情页选配色——只改 themeCustom.c2，theme id 不动。 */
+var themeColors = function (id) { var t = themeById(id); return (t && t.colors) ? t.colors.slice() : []; };
+var setThemeColor = function (id, hex) {
+  var t = themeById(id);
+  if (!t || !isHex(hex)) return null;
+  var h = String(hex).toLowerCase();
+  if (!t.colors || t.colors.indexOf(h) < 0) return null;
+  writePrefs({ theme: id, themeCustom: { c1: t.c1, c2: h } });
   var cur = applyTheme();
+  refreshOtomeSettings();
   return cur;
 };
 var shareCode = function () {
   var cur = currentTheme();
+  var t = themeById(cur.id);
+  /* 选了非原配色时用 C 码带走真实两色（否则 T 码只剩主题 id，配色会丢）。 */
+  if (t && (String(cur.c1).toLowerCase() !== String(t.c1).toLowerCase() || String(cur.c2).toLowerCase() !== String(t.c2).toLowerCase())) return 'GV1-C-' + String(cur.c1).slice(1).toUpperCase() + '-' + String(cur.c2).slice(1).toUpperCase();
   if (cur.id !== 'custom') return 'GV1-T-' + cur.id.toUpperCase();
   return 'GV1-C-' + String(cur.c1).slice(1).toUpperCase() + '-' + String(cur.c2).slice(1).toUpperCase();
 };
 var decodeTheme = function (code) {
   var s = String(code || '').trim();
-  var m = /^GV1-(?:T-([A-Za-z]+)|C-([0-9A-Fa-f]{6})-([0-9A-Fa-f]{6}))$/.exec(s);
+  var m = /^GV1-(?:T-([A-Za-z-]+)|C-([0-9A-Fa-f]{6})-([0-9A-Fa-f]{6}))$/.exec(s);
   if (!m) return null;
   if (m[1]) { var t = themeById(m[1].toLowerCase()); if (!t) return null; return { id: t.id, themeCustom: { c1: t.c1, c2: t.c2 } }; }
-  return { id: 'custom', themeCustom: { c1: '#' + m[2], c2: '#' + m[3] } };
+  var c1 = '#' + m[2], c2 = '#' + m[3];
+  /* C 码的两色若正好是某主题的 c1 + colors 里的配色，认回该主题 id（否则落盘成 custom）。 */
+  for (var i = 0; i < THEMES.length; i++) {
+    var tt = THEMES[i];
+    if (tt.c1.toLowerCase() === c1.toLowerCase() && tt.colors && tt.colors.indexOf(c2.toLowerCase()) >= 0) return { id: tt.id, themeCustom: { c1: c1, c2: c2 } };
+  }
+  return { id: 'custom', themeCustom: { c1: c1, c2: c2 } };
 };
 var importShareCode = function (code) {
   var d = decodeTheme(code);
@@ -181,22 +224,183 @@ var GV_PALETTE_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none
 var GV_CAT_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>';
 var GV_PACK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><rect x="6" y="8" width="12" height="12" rx="4"/><path d="M9 8V6a3 3 0 0 1 6 0v2M9 13h6"/></svg>';
 var GV_DOWN_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M12 4v16m0 0-6-6m6 6 6-6"/></svg>';
+/* ══════════ Cover Flow #247（2026-11-28 批量 0020 项 1）══════════
+   仓库原先没有任何 coverflow/carousel（全文检索 0 命中），PhotoStack 是多图堆叠不是
+   Cover Flow，不能复用。按 Dock 放大 #249 的模式：一个中心值 p（浮点“正中序号”）驱动
+   全部封面的 transform，唯一驱动函数 cfRender() + 唯一 rAF 动画 cfAnimateTo()。
+   封面是壁纸形 132×198（非 #247 的 88×88 方块），封面画 = 主题自己的颜色
+   （coverBg：c2 → colors[1] → colors[2] 渐变 + c1 圆 + colors[3] 底带），无新图片资产。
+   #247 的数照抄：横移 rel×74px，再往外每张 30px 递进；旋转 clamp(|rel|)×62°，左右镜像；
+   侧面罩白最高 45%；倒影透明度 0.22 向地面淡出；正中标题只在 p 接近整数时显示。
+   开场 4.7s 内分四段步进（0.25–0.75s、1.05–1.55s、1.85–2.35s、3.0–4.3s，cubic
+   ease-in-out）：从当前主题往前 4 张走到当前主题；用户一碰（pointerdown/点按）即停。
+   滑动/点按切换 p；点正中封面进主题详情（该主题的 5 个配色）。 */
+var _cfP = 0, _cfRaf = 0, _cfTimers = [], _cfDrag = null, _cfSuppressClick = false;
+var _cfEase = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+var _cfIndex = function () { var cur = currentTheme(); for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === cur.id) return i; return 0; };
+var coverBg = function (t) {
+  var cs = (t && t.colors) || [];
+  var a = (t && t.c2) || '#34363b', b = cs[1] || a, c = cs[2] || a;
+  return 'linear-gradient(165deg,' + a + ' 0%,' + b + ' 55%,' + c + ' 100%)';
+};
+var _cfCoverStyle = function (i, p) {
+  var rel = i - p, ax = Math.abs(rel), s = rel < 0 ? -1 : 1;
+  var x = ax <= 1 ? rel * 74 : s * (74 + 30 * (ax - 1));
+  var rot = s * Math.min(ax, 1) * 62;
+  return { transform: 'translateX(' + x.toFixed(1) + 'px) rotateY(' + rot.toFixed(1) + 'deg)', z: 100 - Math.round(ax * 10), wash: Math.min(ax, 1) * 0.45 };
+};
+var _cfCoverHTML = function (t, i, p) {
+  var st = _cfCoverStyle(i, p);
+  var cs = t.colors || [];
+  return '<div class="gv-cf-cover" data-cf-i="' + i + '" role="button" tabindex="0" aria-label="' + esc(t.name) + '" style="transform:' + st.transform + ';z-index:' + st.z + '" onclick="window.GroupV.cfTap(' + i + ')">'
+    + '<div class="gv-cf-art" style="background:' + coverBg(t) + ';"><i class="gv-cf-sun" style="background:' + t.c1 + '"></i><i class="gv-cf-band" style="background:' + (cs[3] || t.c2) + '"></i></div>'
+    + '<div class="gv-cf-wash" style="opacity:' + st.wash.toFixed(2) + '"></div></div>';
+};
+var cfRender = function () {
+  var stage = document.getElementById('gv-cf-stage');
+  if (!stage) return false;
+  var covers = $$('.gv-cf-cover', stage);
+  covers.forEach(function (el) {
+    var i = parseInt(el.getAttribute('data-cf-i') || '0', 10);
+    var st = _cfCoverStyle(i, _cfP);
+    el.style.transform = st.transform;
+    el.style.zIndex = String(st.z);
+    var w = el.querySelector('.gv-cf-wash');
+    if (w) w.style.opacity = st.wash.toFixed(2);
+  });
+  var title = document.getElementById('gv-cf-title');
+  if (title) {
+    var fi = Math.round(_cfP), frac = Math.abs(_cfP - fi);
+    var t = THEMES[fi];
+    if (t) { title.textContent = t.name; title.style.opacity = frac < 0.12 ? String(1 - frac / 0.12) : '0'; }
+  }
+  var view = stage.parentNode;
+  if (view) {
+    $$('.gv-cf-dot', view).forEach(function (d, di) { d.classList.toggle('on', di === Math.round(_cfP)); });
+  }
+  return true;
+};
+var _cfCancelRaf = function () { if (_cfRaf) { try { if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(_cfRaf); } catch (e) {} _cfRaf = 0; } };
+var _cfCancelIntro = function () { _cfTimers.forEach(function (id) { clearTimeout(id); }); _cfTimers = []; _cfCancelRaf(); };
+var cfAnimateTo = function (target, durMs, done) {
+  _cfCancelRaf();
+  target = clamp(target, 0, THEMES.length - 1);
+  if (typeof requestAnimationFrame !== 'function') { _cfP = target; cfRender(); if (done) done(); return true; }
+  var from = _cfP, dur = Math.max(1, durMs || 350), t0 = null;
+  var step = function (ts) {
+    if (t0 === null) t0 = ts;
+    var k = Math.min(1, (ts - t0) / dur);
+    _cfP = from + (target - from) * _cfEase(k);
+    cfRender();
+    if (k < 1) { _cfRaf = requestAnimationFrame(step); }
+    else { _cfRaf = 0; _cfP = target; cfRender(); if (done) done(); }
+  };
+  _cfRaf = requestAnimationFrame(step);
+  return true;
+};
+var cfIntro = function () {
+  _cfCancelIntro();
+  var cur = _cfIndex(), start = Math.max(0, cur - 4), steps = cur - start;
+  if (steps <= 0) { _cfP = cur; cfRender(); return true; }
+  _cfP = start; cfRender();
+  var wins = [[250, 750], [1050, 1550], [1850, 2350], [3000, 4300]];
+  for (var k = 0; k < steps; k++) {
+    (function (kk) {
+      var w = wins[kk] || wins[wins.length - 1];
+      _cfTimers.push(setTimeout(function () { cfAnimateTo(start + kk + 1, w[1] - w[0]); }, w[0]));
+    })(k);
+  }
+  return true;
+};
+var cfInit = function () {
+  var stage = document.getElementById('gv-cf-stage');
+  if (!stage) return false;
+  /* 只在首次绑定时把 p 对到当前主题；已绑定的 stage 上再次 cfInit（点按/回详情时）
+     不能重置 p，否则刚滑到的封面会被拉回当前主题，点正中封面也进不了详情。 */
+  if (!stage._cfBound) _cfP = _cfIndex();
+  cfRender();
+  if (stage._cfBound) return true;
+  stage._cfBound = true;
+  stage.addEventListener('pointerdown', function (ev) {
+    _cfCancelIntro();
+    _cfDrag = { x0: ev.clientX, p0: _cfP, moved: false };
+    try { if (stage.setPointerCapture) stage.setPointerCapture(ev.pointerId); } catch (e) {}
+  });
+  stage.addEventListener('pointermove', function (ev) {
+    if (!_cfDrag) return;
+    var dx = ev.clientX - _cfDrag.x0;
+    if (Math.abs(dx) > 8) _cfDrag.moved = true;
+    if (_cfDrag.moved) { _cfCancelRaf(); _cfP = clamp(_cfDrag.p0 - dx / 74, 0, THEMES.length - 1); cfRender(); }
+  });
+  var end = function () {
+    if (!_cfDrag) return;
+    var d = _cfDrag;
+    _cfDrag = null;
+    if (d.moved) { _cfSuppressClick = true; setTimeout(function () { _cfSuppressClick = false; }, 50); cfAnimateTo(Math.round(_cfP), 300); }
+  };
+  stage.addEventListener('pointerup', end);
+  stage.addEventListener('pointercancel', end);
+  return true;
+};
+var cfGoTo = function (i) { _cfCancelIntro(); cfInit(); cfAnimateTo(i, 350); return true; };
+var cfTap = function (i) {
+  if (_cfSuppressClick) return false;
+  _cfCancelIntro();
+  cfInit();
+  if (i === Math.round(_cfP)) return openThemeDetail(THEMES[i].id);
+  cfAnimateTo(i, 350);
+  return true;
+};
+var openThemeDetail = function (id) {
+  var t = themeById(id);
+  if (!t) return false;
+  var view = document.getElementById('gv-cf-view'), det = document.getElementById('gv-cf-detail');
+  if (!view || !det) return false;
+  var cur = currentTheme();
+  var cs = t.colors || [];
+  var sw = cs.map(function (c) {
+    var on = cur.id === t.id && String(cur.c2).toLowerCase() === String(c).toLowerCase();
+    return '<button type="button" class="gv-cf-color' + (on ? ' gv-cf-color-on' : '') + '" style="background:' + c + '" title="' + c + '" aria-pressed="' + on + '" onclick="window.GroupV.setThemeColor(\'' + t.id + '\',\'' + c + '\');window.GroupV.openThemeDetail(\'' + t.id + '\')"></button>';
+  }).join('');
+  det.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeDetail()">‹ 主题</button></div>'
+    + '<div style="display:flex;justify-content:center;margin-top:12px;"><div class="gv-cf-cover gv-cf-cover-big"><div class="gv-cf-art" style="background:' + coverBg(t) + ';"><i class="gv-cf-sun" style="background:' + t.c1 + '"></i><i class="gv-cf-band" style="background:' + (cs[3] || t.c2) + '"></i></div></div></div>'
+    + '<div style="text-align:center;font-weight:700;font-size:17px;margin-top:10px;">' + esc(t.name) + '</div>'
+    + '<div class="ot-muted" style="text-align:center;">' + esc(t.desc) + '</div>'
+    + '<div style="font-weight:600;font-size:15px;margin:16px 0 8px;">配色（5 种）</div>'
+    + '<div class="gv-cf-colors">' + sw + '</div>'
+    + '<div class="ot-muted" style="margin-top:8px;">当前配色：<span>' + esc(cur.id === t.id ? cur.c2 : t.c2) + '</span> · 选中的颜色会跟着「' + esc(t.name) + '」保存，主题本身不变。</div>';
+  view.hidden = true;
+  det.hidden = false;
+  return true;
+};
+var closeThemeDetail = function () {
+  var view = document.getElementById('gv-cf-view'), det = document.getElementById('gv-cf-detail');
+  if (view) view.hidden = false;
+  if (det) { det.hidden = true; det.innerHTML = ''; }
+  cfInit();
+  return true;
+};
 var themeSectionHTML = function () {
   var cur = currentTheme();
-  var btns = THEMES.map(function (t) {
-    var on = cur.id === t.id;
-    return '<button type="button" class="gv-theme-btn' + (on ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.setTheme(\'' + t.id + '\')" title="' + esc(t.desc) + '" aria-pressed="' + on + '"><span class="gv-theme-sw" style="background:linear-gradient(135deg,' + t.c1 + ' 50%,' + t.c2 + ' 50%);"></span><span class="gv-theme-name">' + esc(t.name) + '</span>' + (on ? '<span class="gv-theme-check">' + GV_CHECK_SVG + '</span>' : '') + '</button>';
-  }).join('');
-  /* 自定义卡片：当前为自定义两色时，它就是唯一选中项；点它展开下方高级里的取色器。 */
+  var p = _cfIndex();
+  var covers = THEMES.map(function (t, i) { return _cfCoverHTML(t, i, p); }).join('');
+  var dots = THEMES.map(function (t, i) { return '<button type="button" class="gv-cf-dot' + (i === p ? ' on' : '') + '" aria-label="' + esc(t.name) + '" onclick="window.GroupV.cfGoTo(' + i + ')"></button>'; }).join('');
+  /* 自定义卡片已并进详情/高级：当前为自定义两色时，高级区默认展开（见 gv-adv 的 open）。 */
   var customOn = cur.id === 'custom';
-  btns += '<button type="button" class="gv-theme-btn' + (customOn ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.openCustomTheme()" title="自定义两色" aria-pressed="' + customOn + '"><span class="gv-theme-sw gv-theme-sw-custom"><i style="background:' + cur.c1 + '"></i><i style="background:' + cur.c2 + '"></i></span><span class="gv-theme-name">自定义</span>' + (customOn ? '<span class="gv-theme-check">' + GV_CHECK_SVG + '</span>' : '') + '</button>';
-  return '<div style="font-weight:600;font-size:17px;margin:12px 0 8px;">主题</div>'
+  return '<div id="gv-coverflow">'
+    + '<div id="gv-cf-view">'
+    + '<div style="font-weight:600;font-size:17px;margin:12px 0 8px;">主题</div>'
     + '<div class="ot-muted">当前：<span data-gv-theme-name>' + esc(cur.name) + '</span></div>'
-    + '<div class="gv-theme-btns">' + btns + '</div>'
+    + '<div class="gv-cf-stage" id="gv-cf-stage">' + covers + '<div class="gv-cf-title" id="gv-cf-title">' + esc(THEMES[p].name) + '</div></div>'
+    + '<div class="gv-cf-dots">' + dots + '</div>'
+    + '<div class="ot-muted" style="margin-top:8px;">左右滑动或点按切换封面，点正中的封面进入详情选配色。</div>'
+    + '</div>'
+    + '<div id="gv-cf-detail" hidden></div>'
     + '<details id="gv-adv" style="margin-top:12px;"' + (customOn ? ' open' : '') + '><summary style="font-size:13px;cursor:pointer;">高级</summary>'
     + '<div style="margin-top:8px;font-size:14px;line-height:1.5;">自定义两色：浅色 <input type="color" value="' + cur.c1 + '" onchange="window.GroupV.setCustomColor(1,this.value)"> 主色 <input type="color" value="' + cur.c2 + '" onchange="window.GroupV.setCustomColor(2,this.value)"></div>'
     + '<div style="margin-top:8px;font-size:13px;">分享代码：<input id="gv-share-code" readonly value="' + esc(shareCode()) + '" style="width:150px;border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;font-size:12px;background:#fff;color:#171717;"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.copyShareCode()">复制</button></div>'
-    + '<div style="margin-top:8px;font-size:13px;">导入代码：<input id="gv-share-import" placeholder="粘贴 GV1- 开头的代码" style="width:150px;border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;font-size:12px;background:#fff;color:#171717;"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.importShareCodeUI()">导入</button> <span id="gv-share-msg" class="ot-muted"></span></div></details>';
+    + '<div style="margin-top:8px;font-size:13px;">导入代码：<input id="gv-share-import" placeholder="粘贴 GV1- 开头的代码" style="width:150px;border:1px solid #e5e5e5;border-radius:8px;padding:8px 12px;font-size:12px;background:#fff;color:#171717;"> <button class="ot-btn ot-btn-ghost" style="padding:8px 12px;" onclick="window.GroupV.importShareCodeUI()">导入</button> <span id="gv-share-msg" class="ot-muted"></span></div></details>'
+    + '</div>';
 };
 var refreshOtomeSettings = function () {
   try {
@@ -210,9 +414,11 @@ var openThemeSheet = function () {
   ov.id = 'gv-theme-sheet';
   ov.innerHTML = '<div class="gv-sheet"><div class="gv-sheet-grab"></div><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">' + GV_X_SVG + '</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
   document.body.appendChild(ov);
+  cfInit();
+  cfIntro();
   return true;
 };
-var closeThemeSheet = function () { var el = document.getElementById('gv-theme-sheet'); if (el) el.remove(); return true; };
+var closeThemeSheet = function () { _cfCancelIntro(); var el = document.getElementById('gv-theme-sheet'); if (el) el.remove(); return true; };
 /* 点「自定义」卡片：展开高级里的取色器，让用户直接改两色。 */
 var openCustomTheme = function () {
   var d = document.getElementById('gv-adv');
@@ -761,6 +967,20 @@ var GV_CSS = [
   '.gv-theme-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
   '.gv-theme-check{width:20px;height:20px;border-radius:50%;background:#171717;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
   '.gv-theme-check svg{vertical-align:0;}',
+  '.gv-cf-stage{position:relative;height:296px;margin-top:14px;perspective:900px;touch-action:pan-y;overflow:visible;}',
+  '.gv-cf-cover{position:absolute;left:50%;top:8px;width:132px;height:198px;margin-left:-66px;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 10px 24px rgba(23,23,23,.22);will-change:transform;-webkit-box-reflect:below 6px linear-gradient(rgba(255,255,255,.22),transparent 75%);background:#fff;}',
+  '.gv-cf-art{position:absolute;inset:0;}',
+  '.gv-cf-sun{position:absolute;top:18px;left:50%;width:44px;height:44px;margin-left:-22px;border-radius:50%;opacity:.92;display:block;}',
+  '.gv-cf-band{position:absolute;left:0;right:0;bottom:0;height:34px;opacity:.85;display:block;}',
+  '.gv-cf-wash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;}',
+  '.gv-cf-title{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-weight:700;font-size:17px;color:#171717;transition:opacity .18s ease;}',
+  '.gv-cf-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}',
+  '.gv-cf-dot{width:7px;height:7px;border-radius:50%;border:0;background:#d9d9d9;padding:0;cursor:pointer;}',
+  '.gv-cf-dot.on{background:#171717;}',
+  '.gv-cf-cover-big{position:relative;left:auto;top:auto;margin:0;transform:none!important;cursor:default;}',
+  '.gv-cf-colors{display:flex;gap:12px;flex-wrap:wrap;}',
+  '.gv-cf-color{width:44px;height:44px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ddd;cursor:pointer;padding:0;}',
+  '.gv-cf-color-on{box-shadow:0 0 0 2px #171717;}',
   '.gv-sheet-grab{width:36px;height:4px;border-radius:999px;background:#e5e5e5;margin:0 auto 12px;}',
   '#gv-theme-sheet{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:flex-end;justify-content:center;}',
   '#gv-theme-sheet .gv-sheet{width:100%;max-width:480px;max-height:70vh;overflow:auto;background:#fff;border:none;border-radius:18px 18px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));box-sizing:border-box;font-size:16px;color:#171717;box-shadow:0 4px 16px rgba(23,23,23,.12);}',
@@ -803,7 +1023,10 @@ else init();
 
 window.GroupV = {
   THEMES: THEMES, themeById: themeById, currentTheme: currentTheme, applyTheme: applyTheme,
-  setTheme: setTheme, setCustomColor: setCustomColor, shareCode: shareCode, decodeTheme: decodeTheme,
+  setTheme: setTheme, setCustomColor: setCustomColor, themeColors: themeColors, setThemeColor: setThemeColor,
+  coverBg: coverBg, cfRender: cfRender, cfInit: cfInit, cfIntro: cfIntro, cfAnimateTo: cfAnimateTo,
+  cfTap: cfTap, cfGoTo: cfGoTo, openThemeDetail: openThemeDetail, closeThemeDetail: closeThemeDetail,
+  shareCode: shareCode, decodeTheme: decodeTheme,
   importShareCode: importShareCode, copyShareCode: copyShareCode, importShareCodeUI: importShareCodeUI,
   themeSectionHTML: themeSectionHTML, openThemeSheet: openThemeSheet, closeThemeSheet: closeThemeSheet,
   openCustomTheme: openCustomTheme,

@@ -142,7 +142,7 @@ var GD_CSS = '<style>'
 + '.gd-pager{display:flex;align-items:center;justify-content:space-between;margin-top:14px;}'
 + '.gd-story p{font-size:15px;line-height:2;color:#3d3a36;margin:0 0 12px;text-indent:2em;}'
 + '.gd-story h4{font-size:17px;margin:4px 0 10px;color:#2b2a28;}'
-+ '/* GROUP-BA · BA-5/BA-9 信息 app 发送页 iOS 样式（仅 [data-gd="sms"] 作用域，不碰微信与其他应用；深色跟随手机主题） */'
++ '/* GROUP-BA · BA-5/BA-9 信息 app 发送页 iOS 样式（仅 [data-gd="sms"] 作用域，不碰微信与其他应用；短信页永远浅色，不跟随深色主题） */'
 + '.gd-root[data-gd="sms"].ba-sms-thread .gd-head{display:none;}'
 + '.gd-root[data-gd="sms"].ba-sms-thread .gd-body{padding:0;}'
 + '/* SMS conversation page restyled to the DM reference (私信 style): white bg, centered avatar + name pill, bright-blue outgoing bubbles, gray incoming bubbles, 已读 receipt, pill input with mic. */'
@@ -186,19 +186,6 @@ var GD_CSS = '<style>'
 + '.gd-root[data-gd="sms"] .ba-sms-ov{position:absolute;inset:0;z-index:20;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}'
 + '.gd-root[data-gd="sms"] .ba-sms-card{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:280px;text-align:center;box-sizing:border-box;}'
 + '.gd-root[data-gd="sms"] .ba-sms-bigimg{max-width:100%;max-height:60vh;border-radius:12px;display:block;margin:0 auto;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"].ba-sms-thread,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"].ba-sms-thread{background:#000;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-top,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-top{background:rgba(28,28,30,.94);}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-namepill,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-namepill{background:#2c2c2e;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-back,html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-more,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-back,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-more{background:#2c2c2e;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .gd-bubble.me,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .gd-bubble.me{background:#0099ff;color:#fff;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .gd-bubble.them,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .gd-bubble.them{background:#26262b;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar{background:#1c1c1e;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-input,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-input{background:#2c2c2e;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-plus,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-plus{background:#38383a;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer,html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-emoji,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-emoji{background:#1c1c1e;border-color:#38383a;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer button,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer button{background:#2c2c2e;color:#f2f2f0;border-color:#48484a;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-ctx button,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-ctx button{background:#2c2c2e;color:#0A84FF;border-color:#48484a;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-card,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-card{background:#1c1c1e;color:#f2f2f0;}'
 + '</style>';
 
 /* ── 应用壳工厂：render/mount/resume 与设置/论坛同构 ── */
@@ -216,12 +203,12 @@ function gdApp(id, title, sub, note, renderBody, bindBody) {
         render: function () {
             return GD_CSS
                 + '<div class="gd-root" data-gd="' + id + '">'
-                + '<div class="gd-head"><span class="gd-back" data-gd-back>‹ 返回桌面</span>'
+                + '<div class="gd-head"><span class="gd-back" data-gd-back aria-label="返回桌面">‹</span>'
                 + '<div class="gd-title">' + esc(title) + '</div>'
                 + (sub ? '<div class="gd-sub">' + esc(sub) + '</div>' : '')
                 + '</div>'
-                + (note ? '<div class="gd-note">' + note + '</div>' : '')
                 + '<div class="gd-body" id="gd-body-' + id + '"></div>'
+                + (note ? '<div class="gd-note">' + note + '</div>' : '')
                 + '</div>';
         },
         mount: function (win) {
@@ -1231,6 +1218,7 @@ GD._gdApp = gdApp;
     var KEY = 'phone_catos_v1';
     var MERGED_FLAG = '_sharedMerged';
     var bubble = '';
+    var _catosTab = 'adopt'; /* GROUP-PET-MERGE：当前页签（adopt 领养 / settings 设置）；外部入口 GD.catosOpenTab 改它 */
     /* 共享猫读/写：优先走 GroupW（与 3D 家/番茄钟同一份 otome_home_v1.pet） */
     var sharedLoad = function () {
         try { if (window.GroupW && GroupW.catLoad) return GroupW.catLoad(); } catch (e) {}
@@ -1305,15 +1293,15 @@ GD._gdApp = gdApp;
         '..BB....BB...'
     ];
     var CAT_FALLBACK_PALETTE = { '.': null, B: '#D97B29', b: '#E89B4A', G: '#F2A950', g: '#F7BE78', W: '#FFF3E0', P: '#FF9EAD', N: '#3A2A1E' };
-    var paintCatRows = function (cv, rows, pal) {
+    var paintRows = function (cv, rows, pal, w, h) {
         if (!cv) return false;
         try {
-            cv.width = 13; cv.height = 13;
+            cv.width = w; cv.height = h;
             var ctx = cv.getContext('2d'); if (!ctx) return false;
-            ctx.clearRect(0, 0, 13, 13);
-            for (var y = 0; y < rows.length && y < 13; y++) {
+            ctx.clearRect(0, 0, w, h);
+            for (var y = 0; y < rows.length && y < h; y++) {
                 var row = rows[y];
-                for (var x = 0; x < row.length && x < 13; x++) {
+                for (var x = 0; x < row.length && x < w; x++) {
                     var col = pal[row.charAt(x)];
                     if (col) { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); }
                 }
@@ -1326,14 +1314,35 @@ GD._gdApp = gdApp;
             var cv = win.querySelector('#gd-cat-canvas');
             if (!cv) return;
             var ok = false;
-            try { ok = !!(window.GroupW && GroupW.drawPixelCat && GroupW.drawPixelCat(cv, 'idle')); } catch (e) {}
+            /* GROUP-PET-MERGE：状态卡的脸就是当前领养的模型（不是永远橘猫）；
+               没领养过（petSkin 缺省 / default）仍是橘猫；抠图立绘画不上
+               canvas，回落橘猫。 */
+            try {
+                var sk = (window.GroupFIX2 && window.GroupFIX2.SKINS) || null;
+                var prefs = {};
+                try { prefs = JSON.parse(localStorage.getItem('phone_ui_prefs_v1') || '{}') || {}; } catch (e) {}
+                var key = 'cat';
+                if (prefs.petSkin && prefs.petSkin !== 'default' && prefs.petSkin !== 'cutout'
+                    && window.GroupFIX2 && GroupFIX2.skinKeyForPetSkin) key = GroupFIX2.skinKeyForPetSkin(prefs.petSkin);
+                if (sk && sk[key] && sk[key].frames && sk[key].frames.idle) {
+                    ok = paintRows(cv, sk[key].frames.idle, sk[key].palette || CAT_FALLBACK_PALETTE, sk[key].w, sk[key].h);
+                    if (ok) {
+                        var nm = '';
+                        try { if (window.GroupPET && GroupPET.MARKET) GroupPET.MARKET.forEach(function (m) { if (m.skin === prefs.petSkin) nm = m.name; }); } catch (e) {}
+                        cv.setAttribute('aria-label', nm || '桌宠');
+                    }
+                }
+            } catch (e) {}
+            if (!ok) {
+                try { ok = !!(window.GroupW && GroupW.drawPixelCat && GroupW.drawPixelCat(cv, 'idle')); } catch (e) {}
+            }
             if (!ok) {
                 try {
-                    var sk = (window.GroupFIX2 && GroupFIX2.SKINS && GroupFIX2.SKINS.cat) || null;
-                    if (sk && sk.frames && sk.frames.idle) ok = paintCatRows(cv, sk.frames.idle, sk.palette || CAT_FALLBACK_PALETTE);
+                    var sk2 = (window.GroupFIX2 && window.GroupFIX2.SKINS && window.GroupFIX2.SKINS.cat) || null;
+                    if (sk2 && sk2.frames && sk2.frames.idle) ok = paintRows(cv, sk2.frames.idle, sk2.palette || CAT_FALLBACK_PALETTE, sk2.w, sk2.h);
                 } catch (e) {}
             }
-            if (!ok) ok = paintCatRows(cv, CAT_FALLBACK_ROWS, CAT_FALLBACK_PALETTE);
+            if (!ok) ok = paintRows(cv, CAT_FALLBACK_ROWS, CAT_FALLBACK_PALETTE, 13, 13);
             /* canvas 画不出来（例如无 2d 上下文）也不回落 emoji 脸，只显示一行诚实说明。 */
             if (!ok) { var em = win.querySelector('#gd-cat-face-missing'); if (em) em.style.display = ''; }
         } catch (e) {}
@@ -1344,7 +1353,7 @@ GD._gdApp = gdApp;
         var html = '<div class="gd-card" style="text-align:center;padding:24px 16px 18px;">'
             + '<canvas id="gd-cat-canvas" width="13" height="13" style="width:104px;height:104px;image-rendering:pixelated;margin:0 auto;display:block;" aria-label="橘猫"></canvas>'
             + '<div id="gd-cat-face-missing" style="display:none;font-size:12px;color:#5f6b7a;margin-top:8px;">猫的图片暂时画不出来，饱腹 / 心情 / 亲密度数字仍是真的。</div>'
-            + '<div style="font-size:20px;font-weight:600;margin-top:10px;">' + esc(d.name) + '</div>'
+            + '<div id="gd-cat-name-text" style="font-size:20px;font-weight:600;margin-top:10px;">' + esc(d.name) + '</div>'
             + '<div style="font-size:13px;color:#8a8580;margin-top:4px;">' + status + '</div>'
             + (bubble ? '<div style="display:inline-block;background:#fff;border:1px solid #f0e6dc;border-radius:14px;padding:8px 14px;font-size:13px;margin-top:12px;box-shadow:0 4px 14px rgba(90,75,60,.08);">' + esc(bubble) + '</div>' : '')
             + '<div style="text-align:left;margin-top:18px;">'
@@ -1358,13 +1367,19 @@ GD._gdApp = gdApp;
             + '<div class="gd-card" style="margin-top:12px;"><div class="gd-label" style="margin-top:0;">给猫改名</div>'
             + '<div style="display:flex;gap:8px;"><input class="gd-input" id="gd-cat-name" value="' + esc(d.name) + '" style="flex:1;"><button class="gd-btn-ghost" data-act="rename">改名</button></div>'
             + '<div style="font-size:12px;color:#9a958f;line-height:1.7;margin-top:10px;">桌宠市场是本机桌宠：状态只存在这台手机里，饱腹、心情和亲密度会随时间慢慢下降，记得回来看看它。</div></div>';
-        return html + marketHTML();
+        /* GROUP-PET-MERGE：领养 | 设置 两段式页签（gw-seg 番茄钟同款样式）。
+           状态卡 + 改名一直在页签上方；领养页签是模型市场 + 3D，设置页签是
+           原来独立成页的桌宠设置（速度/活跃度/跟随/皮肤/图案/行为模式/收起/重置）。 */
+        var tabs = '<div class="gw-seg" style="margin:16px 0 4px;" role="tablist" aria-label="桌宠">'
+            + '<button type="button" data-catos-tab="adopt" role="tab" aria-selected="' + (_catosTab === 'adopt') + '" class="' + (_catosTab === 'adopt' ? 'on' : '') + '">领养</button>'
+            + '<button type="button" data-catos-tab="settings" role="tab" aria-selected="' + (_catosTab === 'settings') + '" class="' + (_catosTab === 'settings' ? 'on' : '') + '">设置</button>'
+            + '</div>';
+        return html + tabs + (_catosTab === 'settings' ? settingsHTML() : marketHTML());
     };
-    /* GROUP-PET：桌宠市场——4 款像素桌宠，全部免费领养/切换；领养后桌面宠、3D 家宠、番茄钟猫
-       仍是同一只（otome_home_v1.pet），只换皮肤不换猫。Claude / ChatGPT / Muse 三款是
-       desksprite BOY 14x14 帧的换色（desksprite 只发了 blue-boy.json 和 cat.json，没有这三款的
-       原生皮肤；调色板见 GroupPET.MARKET_PALETTES，画布仍由 FIX2 画），不是手画新帧；
-       小猫就是 FIX2 的 desksprite 真实像素猫。 */
+    /* GROUP-PET-MERGE：桌宠市场——4 款像素桌宠，全部免费领养/切换；领养后桌面宠、3D 家宠、番茄钟猫
+       仍是同一只（otome_home_v1.pet），只换皮肤不换猫。小猫是 FIX2 的 desksprite 真实像素猫；
+       Claude（螃蟹）、ChatGPT（黑狐）、Muse（Jolly）是本站手画的新模型（FIX2 SKINS.crab /
+       fox / jolly，各 5 张帧 + 独立调色板），不再是 boy 帧换色。 */
     var _homeHandle = null;
     var _shelfHandle = null;
     var marketHTML = function () {
@@ -1372,7 +1387,7 @@ GD._gdApp = gdApp;
         var cur = '';
         try { cur = String((JSON.parse(localStorage.getItem('phone_ui_prefs_v1') || '{}') || {}).petSkin || ''); } catch (e) {}
         var cards = GroupPET.MARKET.map(function (m) {
-            var lic = m.id === 'cat' ? 'desksprite cat.json · MIT' : 'desksprite blue-boy.json 换色 · MIT';
+            var lic = m.id === 'cat' ? 'desksprite cat.json · MIT' : '本站手画像素模型';
             return '<div class="gd-card" style="margin-top:12px;" data-pet-market="' + m.id + '">'
                 + '<div style="display:flex;gap:12px;align-items:center;">'
                 + '<canvas class="gd-market-preview" data-preview="' + m.id + '" width="14" height="14" style="width:56px;height:56px;image-rendering:pixelated;flex:none;" aria-label="' + m.name + '"></canvas>'
@@ -1387,6 +1402,15 @@ GD._gdApp = gdApp;
             + cards
             + market3DHTML()
             + '</div>';
+    };
+    /* GROUP-PET-MERGE：设置页签——桌宠设置（js/16 renderPetSettingsHTML）
+       不再独立成页，整段控制（速度/活跃度/跟随/皮肤/发色瞳色/图案/行为模式/
+       收起/重置）都嵌在这里；控件读写仍走 GroupAB。 */
+    var settingsHTML = function () {
+        if (window.GroupAB && GroupAB.renderPetSettingsHTML) {
+            return '<div style="margin-top:12px;">' + GroupAB.renderPetSettingsHTML() + '</div>';
+        }
+        return '<div class="gd-card" style="margin-top:12px;font-size:13px;color:#8a8580;">桌宠设置还没加载出来，关掉重进一次试试。</div>';
     };
     var market3DHTML = function () {
         if (!window.GroupPET) return '';
@@ -1531,10 +1555,20 @@ GD._gdApp = gdApp;
         drawFace(win);
         paintMarket(win);
         wireMarket(win);
+        /* GROUP-PET-MERGE：页签切换只改 _catosTab 再重渲染，不另建页面。 */
+        win.querySelectorAll('[data-catos-tab]').forEach(function (btn) {
+            btn.onclick = function () {
+                var tab = btn.getAttribute('data-catos-tab');
+                if (tab !== 'settings' && tab !== 'adopt') return;
+                _catosTab = tab;
+                try { app._refresh(); } catch (e) {}
+            };
+        });
         win.querySelectorAll('[data-act]').forEach(function (btn) {
             btn.onclick = function () {
                 var act = btn.getAttribute('data-act');
                 var d = load();
+                var renamedName = '';
                 if (act === 'pet') {
                     /* 摸摸走共享接口（GroupW.catPat：心情+8/亲密度+3，免费）；GroupW 不在时本地算 */
                     var done = false;
@@ -1544,14 +1578,34 @@ GD._gdApp = gdApp;
                 }
                 else if (act === 'feed') { d.satiety = Math.min(100, d.satiety + 25); d.affection = Math.min(100, d.affection + 2); bubble = '好吃！喵呜～'; }
                 else if (act === 'play') { d.mood = Math.min(100, d.mood + 12); d.satiety = Math.max(0, d.satiety - 5); d.affection = Math.min(100, d.affection + 2); bubble = '毛线球最好玩了！'; }
-                else if (act === 'rename') { var nm = ((win.querySelector('#gd-cat-name') || {}).value || '').trim(); if (nm) { d.name = nm.slice(0, 8); bubble = '我有新名字啦：' + d.name; } }
+                else if (act === 'rename') { var nm = ((win.querySelector('#gd-cat-name') || {}).value || '').trim(); if (nm) { d.name = nm.slice(0, 8); renamedName = d.name; bubble = '我有新名字啦：' + d.name; } }
                 if (act !== 'pet') save(d);
                 app._refresh();
+                /* GROUP-HANDWRITE：改名后，新名字在状态卡上自己写一遍（蓝墨、中号笔、
+                   带笔尖、常速；没笔画数据的字淡入；GroupHandwrite 不在时保持静态字）。 */
+                if (renamedName) {
+                    try {
+                        var nameEl = win.querySelector('#gd-cat-name-text');
+                        if (nameEl && window.GroupHandwrite) GroupHandwrite.write(nameEl, renamedName);
+                    } catch (e) {}
+                }
             };
         });
     };
     app = gdApp('catos', '桌宠市场', '本机桌宠 · 摸摸 / 喂食 / 玩耍', '', renderBody, bindBody);
     GD.catosApp = app;
+    /* GROUP-PET-MERGE：唯一外部入口——设置首页“桌宠设置”行与主题美化“桌面”组
+       的桌宠深链都走这里：打开 catos 并切到指定页签（行本身不删，只改目标）。 */
+    GD.catosOpenTab = function (tab) {
+        _catosTab = (tab === 'settings') ? 'settings' : 'adopt';
+        var opened = false;
+        try { if (window.GroupFIX2 && GroupFIX2.openApp) opened = !!GroupFIX2.openApp('catos'); } catch (e) {}
+        if (!opened) { try { if (typeof AppManager !== 'undefined' && AppManager.launch) { AppManager.launch('catos'); opened = true; } } catch (e) {} }
+        /* 已在前台时也要重渲染（openApp/launch 未必回刷）；未打开时 refresh 是
+           空操作，mount 时会按 _catosTab 再渲染一次。 */
+        try { app._refresh(); } catch (e) {}
+        return opened;
+    };
     GD.catosShared = { load: load, save: save, migrateOnce: migrateOnce };
     try { if (typeof AppManager !== 'undefined') AppManager.register('catos', app); } catch (e) {}
 })();

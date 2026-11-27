@@ -632,7 +632,7 @@ function renderSettingsSub() {
   rows += sw('番茄钟完成', !!st.types.focus, 'data-as-type="focus"');
   rows += sw('系统 / 剧本 / 阅读 / 影院', !!st.types.system, 'data-as-type="system"');
   return '<div class="st-sub" id="st-sub-asNotif">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">通知</div></div>'
+    + stSubBar('通知')
     + '<div class="st-bigtitle" style="padding-top:4px;">通知</div>'
     + '<div class="st-group">' + rows + '</div>'
     + '<div class="st-foot">总开关关了：只静默记进通知中心，不弹横幅、不响铃、不震动。某一类关了：这类不进中心也不弹。</div>'

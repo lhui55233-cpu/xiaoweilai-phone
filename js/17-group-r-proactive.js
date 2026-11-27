@@ -433,7 +433,7 @@ function statusLine(now) {
 function renderSettingsSub(act) {
   if (act === 'aboutPhone') {
     return '<div class="st-sub" id="st-sub-aboutPhone">'
-      + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">关于本机</div></div>'
+      + stSubBar('关于本机', {glyph: 'chev'})
       + '<div class="st-bigtitle" style="padding-top:4px;">关于本机</div>'
       + '<div class="st-group"><div class="st-row" style="display:block;padding:12px 16px;line-height:1.5;font-size:17px;">'
       + '<div style="font-weight:600;margin-bottom:8px;">小未来的手机 · 本地模拟手机</div>'
@@ -462,7 +462,7 @@ function renderSettingsSub(act) {
     }
   } catch (e) { promRows = '<div class="st-row" style="padding:12px 16px;">承诺清单暂不可读。</div>'; }
   return '<div class="st-sub" id="st-sub-proactive">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1">‹ 返回</div><div class="st-sub-title">主动消息</div></div>'
+    + stSubBar('主动消息', {glyph: 'chev'})
     + '<div class="st-bigtitle" style="padding-top:4px;">主动消息</div>'
     + '<div class="st-foot" style="margin:0 16px 8px;" id="groupr-honest">' + esc(HONEST) + '</div>'
     + '<div class="st-group">'

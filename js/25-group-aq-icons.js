@@ -319,7 +319,7 @@ const openPicker = (sub) => {
     let pk = host.querySelector('#st-sub-aq-picker');
     if (pk) { renderPickerBody(); return true; }
     const tmp = document.createElement('div');
-    tmp.innerHTML = '<div class="st-sub" id="st-sub-aq-picker"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">图标挑选器</div></div><div id="aq-picker-body" style="padding:0 16px 32px"></div></div>';
+    tmp.innerHTML = '<div class="st-sub" id="st-sub-aq-picker">' + stSubBar('图标挑选器') + '<div id="aq-picker-body" style="padding:0 16px 32px"></div></div>';
     pk = tmp.firstElementChild;
     host.appendChild(pk);
     pk.addEventListener('click', (e) => {

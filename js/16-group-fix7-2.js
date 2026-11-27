@@ -43,7 +43,18 @@ var MODES = [
   { id: 'follow', label: '跟随手指' }, { id: 'random', label: '随机漫步' },
   { id: 'wander', label: '踱步' }, { id: 'chase', label: '追小球' }
 ];
-var SKINS = { qqboy: { name: 'QQ boy' }, cat: { name: '猫' }, custom: { name: '上传抠图立绘' } };
+/* GROUP-PET-MERGE：皮肤注册表与 js/58 MARKET 合并为一处事实来源（MARKET 为准，
+   这里只做映射，不另造第二份表）。petSkin 是写进 phone_ui_prefs_v1 的值（领养
+   与设置共用同一个）；frame 是 FIX2 SKINS 里的帧键；qqboy 是旧存档兼容
+   （默认小人，petSkin 'default'）。 */
+var SKINS = {
+  cat: { name: '小猫', petSkin: 'cat', frame: 'cat' },
+  'pet-claude': { name: 'Claude · 螃蟹', petSkin: 'pet-claude', frame: 'crab' },
+  'pet-chatgpt': { name: 'ChatGPT · 黑狐', petSkin: 'pet-chatgpt', frame: 'fox' },
+  'pet-muse': { name: 'Muse · Jolly', petSkin: 'pet-muse', frame: 'jolly' },
+  qqboy: { name: 'QQ boy（默认小人）', petSkin: 'default', frame: 'boy' },
+  custom: { name: '上传抠图立绘', petSkin: 'cutout', frame: null }
+};
 var PATTERNS = { solid: '纯色', stripes: '条纹', dots: '圆点' };
 var BUBBLES = [
   { text: '去归巢看看今天的记忆', target: 'guichao' },
@@ -341,6 +352,40 @@ function skinSig(st) {
     + (st.skin.customImg ? ('img:' + st.skin.customImg.length) : 'noimg') + '|'
     + (st.persistent === 'sleep' ? 'sleep' : 'awake');
 }
+/* GROUP-PET-MERGE：领养与设置写同一个 petSkin（js/58 GroupPET.adopt 同款写法）。 */
+function writePetSkin(v) {
+  try {
+    if (window.GroupW && GroupW.setPref) { GroupW.setPref('petSkin', v); return true; }
+  } catch (e) {}
+  try {
+    var p = JSON.parse(localStorage.getItem('phone_ui_prefs_v1') || '{}') || {};
+    p.petSkin = v;
+    localStorage.setItem('phone_ui_prefs_v1', JSON.stringify(p));
+    return true;
+  } catch (e) { return false; }
+}
+function repaintDesktopPet() {
+  try { if (window.GroupFIX2 && GroupFIX2.ensurePetCanvas) GroupFIX2.ensurePetCanvas(); } catch (e) {}
+}
+/* 像素皮肤的 SVG 兜底脸（FIX2 像素画布不在时桌面宠才看得到它；平时 FIX2 会把
+   这里的 SVG 藏起来改画 canvas）。帧与调色板只读 GroupFIX2.SKINS，不另抄。 */
+function pixelSvg(frameKey) {
+  try {
+    var sk = (window.GroupFIX2 && window.GroupFIX2.SKINS && window.GroupFIX2.SKINS[frameKey]) || null;
+    if (!sk || !sk.frames || !sk.frames.idle) return '';
+    var pal = sk.palette || {};
+    var rects = '';
+    var rows = sk.frames.idle;
+    for (var y = 0; y < rows.length; y++) {
+      var row = rows[y] || '';
+      for (var x = 0; x < row.length; x++) {
+        var c = pal[row.charAt(x)];
+        if (c) rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + c + '"/>';
+      }
+    }
+    return '<svg viewBox="0 0 ' + sk.w + ' ' + sk.h + '" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="桌面宠物" style="width:100%;height:100%;">' + rects + '</svg>';
+  } catch (e) { return ''; }
+}
 function applySkin() {
   var ch = charEl();
   if (!ch) return false;
@@ -348,8 +393,10 @@ function applySkin() {
   var col = effectiveColors();
   var sleeping = st.persistent === 'sleep';
   var html;
+  var _frame = SKINS[st.skin.id] && SKINS[st.skin.id].frame;
   if (st.skin.id === 'cat') html = catSvg(col.hair, col.eye, sleeping, st.skin.pattern);
   else if (st.skin.id === 'custom' && st.skin.customImg) html = '<img src="' + esc(st.skin.customImg) + '" alt="char">';
+  else if (_frame && _frame !== 'boy' && _frame !== 'cat') html = pixelSvg(_frame) || qqSvg(col.hair, col.eye, sleeping, st.skin.pattern);
   else html = qqSvg(col.hair, col.eye, sleeping, st.skin.pattern);
   var sig = skinSig(st);
   if (ch.getAttribute('data-ab-skin') !== st.skin.id || ch.getAttribute('data-ab-sig') !== sig) {
@@ -364,14 +411,16 @@ function setSkin(id) {
   var st = loadPet();
   if (id === 'custom' && !st.skin.customImg) return { ok: false, reason: 'no-custom-img', hint: '先在桌宠设置里上传一张抠图立绘' };
   updatePet(function (s) { s.skin.id = id; });
-  applySkin(); refreshOverlay();
+  writePetSkin(SKINS[id].petSkin);
+  applySkin(); refreshOverlay(); repaintDesktopPet();
   return { ok: true, skin: id };
 }
 function setCustomSkin(dataUrl) {
   if (typeof dataUrl !== 'string' || dataUrl.indexOf('data:image/') !== 0) return { ok: false, reason: 'not-image' };
   if (dataUrl.length > MAX_BG_LEN) return { ok: false, reason: 'too-big', hint: '图片太大了（超过约 1.5MB），换一张小一点的' };
   updatePet(function (s) { s.skin.customImg = dataUrl; s.skin.id = 'custom'; });
-  applySkin(); refreshOverlay();
+  writePetSkin('cutout');
+  applySkin(); refreshOverlay(); repaintDesktopPet();
   return { ok: true, skin: 'custom' };
 }
 function setPattern(p) {
@@ -404,6 +453,9 @@ function setSettings(patch) {
 }
 function petReset() {
   try { localStorage.removeItem(PET_KEY); } catch (e) {}
+  /* GROUP-PET-MERGE：重置也把领养写回默认小人，否则设置页显示 QQ boy、
+     桌面却仍是领养的模型，两处注册表又会各说各话。 */
+  writePetSkin('default');
   _eye = { dx: 0, dy: 0, side: 'right' };
   applySkin(); refreshOverlay();
   return loadPet();
@@ -811,6 +863,10 @@ function focusPanelHTML() {
     + '<div style="font-size:13px;font-weight:600;margin-top:8px;color:var(--st-ink,#1e2748);">历史记录</div><div class="ab-focus-hist">' + hist + '</div>'
     + '</div>';
 }
+/* GROUP-PET-MERGE：桌宠设置不再独立成页——本函数返回“设置”页签的片段，
+   由桌宠市场 app（catos，js/07）嵌在 领养 | 设置 页签里。控件的读写与事件
+   委托都在本文件（data-ab-* 由 abInit 的 document 级监听接管），
+   与放在哪里无关；皮肤按钮读上面与 MARKET 合并后的 SKINS。 */
 function renderPetSettingsHTML() {
   var st = loadPet();
   var s = st.settings;
@@ -822,10 +878,7 @@ function renderPetSettingsHTML() {
   var patBtns = Object.keys(PATTERNS).map(function (id) {
     return '<button type="button" class="ab-chip-btn' + (skin.pattern === id ? ' ab-active' : '') + '" data-ab-pattern="' + id + '">' + PATTERNS[id] + '</button>';
   }).join('');
-  return '<div class="st-sub" id="st-sub-petSettings">'
-    + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="var(--st-ink,#1e2748)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌宠设置</div></div>'
-    + '<div class="st-bigtitle" style="padding-top:4px;">桌宠设置</div>'
-    + '<div style="padding:0 16px 24px;">'
+  return '<div id="ab-pet-settings-tab">'
     + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-bottom:8px;">桌宠 char 与番茄猫是同一只宠物，共用同一份情绪状态（' + (MOOD_EMOJI[st.mood] || '') + ' ' + (MOOD_CN[st.mood] || st.mood) + '）；改这里，专注面板里的猫也会跟着变。</div>'
     + '<div class="st-group"><div class="ab-set-row"><label>速度</label><input type="range" min="0.5" max="2" step="0.1" value="' + s.speed + '" data-ab-set="speed"><span class="ab-set-val">' + s.speed + '×</span></div>'
     + '<div class="ab-set-row"><label>活跃度</label><input type="range" min="0" max="1" step="0.1" value="' + s.activity + '" data-ab-set="activity"><span class="ab-set-val">' + s.activity + '</span></div>'
@@ -837,7 +890,7 @@ function renderPetSettingsHTML() {
     + '<div class="st-group"><div class="ab-set-row"><label>行为模式</label><span id="ab-mode-label" style="flex:1;font-size:17px;">' + modeLabel(st.mode) + '</span><button type="button" class="ab-chip-btn" data-ab-mode-cycle>切换模式</button></div>'
     + '<div class="ab-set-row"><label>收起宠物</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">收成角落小图标，点图标恢复；位置与皮肤会记住</span><button type="button" class="ab-chip-btn" data-ab-collapse>' + (st.collapsed ? '恢复宠物' : '收起来') + '</button></div>'
     + '<div class="ab-set-row"><label>重置</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">把桌宠状态恢复默认</span><button type="button" class="ab-chip-btn" data-ab-reset>重置</button></div></div>'
-    + '</div></div>';
+    + '</div>';
 }
 function syncSettingsUI() {
   try {
