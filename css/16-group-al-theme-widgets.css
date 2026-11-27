@@ -76,6 +76,8 @@ html[data-al-round-font="on"] { --al-font-ui: "ZCOOL KuaiLe", -apple-system, "Pi
 /* ── 6. 主题切换动效：太阳/月亮变形 + 圆环揭示，轻、短、一次 ── */
 .al-theme-toggle { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border: var(--al-bw) solid var(--al-border);
   background: var(--al-bg); color: var(--al-fg); border-radius: 999px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
+/* 注入块两个下拉（#al-variant / #al-wall）：给足最小宽度，与偏好页其他下拉（约 140px）看齐；否则选项全是短标签、按内容自适应只有约 55px（浏览器复查 2026-11-27 11:43 实测）。上限 200px 与 js/12 SEL_STYLE 同口径。 */
+#al-theme-extra select { min-width: 140px; max-width: 200px; }
 .al-theme-toggle .al-ico { display: inline-block; transition: transform .25s ease, opacity .25s ease; }
 html[data-theme-resolved="dark"] .al-theme-toggle .al-ico-sun { opacity: .35; transform: rotate(90deg) scale(.8); }
 html[data-theme-resolved="light"] .al-theme-toggle .al-ico-moon, html:not([data-theme-resolved]) .al-theme-toggle .al-ico-moon { opacity: .35; }
