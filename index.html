@@ -9,8 +9,10 @@
 <!-- GROUP-FIX13 · maison-des-mots 字体：CDN + 系统字体兜底（见 :root --mdm-* 字体栈）。
      单文件做不到全量内嵌：离线/ CDN 不可达时回退 Georgia / Songti SC / 系统无衬线，
      不报错、不破版；不阻塞渲染（display=swap）。可选 ZCOOL 快乐体/黄油体已有
-     AFFont 的在线加载开关（af_round_font_v1），本次不动。 -->
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=LXGW+WenKai&family=Noto+Serif+SC:wght@600;700&family=Pinyon+Script&family=Special+Elite&display=swap" rel="stylesheet">
+     AFFont 的在线加载开关（af_round_font_v1），本次不动。
+     2026-11-27 此刻 Hub 做细：追加 Press Start 2P / VT323，只给 Hub 的拉丁字母/数字小标题
+     （HUD 时间、角标数字、!）做像素感平替，中文仍用系统中文；离线回落 ui-monospace，见 js/00 .ck-px。 -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=LXGW+WenKai&family=Noto+Serif+SC:wght@600;700&family=Pinyon+Script&family=Special+Elite&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <!-- GROUP-AQ-ICONS · 图标许可集中注记：Tabler MIT · Phosphor MIT · Fluent MIT · Lucide ISC · IconPark Apache-2.0 · OpenMoji 图形 CC BY-SA 4.0（署名见关于本机页）；精选字典 60 图标 + 24 表情，只借做法、未复制代码、未下载图标文件；桌面 app 图标（GROUP-FIX2 起）：取自 AQ 精选字典逐个内联的 SVG（Tabler MIT 为主）。 -->
 <link rel="stylesheet" href="css/00-group-aa.css">
 
