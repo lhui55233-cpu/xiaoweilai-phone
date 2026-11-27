@@ -645,13 +645,7 @@ function ensureSimPanel() {
       if (page === 'phone') { var card = document.querySelector('.ck-card[data-mod="photo"]'); if (card) card.click(); return; }
       openOverlay(page);
     });
-    var entries = document.querySelector('.ck-book-entries');
-    if (entries && !document.getElementById('aw-sim-card')) {
-      var card = document.createElement('div'); card.className = 'ck-card'; card.id = 'aw-sim-card';
-      card.innerHTML = '<div class="ck-card-tag">SIM</div><div class="ck-card-body"><div class="ck-card-en">SIM LIFE</div><div class="ck-card-cn">模拟人生</div><div class="ck-card-arrow">▸▸</div></div>';
-      card.addEventListener('click', function () { openOverlay('sim'); });
-      entries.appendChild(card);
-    }
+    /* 2026-11-27：底部“模拟人生”卡片已删（用户要求）；内联 #aw-sim-panel 留着。 */
   }
   var _fix6Html = simPanelHTML();
   /* GROUP-FIX6 · FIX6-2 模拟人生面板去重写：与 FIX6-1 同一根因（AW boot 的
@@ -779,14 +773,13 @@ function overlayHTML(page, arg) {
       + '<div style="border-top:1px solid #dce2f1;padding:8px 0"><b>写信时的内心独白</b><br>' + j.monologue.map(function (m) { return esc(m.at) + '：' + esc(m.text); }).join('<br>') + '</div>'
       + '<button class="aw-btn" type="button" data-aw-act="letter-goto">去信件箱打开原信</button></div>';
   }
-  var cur2 = currentActivity();
-  return back + '<div class="aw-ov-title">模拟人生 · ' + esc(mainCharName()) + '</div>'
-    + '<div class="aw-card">' + esc(cur2.at) + ' — ' + esc(cur2.text) + (cur2.isDefault ? ' · 默认日程 · 未设置' : '') + '<br>好感：' + esc(tierOf(affectionValue()).label) + ' · 需求：饿 ' + loadSim().needs.hunger + ' / 精力 ' + loadSim().needs.energy + ' / 心情 ' + loadSim().needs.mood + ' / 社交 ' + loadSim().needs.social + '</div>'
-    + '<div class="aw-card"><button class="aw-btn" type="button" data-aw-act="goto" data-id="travel">旅行</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="murmur">碎碎念</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="postcards">明信片册</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="home">家</button><button class="aw-btn" type="button" data-aw-act="goto" data-id="letters">写信过程</button></div>';
+  /* 2026-11-27：默认分支原是“模拟人生”浮层（openOverlay('sim')），随底部卡片一起删；
+     未知 page 改走诚实空态，不再返回 undefined。 */
+  return back + '<div class="aw-empty">找不到这一页。</div>';
 }
 function handleOverlayAct(act, id, btn, ov) {
   if (act === 'back') { closeOverlay(); return; }
-  if (act === 'goto') { openOverlay(id); return; }
+  /* 2026-11-27：'goto' 分支已删——它的按钮只存在于已删的“模拟人生”浮层里。 */
   if (act === 'tr-create') {
     try {
       var t = createTrip({ name: (document.getElementById('aw-tr-name') || {}).value, setting: (document.getElementById('aw-tr-setting') || {}).value, goal: (document.getElementById('aw-tr-goal') || {}).value, eventsText: (document.getElementById('aw-tr-events') || {}).value });
