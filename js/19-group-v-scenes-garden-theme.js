@@ -259,7 +259,10 @@ var _cfCoverHTML = function (t, i, p) {
 var cfRender = function () {
   var stage = document.getElementById('gv-cf-stage');
   if (!stage) return false;
-  var covers = $$('.gv-cf-cover', stage);
+  /* 逐帧只写 transform/透明度：封面与圆点节点缓存到 stage 上，不再每帧
+     querySelectorAll；圆点 on 状态只在正中序号变化时切换；标题文案只在
+     正中主题变化时重写（2026-11-28 闪屏修，单入口仍是 cfRender）。 */
+  var covers = stage._cfCovers || (stage._cfCovers = $$('.gv-cf-cover', stage));
   covers.forEach(function (el) {
     var i = parseInt(el.getAttribute('data-cf-i') || '0', 10);
     var st = _cfCoverStyle(i, _cfP);
@@ -268,15 +271,19 @@ var cfRender = function () {
     var w = el.querySelector('.gv-cf-wash');
     if (w) w.style.opacity = st.wash.toFixed(2);
   });
+  var fi = Math.round(_cfP), frac = Math.abs(_cfP - fi);
   var title = document.getElementById('gv-cf-title');
   if (title) {
-    var fi = Math.round(_cfP), frac = Math.abs(_cfP - fi);
     var t = THEMES[fi];
-    if (t) { title.textContent = t.name; title.style.opacity = frac < 0.12 ? String(1 - frac / 0.12) : '0'; }
+    if (t) {
+      if (stage._cfFi !== fi) title.textContent = t.name;
+      title.style.opacity = frac < 0.12 ? String(1 - frac / 0.12) : '0';
+    }
   }
-  var view = stage.parentNode;
-  if (view) {
-    $$('.gv-cf-dot', view).forEach(function (d, di) { d.classList.toggle('on', di === Math.round(_cfP)); });
+  if (stage._cfFi !== fi) {
+    stage._cfFi = fi;
+    var dots = stage._cfDots || (stage._cfDots = $$('.gv-cf-dot', stage.parentNode));
+    dots.forEach(function (d, di) { d.classList.toggle('on', di === fi); });
   }
   return true;
 };
@@ -298,9 +305,17 @@ var cfAnimateTo = function (target, durMs, done) {
   _cfRaf = requestAnimationFrame(step);
   return true;
 };
+/* 开场只在首次打开主题 sheet 时播一次（2026-11-28 闪屏修）：见过一次即记
+   gv-cf-intro-seen，之后直接落到当前主题；自定义主题 _cfIndex() 返回 0，
+   steps<=0 本来就是 no-op，标记逻辑不影响它。 */
+var _cfIntroSeen = function () { try { return localStorage.getItem('gv-cf-intro-seen') === '1'; } catch (e) { return false; } };
+var _cfIntroMarkSeen = function () { try { localStorage.setItem('gv-cf-intro-seen', '1'); } catch (e) {} };
 var cfIntro = function () {
   _cfCancelIntro();
-  var cur = _cfIndex(), start = Math.max(0, cur - 4), steps = cur - start;
+  var cur = _cfIndex();
+  if (_cfIntroSeen()) { _cfP = cur; cfRender(); return true; }
+  _cfIntroMarkSeen();
+  var start = Math.max(0, cur - 4), steps = cur - start;
   if (steps <= 0) { _cfP = cur; cfRender(); return true; }
   _cfP = start; cfRender();
   var wins = [[250, 750], [1050, 1550], [1850, 2350], [3000, 4300]];
@@ -380,16 +395,18 @@ var closeThemeDetail = function () {
   cfInit();
   return true;
 };
-var themeSectionHTML = function () {
+var themeSectionHTML = function (opts) {
   var cur = currentTheme();
   var p = _cfIndex();
   var covers = THEMES.map(function (t, i) { return _cfCoverHTML(t, i, p); }).join('');
   var dots = THEMES.map(function (t, i) { return '<button type="button" class="gv-cf-dot' + (i === p ? ' on' : '') + '" aria-label="' + esc(t.name) + '" onclick="window.GroupV.cfGoTo(' + i + ')"></button>'; }).join('');
-  /* 自定义卡片已并进详情/高级：当前为自定义两色时，高级区默认展开（见 gv-adv 的 open）。 */
+  /* 自定义卡片已并进详情/高级：当前为自定义两色时，高级区默认展开（见 gv-adv 的 open）。
+     sheet 自带 <h3>主题</h3> 顶栏，noTitle 时不重复再写一行「主题」标题
+     （2026-11-28 闪屏修顺带）；乙女设置面板调同一函数时保留标题。 */
   var customOn = cur.id === 'custom';
   return '<div id="gv-coverflow">'
     + '<div id="gv-cf-view">'
-    + '<div style="font-weight:600;font-size:17px;margin:12px 0 8px;">主题</div>'
+    + ((opts && opts.noTitle) ? '' : '<div style="font-weight:600;font-size:17px;margin:12px 0 8px;">主题</div>')
     + '<div class="ot-muted">当前：<span data-gv-theme-name>' + esc(cur.name) + '</span></div>'
     + '<div class="gv-cf-stage" id="gv-cf-stage">' + covers + '<div class="gv-cf-title" id="gv-cf-title">' + esc(THEMES[p].name) + '</div></div>'
     + '<div class="gv-cf-dots">' + dots + '</div>'
@@ -412,7 +429,7 @@ var openThemeSheet = function () {
   closeThemeSheet();
   var ov = document.createElement('div');
   ov.id = 'gv-theme-sheet';
-  ov.innerHTML = '<div class="gv-sheet"><div class="gv-sheet-grab"></div><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">' + GV_X_SVG + '</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
+  ov.innerHTML = '<div class="gv-sheet"><div class="gv-sheet-grab"></div><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">' + GV_X_SVG + '</button></div>' + themeSectionHTML({ noTitle: true }) + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
   document.body.appendChild(ov);
   cfInit();
   cfIntro();
@@ -967,7 +984,7 @@ var GV_CSS = [
   '.gv-theme-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
   '.gv-theme-check{width:20px;height:20px;border-radius:50%;background:#171717;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
   '.gv-theme-check svg{vertical-align:0;}',
-  '.gv-cf-stage{position:relative;height:296px;margin-top:14px;perspective:900px;touch-action:pan-y;overflow:visible;}',
+  '.gv-cf-stage{position:relative;height:420px;margin-top:14px;perspective:900px;touch-action:pan-y;overflow:hidden;}',
   '.gv-cf-cover{position:absolute;left:50%;top:8px;width:132px;height:198px;margin-left:-66px;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 10px 24px rgba(23,23,23,.22);will-change:transform;-webkit-box-reflect:below 6px linear-gradient(rgba(255,255,255,.22),transparent 75%);background:#fff;}',
   '.gv-cf-art{position:absolute;inset:0;}',
   '.gv-cf-sun{position:absolute;top:18px;left:50%;width:44px;height:44px;margin-left:-22px;border-radius:50%;opacity:.92;display:block;}',

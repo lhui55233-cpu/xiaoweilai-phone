@@ -74,3 +74,9 @@
    动画结束/跳过/出错/超时即摘掉，恢复原来的显示状态；!important 是为了
    让 DynamicIsland 的活动更新也无法把它重新显示出来。 */
 #sys-dynamic-island.xw-intro-hide{display:none!important;}
+
+/* 同上：开场动画期间藏起 Home 指示条（2026-11-28 Bug 2）：#sys-home-bar 与
+   灵动岛同属硬件层，层级高于动画，动画期间一直可见、可点回桌面；只在播放
+   期间加这个类，结束/跳过/出错/超时即摘掉，白条本身不删，其他时间的
+   回桌面行为不动。 */
+#sys-home-bar.xw-intro-hide{display:none!important;}

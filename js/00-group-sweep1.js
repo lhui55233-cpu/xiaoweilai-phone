@@ -24872,7 +24872,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         .ck-pop { position:absolute; inset:0;
             background:rgba(200,150,120,0.35);
             backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-            display:none; align-items:center; justify-content:center; z-index:90; }
+            display:none; align-items:center; justify-content:center; z-index:90; pointer-events:auto; }
         .ck-pop.show { display:flex; }
         .ck-pop-panel { background:rgba(255,252,248,0.95); border-radius:24px; padding:14px;
             width:78%; max-width:300px;
@@ -24887,6 +24887,12 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
         .ck-pop-opt-av img { width:100%; height:100%; object-fit:cover; }
         .ck-pop-ck { margin-left:auto; color:#1e2748; }
 
+        /* ── 子页层：6 个 .ck-sub 的非滚动父层（2026-11-28 Bug 3 结构修）──
+           .ck-sub 原先挂在会滚动的 .ck-root 里，锚在滚动内容原点，Hub 滚多少
+           子页就往上错多少；改挂到与 .ck-root 平级的 .ck-subs（App 窗口根，
+           不滚动），子页与 Hub 滚动彻底脱钩。pointer-events:none 让关闭的
+           子页不挡 Hub；子页自身 pointer-events:auto 恢复点按。 */
+        .ck-subs { position:absolute; inset:0; pointer-events:none; }
         /* ── 详情页 ── */
         .ck-sub { position:absolute; inset:0; z-index:95;
             background: #fbf9f4;
@@ -24895,8 +24901,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             overflow-y:auto; overflow-x:hidden; visibility:hidden;
             min-height:100%;
             overscroll-behavior:none; -webkit-overflow-scrolling:touch;
-            padding: calc(var(--sys-island-safe-top, 62px) + 22px) 20px 40px;
-            box-sizing:border-box; }
+            padding: max(calc(var(--sys-island-safe-top, 62px) + 22px), calc(var(--sys-status-bar-height, 40px) + 28px)) 20px 40px;
+            box-sizing:border-box; pointer-events:auto; }
         .ck-sub.show { transform:translateX(0); visibility:visible; }
         .ck-sub::-webkit-scrollbar { display:none; }
 
@@ -26289,7 +26295,7 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
 .ck-hub-sub { font-size:10px; color:#6e4a35; line-height:1.4; }
 .ck-hub-badge { position:absolute; right:5px; bottom:5px; min-width:16px; height:16px; padding:0 3px; box-sizing:border-box; background:#daa520; border:1px solid #56160c; color:#56160c; font-size:11px; font-weight:700; line-height:15px; text-align:center; }
 /* 宽屏限宽（2026-11-27 第二轮）：Hub 与子页在宽屏下不无限拉伸；只约束此刻 app 的 .ck-root，整机布局不动 */
-@media (min-width:600px) { .ck-root { max-width:480px; margin-left:auto; margin-right:auto; } }
+@media (min-width:600px) { .ck-root { max-width:480px; margin-left:auto; margin-right:auto; } .ck-subs { max-width:480px; margin-left:auto; margin-right:auto; } }
         .gm-memtree { background:rgba(255,255,255,.82); border-radius:18px; padding:12px 14px; box-shadow:0 8px 24px rgba(160,110,80,.14), 0 0 0 1px rgba(255,255,255,.9); }
         .gm-mt-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
         .gm-mt-head span:first-child { font-size:15px; font-weight:800; color:#3a1e14; }
@@ -26347,6 +26353,8 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             <div class="ck-hub-btn" id="ck-hub-memtree" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.memtree}</span><span class="ck-hub-nm">记忆树</span><span class="ck-hub-sub">每天的记忆挂成木牌</span>${ckHubBadgeHTML('memtree')}</div>
             <div class="ck-hub-btn" id="ck-hub-garden" role="button"><i class="ck-hub-nail nl"></i><i class="ck-hub-nail nr"></i><span class="ck-hub-ico">${CK_HUB_ICONS.garden}</span><span class="ck-hub-nm">记忆花园</span><span class="ck-hub-sub">把记忆种成花</span>${ckHubBadgeHTML('garden')}</div>
         </div>
+    </div>
+    <div class="ck-subs" id="ck-subs">
         <div class="ck-sub" id="ck-simday">
             <div class="ck-sub-back" id="ck-simday-back">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>

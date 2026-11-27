@@ -462,21 +462,32 @@ window.XWIntro={play,skip};
   function showIsland() {
     try { var isl = document.getElementById('sys-dynamic-island'); if (isl) isl.classList.remove('xw-intro-hide'); } catch (e) {}
   }
+  /* Home 条与灵动岛同属硬件层、盖在动画之上：播放期间一并隐藏，否则
+     动画期间点按/上滑白条会回桌面（2026-11-28 Bug 2）。只加/摘同一个
+     xw-intro-hide 类，不动 NavigationManager 的接线与白条其他时间的显示。 */
+  function hideHomeBar() {
+    try { var bar = document.getElementById('sys-home-bar'); if (bar) bar.classList.add('xw-intro-hide'); } catch (e) {}
+  }
+  function showHomeBar() {
+    try { var bar = document.getElementById('sys-home-bar'); if (bar) bar.classList.remove('xw-intro-hide'); } catch (e) {}
+  }
   function play(opts) {
     opts = opts || {};
     if (!window.XWIntro || typeof window.XWIntro.play !== 'function') { enterLockscreen(); return null; }
     hideIsland();
+    hideHomeBar();
     try {
       return window.XWIntro.play({
         force: !!opts.force,
         onDone: function (reason) {
           showIsland();
+          showHomeBar();
           try { console.log('[GroupIntro] done:', reason); } catch (e) {}
           if (!opts.preserveScreen) enterLockscreen();
         },
         onEvent: function (name) { if (name === 'exit' && !opts.preserveScreen) lockFadeIn(); }
       });
-    } catch (e) { showIsland(); enterLockscreen(); return null; }
+    } catch (e) { showIsland(); showHomeBar(); enterLockscreen(); return null; }
   }
   function skip() {
     try { if (window.XWIntro) window.XWIntro.skip(); } catch (e) { enterLockscreen(); }
@@ -522,7 +533,7 @@ window.XWIntro={play,skip};
     }
   } catch (e) {}
 
-  window.GroupIntro = { KEY: KEY, load: load, save: save, play: play, skip: skip, boot: boot, enterLockscreen: enterLockscreen, lockFadeIn: lockFadeIn, hideIsland: hideIsland, showIsland: showIsland };
+  window.GroupIntro = { KEY: KEY, load: load, save: save, play: play, skip: skip, boot: boot, enterLockscreen: enterLockscreen, lockFadeIn: lockFadeIn, hideIsland: hideIsland, showIsland: showIsland, hideHomeBar: hideHomeBar, showHomeBar: showHomeBar };
   boot();
   window.addEventListener('pageshow', function (event) {
     if (event.persisted && load().enabled) play({ force: true, preserveScreen: true });
