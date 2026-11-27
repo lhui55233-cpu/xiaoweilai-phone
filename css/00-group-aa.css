@@ -947,8 +947,20 @@
         background: rgba(255,255,255,0.15); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 1;
     }
-    .sys-dock-apps { width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 2; }
+    .sys-dock-apps { width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 2; touch-action: pan-y; }
     .sys-dock-apps .sys-app-name { display: none; }
+
+    /* [Dock magnification #249] 放大时 Dock 升到圆点(z-31)/桌宠(z-30)之上；名字 pill（#249 原式：深色圆角，透明度按 (best−1.55)/0.2） */
+    .sys-dock-container.sys-dock-mag { z-index: 32; }
+    .sys-dock-mag-label {
+        position: absolute; left: 0; top: 0; z-index: 3;
+        transform: translate(-50%, -100%);
+        padding: 4px 10px; border-radius: 9.5px;
+        background: rgba(30,30,33,.85); color: #fff;
+        font-size: 11px; font-weight: 700; line-height: 1.2; white-space: nowrap;
+        opacity: 0; pointer-events: none;
+        transition: opacity .15s ease;
+    }
 
     /* ━━━━━━━━━━━━━━━━━━ 4. 真·多窗口运行池载体架构 ━━━━━━━━━━━━━━━━━━ */
     #sys-app-host { z-index: var(--sys-zi-app); pointer-events: none; }

@@ -2475,6 +2475,170 @@ let desktopInited = false;
        return true;
    };
 
+   // [Dock magnification #249] 桌面 Dock 放大（DOM 版，Dock 是真实图标不是 Canvas）
+   //  公式照 #249：scale = 1 + 0.85·exp(−(d/F)²)，F = BASE·(46/34)；
+   //  图标按新尺寸重排（邻居散开、底对齐向上长），超过 1.55× 的图标上方显示深色名字 pill；
+   //  手指划过 Dock（触屏）或鼠标划过（桌面浏览器）时放大，离开后 0.3s 弹回。
+   //  单一入口：一个指针处理 + 一个重算函数；只改尺寸，不拦事件（点按仍启动、长按编辑不受影响）。
+   const initDockMagnify = () => {
+       const container = document.querySelector('.sys-dock-container');
+       const row = document.getElementById('sys-dock-apps');
+       if (!container || !row || row.dataset.dockMagBound) return false;
+       row.dataset.dockMagBound = '1';
+       // 共享名字 pill：一个元素，跟随当前最大的图标
+       let label = container.querySelector('.sys-dock-mag-label');
+       if (!label) {
+           label = document.createElement('div');
+           label.className = 'sys-dock-mag-label';
+           label.setAttribute('aria-hidden', 'true');
+           container.appendChild(label);
+       }
+       const FALL = 46 / 34;      // #249：46px 对应 BASE 34px，falloff 按实际图标尺寸等比缩放
+       const MAXK = 0.85, LAB_MIN = 1.55, IN_DUR = 0.3;
+       let base = 0, raf = 0, inCur = 0, inTarget = 0, pointerX = 0, over = false, lastT = 0;
+       // 基准尺寸：未放大时第一个图标的实测宽（--sys-icon-size 的 used 值）
+       const measureBase = () => {
+           const w = row.querySelector('.sys-app-icon-wrapper');
+           if (!w) return false;
+           const b = w.getBoundingClientRect().width;
+           if (b > 0) { base = b; return true; }
+           return false;
+       };
+       // 静止布局与原来 space-around 一致：居中 + 间距 = (可用宽 − N·BASE)/N；
+       // 底对齐 + 高度 100%，再用 padding-bottom 把图标托回原来垂直居中的位置。
+       // 间距与衬垫在初始化时就定好（不能只在重算帧里写，否则首帧前图标是挤在一起的）
+       const restGap = () => {
+           const n = row.querySelectorAll('.sys-app-icon-wrapper').length;
+           if (!n || !base) return 0;
+           const rect = row.getBoundingClientRect();
+           const cs = getComputedStyle(row);
+           const avail = rect.width - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+           return Math.max(0, (avail - n * base) / n);
+       };
+       const layoutRest = () => {
+           row.style.justifyContent = 'center';
+           row.style.alignItems = 'flex-end';
+           row.style.height = '100%';
+           row.style.gap = restGap().toFixed(2) + 'px';
+           const ch = container.getBoundingClientRect().height;
+           row.style.paddingBottom = Math.max(0, (ch - base) / 2).toFixed(2) + 'px';
+       };
+       const applySizes = (scales) => {
+           const wraps = row.querySelectorAll('.sys-app-icon-wrapper');
+           wraps.forEach((w, i) => {
+               const px = (base * (scales[i] || 1)).toFixed(2) + 'px';
+               if (w.style.width !== px) w.style.width = px;
+               const ic = w.firstElementChild;
+               if (ic && ic.style.width !== px) ic.style.width = px;
+           });
+       };
+       const resetSizes = () => {
+           row.querySelectorAll('.sys-app-icon-wrapper').forEach(w => {
+               w.style.width = '';
+               const ic = w.firstElementChild;
+               if (ic) ic.style.width = '';
+           });
+       };
+       const kick = () => {
+           if (!raf) { lastT = performance.now(); raf = requestAnimationFrame(frame); }
+       };
+       const frame = (t) => {
+           raf = 0;
+           const dt = Math.min(0.05, Math.max(0, (t - lastT) / 1000) || 0.016);
+           lastT = t;
+           const wraps = row.querySelectorAll('.sys-app-icon-wrapper');
+           const n = wraps.length;
+           const editing = (typeof window.IconInteract !== 'undefined' &&
+               window.IconInteract.isEditMode && window.IconInteract.isEditMode());
+           inTarget = (over && !editing && n > 0 && base > 0) ? 1 : 0;
+           // in 按 #249 的进出坡度（0.3s）趋近目标
+           if (inCur < inTarget) inCur = Math.min(inTarget, inCur + dt / IN_DUR);
+           else if (inCur > inTarget) inCur = Math.max(inTarget, inCur - dt / IN_DUR);
+           if (!n || !base) { inCur = 0; }
+           // 休眠中心：按静止布局算（与放大后位置无关），与 #249 的 bx 一致
+           const rect = row.getBoundingClientRect();
+           const cs = getComputedStyle(row);
+           const padL = parseFloat(cs.paddingLeft) || 0, padR = parseFloat(cs.paddingRight) || 0;
+           const avail = rect.width - padL - padR;
+           const gap = Math.max(0, (avail - n * base) / n);
+           const totalRest = n * base + (n - 1) * gap;
+           const startX = rect.left + padL + (avail - totalRest) / 2;
+           const F = base * FALL;
+           let scales = [], best = 0, hov = -1;
+           for (let i = 0; i < n; i++) {
+               const cx = startX + i * (base + gap) + base / 2;
+               const d = over ? (pointerX - cx) : Infinity;
+               const s = 1 + MAXK * Math.exp(-(d / F) * (d / F)) * inCur;
+               scales.push(s);
+               if (s > best) { best = s; hov = i; }
+           }
+           // 超宽处理（#249 的视口比 Dock 宽，照搬会溢出）：先让间距让位（最小 4px），
+           // 还超才按比例收回放大增量；这样峰值仍能到 1.85×、名字 pill 仍能出现
+           let gapEff = gap;
+           let total = scales.reduce((a, s) => a + s * base, 0) + (n - 1) * gapEff;
+           if (total > avail) {
+               const minGap = 4, need = total - avail;
+               const gapSave = (n - 1) * (gap - minGap);
+               if (need <= gapSave) { gapEff = gap - need / (n - 1); total = avail; }
+               else {
+                   gapEff = minGap;
+                   total = scales.reduce((a, s) => a + s * base, 0) + (n - 1) * gapEff;
+                   if (total > avail && total > totalRest) {
+                       const k = Math.max(0, (avail - totalRest) / (total - totalRest));
+                       scales = scales.map(s => 1 + (s - 1) * k);
+                       best = 0; hov = -1;
+                       scales.forEach((s, i) => { if (s > best) { best = s; hov = i; } });
+                   }
+               }
+           }
+           // 静止几何：间距与底部衬垫随当前布局更新（只在变化时写，避免每帧重排）
+           const gapPx = gapEff.toFixed(2) + 'px';
+           if (row.style.gap !== gapPx) row.style.gap = gapPx;
+           const ch = container.getBoundingClientRect().height;
+           const padB = Math.max(0, (ch - base) / 2).toFixed(2) + 'px';
+           if (row.style.paddingBottom !== padB) row.style.paddingBottom = padB;
+           applySizes(scales);
+           // 名字 pill：超过 1.55× 才显示，透明度按 (best−1.55)/0.2（#249 原式）
+           if (hov >= 0 && best > LAB_MIN && inCur > 0) {
+               const w = wraps[hov];
+               const r = w.getBoundingClientRect(), cRect = container.getBoundingClientRect();
+               label.textContent = (w.querySelector('.sys-app-name')?.textContent ||
+                   w.getAttribute('data-target-app') || '').trim();
+               label.style.left = (r.left + r.width / 2 - cRect.left).toFixed(1) + 'px';
+               label.style.top = (r.top - cRect.top - 8).toFixed(1) + 'px';
+               label.style.opacity = Math.min(1, (best - LAB_MIN) / 0.2).toFixed(2);
+           } else {
+               label.style.opacity = '0';
+           }
+           container.classList.toggle('sys-dock-mag', inCur > 0);
+           if (inCur !== inTarget) { raf = requestAnimationFrame(frame); }
+           else if (inCur === 0) { resetSizes(); label.style.opacity = '0'; container.classList.remove('sys-dock-mag'); }
+           // inCur === inTarget === 1 时静止：不再逐帧跑，指针移动会重新 kick
+       };
+       const onMove = (e) => {
+           if (!base && !measureBase()) return;
+           pointerX = e.clientX;
+           over = true;
+           kick();
+       };
+       const onDown = (e) => {
+           if (!base && !measureBase()) return;
+           pointerX = e.clientX;
+           over = true;
+           kick();
+       };
+       const onEnd = () => { over = false; kick(); };
+       row.addEventListener('pointermove', onMove);
+       row.addEventListener('pointerdown', onDown);
+       row.addEventListener('pointerup', onEnd);
+       row.addEventListener('pointercancel', onEnd);
+       row.addEventListener('pointerleave', onEnd);
+       window.addEventListener('resize', () => { if (inCur === 0) { measureBase(); layoutRest(); } });
+       measureBase();
+       layoutRest();
+       return true;
+   };
+
    return {
        init: () => {
 if (desktopInited) return;desktopInited = true;
@@ -2485,6 +2649,7 @@ if (desktopInited) return;desktopInited = true;
     buildFromIconSystem('grid1', 'sys-grid-base');
     buildFromIconSystem('grid2', 'sys-grid-ext');
     buildFromIconSystem('dock',  'sys-dock-apps');
+    initDockMagnify();
 
     requestAnimationFrame(() => {
         document.body.classList.add('icons-ready');
