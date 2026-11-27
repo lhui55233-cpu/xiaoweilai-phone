@@ -459,7 +459,7 @@ var trunk = '<g class="gm-mt-trunk"><rect x="152" y="70" width="16" height="68" 
 var hangs = '';
 (days || []).slice(0, 8).forEach(function (d, i) {
 var x = 96 + i * 16; /* 木牌横向只排在树冠正下方（树冠 x 90–230）：旧式 24 + i*34 会把前两块挂到树左边的半空，吊绳顶端 y=56 悬空无枝可连；新式 16px 步进、两行错开（同行间距 32px、牌宽 30px），每根吊绳顶端都落在树冠底边上 */
-var y = 78 + (i % 2) * 12;
+var y = 78 + (i % 2) * 20; /* 两行行距 20px：牌高 18px，旧行距 12px 时上下两排斜对角重叠 14×6px（复查见 11-26/11-27 两牌略有重叠）；20px 后两排之间留 2px 缝，不再重叠；吊绳仍从 y=50 树冠底带垂下 */
 var col = d.sealed? '#d8a93c': '#caa06e';
 var label = String(d.date || '').slice(5) || String(d.date || '');
 hangs += '<g class="gm-mt-hang" data-gm-date="' + esc(d.date) + '"><rect x="' + (x + 14) + '" y="50" width="2" height="' + (y - 50) + '" fill="#7a4a28"/><rect x="' + x + '" y="' + y + '" width="30" height="18" fill="' + col + '"/><text x="' + (x + 15) + '" y="' + (y + 12) + '" font-size="8" fill="#fff8ea" text-anchor="middle">' + esc(label) + '</text></g>'; /* 吊绳顶端 y=50：伸进树冠底带（y 34–56）6px 重叠，不再是 y=56 边缘相接——边缘相接在小屏上看着像悬空；重叠 6px 后肉眼一看就是系在树冠上 */

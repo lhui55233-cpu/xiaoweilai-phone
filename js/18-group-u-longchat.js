@@ -520,7 +520,7 @@ function injectStyle() {
     '.wxu-compact-label{display:none;font-size:11px;color:#999;background:#f2f2f2;border:1px dashed #ddd;border-radius:8px;padding:8px 10px;cursor:pointer;}',
     '.wxu-compressed .wxu-compact-label{display:block;}',
     '.wxu-compressed.wxu-expanded .wxu-compact-label{display:none;}',
-    '.wxu-set-gear{font-size:18px;cursor:pointer;padding:6px;color:#000;flex-shrink:0;}',
+    '.wxu-set-gear{font-size:18px;cursor:pointer;padding:6px;color:#000;flex-shrink:0;margin-left:auto;}',
     '.wxu-variant-trigger{flex-shrink:0;font-size:12px;color:#07c160;border:1px solid #07c160;border-radius:12px;padding:4px 8px;cursor:pointer;background:#fff;}',
     '.wxu-variant-bar{display:none;align-items:center;gap:6px;padding:8px 10px;background:#fff;border-top:1px solid #e5e5e5;font-size:13px;}',
     '.wxu-variant-bar button{border:1px solid #ddd;background:#f7f7f7;border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;flex-shrink:0;}',
