@@ -14,7 +14,7 @@
 .sys-app-window[data-app-sandbox="wechat"] .wx-me-header-avatar{background:#ffe3c4;}
 .sys-app-window img[data-fix3-avatar]{background:transparent;}
 /* GROUP-FIX3 · FIX3-4(a) 偷看气泡改停右上角顶栏下方（原 bottom:96px 居中大黑气泡正压表单） */
-#af-scroll-bubble{position:fixed;top:calc(48px + var(--sys-island-safe-top,62px) + 10px);right:12px;left:auto;bottom:auto;transform:translateY(-4px);background:rgba(30,30,30,.92);color:#fff;padding:7px 11px;border-radius:16px;font-size:12px;line-height:1.5;opacity:0;pointer-events:auto;transition:opacity .25s,transform .25s;z-index:99999;max-width:min(62vw,260px);box-sizing:border-box;}
+#af-scroll-bubble{position:fixed;top:calc(48px + var(--sys-island-safe-top,62px) + 10px);right:12px;left:auto;bottom:auto;transform:translateY(-4px);background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);padding:7px 11px;border-radius:16px;font-size:12px;line-height:1.5;opacity:0;pointer-events:auto;transition:opacity .25s,transform .25s;z-index:99999;max-width:min(62vw,260px);box-sizing:border-box;}
 #af-scroll-bubble.show{opacity:1;transform:translateY(0);}
 #af-scroll-bubble .af-scroll-bubble-x{display:inline-block;margin-left:8px;cursor:pointer;opacity:.7;font-size:13px;line-height:1;vertical-align:middle;}
 #af-scroll-bubble.af-scroll-bubble-min{max-width:34px;min-width:34px;height:34px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;white-space:nowrap;}
