@@ -458,7 +458,7 @@ var canopy = '<rect x="110" y="18" width="100" height="26" fill="#5b8c5a"/><rect
 var trunk = '<g class="gm-mt-trunk"><rect x="152" y="70" width="16" height="68" fill="#7a4a28"/><rect x="120" y="60" width="36" height="6" fill="#7a4a28"/><rect x="164" y="52" width="40" height="6" fill="#7a4a28"/><rect x="140" y="44" width="16" height="8" fill="#6b4226"/><rect x="168" y="40" width="14" height="8" fill="#6b4226"/></g>';
 var hangs = '';
 (days || []).slice(0, 8).forEach(function (d, i) {
-var x = 24 + i * 34;
+var x = 96 + i * 16; /* 木牌横向只排在树冠正下方（树冠 x 90–230）：旧式 24 + i*34 会把前两块挂到树左边的半空，吊绳顶端 y=56 悬空无枝可连；新式 16px 步进、两行错开（同行间距 32px、牌宽 30px），每根吊绳顶端都落在树冠底边上 */
 var y = 78 + (i % 2) * 12;
 var col = d.sealed? '#d8a93c': '#caa06e';
 var label = String(d.date || '').slice(5) || String(d.date || '');
