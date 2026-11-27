@@ -455,7 +455,8 @@ function interact(kind) {
 /* ── 样式（.cx- 前缀，不碰现有样式） ── */
 var CX_CSS = '<style>'
 + '.cx-root{position:absolute;inset:0;background:#fffdfb;color:#2b2a28;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:40px;}'
-+ '.cx-head{position:sticky;top:0;z-index:5;background:rgba(255,253,251,.94);backdrop-filter:blur(12px);padding:14px 18px 10px;border-bottom:1px solid #f0edea;}'
++ '.cx-head{position:sticky;top:0;z-index:5;background:rgba(255,253,251,.94);backdrop-filter:blur(12px);padding:calc(var(--sys-status-bar-height,40px) + 28px) 18px 10px;border-bottom:1px solid #f0edea;}'
++ '.sys-app-window[data-app-sandbox="cinema"]:not(:has([data-cx="lib"])) .cx-head{padding-left:56px;}'
 + '.cx-back{font-size:14px;color:#8a8580;cursor:pointer;}'
 + '.cx-title{font-size:26px;font-weight:600;margin:6px 0 2px;}'
 + '.cx-sub{font-size:12px;color:#9a958f;line-height:1.6;}'
