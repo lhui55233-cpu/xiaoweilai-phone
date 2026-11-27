@@ -3744,7 +3744,6 @@ AppManager.register('settings', (() => {
                 ROW(ICON('var(--st-ink,#1e2748)', I.voice), '克隆音色设置', {act:'voice'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.full), '全屏 / 安装到桌面', {value:'点击开启', act:'fullscreen'}),
                 ROW(ICON('var(--st-danger,#7c2d2d)', I.lock), '锁屏密码', {act:'passcode'}),
-                ROW(ICON('#FF2D55', I.msg), '角色名字', {value: (window.GroupAJ ? GroupAJ.charDisplayName() : 'TA'), act:'charName'}),
  ROW(ICON('#FF2D55', I.msg), '已读不回与封窗', {value: (window.GroupBT? window.GroupBT.settingsRowValue(): '开'), act:'bt_seen'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.island), '灵动岛设置', {act:'island'}),
                 ROW(ICON('var(--st-ink-60,rgba(30,39,72,.6))', I.clock), '动效与省电', {act:'motion'}),
@@ -5403,16 +5402,6 @@ win.addEventListener('change', (e) => {
                 requestAnimationFrame(() => sub.classList.add('show'));
                 // 绑定滑块联动
                 bindIslandSliders(sub);
-                break;
-            }
-            case 'charName': {
-                // [AJ] 角色改名入口：未起名字时显示“TA”
-                const cur = (window.GroupAJ && GroupAJ.charDisplayName && GroupAJ.charDisplayName() !== 'TA') ? GroupAJ.charDisplayName() : '';
-                const nv = prompt('给 TA 起个名字（留空则显示“TA”）：', cur);
-                if (nv === null) break;
-                if (window.GroupAJ) GroupAJ.setCharName(nv.trim());
-                SysDialog.alert(nv && nv.trim() ? ('角色名字已设为「' + nv.trim() + '」') : '角色名字已清除，未起名字时显示“TA”');
-                try { const el = win.querySelector('[data-act="charName"] .st-val'); if (el) el.textContent = (window.GroupAJ ? GroupAJ.charDisplayName() : 'TA'); } catch(e){}
                 break;
             }
             case 'pcChange': {
