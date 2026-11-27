@@ -29,7 +29,15 @@
 .ab-focus-hist{font-size:13px;color:var(--st-ink,#1e2748);line-height:1.7;}
 .ab-set-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--st-silver,#bfc8e0);}
 .ab-set-row label{flex:0 0 90px;font-size:17px;color:var(--st-ink,#1e2748);}
-.ab-set-row input[type=range]{flex:1;}
+.ab-set-row input[type=range]{flex:1;min-width:0;}
+/* [设置重构浏览器问题修复] 桌宠滑杆按本轮墨色系重做：accent-color 兜底各端默认
+   样式；WebKit/Firefox 自定义轨道（4px 银蓝浅轨）+ 滑块（20px 墨色圆点），
+   不再出现浏览器默认亮蓝。 */
+.ab-set-row input[type=range]{accent-color:var(--st-ink,#1e2748);-webkit-appearance:none;appearance:none;background:transparent;height:24px;cursor:pointer;}
+.ab-set-row input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--st-silver-light,#dce2f1);}
+.ab-set-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:var(--st-ink,#1e2748);border:0;}
+.ab-set-row input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--st-silver-light,#dce2f1);}
+.ab-set-row input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--st-ink,#1e2748);border:0;}
 .ab-set-val{flex:0 0 44px;text-align:right;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));}
 .ab-chip-btn{border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--st-ink,#1e2748);margin:2px;cursor:pointer;}
 .ab-chip-btn.ab-active{background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-color:var(--st-ink,#1e2748);}
