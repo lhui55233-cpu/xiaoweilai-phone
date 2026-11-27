@@ -145,29 +145,35 @@ var GD_CSS = '<style>'
 + '/* GROUP-BA · BA-5/BA-9 信息 app 发送页 iOS 样式（仅 [data-gd="sms"] 作用域，不碰微信与其他应用；深色跟随手机主题） */'
 + '.gd-root[data-gd="sms"].ba-sms-thread .gd-head{display:none;}'
 + '.gd-root[data-gd="sms"].ba-sms-thread .gd-body{padding:0;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-top{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:8px;padding:10px 12px 8px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #e5e5ea;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-back{border:0;background:none;font-size:28px;line-height:1;color:#007AFF;cursor:pointer;padding:2px 8px 2px 0;flex-shrink:0;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-who{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-av{width:36px;height:36px;border-radius:50%;background:#e9e9eb;color:#555;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;flex-shrink:0;overflow:hidden;}'
++ '/* SMS conversation page restyled to the DM reference (私信 style): white bg, centered avatar + name pill, bright-blue outgoing bubbles, gray incoming bubbles, 已读 receipt, pill input with mic. */'
++ '.gd-root[data-gd="sms"].ba-sms-thread{background:#fff;}'
++ '.gd-root[data-gd="sms"] .ba-sms-top{position:sticky;top:0;z-index:6;padding:12px 16px 10px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}'
++ '.gd-root[data-gd="sms"] .ba-sms-toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;}'
++ '.gd-root[data-gd="sms"] .ba-sms-back{width:40px;height:40px;border-radius:50%;border:0;background:#f0f0f0;color:#111;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;}'
++ '.gd-root[data-gd="sms"] .ba-sms-who{flex:1;min-width:0;display:flex;justify-content:center;}'
++ '.gd-root[data-gd="sms"] .ba-sms-av{width:56px;height:56px;border-radius:50%;background:#e9e9eb;color:#555;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;flex-shrink:0;overflow:hidden;}'
++ '.gd-root[data-gd="sms"] .ba-sms-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;}'
 + '.gd-root[data-gd="sms"] .ba-sms-av-lg{width:64px;height:64px;font-size:28px;margin:0 auto;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-name{font-size:15px;font-weight:600;color:#000;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-acts{display:flex;gap:0;flex-shrink:0;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-acts button{border:0;background:none;font-size:20px;line-height:1;color:#007AFF;cursor:pointer;padding:6px;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-stream{padding:6px 14px 10px;display:flex;flex-direction:column;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-row{display:flex;margin-bottom:2px;}'
++ '.gd-root[data-gd="sms"] .ba-sms-namepill{display:flex;align-items:center;justify-content:center;margin:10px auto 0;width:max-content;max-width:82%;background:#f0f0f0;border-radius:999px;padding:7px 16px;font-size:15px;font-weight:600;color:#111;}'
++ '.gd-root[data-gd="sms"] .ba-sms-namepill .ba-sms-vcheck{display:inline-flex;margin-left:5px;line-height:0;}'
++ '.gd-root[data-gd="sms"] .ba-sms-acts{display:flex;flex-shrink:0;}'
++ '.gd-root[data-gd="sms"] .ba-sms-more{width:40px;height:40px;border-radius:50%;border:0;background:#f0f0f0;color:#111;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;}'
++ '.gd-root[data-gd="sms"] .ba-sms-stream{padding:14px 16px 12px;display:flex;flex-direction:column;}'
++ '.gd-root[data-gd="sms"] .ba-sms-row{display:flex;margin-bottom:8px;}'
 + '.gd-root[data-gd="sms"] .ba-sms-row.me{justify-content:flex-end;}'
 + '.gd-root[data-gd="sms"] .ba-sms-row.them{justify-content:flex-start;}'
-+ '.gd-root[data-gd="sms"] .gd-bubble.me{background:#007AFF;color:#fff;border:0;border-bottom-right-radius:4px;margin-left:auto;}'
-+ '.gd-root[data-gd="sms"] .gd-bubble.them{background:#E9E9EB;color:#000;border:0;border-bottom-left-radius:4px;margin-right:auto;}'
++ '.gd-root[data-gd="sms"] .gd-bubble.me{background:#0099ff;color:#fff;border:0;border-radius:20px;margin-left:auto;margin-bottom:0;padding:10px 16px;}'
++ '.gd-root[data-gd="sms"] .gd-bubble.them{background:#f0f0f0;color:#111;border:0;border-radius:20px;margin-right:auto;margin-bottom:0;padding:10px 16px;}'
++ '.gd-root[data-gd="sms"] .ba-sms-read{text-align:right;font-size:12px;color:#8e8e93;margin:-2px 2px 8px;}'
 + '.gd-root[data-gd="sms"] .ba-sms-img{max-width:100%;border-radius:12px;display:block;}'
 + '.gd-root[data-gd="sms"] .ba-sms-time{text-align:center;font-size:11px;color:#8e8e93;margin:10px 0 6px;}'
 + '.gd-root[data-gd="sms"] .ba-sms-date{text-align:center;font-size:11px;font-weight:600;color:#8e8e93;margin:12px 0 8px;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-inputbar{position:sticky;bottom:0;z-index:6;display:flex;align-items:flex-end;gap:8px;padding:8px 10px 32px;background:#fff;border-top:1px solid #e5e5ea;} /* GROUP-BM BM-2：底垫 10px→32px，避开 Home 条 */'
-+ '.gd-root[data-gd="sms"] .ba-sms-plus{width:32px;height:32px;border-radius:50%;border:0;background:#e9e9eb;color:#555;font-size:20px;line-height:1;cursor:pointer;flex-shrink:0;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-cam{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;padding:5px;flex-shrink:0;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-input{flex:1;min-width:0;box-sizing:border-box;border:1px solid #d1d1d6;border-radius:18px;padding:8px 12px;font-size:15px;line-height:1.4;background:#fff;color:#000;outline:none;resize:none;max-height:80px;overflow-y:auto;font-family:inherit;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-send{width:32px;height:32px;border-radius:50%;border:0;background:#c7c7cc;color:#fff;font-size:18px;line-height:1;cursor:default;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0 0 2px;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-send.on{background:#007AFF;cursor:pointer;}'
++ '.gd-root[data-gd="sms"] .ba-sms-inputbar{position:sticky;bottom:0;z-index:6;display:flex;align-items:flex-end;gap:10px;padding:8px 12px 32px;background:#fff;} /* GROUP-BM BM-2：底垫 10px→32px，避开 Home 条 */'
++ '.gd-root[data-gd="sms"] .ba-sms-plus{width:40px;height:40px;border-radius:50%;border:0;background:#f0f0f0;color:#111;font-size:24px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;}'
++ '.gd-root[data-gd="sms"] .ba-sms-inputwrap{flex:1;min-width:0;position:relative;display:flex;}'
++ '.gd-root[data-gd="sms"] .ba-sms-input{width:100%;box-sizing:border-box;border:0;border-radius:20px;padding:11px 16px;font-size:15px;line-height:1.4;background:#f5f5f5;color:#000;outline:none;resize:none;max-height:80px;overflow-y:auto;font-family:inherit;}'
++ '.gd-root[data-gd="sms"] .ba-sms-send{width:40px;height:40px;border-radius:50%;border:0;background:#0099ff;color:#fff;font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center;padding:0 0 2px;}'
++ '.gd-root[data-gd="sms"] .ba-sms-send.on{display:flex;}'
 + '.gd-root[data-gd="sms"] .ba-sms-drawer{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#f2f2f7;border-top:1px solid #e5e5ea;}'
 + '.gd-root[data-gd="sms"] .ba-sms-drawer button{border:1px solid #e5e5ea;background:#fff;border-radius:14px;padding:9px 12px;font-size:13px;cursor:pointer;color:#111;}'
 + '.gd-root[data-gd="sms"] .ba-sms-emoji{display:flex;gap:4px;flex-wrap:wrap;padding:8px 12px;background:#f2f2f7;}'
@@ -176,17 +182,18 @@ var GD_CSS = '<style>'
 + '.gd-root[data-gd="sms"] .ba-sms-row.them + .ba-sms-ctx{justify-content:flex-start;}'
 + '.gd-root[data-gd="sms"] .ba-sms-ctx button{border:1px solid #d1d1d6;background:#fff;border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;color:#007AFF;}'
 + '.gd-root[data-gd="sms"] .ba-sms-meta{font-size:11px;color:#8e8e93;text-align:right;margin:0 4px 8px;}'
-+ '.gd-root[data-gd="sms"] .ba-sms-toast{position:sticky;bottom:64px;z-index:7;margin:8px auto 0;width:max-content;max-width:80%;background:rgba(0,0,0,.78);color:#fff;font-size:12px;border-radius:999px;padding:6px 12px;text-align:center;}'
++ '.gd-root[data-gd="sms"] .ba-sms-toast{position:sticky;bottom:96px;z-index:7;margin:8px auto 0;width:max-content;max-width:80%;background:rgba(0,0,0,.78);color:#fff;font-size:12px;border-radius:999px;padding:6px 12px;text-align:center;}'
 + '.gd-root[data-gd="sms"] .ba-sms-ov{position:absolute;inset:0;z-index:20;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}'
 + '.gd-root[data-gd="sms"] .ba-sms-card{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:280px;text-align:center;box-sizing:border-box;}'
 + '.gd-root[data-gd="sms"] .ba-sms-bigimg{max-width:100%;max-height:60vh;border-radius:12px;display:block;margin:0 auto;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"].ba-sms-thread,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"].ba-sms-thread{background:#000;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-top,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-top{background:rgba(28,28,30,.94);border-color:#38383a;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-name,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-name{color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .gd-bubble.me,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .gd-bubble.me{background:#0A84FF;color:#fff;}'
++ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-top,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-top{background:rgba(28,28,30,.94);}'
++ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-namepill,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-namepill{background:#2c2c2e;color:#f2f2f0;}'
++ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-back,html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-more,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-back,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-more{background:#2c2c2e;color:#f2f2f0;}'
++ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .gd-bubble.me,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .gd-bubble.me{background:#0099ff;color:#fff;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .gd-bubble.them,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .gd-bubble.them{background:#26262b;color:#f2f2f0;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar{background:#1c1c1e;border-color:#38383a;}'
-+ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-input,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-input{background:#2c2c2e;color:#f2f2f0;border-color:#48484a;}'
++ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-inputbar{background:#1c1c1e;}'
++ 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-input,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-input{background:#2c2c2e;color:#f2f2f0;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-plus,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-plus{background:#38383a;color:#f2f2f0;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer,html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-emoji,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-emoji{background:#1c1c1e;border-color:#38383a;}'
 + 'html[data-theme="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer button,html[data-theme-resolved="dark"] .gd-root[data-gd="sms"] .ba-sms-drawer button{background:#2c2c2e;color:#f2f2f0;border-color:#48484a;}'
@@ -539,10 +546,34 @@ GD._gdApp = gdApp;
     var smsAutoReplyOn = function () { try { return store.get('phone_sms_autoreply_v1', false) === true; } catch (e) { return false; } };
     var smsSetAutoReply = function (on) { try { store.set('phone_sms_autoreply_v1', !!on); } catch (e) {} };
     var smsModelOn = function () { try { return !!(window.PhoneModel && PhoneModel.isEnabledFor && PhoneModel.isEnabledFor('chat')); } catch (e) { return false; } };
-    var smsAutoReplyRow = function () {
-        var on = smsAutoReplyOn();
-        var status = !on ? '自动回复已关 · 对方不会自动回' : (smsModelOn() ? '自动回复已开 · 接模型回复' : '自动回复已开 · 模板回复 · 未接模型');
-        return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fffdf8;border-bottom:1px solid rgba(30,39,72,.12);font-size:12px;color:#5f6b7a;line-height:1.6;"><span style="flex:1;">' + status + '</span><button class="gd-btn-ghost" data-act="sms-autoreply" style="padding:6px 12px;font-size:12px;">' + (on ? '关闭自动回复' : '打开自动回复') + '</button></div>';
+    /* DM reference style: contact avatar photo when the same name exists in WeChat with an avatar image, else the initial-letter tile. */
+    var smsAvatarImg = function (name) {
+        try {
+            var _wx = (typeof wxStore === 'function') ? wxStore() : null;
+            var _ss = (_wx && Array.isArray(_wx.sessions)) ? _wx.sessions : [];
+            for (var i = 0; i < _ss.length; i++) { var s = _ss[i]; if (s && (s.name === name || s.remark === name) && s.avatarImg) return s.avatarImg; }
+        } catch (e) {}
+        return '';
+    };
+    var smsAvatarHtml = function (th) {
+        var im = smsAvatarImg(th.name);
+        if (im) return '<img src="' + esc(im) + '" alt="">';
+        return esc((th.name || '?')[0]);
+    };
+    /* 已读回执：只标在最近一条我发的消息下（对方回了之后也保留，和参考图一致）。read 只存消息对象里，不新增键。 */
+    var smsReadTimer = null;
+    var markLastMeRead = function (tid) {
+        var ts = load(); var t = ts.find(function (x) { return x.id === tid; }); if (!t || !Array.isArray(t.messages)) return false;
+        for (var i = t.messages.length - 1; i >= 0; i--) { if (t.messages[i].from === 'me') { if (!t.messages[i].read) { t.messages[i].read = true; save(ts); return true; } return false; } }
+        return false;
+    };
+    var scheduleMeRead = function (tid) {
+        try { if (smsReadTimer) clearTimeout(smsReadTimer); } catch (e) {}
+        smsReadTimer = setTimeout(function () {
+            smsReadTimer = null;
+            if (threadId !== tid) return;
+            if (markLastMeRead(tid) && threadId === tid) { app._refresh(); }
+        }, 1400);
     };
     var REPLIES = [
         { k: ['你好', '在吗', '在么', 'hi', 'hello'], r: ['在呢，怎么啦？', '在的，刚看到消息。'] },
@@ -583,10 +614,11 @@ GD._gdApp = gdApp;
                 if (m.text) inner += esc(m.text);
                 if (!inner) inner = '[图片]';
                 streamHtml += '<div class="ba-sms-row ' + (m.from === 'me' ? 'me' : 'them') + '"><div class="gd-bubble ba-sms-bubble ' + (m.from === 'me' ? 'me' : 'them') + '" data-ba-idx="' + i + '">' + inner + '</div></div>';
+                if (m.from === 'me' && m.read) streamHtml += '<div class="ba-sms-read">已读</div>';
                 /* SMS-01：对方消息凡不是模型回的，都在下方标“模板回复 · 未接模型”。
                    本 app 里 from:'them' 只由自动回复写入（旧消息也没有别的来源），所以
                    没带 via:'model' 的一律按模板标注，不存在误标真人消息的情况。 */
-                if (m.from === 'them' && m.via !== 'model') streamHtml += '<div style="font-size:10px;color:#5f6b7a;margin:-2px 0 8px 12px;">模板回复 · 未接模型</div>';
+                if (m.from === 'them' && m.via !== 'model') streamHtml += '<div style="font-size:11px;color:#8e8e93;margin:2px 0 8px 14px;">模板回复 · 未接模型</div>';
                 if (smsMenuIdx === i) {
                     streamHtml += '<div class="ba-sms-ctx"><button data-act="copy" data-idx="' + i + '">复制</button><button data-act="reply" data-idx="' + i + '">回复</button><button data-act="more" data-idx="' + i + '">更多</button><button data-act="ctx-done">完成</button></div>';
                     if (smsMoreIdx === i) streamHtml += '<div class="ba-sms-meta">' + fmtDT(m.time) + ' · 来自' + (m.from === 'me' ? '我' : '对方') + '</div>';
@@ -599,16 +631,16 @@ GD._gdApp = gdApp;
                     + (smsEmojiOpen ? '<div class="ba-sms-emoji">' + ['😀','😂','🥰','😭','😡','👍','❤️','🎉','😴','🤔'].map(function (e) { return '<button data-act="emoji-pick" data-emoji="' + e + '">' + e + '</button>'; }).join('') + '</div>' : '');
             }
             var ovHtml = '';
-            if (smsDetailOpen) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><div class="ba-sms-av ba-sms-av-lg">' + esc((th.name || '?')[0]) + '</div><div style="font-size:17px;font-weight:600;margin:10px 0 4px;">' + esc(th.name) + '</div><div style="font-size:13px;color:#666;line-height:1.9;text-align:left;">号码：' + esc(th.number || '暂无') + '</div><button class="gd-btn-ghost" style="margin-top:14px;width:100%;" data-act="detail-close">关闭</button></div></div>';
+            if (smsDetailOpen) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><div class="ba-sms-av ba-sms-av-lg">' + smsAvatarHtml(th) + '</div><div style="font-size:17px;font-weight:600;margin:10px 0 4px;">' + esc(th.name) + '</div><div style="font-size:13px;color:#666;line-height:1.9;text-align:left;">号码：' + esc(th.number || '暂无') + '</div><div style="margin-top:12px;padding:10px 12px;background:#f5f5f5;border-radius:12px;font-size:12px;color:#5f6b7a;line-height:1.6;text-align:left;">' + (smsAutoReplyOn() ? (smsModelOn() ? '自动回复已开 · 接模型回复' : '自动回复已开 · 模板回复 · 未接模型') : '自动回复已关 · 对方不会自动回') + '</div><button class="gd-btn-ghost" style="margin-top:10px;width:100%;" data-act="sms-autoreply">' + (smsAutoReplyOn() ? '关闭自动回复' : '打开自动回复') + '</button><button class="gd-btn-ghost" style="margin-top:8px;width:100%;" data-act="detail-close">关闭</button></div></div>';
             if (smsBigImg) ovHtml = '<div class="ba-sms-ov"><div class="ba-sms-card"><img class="ba-sms-bigimg" src="' + esc(smsBigImg) + '" alt="大图"><button class="gd-btn-ghost" style="margin-top:14px;width:100%;" data-act="bigimg-close">关闭</button></div></div>';
-            var html = '<div class="ba-sms-top"><button class="ba-sms-back" data-act="back" aria-label="返回会话列表">‹</button>'
-                + '<div class="ba-sms-who"><div class="ba-sms-av">' + esc((th.name || '?')[0]) + '</div><div class="ba-sms-name">' + esc(th.name) + '</div></div>'
-                + '<div class="ba-sms-acts"><button data-act="detail" aria-label="详情" title="详情">ⓘ</button></div></div>'
-                + smsAutoReplyRow()
+            var html = '<div class="ba-sms-top"><div class="ba-sms-toprow"><button class="ba-sms-back" data-act="back" aria-label="返回会话列表"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>'
+                + '<div class="ba-sms-who"><div class="ba-sms-av">' + smsAvatarHtml(th) + '</div></div>'
+                + '<div class="ba-sms-acts"><button class="ba-sms-more" data-act="detail" aria-label="更多" title="更多"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button></div></div>'
+                + '<div class="ba-sms-namepill">' + esc(th.name) + (th.verified ? ' <span class="ba-sms-vcheck"><svg width="15" height="15" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0099ff"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : '') + '</div></div>'
                 + '<div id="gd-sms-stream" class="ba-sms-stream">' + streamHtml + '</div>'
                 + (smsToast ? '<div class="ba-sms-toast">' + esc(smsToast) + '</div>' : '')
                 + drawerHtml
-                + '<div class="ba-sms-inputbar"><button class="ba-sms-plus" data-act="plus" aria-label="更多">＋</button><button class="ba-sms-cam" data-act="photo" aria-label="照片">' + icSvg('camera',16) + '</button><textarea class="ba-sms-input" id="gd-sms-input" rows="1" placeholder="iMessage">' + esc(smsDraft) + '</textarea><button class="ba-sms-send" data-act="send" disabled aria-label="发送">' + icSvg('up',14) + '</button></div>'
+                + '<div class="ba-sms-inputbar"><button class="ba-sms-plus" data-act="plus" aria-label="更多">＋</button><div class="ba-sms-inputwrap"><textarea class="ba-sms-input" id="gd-sms-input" rows="1" placeholder="私信">' + esc(smsDraft) + '</textarea></div><button class="ba-sms-send" data-act="send" disabled aria-label="发送">' + icSvg('up',14) + '</button></div>'
                 + '<input type="file" id="ba-sms-file" accept="image/*" hidden><input type="file" id="ba-sms-file-cam" accept="image/*" capture="environment" hidden>'
                 + ovHtml;
             return html;
@@ -653,6 +685,7 @@ GD._gdApp = gdApp;
             var pushReply = function (txt, via) {
                 var ts = load(); var t2 = ts.find(function (x) { return x.id === tid; }); if (!t2) return;
                 t2.messages.push({ from: 'them', text: txt, time: Date.now(), via: via }); save(ts);
+                markLastMeRead(tid);
                 if (threadId === tid) { app._refresh(); scrollStream(); }
             };
             var ch = null;
@@ -679,7 +712,7 @@ GD._gdApp = gdApp;
             reader.onload = function (ev) {
                 var threads = load(); var th = threads.find(function (x) { return x.id === threadId; }); if (!th) return;
                 th.messages.push({ from: 'me', text: '', img: ev.target.result, time: Date.now() }); save(threads);
-                app._refresh(); scrollStream();
+                app._refresh(); scrollStream(); scheduleMeRead(threadId);
                 if (smsAutoReplyOn()) requestAutoReply('', threadId);
             };
             try { reader.readAsDataURL(file); } catch (e) {}
@@ -689,13 +722,13 @@ GD._gdApp = gdApp;
             var text = inp.value.trim(); if (!text) return;
             var threads = load(); var th = threads.find(function (x) { return x.id === threadId; }); if (!th) return;
             th.messages.push({ from: 'me', text: text, time: Date.now() }); save(threads); inp.value = ''; smsDraft = '';
-            app._refresh(); scrollStream();
+            app._refresh(); scrollStream(); scheduleMeRead(threadId);
             if (smsAutoReplyOn()) requestAutoReply(text, threadId);
         };
         win.querySelectorAll('[data-act]').forEach(function (btn) {
             btn.onclick = function () {
                 var act = btn.getAttribute('data-act');
-                if (act === 'open') { threadId = btn.getAttribute('data-id'); smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
+                if (act === 'open') { threadId = btn.getAttribute('data-id'); smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); scheduleMeRead(threadId); }
                 else if (act === 'back') { threadId = null; smsDrawerOpen = false; smsEmojiOpen = false; smsMenuIdx = -1; smsMoreIdx = -1; smsDetailOpen = false; smsBigImg = ''; smsDraft = ''; app._refresh(); }
                 else if (act === 'sms-autoreply') { smsSetAutoReply(!smsAutoReplyOn()); app._refresh(); }
                 else if (act === 'send') { send(); }
