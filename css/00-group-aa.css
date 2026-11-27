@@ -55,12 +55,12 @@
            GROUP-FIX13：maison-des-mots 规范色板（--mdm-*）是纸感主题的唯一色板来源，--app-* 按主题从它映射。
            例外不收敛：微信仿真绿 #07C160、此刻立体书暖色渐变与房间配色。） */
         --app-bg: #ffffff;
-        --app-surface: #f9f9f9;
+        --app-surface: #f7f7f8;
         --app-card: #ffffff;
-        --app-text: #171717;
-        --app-muted: #6e6e6e;
-        --app-line: #e5e5e5;
-        --app-accent: #000000;
+        --app-text: #25262a;
+        --app-muted: #8a8b91;
+        --app-line: #ececef;
+        --app-accent: #34363b;
         --app-accent-soft: #a8d8b9;
         --app-radius: 12px;
         /* GROUP-FIX13 · maison-des-mots-skill（MIT）规范色板：全手机纸感主题的唯一
@@ -938,8 +938,9 @@
         pointer-events: none;
 }
     .sys-app-name { color: white; font-size: 11px; font-weight: 400; text-shadow: 0 1px 2px rgba(0,0,0,0.6); white-space: nowrap; }
-    .sys-page-indicator { display: flex; justify-content: center; gap: 6px; margin-bottom: 5px; }
-    .sys-page-indicator .sys-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
+    .sys-page-indicator { display: flex; justify-content: center; gap: 6px; margin: -10px auto -5px; width: max-content; padding: 10px 14px; }
+    .sys-page-indicator .sys-dot { position: relative; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.2s; }
+    .sys-page-indicator .sys-dot::before { content: ''; position: absolute; inset: -10px -7px; }
     .sys-page-indicator .sys-dot.sys-active { background: white; width: 12px; border-radius: 3px; }
     .sys-dock-bg {
         position: absolute; width: 100%; height: 100%; border-radius: 26px;
@@ -1048,6 +1049,10 @@ body.app-hidden *, body.app-hidden *::before, body.app-hidden *::after {
     transition: transform .12s, background .2s;
 }
 .sys-app-backbtn:active { transform: scale(0.88); background: rgba(0,0,0,0.5); }
+/* 归巢：注入的圆钮默认顶在品牌行上（会压住 ⌂ 标志）；桌面宽下把它移到品牌行下方
+   的侧栏空白处（品牌行下缘 y=60，见 GC_B64 补丁）。手机宽（≤700px）归巢走自己的
+   移动布局，圆钮位置不动，品牌行改 GC_B64 补丁。 */
+@media (min-width:701px){.sys-app-window[data-app-sandbox="guichao"] .sys-app-backbtn{top:92px}}
 /* [D] 子页面自带返回时隐藏注入的全局返回钮，避免一屏两个返回 / 互相遮挡 */
 .sys-app-window[data-app-sandbox="beautify"]:has(.b-page-view.b-sub.active) .sys-app-backbtn,
 .sys-app-window[data-app-sandbox="novel"]:has(#novel-reader-view[style*="flex"]) .sys-app-backbtn,
