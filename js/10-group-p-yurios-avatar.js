@@ -180,17 +180,17 @@ function shelfBarHtml(books) {
   var cur = (st.status === 'reading' || st.status === 'paused') ? (paras[idx] || '') : '';
   var btns = '';
   if (st.status === 'offered' || st.status === 'idle') {
-    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfStart('" + st.bookId + "')\">▶ 让 char 读这本</button>";
+    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfStart('" + st.bookId + "')\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 5.5v13l11-6.5Z\"/></svg> 让 char 读这本</button>";
   } else if (st.status === 'reading') {
-    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfPause()\">⏸ 暂停</button> <button type=\"button\" class=\"groupp-btn groupp-btn-ghost\" onclick=\"window.GroupP.shelfStop()\">⏹ 停止</button>";
+    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfPause()\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 5v14M15 5v14\"/></svg> 暂停</button> <button type=\"button\" class=\"groupp-btn groupp-btn-ghost\" onclick=\"window.GroupP.shelfStop()\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"7\" y=\"7\" width=\"10\" height=\"10\" rx=\"1.5\" fill=\"currentColor\" stroke=\"none\"/></svg> 停止</button>";
   } else if (st.status === 'paused') {
-    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfStart('" + st.bookId + "')\">▶ 继续读</button> <button type=\"button\" class=\"groupp-btn groupp-btn-ghost\" onclick=\"window.GroupP.shelfStop()\">⏹ 停止</button>";
+    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfStart('" + st.bookId + "')\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 5.5v13l11-6.5Z\"/></svg> 继续读</button> <button type=\"button\" class=\"groupp-btn groupp-btn-ghost\" onclick=\"window.GroupP.shelfStop()\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"7\" y=\"7\" width=\"10\" height=\"10\" rx=\"1.5\" fill=\"currentColor\" stroke=\"none\"/></svg> 停止</button>";
   } else if (st.status === 'done') {
-    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfStart('" + st.bookId + "')\">↻ 再读一遍</button>";
+    btns = "<button type=\"button\" class=\"groupp-btn\" onclick=\"window.GroupP.shelfStart('" + st.bookId + "')\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20 12a8 8 0 1 1-2.3-5.6\"/><path d=\"M20 3.5V9h-5.5\"/></svg> 再读一遍</button>";
   }
   var statusTxt = st.status === 'done' ? '读完了，批注已留在第 1 章（蓝色气泡，作者 char）' : (st.status === 'reading' ? 'char 正在读…' : (st.status === 'paused' ? '已暂停' : '刚导入的书，可以丢给 char 读'));
   return "<div class=\"groupp-shelfbar\" id=\"groupp-shelfbar\">"
-    + "<div class=\"groupp-shelf-title\">📖 置物架 · 《" + _esc(st.title) + "》</div>"
+    + "<div class=\"groupp-shelf-title\"><svg class=\"xwl-ui-vector\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z\"/><path d=\"M12 7v14m-5-12h2m6 0h2\"/></svg> 置物架 · 《" + _esc(st.title) + "》</div>"
     + "<div class=\"groupp-shelf-status\">" + _esc(statusTxt) + " · " + pct + "%（第 " + (total ? (idx + 1) : 0) + " / " + total + " 段）</div>"
     + "<div class=\"groupp-meter\"><i style=\"width:" + pct + "%\"></i></div>"
     + (cur ? "<div class=\"groupp-shelf-cur\">“" + _esc(cur.slice(0, 40)) + (cur.length > 40 ? '…' : '') + "”</div>" : '')
@@ -279,9 +279,9 @@ function writeShelfAnnot(book, paras) {
 //    长相固定，读 cike_char_look_v1 + otome_custom_char_v1（抠图形象））。
 // ══════════════════════════════════════════════════════════════════════
 var SELFIE_SCENES = {
-  coffee: { label: '早上咖啡', caption: '早上好呀，刚买了杯咖啡，顺手拍了一张 ☕' },
-  park: { label: '公园午饭', caption: '中午在公园里，阳光正好，拍给你看 🌳' },
-  sofa: { label: '晚上沙发', caption: '晚上窝在沙发上，想你了，拍一张给你 🛋' }
+  coffee: { label: '早上咖啡', caption: '早上好呀，刚买了杯咖啡，顺手拍了一张' },
+  park: { label: '公园午饭', caption: '中午在公园里，阳光正好，拍给你看' },
+  sofa: { label: '晚上沙发', caption: '晚上窝在沙发上，想你了，拍一张给你' }
 };
 function pickSelfieScene(hour) {
   var h = (typeof hour === 'number') ? hour : new Date().getHours();
@@ -299,7 +299,7 @@ function selfieSVG(scene, look, customImg) {
   if (scene === 'coffee') {
     props = '<circle cx="302" cy="52" r="26" fill="#ffd97a"/><circle cx="302" cy="52" r="34" fill="none" stroke="#ffd97a" stroke-width="3" opacity="0.5"/>'
       + '<rect x="28" y="238" width="304" height="14" rx="7" fill="#a9714b"/>'
-      + '<g><rect x="228" y="196" width="52" height="30" rx="6" fill="#ffffff" stroke="#c87a5a" stroke-width="3"/><path d="M280 204 q18 7 0 16" fill="none" stroke="#c87a5a" stroke-width="3"/><text x="254" y="188" font-size="20">☕</text></g>';
+      + '<g><rect x="228" y="196" width="52" height="30" rx="6" fill="#ffffff" stroke="#c87a5a" stroke-width="3"/><path d="M280 204 q18 7 0 16" fill="none" stroke="#c87a5a" stroke-width="3"/><path d="M246 190q4-6 0-12M262 190q-4-6 0-12" fill="none" stroke="#c87a5a" stroke-width="3" stroke-linecap="round"/></g>';
   } else if (scene === 'park') {
     props = '<circle cx="302" cy="52" r="26" fill="#ffd97a"/>'
       + '<g><rect x="40" y="120" width="12" height="118" fill="#6b4a2f"/><circle cx="46" cy="102" r="42" fill="#5e8f5a"/><circle cx="76" cy="118" r="30" fill="#6fa368"/></g>'
@@ -353,7 +353,7 @@ function takeSelfie(hourOpt) {
     try { look = (typeof K.loadLook === 'function') ? K.loadLook() : loadLook(); } catch (e) { look = loadLook(); }
     url = K.selfieDataUrl(look, place, '蓝色外套');
     scene = place;
-    caption = '在' + place + (activity ? '，' + activity : '') + '，拍了一张给你看 📸';
+    caption = '在' + place + (activity ? '，' + activity : '') + '，拍了一张给你看';
   } else {
     scene = pickSelfieScene(hour);
     var look2 = loadLook();
@@ -962,28 +962,28 @@ function settingsHtml() {
   var stage = loadStage();
   var stageBtns = Object.keys(STAGES).map(function (k) {
     var on = k === stage;
-    return '<button type="button" class="ot-btn' + (on ? '' : ' ot-btn-ghost') + '" style="padding:6px 10px;" onclick="window.GroupP.setStage(\'' + k + '\')">' + STAGES[k].label + (on ? ' ✓' : '') + '</button>';
+    return '<button type="button" class="ot-btn' + (on ? '' : ' ot-btn-ghost') + '" style="padding:6px 10px;" onclick="window.GroupP.setStage(\'' + k + '\')">' + STAGES[k].label + (on ? ' ' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>' : '') + '</button>';
   }).join(' ');
   var vrm = vrmState();
   var vrmNote = vrm.status === 'loaded' ? '上次已加载预览：' + (vrm.name || '') + '（仅展示）'
     : vrm.status === 'failed' ? '上次导入失败：' + (vrm.error || '') + '。已保留自绘形象。'
     : '还没导入过 VRM 模型。';
-  return '<div style="font-weight:700;margin:14px 0 6px;">📷 自拍相机</div>'
-    + '<div><button class="ot-btn" onclick="window.GroupP.takeSelfie()">📷 让 char 拍张自拍</button> <button class="ot-btn" onclick="window.GroupBG&&window.GroupBG.selfieCamera()">📷 用真相机拍一张（实拍）</button></div>'
+  return '<div style="font-weight:700;margin:14px 0 6px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.2"/></svg> 自拍相机</div>'
+    + '<div><button class="ot-btn" onclick="window.GroupP.takeSelfie()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.2"/></svg> 让 char 拍张自拍</button> <button class="ot-btn" onclick="window.GroupBG&&window.GroupBG.selfieCamera()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.2"/></svg> 用真相机拍一张（实拍）</button></div>'
     + '<div class="ot-muted" style="margin-top:4px;">用 K 组的 SVG 示意自拍（同一张脸 + 当前日程地点，图内标注“示意自拍”）；按当前时间取 24h 日程里的地点；长相固定，读换装设置；不外链图片，拍完发进聊天。</div>'
-    + '<div style="font-weight:700;margin:14px 0 6px;">🎭 舞台场景</div>'
+    + '<div style="font-weight:700;margin:14px 0 6px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg> 舞台场景</div>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + stageBtns + '</div>'
     + '<div class="ot-muted" style="margin-top:4px;">换完乙游 3D 家和此刻小世界的背景一起换（房间/公园/夜空星星，纯 CSS/SVG 画，不外链）。当前：' + STAGES[stage].label + '。</div>'
-    + '<div style="font-weight:700;margin:14px 0 6px;">👄 嘴型同步</div>'
+    + '<div style="font-weight:700;margin:14px 0 6px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6"/></svg> 嘴型同步</div>'
     + '<div class="ot-muted">音乐/录音用真实音量驱动（AnalyserNode 读实时音量，嘴张合跟音量走）；系统语音（捏声音）用词边界模拟（onboundary 按词跳嘴型）。两者不一样，不是同一种驱动。</div>'
-    + '<div style="font-weight:700;margin:14px 0 6px;">🧍 VRM 模型导入（预览）</div>'
-    + '<div><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;">📦 导入 .vrm 模型<input type="file" accept=".vrm" style="display:none;" onchange="window.GroupP.importVRMFile(this)"></label></div>'
+    + '<div style="font-weight:700;margin:14px 0 6px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/></svg> VRM 模型导入（预览）</div>'
+    + '<div><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 5 9-5M12 12.5V21"/></svg> 导入 .vrm 模型<input type="file" accept=".vrm" style="display:none;" onchange="window.GroupP.importVRMFile(this)"></label></div>'
     + '<div class="ot-muted" id="groupp-vrm-status" style="margin-top:4px;">' + _esc(vrmNote) + '</div>'
     + '<div id="groupp-vrm-preview" style="margin-top:8px;text-align:center;"></div>'
     + '<div class="ot-muted" style="margin-top:4px;">只在点导入时才加载 three.js CDN，不阻塞手机启动；没网或加载失败会明说原因、保留自绘形象。VRM 只是预览/展示，不替换已有全部功能。</div>'
-    + '<div style="font-weight:700;margin:14px 0 6px;">🃏 角色卡工作室</div>'
-    + '<div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="ot-btn" onclick="window.GroupP.exportCardJSON()">⬇ 导出 JSON</button><button class="ot-btn" onclick="window.GroupP.exportCardPNG()">⬇ 导出 PNG 角色卡</button></div>'
-    + '<div style="margin-top:8px;"><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;">📥 导入角色卡 PNG<input type="file" accept=".png,image/png" style="display:none;" onchange="window.GroupP.importCardFile(this)"></label></div>'
+    + '<div style="font-weight:700;margin:14px 0 6px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="11" r="2.2"/><path d="M5.5 16.5c.5-1.6 1.4-2.4 2.5-2.4s2 .8 2.5 2.4M14 9.5h5M14 13h5"/></svg> 角色卡工作室</div>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="ot-btn" onclick="window.GroupP.exportCardJSON()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m0 0-6-6m6 6 6-6"/></svg> 导出 JSON</button><button class="ot-btn" onclick="window.GroupP.exportCardPNG()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m0 0-6-6m6 6 6-6"/></svg> 导出 PNG 角色卡</button></div>'
+    + '<div style="margin-top:8px;"><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-5-5m5 5 5-5M4 20h16"/></svg> 导入角色卡 PNG<input type="file" accept=".png,image/png" style="display:none;" onchange="window.GroupP.importCardFile(this)"></label></div>'
     + '<div id="groupp-card-list" style="margin-top:6px;">' + importedListHtml() + '</div>'
     + '<div class="ot-muted" style="margin-top:4px;">导出 JSON 走 N 组的角色卡（本机人设）；导出 PNG 是把同一张卡写进 PNG 文本块。导入 SillyTavern V2/V3 卡片 PNG（读 PNG 文本块里的 char/chara 字段）；导入的角色默认禁用，必须看过点“启用”才能用。导出只带人设，记忆和日记留本地，不导出。</div>';
 }

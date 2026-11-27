@@ -107,17 +107,66 @@ const SLOTS = [
 ];
 const SLOT_BY_ID = {};
 SLOTS.forEach((s) => { SLOT_BY_ID[s.id] = s; });
-/* OpenMoji 彩色点缀短名单：24 个高频表情（定额 20–30 内；已排除旗帜与多肤色变体）。
-   本文件内是系统字体渲染的占位字符，正式 OpenMoji 彩色 SVG 需制作时逐个内联
-   （OpenMoji 图形 CC BY-SA 4.0，署名见关于页）；只适合小组件/快捷方式/心情/
-   日记类点缀位置，不作桌面 app 图标主力。 */
+/* D 批禁 emoji：24 个心情笑脸全部手绘 SVG（黄脸 + 眼睛/嘴/点缀参数化），不再用 emoji 字形；
+   存的值从 emoji 字符改成笑脸 id，旧存值读不到时回落为空（只丢一次旧选择，不丢数据）。 */
+const mojiSVG = (m, size) => {
+  const s = size || 26;
+  const ink = '#1e2748';
+  let eyes = '', mouth = '', extra = '';
+  if (m.eyes === 'dot') eyes = '<circle cx="8.5" cy="10" r="1.5" fill="' + ink + '"/><circle cx="15.5" cy="10" r="1.5" fill="' + ink + '"/>';
+  else if (m.eyes === 'happy') eyes = '<path d="M6.5 10.5Q8.5 8 10.5 10.5M13.5 10.5Q15.5 8 17.5 10.5" stroke="' + ink + '" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  else if (m.eyes === 'closed') eyes = '<path d="M6.5 10Q8.5 11.8 10.5 10M13.5 10Q15.5 11.8 17.5 10" stroke="' + ink + '" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  else if (m.eyes === 'heart') eyes = '<path d="M8.5 11.5S5.8 9.4 5.8 7.9c0-1.2 1.6-1.8 2.7-.7 1-1.1 2.7-.5 2.7.7 0 1.5-2.7 3.6-2.7 3.6Z" fill="#e5484d"/><path d="M15.5 11.5S12.8 9.4 12.8 7.9c0-1.2 1.6-1.8 2.7-.7 1-1.1 2.7-.5 2.7.7 0 1.5-2.7 3.6-2.7 3.6Z" fill="#e5484d"/>';
+  else if (m.eyes === 'star') eyes = '<path d="M8.5 5.5l.9 2 2 .3-1.5 1.4.4 2.1-1.8-1-1.8 1 .4-2.1-1.5-1.4 2-.3Z" fill="#f5b90a"/><path d="M15.5 5.5l.9 2 2 .3-1.5 1.4.4 2.1-1.8-1-1.8 1 .4-2.1-1.5-1.4 2-.3Z" fill="#f5b90a"/>';
+  else if (m.eyes === 'cool') eyes = '<rect x="4.5" y="7.5" width="6" height="4" rx="1.5" fill="' + ink + '"/><rect x="13.5" y="7.5" width="6" height="4" rx="1.5" fill="' + ink + '"/><path d="M10.5 9.5h3" stroke="' + ink + '" stroke-width="1.6"/>';
+  else if (m.eyes === 'wink') eyes = '<circle cx="8.5" cy="10" r="1.5" fill="' + ink + '"/><path d="M13.5 10.5Q15.5 8 17.5 10.5" stroke="' + ink + '" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  else if (m.eyes === 'plead') eyes = '<circle cx="8.5" cy="10" r="2.1" fill="' + ink + '"/><circle cx="15.5" cy="10" r="2.1" fill="' + ink + '"/><circle cx="9.2" cy="9.3" r=".7" fill="#fff"/><circle cx="16.2" cy="9.3" r=".7" fill="#fff"/>';
+  else if (m.eyes === 'angry') eyes = '<path d="M5.5 7.5 10 9.5M18.5 7.5 14 9.5" stroke="' + ink + '" stroke-width="1.7" stroke-linecap="round"/><circle cx="8.5" cy="11" r="1.3" fill="' + ink + '"/><circle cx="15.5" cy="11" r="1.3" fill="' + ink + '"/>';
+  else if (m.eyes === 'think') eyes = '<circle cx="8.5" cy="10" r="1.5" fill="' + ink + '"/><path d="M13.5 8.5Q15.5 7 17.5 8.5" stroke="' + ink + '" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="15.5" cy="10.5" r="1.3" fill="' + ink + '"/>';
+  else if (m.eyes === 'dizzy') eyes = '<path d="M6.5 8l4 4m0-4-4 4M13.5 8l4 4m0-4-4 4" stroke="' + ink + '" stroke-width="1.6" stroke-linecap="round"/>';
+  else if (m.eyes === 'squint') eyes = '<path d="M6 10.5h5M13 10.5h5" stroke="' + ink + '" stroke-width="1.7" stroke-linecap="round"/>';
+  if (m.mouth === 'smile') mouth = '<path d="M8.5 14.5Q12 17.5 15.5 14.5" stroke="' + ink + '" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  else if (m.mouth === 'laugh') mouth = '<path d="M7.5 13.5Q12 20 16.5 13.5Z" fill="' + ink + '"/>';
+  else if (m.mouth === 'open') mouth = '<ellipse cx="12" cy="15.5" rx="1.8" ry="2.2" fill="' + ink + '"/>';
+  else if (m.mouth === 'wail') mouth = '<ellipse cx="12" cy="15.5" rx="2.6" ry="3" fill="' + ink + '"/>';
+  else if (m.mouth === 'frown') mouth = '<path d="M8.5 17Q12 14 15.5 17" stroke="' + ink + '" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  else if (m.mouth === 'flat') mouth = '<path d="M9 15.5h6" stroke="' + ink + '" stroke-width="1.7" stroke-linecap="round"/>';
+  else if (m.mouth === 'tongue') mouth = '<path d="M8.5 14Q12 16.8 15.5 14" stroke="' + ink + '" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M10.5 15.2h3v2.6a1.5 1.5 0 0 1-3 0Z" fill="#f27d7d"/>';
+  else if (m.mouth === 'kiss') mouth = '<circle cx="15.5" cy="15" r="1.6" fill="' + ink + '"/>';
+  else if (m.mouth === 'small') mouth = '<path d="M9.5 15Q12 17 14.5 15" stroke="' + ink + '" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+  if (m.extra === 'tear') extra = '<path d="M18.5 12.5c.9.9 1.1 2.2.4 3.1-.6.8-1.9.8-2.5 0-.7-.9-.5-2.2.4-3.1Z" fill="#7db8e8"/>';
+  else if (m.extra === 'tears') extra = '<path d="M5.5 12.5c.9.9 1.1 2.2.4 3.1-.6.8-1.9.8-2.5 0-.7-.9-.5-2.2.4-3.1Z" fill="#7db8e8"/><path d="M18.5 12.5c.9.9 1.1 2.2.4 3.1-.6.8-1.9.8-2.5 0-.7-.9-.5-2.2.4-3.1Z" fill="#7db8e8"/>';
+  else if (m.extra === 'blush') extra = '<ellipse cx="6" cy="13.5" rx="1.8" ry="1.1" fill="#f2a0a0" opacity=".7"/><ellipse cx="18" cy="13.5" rx="1.8" ry="1.1" fill="#f2a0a0" opacity=".7"/>';
+  else if (m.extra === 'halo') extra = '<ellipse cx="12" cy="3.2" rx="5" ry="1.6" fill="none" stroke="#f5b90a" stroke-width="1.6"/>';
+  else if (m.extra === 'hearts') extra = '<path d="M19.5 5.5s-2-1.4-2-2.7c0-.9 1.2-1.3 2-.5.8-.8 2-.4 2 .5 0 1.3-2 2.7-2 2.7Z" fill="#e5484d"/>';
+  else if (m.extra === 'hat') extra = '<path d="M12 1.5 16.5 6H7.5Z" fill="#8e4ec6"/><circle cx="12" cy="1.5" r="1" fill="#f5d90a"/>';
+  return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffd93b"/>' + extra + eyes + mouth + '</svg>';
+};
 const MOJI = [
-  { c: '😀', n: '开心' }, { c: '😂', n: '大笑' }, { c: '😍', n: '喜欢' }, { c: '🥺', n: '委屈' },
-  { c: '😢', n: '难过' }, { c: '😡', n: '生气' }, { c: '😴', n: '困' }, { c: '😎', n: '酷' },
-  { c: '🤔', n: '思考' }, { c: '🥳', n: '庆祝' }, { c: '😭', n: '大哭' }, { c: '😊', n: '微笑' },
-  { c: '🙃', n: '调皮' }, { c: '😌', n: '平静' }, { c: '😋', n: '馋' }, { c: '🤗', n: '抱抱' },
-  { c: '🤩', n: '星星眼' }, { c: '😇', n: '天使' }, { c: '🥰', n: '甜蜜' }, { c: '😘', n: '亲亲' },
-  { c: '😜', n: '吐舌' }, { c: '🤪', n: '搞怪' }, { c: '😝', n: '鬼脸' }, { c: '😛', n: '调皮2' }
+  { id: 'happy', n: '开心', eyes: 'dot', mouth: 'smile', extra: 'blush' },
+  { id: 'laugh', n: '大笑', eyes: 'happy', mouth: 'laugh', extra: 'tear' },
+  { id: 'love', n: '喜欢', eyes: 'heart', mouth: 'smile', extra: 'blush' },
+  { id: 'plead', n: '委屈', eyes: 'plead', mouth: 'small', extra: 'tear' },
+  { id: 'sad', n: '难过', eyes: 'closed', mouth: 'frown', extra: 'tear' },
+  { id: 'angry', n: '生气', eyes: 'angry', mouth: 'frown' },
+  { id: 'sleepy', n: '困', eyes: 'closed', mouth: 'open' },
+  { id: 'cool', n: '酷', eyes: 'cool', mouth: 'smile' },
+  { id: 'think', n: '思考', eyes: 'think', mouth: 'flat' },
+  { id: 'party', n: '庆祝', eyes: 'happy', mouth: 'laugh', extra: 'hat' },
+  { id: 'sob', n: '大哭', eyes: 'closed', mouth: 'wail', extra: 'tears' },
+  { id: 'smile', n: '微笑', eyes: 'happy', mouth: 'smile', extra: 'blush' },
+  { id: 'playful', n: '调皮', eyes: 'wink', mouth: 'tongue' },
+  { id: 'calm', n: '平静', eyes: 'closed', mouth: 'small' },
+  { id: 'yummy', n: '馋', eyes: 'happy', mouth: 'tongue' },
+  { id: 'hug', n: '抱抱', eyes: 'happy', mouth: 'smile', extra: 'hearts' },
+  { id: 'starry', n: '星星眼', eyes: 'star', mouth: 'laugh' },
+  { id: 'angel', n: '天使', eyes: 'dot', mouth: 'smile', extra: 'halo' },
+  { id: 'sweet', n: '甜蜜', eyes: 'heart', mouth: 'smile', extra: 'hearts' },
+  { id: 'kiss', n: '亲亲', eyes: 'wink', mouth: 'kiss', extra: 'hearts' },
+  { id: 'tongue', n: '吐舌', eyes: 'wink', mouth: 'tongue' },
+  { id: 'zany', n: '搞怪', eyes: 'dizzy', mouth: 'laugh' },
+  { id: 'silly', n: '鬼脸', eyes: 'squint', mouth: 'tongue' },
+  { id: 'tongue2', n: '调皮2', eyes: 'dot', mouth: 'tongue' }
 ];
 const GLASS_PRESETS = [
   { id: 'soft', name: '柔和' }, { id: 'clear', name: '通透' },
@@ -129,7 +178,7 @@ const SOURCES = [
   { name: 'Fluent', lic: 'MIT', ver: '9.x', role: '备选字形来源（只用 24 regular）' },
   { name: 'Lucide', lic: 'ISC', ver: '0.4x', role: '选形参考' },
   { name: 'IconPark', lic: 'Apache-2.0', ver: '1.4.x', role: '主题切换备选' },
-  { name: 'OpenMoji', lic: 'CC BY-SA 4.0', ver: '15.x', role: '彩色表情点缀（图形署名见关于页）' }
+  { name: 'OpenMoji', lic: 'CC BY-SA 4.0', ver: '15.x', role: '已不用：笑脸改手绘 SVG' }
 ];
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const _read = (k, dflt) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined) ? dflt : v; } catch (e) { return dflt; } };
@@ -155,7 +204,7 @@ const load = () => {
       if (raw.glass.style === 'glass' || raw.glass.style === 'default') d.glass.style = raw.glass.style;
       if (GLASS_PRESETS.some((g) => g.id === raw.glass.preset)) d.glass.preset = raw.glass.preset;
     }
-    if (typeof raw.moji === 'string' && MOJI.some((m) => m.c === raw.moji)) d.moji = raw.moji;
+    if (typeof raw.moji === 'string' && MOJI.some((m) => m.id === raw.moji)) d.moji = raw.moji;
   }
   return d;
 };
@@ -238,7 +287,7 @@ const pickerBodyHTML = () => {
     return tileHTML(p.icon, { size: 22, stroke: p.stroke || 2, filled: !!p.filled });
   }).join('') + '<span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6))">壁纸上的玻璃效果预览（磨砂化只在有壁纸的桌面上看得出来）</span></div>';
   const mojiSeg = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' + MOJI.map((m) =>
-    '<button class="aq-moji-btn' + (d.moji === m.c ? ' on' : '') + '" data-aq-moji="' + esc(m.c) + '" title="' + esc(m.n) + '">' + esc(m.c) + '</button>').join('') + '</div>';
+    '<button class="aq-moji-btn' + (d.moji === m.id ? ' on' : '') + '" data-aq-moji="' + esc(m.id) + '" title="' + esc(m.n) + '">' + mojiSVG(m, 26) + '</button>').join('') + '</div>';
   return '<div class="gw-set-h">功能位</div>'
     + '<div class="aq-note" style="margin-top:0">先选一个功能位，再点下面的图标换上；桌面 app 图标即取自本字典（GROUP-FIX2）：这里换图标会同步到桌面对应 app。</div>'
     + slotSeg
@@ -252,8 +301,8 @@ const pickerBodyHTML = () => {
     + '<div class="gw-set-h">图标风格</div>'
     + '<div class="aq-note" style="margin-top:0">Liquid Glass 只是可选风格，默认不启用；纯 CSS（渐变 + 高光 + 边缘光 + backdrop-filter 磨砂），没有真折射，省电。</div>'
     + styleSeg + presetSeg + wallDemo
-    + '<div class="gw-set-h">彩色表情（OpenMoji 点缀）</div>'
-    + '<div class="aq-note" style="margin-top:0">只挑 24 个高频表情，供小组件 / 快捷方式 / 心情 / 日记点缀用；这里是系统字体渲染的占位，正式 OpenMoji 彩色 SVG 需制作时逐个内联（CC BY-SA 4.0，署名见关于页；已排除旗帜与多肤色变体）。</div>'
+    + '<div class="gw-set-h">心情笑脸（手绘 SVG）</div>'
+    + '<div class="aq-note" style="margin-top:0">只挑 24 个高频心情，供小组件 / 快捷方式 / 心情 / 日记点缀用；笑脸全部手绘 SVG，不用 emoji 字形。</div>'
     + mojiSeg
     + '<div class="gw-set-h">来源</div>'
     + '<div class="aq-note">' + SOURCES.map((s) => esc(s.name) + '（' + esc(s.lic) + '）· ' + esc(s.role)).join('<br>') + '<br>桌面 app 图标取自本字典（GROUP-FIX2）。</div>'

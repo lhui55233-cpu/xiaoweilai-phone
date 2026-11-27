@@ -182,7 +182,7 @@
     if (!toolbar || toolbar.querySelector('[data-vnca-open]')) return;
     var b = document.createElement('button');
     b.type = 'button'; b.setAttribute('data-vnca-open', '1'); b.setAttribute('data-vnca-vn', vnId);
-    b.textContent = '👤 形象';
+    b.innerHTML = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><circle cx="8" cy="5" r="2.6" fill="currentColor"/><path d="M2.5 14.5c.8-2.8 2.9-4.2 5.5-4.2s4.7 1.4 5.5 4.2z" fill="currentColor"/></svg> 形象';
     b.className = 'vnca-toolbar-button';
     toolbar.insertBefore(b, toolbar.lastElementChild || null);
   }

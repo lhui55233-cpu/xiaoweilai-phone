@@ -48,7 +48,7 @@
     var mark = document.createElement('span');
     mark.className = 'wx-model-picker-check';
     mark.setAttribute('aria-hidden', 'true');
-    mark.textContent = isCurrent ? '✓' : '';
+    mark.innerHTML = isCurrent ? '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
     return mark;
   }
 
@@ -177,7 +177,7 @@
     trigger.setAttribute('aria-haspopup', 'dialog');
     trigger.setAttribute('aria-expanded', 'false');
     trigger.setAttribute('aria-controls', PANEL_ID);
-    trigger.innerHTML = '<span class="wx-model-picker-label"></span><span class="wx-model-picker-chevron" aria-hidden="true">⌄</span>';
+    trigger.innerHTML = '<span class="wx-model-picker-label"></span><span class="wx-model-picker-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
     trigger.addEventListener('click', function () { openPicker(select, trigger); });
     wrapper.insertBefore(trigger, select);
     select.addEventListener('change', function () { updateTrigger(select); });

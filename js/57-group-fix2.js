@@ -451,7 +451,7 @@ var bindAfQuick = function () {
           var b = document.createElement('button');
           b.type = 'button';
           b.className = 'af-sr-item fix2-quick';
-          b.innerHTML = '<span class="af-sr-type">专注</span>🍅 ' + esc(r.label) + ' · 点按开始';
+          b.innerHTML = '<span class="af-sr-type">专注</span>' + esc(r.label) + ' · 点按开始';
           b.addEventListener('click', function () {
             try { GroupAM.runQuickTool(q); } catch (e) {}
             box.hidden = true; box.innerHTML = '';
@@ -461,12 +461,12 @@ var bindAfQuick = function () {
         } else if (r.type === 'calc') {
           var d = document.createElement('div');
           d.className = 'af-sr-item fix2-quick';
-          d.innerHTML = '<span class="af-sr-type">算式</span>🧮 ' + esc(r.label);
+          d.innerHTML = '<span class="af-sr-type">算式</span>' + esc(r.label);
           box.insertBefore(d, box.firstChild);
         } else if (r.type === 'todos') {
           var t = document.createElement('div');
           t.className = 'af-sr-item fix2-quick';
-          t.innerHTML = '<span class="af-sr-type">待办</span>' + ((r.items && r.items.length) ? '☑️ ' + esc(r.items.slice(0, 3).join(' · ')) : '今天没有待办，也可以什么都不做。');
+          t.innerHTML = '<span class="af-sr-type">待办</span>' + ((r.items && r.items.length) ? esc(r.items.slice(0, 3).join(' · ')) : '今天没有待办，也可以什么都不做。');
           box.insertBefore(t, box.firstChild);
         }
       } catch (e) {}

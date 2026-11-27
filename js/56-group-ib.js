@@ -11,6 +11,9 @@
 (function () {
   'use strict';
   var MARK = 'GROUP-IB';
+  /* D 批禁 emoji：月相/关闭改线稿 SVG（月亮取 js/64-ui-vector-icons 的月亮线稿）。 */
+  var IB_MOON_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg>';
+  var IB_X_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -178,13 +181,13 @@
       + '<button type="button" class="ib-cal-btn ib-press" data-ib-cal="prev">‹ 上月</button>'
       + '<button type="button" class="ib-cal-btn ib-press" data-ib-cal="next">下月 ›</button>'
       + '<button type="button" class="ib-cal-btn ib-press" data-ib-cal="mini">— 收起</button>'
-      + '<button type="button" class="ib-cal-btn ib-press" data-ib-cal="close">✕</button></div>'
+      + '<button type="button" class="ib-cal-btn ib-press" data-ib-cal="close">' + IB_X_SVG + '</button></div>'
       + '<div class="ib-cal-body"><div class="ib-cal-grid">'
       + wd.map(function (w) { return '<div class="ib-cal-wd">' + w + '</div>'; }).join('')
       + cells.map(function (c) {
           return '<div class="ib-cal-day' + (c.inMonth ? '' : ' out') + (c.key === todayKey ? ' today' : '') + '" title="' + c.key + ' · ' + c.moon.name + '（照亮 ' + Math.round(c.moon.illum * 100) + '%）">'
             + '<span>' + c.day + '</span>'
-            + (c.hasSched ? '<span class="ib-dot" title="这天有日程"></span>' : '<span class="ib-moon">☾</span>')
+            + (c.hasSched ? '<span class="ib-dot" title="这天有日程"></span>' : '<span class="ib-moon">' + IB_MOON_SVG + '</span>')
             + '</div>';
         }).join('')
       + '</div><div class="ib-cal-foot">今天 ' + (now.getMonth() + 1) + '月' + now.getDate() + '日 · ' + moonToday.name + '（照亮 ' + Math.round(moonToday.illum * 100) + '%）'
@@ -194,7 +197,7 @@
   function calMiniHTML() {
     var now = new Date();
     var moon = moonPhase(now);
-    return '<div class="ib-cal-mini ib-press" id="ib-cal-mini" role="button" tabindex="0">☾ ' + (now.getMonth() + 1) + '月' + now.getDate() + '日 · ' + moon.name + ' · 日历</div>';
+    return '<div class="ib-cal-mini ib-press" id="ib-cal-mini" role="button" tabindex="0">' + IB_MOON_SVG + ' ' + (now.getMonth() + 1) + '月' + now.getDate() + '日 · ' + moon.name + ' · 日历</div>';
   }
   function openCalendar() {
     var old = document.getElementById('ib-cal-float');

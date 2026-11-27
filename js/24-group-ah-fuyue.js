@@ -453,8 +453,14 @@ function hitWhack(cell) {
   if (cell === _whack.mole) { _whack.score++; _whack.mole = Math.floor(Math.random() * 9); renderWhackMole(); var s = document.getElementById('ah-whack-score'); if (s) s.textContent = String(_whack.score); return { ok: true, score: _whack.score }; }
   return { ok: false, reason: 'miss', score: _whack.score };
 }
+/* D 批禁 emoji：地鼠/洞/票根/星标改线稿 SVG（地鼠和洞是打地鼠游戏的棋子本身，画出来不是装饰）。 */
+var AH_HOLE_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><ellipse cx="12" cy="15" rx="9" ry="5" fill="#3a2a1e"/></svg>';
+var AH_MOLE_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="8.5" cy="6.5" r="2.8" fill="#c9a06a"/><circle cx="15.5" cy="6.5" r="2.8" fill="#c9a06a"/><circle cx="12" cy="13" r="8" fill="#c9a06a"/><circle cx="9" cy="12" r="1.3" fill="#1e2748"/><circle cx="15" cy="12" r="1.3" fill="#1e2748"/><ellipse cx="12" cy="16" rx="1.8" ry="1.3" fill="#e8a0a0"/><path d="M9.5 18.5Q12 20 14.5 18.5" stroke="#7a5a3a" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>';
+var AH_TICKET_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z"/><path d="M14 6v2m0 3v2m0 3v2"/></svg>';
+function ahStarSVG(filled) { return '<svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" fill="' + (filled ? '#f5b90a' : 'none') + '" stroke="#b08d3e" stroke-width="1.4" stroke-linejoin="round"/></svg>'; }
+function ahStars(n) { var s = ''; for (var i = 0; i < 5; i++) s += ahStarSVG(i < n); return s; }
 function renderWhackMole() {
-  for (var i = 0; i < 9; i++) { var c = document.getElementById('ah-whack-' + i); if (c) c.textContent = (i === _whack.mole && _whack.active) ? '🐹' : '🕳️'; }
+  for (var i = 0; i < 9; i++) { var c = document.getElementById('ah-whack-' + i); if (c) c.innerHTML = (i === _whack.mole && _whack.active) ? AH_MOLE_SVG : AH_HOLE_SVG; }
 }
 
 /* ── 7. 一起看贴链接 ── */
@@ -586,8 +592,8 @@ function journeyStar(id, stars) {
 }
 function journeyBoardingHTML(j) {
   var h = '';
-  if (j.from || j.to) h += '<br>🎫 ' + esc(j.from || '？') + ' → ' + esc(j.to || '？') + (j.transport ? ' · ' + esc(j.transport) : '');
-  if (j.stars) h += '<br>' + '★★★★★'.slice(0, j.stars) + '☆☆☆☆☆'.slice(0, 5 - j.stars) + ' · 他打了 ' + j.stars + ' 颗星';
+  if (j.from || j.to) h += '<br>' + AH_TICKET_SVG + ' ' + esc(j.from || '？') + ' → ' + esc(j.to || '？') + (j.transport ? ' · ' + esc(j.transport) : '');
+  if (j.stars) h += '<br>' + ahStars(j.stars) + ' · 他打了 ' + j.stars + ' 颗星';
   if (j.comment) h += '<br><span style="color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(j.comment) + '</span>';
   return h;
 }
@@ -796,7 +802,7 @@ function renderPage(page) {
   if (page === 'toys') {
     var toys = listToys();
     var grid = '';
-    for (var i = 0; i < 9; i++) grid += '<button type="button" id="ah-whack-' + i + '" data-ah-act="whack-hit" data-cell="' + i + '">🕳️</button>';
+    for (var i = 0; i < 9; i++) grid += '<button type="button" id="ah-whack-' + i + '" data-ah-act="whack-hit" data-cell="' + i + '">' + AH_HOLE_SVG + '</button>';
     return pageShell('玩具盒', '赴约做法：内置打地鼠 + 导入单文件 HTML 玩具（无网络沙箱跑），游玩记审计，随整屋迁移。',
       navChips(page)
       + '<div class="ah-card"><b>打地鼠</b> · 得分 <span id="ah-whack-score">0</span> · 剩余 <span id="ah-whack-time">30</span> 秒'
@@ -839,7 +845,7 @@ function renderPage(page) {
       + '<input class="ah-input" id="ah-jr-from" placeholder="出发地（可选）">'
       + '<input class="ah-input" id="ah-jr-to" placeholder="目的地（可选）">'
       + '<input class="ah-input" id="ah-jr-transport" placeholder="交通方式（可选，如：高铁 / 飞机 / 步行）">'
-      + '<select class="ah-input" id="ah-jr-stars"><option value="0">不等星</option><option value="3">★★★</option><option value="4">★★★★</option><option value="5">★★★★★</option></select>'
+      + '<select class="ah-input" id="ah-jr-stars"><option value="0">不等星</option><option value="3">3 颗星</option><option value="4">4 颗星</option><option value="5">5 颗星</option></select>'
       + '<button class="ah-btn ah-btn-pri" data-ah-act="journey-add">存下来</button></div>'
       + (js.length ? js.slice().reverse().map(function (j) {
           return '<div class="ah-card"><b>' + esc(j.date) + ' · ' + esc(j.place || '未写地点') + '</b><br>' + esc(j.text) + journeyBoardingHTML(j)

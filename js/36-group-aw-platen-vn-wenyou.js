@@ -18,6 +18,25 @@ var AW = window.AWGroup;
 var TRANSIT_KEY = 'cike_letter_transit_v1', CAPSULE_KEY = 'cike_timecapsule_v1';
 var VN_KEY = 'phone_script_vn_v1', WY_KEY = 'phone_wenyou_v1', WY_MODEL_KEY = 'aw_wenyou_model_v1', WY_FB_KEY = 'phone_wenyou_feedback_v1', WY_MS_KEY = 'phone_wenyou_milestones_v1';
 var ALBUM_KEY3 = 'cike_album_v1', GC_KEY3 = 'guichao.memories.v1', AFF_KEY = 'otome_affection_v1';
+/* B批禁emoji：UI 图标改用内联 SVG（currentColor，随文字颜色走） */
+var AWIC = {
+  check: ['s', '<path d="M4.5 12.5l5 5 10-11"/>'],
+  cross: ['s', '<path d="M6 6l12 12M18 6 6 18"/>'],
+  heart: ['f', '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>'],
+  thumbUp: ['s', '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>'],
+  thumbDown: ['s', '<g transform="rotate(180 12 12)"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></g>'],
+  speaker: ['s', '<path d="M11 5L6.5 9H3v6h3.5L11 19z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>'],
+  share: ['s', '<path d="M7 17L17 7M9 7h8v8"/>'],
+  menu: ['s', '<path d="M4 6h16M4 12h16M4 18h16"/>'],
+  person: ['s', '<circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/>'],
+  archive: ['s', '<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'],
+  gear: ['s', '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/>'],
+  left: ['s', '<path d="M19 12H5m0 0l6-6m-6 6l6 6"/>'],
+  up: ['s', '<path d="M12 19V5m0 0l-6 6m6-6l6 6"/>'],
+  rec: ['f', '<circle cx="12" cy="12" r="6"/>'],
+  mic: ['s', '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6"/>']
+};
+var awIc = function (n, sz) { var e = AWIC[n]; if (!e) return ''; var s = sz || 14; if (e[0] === 'f') return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true" focusable="false" style="vertical-align:-2px;flex:none;" fill="currentColor" stroke="none">' + e[1] + '</svg>'; return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true" focusable="false" style="vertical-align:-2px;flex:none;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + e[1] + '</svg>'; };
 var esc3 = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 var rd3 = function (k, dflt) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined) ? dflt : v; } catch (e) { return dflt; } };
 var wr3 = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
@@ -56,7 +75,7 @@ function deliverDueLetters(nowMs) {
   due.forEach(function (l) { album.unshift({ role: l.role, time: new Date(l.arriveAt).toLocaleString('zh-CN'), text: l.text }); });
   wr3(ALBUM_KEY3, album);
   try { var st = rd3(AW.LETTER_STATE_KEY || 'cike_letter_state_v1', null); if (st && typeof st === 'object') { st.lastSeenCount = album.length; wr3(AW.LETTER_STATE_KEY || 'cike_letter_state_v1', st); } } catch (e) {}
-  due.forEach(function (l) { notify3({ kind: 'char', app: 'cike', appName: '此刻', sender: l.role, title: '✉️ 信到了', body: l.role + '的信到了信箱，去看看吧', targetApp: 'cike', refId: 'letter_' + l.id }); });
+  due.forEach(function (l) { notify3({ kind: 'char', app: 'cike', appName: '此刻', sender: l.role, title: '信到了', body: l.role + '的信到了信箱，去看看吧', targetApp: 'cike', refId: 'letter_' + l.id }); });
   return due;
 }
 function loadCapsules() { var v = rd3(CAPSULE_KEY, null); if (v && Array.isArray(v.letters)) return v; return { letters: [] }; }
@@ -76,7 +95,7 @@ function listTimeCapsules() { return loadCapsules().letters.slice().sort(functio
 function capsuleDue(nowMs) { var today = dayStr3(nowMs || Date.now()); return loadCapsules().letters.filter(function (l) { return !l.opened && l.openDate <= today; }); }
 function checkCapsules(nowMs) {
   var due = capsuleDue(nowMs);
-  due.forEach(function (l) { notify3({ kind: 'char', app: 'cike', appName: '此刻', sender: '定时信', title: '📬 定时信到了', body: '一封写给' + (l.to === 'me' ? '你自己' : mainName3()) + '的信到了打开的日子（opens ' + l.openDate + '）', targetApp: 'cike', refId: 'capsule_' + l.id }); });
+  due.forEach(function (l) { notify3({ kind: 'char', app: 'cike', appName: '此刻', sender: '定时信', title: '定时信到了', body: '一封写给' + (l.to === 'me' ? '你自己' : mainName3()) + '的信到了打开的日子（opens ' + l.openDate + '）', targetApp: 'cike', refId: 'capsule_' + l.id }); });
   return due;
 }
 function openTimeCapsule(id, nowMs) {
@@ -95,8 +114,8 @@ var PLATEN_CSS = [
   '#aw-letter-archive .aw-news-row:last-child{margin-bottom:0;}',
   '#aw-letter-archive .aw-news-sec{color:#2f5d8a;font-family:"Courier New",ui-monospace,monospace;letter-spacing:1px;}',
   '#aw-letter-archive .aw-news-row b{color:#2f5d8a;font-family:"Courier New",ui-monospace,monospace;font-weight:600;}',
-  '#aw-letter-archive .aw-news-row::after{content:"✿";position:absolute;top:10px;right:10px;width:26px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid #7ba05b;color:#5c7a45;background:#eef3e6;font-size:15px;}',
-  '#aw-letter-archive .aw-news-row:nth-child(odd)::after{content:"☀";border-color:#c9a227;color:#a8851e;background:#f7ecd0;}',
+  '#aw-letter-archive .aw-news-row::after{content:"*";position:absolute;top:10px;right:10px;width:26px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid #7ba05b;color:#5c7a45;background:#eef3e6;font-size:15px;}',
+  '#aw-letter-archive .aw-news-row:nth-child(odd)::after{content:"*";border-color:#c9a227;color:#a8851e;background:#f7ecd0;}',
   '.aw-transit-block{background:#fffdf7;border:1px dashed #b08d3e;border-radius:4px;padding:10px 12px;margin-bottom:14px;font-size:13px;line-height:1.9;}',
   '.aw-transit-block h4{margin:0 0 4px;font-size:13px;color:#7a4a28;letter-spacing:2px;}',
   '.aw-opens{color:#2f5d8a;font-family:"Courier New",ui-monospace,monospace;}',
@@ -117,19 +136,19 @@ function injectTransitBlock() {
   var transit = listInTransit();
   var caps = listTimeCapsules();
   var block = document.createElement('div'); block.className = 'aw-transit-block'; block.setAttribute('data-aw-transit-block', '1');
-  var h = '<h4>📮 信箱格口</h4><div style="color:#8a6a52;font-size:12px">信不是即时到的：写好后次日早上 8 点送达，送达时会提醒你。</div>';
+  var h = '<h4>信箱格口</h4><div style="color:#8a6a52;font-size:12px">信不是即时到的：写好后次日早上 8 点送达，送达时会提醒你。</div>';
   if (transit.length) {
     h += '<div style="margin-top:8px"><b>在路上的信（' + transit.length + ' 封）</b>' + transit.map(function (l) {
-      return '<div>✉️ ' + esc3(l.role) + ' → ' + (l.to === 'me' ? '我' : mainName3()) + ' · 预计 ' + fmtTime3(l.arriveAt) + ' 送达<br><span style="color:#a08a7a">' + esc3(l.text.slice(0, 30)) + '……</span></div>';
+      return '<div>' + esc3(l.role) + ' 写给 ' + (l.to === 'me' ? '我' : mainName3()) + ' · 预计 ' + fmtTime3(l.arriveAt) + ' 送达<br><span style="color:#a08a7a">' + esc3(l.text.slice(0, 30)) + '……</span></div>';
     }).join('') + '</div>';
   }
   if (caps.length) {
     h += '<div style="margin-top:8px"><b>定时信（' + caps.length + ' 封 · 一种承诺，到日子兑现）</b>' + caps.map(function (l) {
       var openable = l.openDate <= dayStr3();
-      return '<div>🔒 写给' + (l.to === 'me' ? '自己' : mainName3()) + ' · <span class="aw-opens">opens ' + esc3(l.openDate) + '</span> · ' + (l.opened ? '已拆开 ✓' : (openable ? '到了，可以拆了' : '封存中，拆不开')) + ' <button type="button" class="aw-news-btn ghost" data-aw-cap-open="' + l.id + '" style="padding:4px 10px">' + (l.opened ? '再看' : '拆信') + '</button></div>';
+      return '<div>写给' + (l.to === 'me' ? '自己' : mainName3()) + ' · <span class="aw-opens">opens ' + esc3(l.openDate) + '</span> · ' + (l.opened ? '已拆开' : (openable ? '到了，可以拆了' : '封存中，拆不开')) + ' <button type="button" class="aw-news-btn ghost" data-aw-cap-open="' + l.id + '" style="padding:4px 10px">' + (l.opened ? '再看' : '拆信') + '</button></div>';
     }).join('') + '</div>';
   }
-  h += '<div style="margin-top:8px"><button type="button" class="aw-news-btn ghost" data-aw-cap-new="1">✉️ 写定时信</button> <span style="font-size:12px;color:#a08a7a">只存你自己写的，不预填示例。</span></div>';
+  h += '<div style="margin-top:8px"><button type="button" class="aw-news-btn ghost" data-aw-cap-new="1">写定时信</button> <span style="font-size:12px;color:#a08a7a">只存你自己写的，不预填示例。</span></div>';
   h += '<div class="aw-cap-detail" style="margin-top:8px"></div>';
   block.innerHTML = h;
   layer.insertBefore(block, layer.children[1] || layer.firstChild);
@@ -807,12 +826,12 @@ var render = function () {
   var toolbar = '<div style="display:flex;gap:6px;align-items:center;padding:8px 10px;background:#fffdf7;border-bottom:1px solid #e6dcc3;flex-wrap:wrap">'
     + '<span style="font-size:13px;font-weight:700;flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">《' + esc3(vn.title) + '》</span>'
     + langBtns
-    + '<button type="button" data-aw-vn="savepanel" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">💾 存档</button>'
-    + '<button type="button" data-aw-vn="loadpanel" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">📂 读档</button>'
-    + '<button type="button" data-aw-vn="backlog" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">🕘 回望</button>'
-    + '<button type="button" data-aw-vn="rollback" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">↩ 回滚</button>'
-    + '<button type="button" data-aw-vn="audiopanel" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">♪ 音频</button>'
-    + '<button type="button" data-aw-vn="close" style="padding:4px 10px;border:0;border-radius:14px;background:#efe9dc;font-size:12px;cursor:pointer">✕ 退出</button></div>';
+    + '<button type="button" data-aw-vn="savepanel" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">存档</button>'
+    + '<button type="button" data-aw-vn="loadpanel" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">读档</button>'
+    + '<button type="button" data-aw-vn="backlog" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">回望</button>'
+    + '<button type="button" data-aw-vn="rollback" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">回滚</button>'
+    + '<button type="button" data-aw-vn="audiopanel" style="padding:4px 10px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:12px;cursor:pointer">音频</button>'
+    + '<button type="button" data-aw-vn="close" style="padding:4px 10px;border:0;border-radius:14px;background:#efe9dc;font-size:12px;cursor:pointer">退出</button></div>';
   var bgCSS = vnSceneBgCSS(state.bg || scene.bg || scene.title);
   var sprites = '';
   Object.keys(state.sprites).forEach(function (k) {
@@ -821,9 +840,9 @@ var render = function () {
     sprites += spriteHTML(sp);
   });
   var chips = '<div style="position:absolute;top:10px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">' + esc3(scene.title) + ' · ' + (state.sceneIdx + 1) + '/' + vn.scenes.length + '</div>';
-  if (state.music) chips += '<div style="position:absolute;top:44px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">♪ 音乐：' + esc3(state.music) + '（本地音频：上传同名文件后自动播）</div>';
-  if (state.video) chips += '<div style="position:absolute;top:' + (state.music ? 78 : 44) + 'px;left:12px;font-size:12px;color:#7a4a28;background:rgba(255,248,230,.92);padding:4px 10px;border-radius:20px">🎬 ' + esc3(state.video.note) + '（' + esc3(state.video.src) + '）</div>';
-  if (state.fx) chips += '<div style="position:absolute;top:' + (state.music ? 112 : 78) + 'px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">✦ 特效：' + esc3(state.fx) + '（无素材，仅标注）</div>';
+  if (state.music) chips += '<div style="position:absolute;top:44px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">音乐：' + esc3(state.music) + '（本地音频：上传同名文件后自动播）</div>';
+  if (state.video) chips += '<div style="position:absolute;top:' + (state.music ? 78 : 44) + 'px;left:12px;font-size:12px;color:#7a4a28;background:rgba(255,248,230,.92);padding:4px 10px;border-radius:20px">' + esc3(state.video.note) + '（' + esc3(state.video.src) + '）</div>';
+  if (state.fx) chips += '<div style="position:absolute;top:' + (state.music ? 112 : 78) + 'px;left:12px;font-size:12px;color:#5a4a32;background:rgba(255,253,247,.8);padding:4px 10px;border-radius:20px">特效：' + esc3(state.fx) + '（无素材，仅标注）</div>';
   var stage = '<div data-vn="stagewrap" style="flex:1;position:relative;overflow:hidden;background:#20263a;min-height:120px">'
     + '<div data-vn="stage" style="position:absolute;left:50%;top:50%;width:1280px;height:720px;overflow:hidden;background:#20263a">'
     + '<div data-vn="bg" style="position:absolute;inset:0;background:' + bgCSS + ';transition:opacity .6s ease,clip-path .7s ease"></div>'
@@ -852,7 +871,7 @@ var render = function () {
   var panel = '';
   if (state.panel === 'backlog') {
     panel = '<div style="position:absolute;inset:0;z-index:20;background:rgba(247,241,229,.97);overflow-y:auto;padding:16px;box-sizing:border-box">'
-      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">🕘 回望（点一句回到那里）</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">回望（点一句回到那里）</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
       + (state.log.length ? state.log.map(function (e, idx) { return '<button type="button" data-aw-vn="blog" data-vn-log="' + idx + '" style="display:block;width:100%;text-align:left;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px;line-height:1.7;cursor:pointer"><span style="color:#1e2748;font-size:12px">' + esc3(e.scene || '') + ' · ' + esc3(e.speaker || '旁白') + '</span><br>' + esc3(vnLangText(e, state.lang, vn.lang || 'zhs')) + '</button>'; }).join('') : '<div style="margin-top:12px;font-size:13px;color:#a08a7a">还没有读过的对白。</div>')
       + '</div>';
   } else if (state.panel === 'save' || state.panel === 'load') {
@@ -864,7 +883,7 @@ var render = function () {
       return '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px"><span style="flex:1">' + '槽位 ' + n + '：' + desc + '</span><button type="button" data-aw-vn="' + (isSave ? 'slotsave' : 'slotload') + '" data-slot="' + n + '" style="padding:8px 14px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:13px;cursor:pointer">' + (isSave ? '存到这里' : (sv ? '读档' : '空')) + '</button></div>';
     }).join('');
     panel = '<div style="position:absolute;inset:0;z-index:20;background:rgba(247,241,229,.97);overflow-y:auto;padding:16px;box-sizing:border-box">'
-      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">' + (isSave ? '💾 存档（3 个槽位）' : '📂 读档') + '</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">' + (isSave ? '存档（3 个槽位）' : '读档') + '</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
       + slotHtml + '</div>';
   }
   var vncaKeep = null;
@@ -904,7 +923,7 @@ ov.innerHTML = '<div style="flex:1;overflow-y:auto;padding:20px 16px 30px;backgr
 + '<div style="margin-top:14px;font-size:14px;line-height:2;background:#fffdf7;border:1px solid #e6dcc3;border-radius:8px;padding:14px">' + esc3(review) + '</div>'
 + (state.choicesMade.length? '<div style="margin-top:10px;font-size:13px;line-height:1.9">' + state.choicesMade.map(function (c) { return '· ' + esc3(c);}).join('<br>') + '</div>': '')
 + '<div style="margin-top:10px;font-size:12px;color:#8a6a52">回望里有 ' + state.log.length + ' 条记录；语言：' + VN_LANG_NAMES[state.lang] + '；好感变量 affection=' + (state.vars.affection || 0) + '。</div>'
-+ '<div style="display:flex;gap:8px;margin-top:16px"><button type="button" data-aw-vn="save" style="flex:1;padding:12px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:14px;cursor:pointer">💾 保存成归巢记忆</button><button type="button" data-aw-vn="discard" style="flex:1;padding:12px;border:1px solid #1e2748;border-radius:8px;background:transparent;color:#7a4a28;font-size:14px;cursor:pointer">放弃，不留记录</button></div>'
++ '<div style="display:flex;gap:8px;margin-top:16px"><button type="button" data-aw-vn="save" style="flex:1;padding:12px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:14px;cursor:pointer">保存成归巢记忆</button><button type="button" data-aw-vn="discard" style="flex:1;padding:12px;border:1px solid #1e2748;border-radius:8px;background:transparent;color:#7a4a28;font-size:14px;cursor:pointer">放弃，不留记录</button></div>'
 + '<div style="margin-top:10px;text-align:center"><button type="button" data-aw-vn="close" style="border:0;background:none;color:#7a4a28;font-size:14px;cursor:pointer">‹ 回到剧本</button></div></div>';
 };
 ov.onclick = function (ev) {
@@ -1002,7 +1021,7 @@ ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">�
 + wyVNReviewCoverHTML(vn)
 + (langTotal ? '<div style="margin-top:10px;font-size:13px;line-height:1.9"><b>多语言覆盖</b>（共 ' + langTotal + ' 句带翻译片段）<br>' + VN_LANGS.map(function (lg) { return VN_LANG_NAMES[lg] + ' ' + langCov[lg] + ' 句'; }).join(' · ') + '<br>缺失的语言播放时按默认语言（' + VN_LANG_NAMES[vn.lang || 'zhs'] + '）回退显示。</div>' : '')
 + '<div style="margin-top:10px"><b>场景列表</b>' + vn.scenes.map(function (s) { return '<div style="padding:6px 0;border-bottom:1px solid #e6dcc3;font-size:13px">' + esc3(s.title) + (s.label && s.label !== s.title ? '（label ' + esc3(s.label) + '）' : '') + ' · ' + s.lines.length + ' 行' + (s.bg ? ' · 背景 ' + esc3(s.bg) : '') + '</div>';}).join('') + '</div>'
-+ '<div style="margin-top:10px"><b>识别出的人物</b>' + (matches.length? matches.map(function (mm) { return '<div style="padding:6px 0;border-bottom:1px solid #e6dcc3;font-size:13px">' + esc3(mm.name) + ' · ' + (mm.found? '角色库里有 ✓': '没建过 <button type="button" class="aw-news-btn ghost" data-aw-vnr-new="' + esc3(mm.name) + '" style="padding:4px 10px">新建人物</button>') + '</div>';}).join(''): '<div style="font-size:13px;color:#a08a7a">没有识别出说话人（全是旁白也可以玩）。</div>') + '</div>'
++ '<div style="margin-top:10px"><b>识别出的人物</b>' + (matches.length? matches.map(function (mm) { return '<div style="padding:6px 0;border-bottom:1px solid #e6dcc3;font-size:13px">' + esc3(mm.name) + ' · ' + (mm.found? '角色库里有': '没建过 <button type="button" class="aw-news-btn ghost" data-aw-vnr-new="' + esc3(mm.name) + '" style="padding:4px 10px">新建人物</button>') + '</div>';}).join(''): '<div style="font-size:13px;color:#a08a7a">没有识别出说话人（全是旁白也可以玩）。</div>') + '</div>'
 + ((musics.length || videos.length || animes.length) ? '<div style="margin-top:10px"><b>素材说明（诚实标注，不假装有）</b>'
   + (musics.length ? '<div style="padding:6px 0;font-size:13px;color:#8a6a52">音乐 ' + musics.map(function (x) { return esc3(x); }).join('、') + '：只显示曲名，未接音频文件。</div>' : '')
   + (videos.length ? '<div style="padding:6px 0;font-size:13px;color:#8a6a52">视频 ' + videos.map(function (x) { return esc3(x); }).join('、') + '：视频背景暂不支持，已用静态场景代替。</div>' : '')
@@ -1395,8 +1414,8 @@ function wyActionRowHTML(r, adv) {
     return '<button type="button" class="wy-act' + ((fb === act) ? ' wy-on' : '') + '" data-wy-act="' + act + '" data-wy-adv="' + adv.id + '" data-wy-round="' + r.n + '" aria-label="' + label + '">' + icon + '<span>' + label + '</span></button>';
   };
   return '<div class="wy-actions" data-wy-actions="1">'
-    + btn('copy', '复制', '⧉') + btn('like', '赞', '👍') + btn('dislike', '踩', '👎')
-    + btn('tts', '朗读', '🔊') + btn('share', '分享', '↗') + btn('more', '•••', '•••') + '</div>';
+    + btn('copy', '复制', '⧉') + btn('like', '赞', awIc('thumbUp',14)) + btn('dislike', '踩', awIc('thumbDown',14))
+    + btn('tts', '朗读', awIc('speaker',14)) + btn('share', '分享', awIc('share',14)) + btn('more', '•••', '•••') + '</div>';
 }
 function wyRoundHTML(r, adv) {
   var name = mainName3();
@@ -1546,7 +1565,7 @@ function wyUpdateSendBtn(root) {
   var btn = root.querySelector('[data-wy-sendbtn]');
   if (!inp || !btn) return;
   var has = !!String(inp.value || '').trim();
-  btn.textContent = has ? '↑' : '●';
+  btn.innerHTML = has ? awIc('up',14) : awIc('rec',12);
   btn.setAttribute('aria-label', has ? '发送' : '语音输入');
 }
 /* ═════════ GROUP-WENYOU helpers 结束 ═════════ */
@@ -1648,14 +1667,14 @@ function wyLetterHTML(letter, adv, r) {
   var name = mainName3();
   var m = letter.m;
   var viaNote = letter.via === 'model' ? '由模型按当前状态现写' : '模板按当前状态写就';
-  return '<div class="wy-letter"><div class="wy-letter-cap">✉ 密封的心里话 · 好感度 ' + m + '</div>'
+  return '<div class="wy-letter"><div class="wy-letter-cap">密封的心里话 · 好感度 ' + m + '</div>'
     + '<div class="ck-letter-stage' + (letter.open ? ' opened' : '') + '" data-wy-letter-stage="' + adv.id + ':' + r.n + ':' + m + '">'
     + '<div class="ck-letter-paper-slide"><div class="ck-letter-slide-greeting">给你的信</div>'
     + '<div class="ck-letter-slide-body">' + esc3(letter.text) + '</div>'
     + '<div class="ck-letter-slide-sign">— ' + esc3(name) + ' · 好感度 ' + m + '</div>'
     + '<div class="wy-letter-via">（' + viaNote + '）</div></div>'
     + '<div class="ck-letter-envelope"><div class="ck-letter-envelope-flap"></div>'
-    + '<div class="ck-letter-stamp"><div class="ck-letter-stamp-inner"><span class="heart">♥</span>' + m + '</div></div>'
+    + '<div class="ck-letter-stamp"><div class="ck-letter-stamp-inner"><span class="heart">' + awIc('heart',12) + '</span>' + m + '</div></div>'
     + '<div class="ck-letter-envelope-to"><div class="ck-letter-envelope-to-label">TO</div><div class="ck-letter-envelope-to-name">' + esc3(name) + '</div></div></div>'
     + '<div class="ck-letter-tap-hint">点按拆开 · 好感度 ' + m + '</div>'
     + '</div></div>';
@@ -1683,7 +1702,7 @@ function wyDecisionCardHTML(adv) {
   var last = (adv.rounds || []).length ? adv.rounds[adv.rounds.length - 1] : null;
   var hpDelta = (last && typeof last.hpDelta === 'number') ? last.hpDelta : 0;
   var hp = 'HP ' + st.stamina + (hpDelta ? ' · ' + (hpDelta > 0 ? '+' : '') + hpDelta : '');
-  var opts = sugs.map(function (s) { return '<button type="button" class="wy-decide-opt" data-wy-decide="' + esc3(s.label) + '">✧ ' + esc3(s.label) + '</button>'; }).join('');
+  var opts = sugs.map(function (s) { return '<button type="button" class="wy-decide-opt" data-wy-decide="' + esc3(s.label) + '">• ' + esc3(s.label) + '</button>'; }).join('');
   return '<div class="wy-hp-row"><span class="wy-hp">' + esc3(hp) + '</span></div>'
     + '<div class="wy-scene-line">正在经历 ' + esc3(st.place) + '</div>'
     + '<div class="wy-decide"><div class="wy-decide-h">接下来，你想怎么做？</div>'
@@ -1695,7 +1714,7 @@ function wyDecisionCardHTML(adv) {
 }
 function wyBottomNavHTML() {
   var b = function (act, icon, label) { return '<button type="button" class="wy-nav-btn" data-wy-nav="' + act + '"><span class="wy-nav-ic">' + icon + '</span><span>' + label + '</span></button>'; };
-  return '<div class="wy-nav">' + b('story', '☰', '故事') + b('chars', '👤', '人物') + b('archive', '▣', '存档') + b('settings', '⚙', '设置') + b('help', '？', '帮助') + '</div>';
+  return '<div class="wy-nav">' + b('story', awIc('menu',16), '故事') + b('chars', awIc('person',16), '人物') + b('archive', awIc('archive',16), '存档') + b('settings', awIc('gear',16), '设置') + b('help', '？', '帮助') + '</div>';
 }
 function wyOpenWyModal(win, title, bodyHTML) {
   var root = win.querySelector('.wy-root'); if (!root) return null;
@@ -1728,7 +1747,7 @@ function wyOpenWySettings(win) {
 }
 function wyOpenWyHelp(win) {
   var body = '文游是自由文字冒险，' + esc3(mainName3()) + ' 当 DM。<br>'
-    + '· 每轮点一个 ✧ 行动，或在决策卡里自己写一句（500 字内），再点「发送行动」；底部输入栏也可以直接发。<br>'
+    + '· 每轮点一个行动，或在决策卡里自己写一句（500 字内），再点「发送行动」；底部输入栏也可以直接发。<br>'
     + '· HP 是精力（0–100），休息恢复、行动消耗；「正在经历」是当前地点。<br>'
     + '· 里程碑信：好感首次到 60 / 80 / 90 / 100 时，那轮的心理栏会变成一封密封的信，点按拆开，每档每人只出现一次。<br>'
     + '· 首页可以上传 .txt / .sks / .json / .epub 文本，本地解析成可玩内容，保存前先审阅。<br>'
@@ -1930,7 +1949,7 @@ function wyOpenCoverChooser(bookId, bookTitle, onDone, hostEl) {
   ov.innerHTML = '<div style="background:#fbf9f4;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:86%;overflow-y:auto;box-sizing:border-box;font-family:serif;color:#2b2620">'
     + '<h3 style="margin:0 0 4px;font-size:18px;letter-spacing:2px">换封面</h3>'
     + '<div style="font-size:12px;color:#8a6a52">《' + esc3(bookTitle || '') + '》 · 上传本地图（裁成封面比例，≤2MB）或选一款内置封面；换好的封面存在手机里，跟着备份走。</div>'
-    + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><label style="flex:1;text-align:center;padding:10px;border:1px solid #1e2748;background:#fffdf7;border-radius:8px;font-size:13px;cursor:pointer">📤 上传本地图片<input type="file" accept="image/*" style="display:none" data-wy-cov-file="1"></label>'
+    + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><label style="flex:1;text-align:center;padding:10px;border:1px solid #1e2748;background:#fffdf7;border-radius:8px;font-size:13px;cursor:pointer">上传本地图片<input type="file" accept="image/*" style="display:none" data-wy-cov-file="1"></label>'
     + '<button type="button" data-wy-cov-clear="1" style="flex:1;padding:10px;border:1px solid #1e2748;background:transparent;border-radius:8px;font-size:13px;cursor:pointer;color:#7a4a28">恢复自动封面</button></div>'
     + '<div style="font-size:12px;color:#8a6a52;margin-top:14px">内置封面</div>'
     + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' + builtins + '</div>'
@@ -2075,15 +2094,15 @@ return '<div class="wy-card ' + (i % 2? 'cream': 'lav') + '" data-wy-open-world=
 }).join('');
 wall += '<div class="wy-card create" data-wy-create="1"><span class="wy-plus">＋</span><b>创建世界</b><span class="wy-en">NEW WORLD</span></div>';
 var hist = advs.length? advs.map(function (a) {
-return '<div class="wy-adv-row"><div><b>' + esc3(a.title) + '</b> <span style="font-size:12px;color:#8a6a52">' + (a.status === 'active'? '进行中': '已结束') + ' · ' + (a.rounds.length - 1) + ' 轮</span><br><span style="font-size:12px;color:#a08a7a">' + esc3(a.state.place) + ' · ' + dayStr3(a.createdAt) + '</span></div><div>' + (a.status === 'active'? '<button type="button" class="aw-news-btn" data-wy-resume="' + a.id + '">继续</button> ': '<button type="button" class="aw-news-btn ghost" data-wy-review="' + a.id + '">复盘</button> ') + '<button type="button" class="aw-news-btn ghost" data-wy-del-adv="' + a.id + '">✕</button></div></div>';
+return '<div class="wy-adv-row"><div><b>' + esc3(a.title) + '</b> <span style="font-size:12px;color:#8a6a52">' + (a.status === 'active'? '进行中': '已结束') + ' · ' + (a.rounds.length - 1) + ' 轮</span><br><span style="font-size:12px;color:#a08a7a">' + esc3(a.state.place) + ' · ' + dayStr3(a.createdAt) + '</span></div><div>' + (a.status === 'active'? '<button type="button" class="aw-news-btn" data-wy-resume="' + a.id + '">继续</button> ': '<button type="button" class="aw-news-btn ghost" data-wy-review="' + a.id + '">复盘</button> ') + '<button type="button" class="aw-news-btn ghost" data-wy-del-adv="' + a.id + '">删除</button></div></div>';
 }).join(''): '<div class="wy-empty">还没有冒险记录。创建一个世界，开第一局吧。</div>';
 return '<div class="wy-title">文游</div><div class="wy-sub">文字冒险 · ' + esc3(mainName3()) + ' 当 DM</div>'
 + '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a6a52">' + esc3(dmModeLabel()) + ' · <label style="cursor:pointer"><input type="checkbox" data-wy-model-switch="1" ' + (wyModelOn()? 'checked': '') + '> 允许模型当 DM</label></div>'
 + '<div class="wy-wall">' + wall + '</div>'
 + (!worlds.length? '<div class="wy-empty">还没有世界——创建一个世界（只填一个主题词也可以），或从一次旅行开一局。世界只存你自己创建的，不预填示例。</div>': '')
-+ '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px"><label class="aw-news-btn" style="cursor:pointer">📤 上传文本开一局<input type="file" accept=".txt,.json,.epub,.sks" style="display:none" data-wy-upload="1"></label><span style="font-size:12px;color:#a08a7a">TXT / epub / SKS / JSON，手机本地解析；TXT 自动识别 UTF-8/GBK；epub 需在线加载 JSZip，离线会如实提示。</span></div>'
++ '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px"><label class="aw-news-btn" style="cursor:pointer">上传文本开一局<input type="file" accept=".txt,.json,.epub,.sks" style="display:none" data-wy-upload="1"></label><span style="font-size:12px;color:#a08a7a">TXT / epub / SKS / JSON，手机本地解析；TXT 自动识别 UTF-8/GBK；epub 需在线加载 JSZip，离线会如实提示。</span></div>'
 + '<div data-xwl-audio-sec="wenyou" style="margin:12px 0 4px;font-size:12px;color:#8a6a52">作品音频加载中……</div>'
-+ '<div class="wy-sec">📜 冒险记录</div>'
++ '<div class="wy-sec">冒险记录</div>'
 + '<div style="display:flex;gap:6px;margin-bottom:8px"><input data-wy-q="1" type="text" placeholder="搜索冒险记录…" style="flex:1;border:1px solid #d9c48a;border-radius:6px;padding:8px 10px;background:#fffdf7"><button type="button" class="aw-news-btn ghost" data-wy-export="1">导出 JSONL</button></div>'
 + '<div data-wy-hist="1">' + hist + '</div>';
 }
@@ -2128,18 +2147,18 @@ var rounds = (adv.rounds || []).map(function (r) { return wyRoundHTML(r, adv); }
 var opts = adv.status === 'active' ? wyDecisionCardHTML(adv) : '';
 var st = adv.state;
 root.classList.add('wy-playing');
-root.innerHTML = '<div class="wy-play-top"><button type="button" class="wy-back" data-wy="back" aria-label="返回">←</button><b>' + esc3(mainName3()) + '</b><button type="button" class="wy-more" data-wy="menu" aria-label="更多">•••</button></div>'
+root.innerHTML = '<div class="wy-play-top"><button type="button" class="wy-back" data-wy="back" aria-label="返回">' + awIc('left',16) + '</button><b>' + esc3(mainName3()) + '</b><button type="button" class="wy-more" data-wy="menu" aria-label="更多">•••</button></div>'
 + '<div class="wy-worldline">' + wyCoverThumbHTML(world, 26, 39) + ' ' + esc3(world.title) + ' · ' + esc3(st.place) + '</div>'
 + '<div data-wy-panels="1"></div>'
 + '<div class="wy-story">' + rounds + wyGroupPanel(adv) + '</div>'
 + (adv.status === 'active'? opts: '<div class="wy-empty">这场冒险已经结束了。</div>')
-+ (adv.status === 'active'? '<div class="wy-bottombar"><div class="wy-inputbar"><button type="button" class="wy-plus" data-wy="plus" aria-label="更多">＋</button><input data-wy-input="1" type="text" placeholder="输入你的回复或行动..." autocomplete="off"><button type="button" class="wy-mic" data-wy="mic" aria-label="语音输入">🎙</button><button type="button" class="wy-send" data-wy="send" data-wy-sendbtn="1" aria-label="语音输入">●</button></div>' + wyBottomNavHTML() + '</div>': '')
++ (adv.status === 'active'? '<div class="wy-bottombar"><div class="wy-inputbar"><button type="button" class="wy-plus" data-wy="plus" aria-label="更多">＋</button><input data-wy-input="1" type="text" placeholder="输入你的回复或行动..." autocomplete="off"><button type="button" class="wy-mic" data-wy="mic" aria-label="语音输入">' + awIc('mic',16) + '</button><button type="button" class="wy-send" data-wy="send" data-wy-sendbtn="1" aria-label="语音输入">' + awIc('rec',12) + '</button></div>' + wyBottomNavHTML() + '</div>': '')
 + '<div style="text-align:center;font-size:12px;color:#a08a7a;margin-top:10px">' + esc3(dmModeLabel()) + ' · 隐藏事件只显效果，不亮骰子</div>';
 var panels = root.querySelector('[data-wy-panels]');
 var showPanel = function (kind) {
 if (!panels) return;
 if (kind === 'attrs') {
-panels.innerHTML = '<div class="wy-panel"><b>🌸 你的属性 🌸</b><br>- <b>姓名：</b>我<br>- <b>年龄：</b>未设定<br>- <b>身份：</b>冒险者<br>- <b>容貌：</b>未设定<br>- <b>当前状态：</b>' + esc3(st.place) + ' · 精力 ' + st.stamina + ' · 金币 ' + st.coins + '</div>';
+panels.innerHTML = '<div class="wy-panel"><b>你的属性</b><br>- <b>姓名：</b>我<br>- <b>年龄：</b>未设定<br>- <b>身份：</b>冒险者<br>- <b>容貌：</b>未设定<br>- <b>当前状态：</b>' + esc3(st.place) + ' · 精力 ' + st.stamina + ' · 金币 ' + st.coins + '</div>';
 } else if (kind === 'status') {
 panels.innerHTML = '<div class="wy-panel"><b>状态面板</b><br>当前位置：' + esc3(st.place) + '<br>背包/物品：' + esc3(st.inventory.join('、') || '空') + '<br>金币：' + st.coins + '<br>体力/精力：' + st.stamina + '/100<br>当前目标：' + esc3(st.goal || '无') + '<br>关键标记：' + esc3(st.flags.join('、') || '无') + '<br>同行者：' + esc3(st.companions.join('、')) + '（好感 ' + (AW.affectionValue? AW.affectionValue(): 0) + '）</div>';
 } else panels.innerHTML = '';
@@ -2166,9 +2185,9 @@ try { if (window.XWLAudio) window.XWLAudio.stopBgm(); } catch (e) {}
 var adv = getAdventure(advId); if (!adv ||!adv.review) { wyRenderHome(win); return;}
 var rv = adv.review;
 root.classList.add('wy-playing');
-root.innerHTML = '<div class="wy-play-top"><button type="button" class="wy-back" data-wy="back" aria-label="返回">←</button><b>复盘 · ' + esc3(adv.title) + '</b><span style="width:38px;flex:none"></span></div>'
+root.innerHTML = '<div class="wy-play-top"><button type="button" class="wy-back" data-wy="back" aria-label="返回">' + awIc('left',16) + '</button><b>复盘 · ' + esc3(adv.title) + '</b><span style="width:38px;flex:none"></span></div>'
 + '<div class="wy-panel"><b>结局复盘</b><br>' + esc3(rv.outcome) + '<br>一共 ' + rv.rounds + ' 轮 · 做了 ' + rv.choices.length + ' 次行动 · 好感变化 ' + (rv.affectionDelta > 0? '+': '') + rv.affectionDelta + '</div>'
-+ '<div class="wy-panel"><b>隐藏线索与随机事件（现在揭示）</b><br>' + rv.hiddenEvents.map(function (e) { return (e.triggered? '✓ ': '✗ ') + esc3(e.text);}).join('<br>') + '</div>'
++ '<div class="wy-panel"><b>隐藏线索与随机事件（现在揭示）</b><br>' + rv.hiddenEvents.map(function (e) { return (e.triggered? awIc('check',12) + ' ': awIc('cross',12) + ' ') + esc3(e.text);}).join('<br>') + '</div>'
 + '<div class="wy-panel"><b>你的选择</b><br>' + (rv.choices.length? rv.choices.map(function (c) { return '· ' + esc3(c);}).join('<br>'): '（没有行动记录）') + '</div>'
 + '<div style="font-size:13px;color:#8a6a52;line-height:1.9">' + (saved === true? '已存成归巢记忆。': saved === false? '已放弃，不留记录。': '结束时选择保存记忆或放弃记忆（与剧本同一规则）。') + '</div>'
 + '<div style="display:flex;gap:8px;margin-top:12px"><button type="button" class="aw-news-btn" data-wy="home" style="flex:1">回到文游首页</button></div>';
@@ -2224,7 +2243,7 @@ if (act === 'end') {
 var _mm = b.closest('.wy-modal'); if (_mm) _mm.remove();
 var advId = root._wyAdvId; if (!advId) return;
 var m = document.createElement('div'); m.className = 'wy-modal';
-m.innerHTML = '<div class="wy-modal-card"><h3>结束这场冒险？</h3><div style="font-size:13px;line-height:1.9">结束时会出一份复盘（隐藏线索与随机事件揭示）。然后选择：保存成归巢记忆，或放弃不留记录。</div><div style="display:flex;gap:8px;margin-top:14px"><button type="button" class="aw-news-btn" data-wy-end="save" style="flex:1">💾 保存记忆并结束</button><button type="button" class="aw-news-btn ghost" data-wy-end="drop" style="flex:1">放弃，不留记录</button></div><div style="margin-top:10px;text-align:center"><button type="button" class="aw-news-btn ghost" data-wy-end="cancel">再玩一会儿</button></div></div>';
+m.innerHTML = '<div class="wy-modal-card"><h3>结束这场冒险？</h3><div style="font-size:13px;line-height:1.9">结束时会出一份复盘（隐藏线索与随机事件揭示）。然后选择：保存成归巢记忆，或放弃不留记录。</div><div style="display:flex;gap:8px;margin-top:14px"><button type="button" class="aw-news-btn" data-wy-end="save" style="flex:1">保存记忆并结束</button><button type="button" class="aw-news-btn ghost" data-wy-end="drop" style="flex:1">放弃，不留记录</button></div><div style="margin-top:10px;text-align:center"><button type="button" class="aw-news-btn ghost" data-wy-end="cancel">再玩一会儿</button></div></div>';
 root.appendChild(m);
 m.addEventListener('click', function (e2) {
 var eb = e2.target && e2.target.closest? e2.target.closest('[data-wy-end]'): null; if (!eb) return;

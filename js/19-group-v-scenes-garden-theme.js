@@ -170,10 +170,21 @@ var importShareCodeUI = function () {
   setShareMsg(r ? ('已导入主题：' + r.name) : '代码不对（应为 GV1- 开头）');
   return r;
 };
+/* D 批禁 emoji：主题对勾/关闭/人物/刷新/调色盘/猫/背包改线稿 SVG（猫取 js/64-ui-vector-icons 的线稿）。 */
+var GV_CHECK_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>';
+var GV_X_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+var GV_FACE_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg>';
+var GV_PERSON_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/></svg>';
+var GV_BOX_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="m12 3 9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 5 9-5M12 12.5V21"/></svg>';
+var GV_REFRESH_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg>';
+var GV_PALETTE_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.6 0 2.2-1.1 1.7-2.3-.5-1.3.3-2.7 1.8-2.7H17a4 4 0 0 0 4-4c0-5-4-9-9-9Z"/><circle cx="7.5" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle cx="11" cy="7.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" stroke="none"/></svg>';
+var GV_CAT_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>';
+var GV_PACK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><rect x="6" y="8" width="12" height="12" rx="4"/><path d="M9 8V6a3 3 0 0 1 6 0v2M9 13h6"/></svg>';
+var GV_DOWN_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M12 4v16m0 0-6-6m6 6 6-6"/></svg>';
 var themeSectionHTML = function () {
   var cur = currentTheme();
   var btns = THEMES.map(function (t) {
-    return '<button type="button" class="gv-theme-btn' + (cur.id === t.id ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.setTheme(\'' + t.id + '\')" title="' + esc(t.desc) + '"><span class="gv-theme-sw" style="background:' + t.c1 + ';border-color:' + t.c2 + ';"></span>' + esc(t.name) + (cur.id === t.id ? ' ✓' : '') + '</button>';
+    return '<button type="button" class="gv-theme-btn' + (cur.id === t.id ? ' gv-theme-btn-on' : '') + '" onclick="window.GroupV.setTheme(\'' + t.id + '\')" title="' + esc(t.desc) + '"><span class="gv-theme-sw" style="background:' + t.c1 + ';border-color:' + t.c2 + ';"></span>' + esc(t.name) + (cur.id === t.id ? ' ' + GV_CHECK_SVG : '') + '</button>';
   }).join('');
   return '<div style="font-weight:600;margin:12px 0 8px;">主题</div>'
     + '<div class="ot-muted">当前：<span data-gv-theme-name>' + esc(cur.name) + '</span></div>'
@@ -193,7 +204,7 @@ var openThemeSheet = function () {
   closeThemeSheet();
   var ov = document.createElement('div');
   ov.id = 'gv-theme-sheet';
-  ov.innerHTML = '<div class="gv-sheet"><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">✕</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
+  ov.innerHTML = '<div class="gv-sheet"><div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="margin:0;font-size:20px;font-weight:600;">主题</h3><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeSheet()">' + GV_X_SVG + '</button></div>' + themeSectionHTML() + '<div class="ot-muted" style="margin-top:8px;">主题改全机配色，插画场景保持原画风。</div></div>';
   document.body.appendChild(ov);
   return true;
 };
@@ -402,7 +413,7 @@ var applyRig = function () {
       else if (OtomeF.charSVG) fallback = OtomeF.charSVG((typeof OtomeF.loadLook === 'function') ? OtomeF.loadLook() : null);
     }
   } catch (e) {}
-  if (!fallback) fallback = '<div style="font-size:40px;text-align:center;line-height:190px;">🙂</div>';
+  if (!fallback) fallback = '<div style="display:flex;align-items:center;justify-content:center;height:190px;color:#8a8f98;"><svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>';
   var note = st.vrm.status === 'loaded'
     ? 'VRM 模型「' + esc(st.vrm.name || '') + '」已在 P 组预览器里加载（仅预览，不替换 live 形象）；这里显示 2D 抠图立绘兜底，完整 VRM 预览在下方设置区。'
     : st.vrm.status === 'failed'
@@ -422,14 +433,14 @@ var setRig = function (rig) {
 var rigSectionHTML = function () {
   var st = rigState();
   var vrmText = st.vrm.status === 'loaded' ? ('已加载预览：' + (st.vrm.name || '')) : st.vrm.status === 'failed' ? ('上次导入失败：' + (st.vrm.error || '')) : st.vrm.status === 'loading' ? '正在加载…' : '还没导入过 VRM 模型';
-  return '<div style="font-weight:700;margin:14px 0 6px;">🧍 形象 rig 切换（两套永不混用）</div>'
+  return '<div style="font-weight:700;margin:14px 0 6px;">' + GV_PERSON_SVG + ' 形象 rig 切换（两套永不混用）</div>'
     + '<div class="ot-muted">自绘 rig（QQ 小人 SVG / 抠图立绘）与 VRM 槽位各是一套，切换时整套换。VRM 加载复用 P 组预览器（仅预览，不替换 live 形象）；槽位没模型时显示 2D 抠图立绘并明说。</div>'
     + '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">'
-    + '<button class="ot-btn' + (st.rig === 'drawn' ? '' : ' ot-btn-ghost') + '" onclick="window.GroupV.setRig(\'drawn\')">🙂 自绘 rig' + (st.rig === 'drawn' ? ' ✓' : '') + '</button>'
-    + '<button class="ot-btn' + (st.rig === 'vrm' ? '' : ' ot-btn-ghost') + '" onclick="window.GroupV.setRig(\'vrm\')">🧍 VRM 槽位' + (st.rig === 'vrm' ? ' ✓' : '') + '</button></div>'
+    + '<button class="ot-btn' + (st.rig === 'drawn' ? '' : ' ot-btn-ghost') + '" onclick="window.GroupV.setRig(\'drawn\')">' + GV_FACE_SVG + ' 自绘 rig' + (st.rig === 'drawn' ? ' ' + GV_CHECK_SVG : '') + '</button>'
+    + '<button class="ot-btn' + (st.rig === 'vrm' ? '' : ' ot-btn-ghost') + '" onclick="window.GroupV.setRig(\'vrm\')">' + GV_PERSON_SVG + ' VRM 槽位' + (st.rig === 'vrm' ? ' ' + GV_CHECK_SVG : '') + '</button></div>'
     + '<div class="ot-muted" style="margin-top:6px;">当前：' + (st.rig === 'drawn' ? '自绘 rig' : 'VRM 槽位') + ' · VRM 状态：' + esc(vrmText) + '</div>'
-    + '<div style="margin-top:8px;"><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;">📦 导入 .vrm 模型（P 组）<input type="file" accept=".vrm" style="display:none;" onchange="window.GroupP && window.GroupP.importVRMFile(this)"></label></div>'
-    + '<div style="margin-top:6px;"><button class="ot-btn ot-btn-ghost" style="padding:5px 10px;" onclick="window.GroupV.refreshOtomeSettings()">↻ 刷新 VRM 状态</button></div>';
+    + '<div style="margin-top:8px;"><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;">' + GV_BOX_SVG + ' 导入 .vrm 模型（P 组）<input type="file" accept=".vrm" style="display:none;" onchange="window.GroupP && window.GroupP.importVRMFile(this)"></label></div>'
+    + '<div style="margin-top:6px;"><button class="ot-btn ot-btn-ghost" style="padding:5px 10px;" onclick="window.GroupV.refreshOtomeSettings()">' + GV_REFRESH_SVG + ' 刷新 VRM 状态</button></div>';
 };
 
 /* ══════════ A5 记忆花园：此刻 Hub“记忆花园”页（#ck-garden-root）══════════
@@ -489,21 +500,64 @@ var gardenHTML = function () {
 
 /* ══════════ A6 像素画：16×16 共同作画，放进 N 组「一起玩」 ══════════
    N 组已合入：一起玩面板（WeChatAppEngine._otomePanelPlay）。补丁把 pixelHTML() 接进该面板（钓鱼/斗地主/花园之后）。
-   16×16 网格，点格子填色/盖 emoji 章；char 也会画几笔（按日期确定的爱心图案，不靠运气）；导出 PNG 用 canvas 画，
+   16×16 网格，点格子填色/盖印章；char 也会画几笔（按日期确定的爱心图案，不靠运气）；导出 PNG 用 canvas 画，
    当前环境不支持 canvas 时诚实返回 {ok:false, reason:'no-canvas'}，不假装导出成功。画布状态存在新键 gv_pixel_v1。 */
 var PIXEL_KEY = 'gv_pixel_v1';
 var PX_COLORS = ['#25262a', '#ffffff', '#e5484d', '#f76b15', '#f5d90a', '#46a758', '#3e9bff', '#8e4ec6'];
-var PX_STAMPS = ['😀', '❤️', '🌸', '⭐', '🐱'];
+/* D 批禁 emoji：像素画印章从 emoji 字符改成手绘形状（存 stamp:xxx，调色板/格子/canvas 导出同一套）；
+   旧画里已存的 emoji 格子是用户作品，原样保留渲染，不改数据。 */
+var PX_STAMPS = [
+  { id: 'stamp:smile', name: '笑脸' },
+  { id: 'stamp:heart', name: '爱心' },
+  { id: 'stamp:flower', name: '小花' },
+  { id: 'stamp:star', name: '星星' },
+  { id: 'stamp:cat', name: '小猫' }
+];
+var PX_STAMP_SVG = {
+  'stamp:smile': '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffd93b"/><circle cx="8.5" cy="10" r="1.5" fill="#1e2748"/><circle cx="15.5" cy="10" r="1.5" fill="#1e2748"/><path d="M8.5 14.5Q12 17.5 15.5 14.5" stroke="#1e2748" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg>',
+  'stamp:heart': '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20.5S3.5 15 3.5 9.3C3.5 6.6 5.6 5 7.8 5c1.8 0 3.2 1 4.2 2.4C13 6 14.4 5 16.2 5c2.2 0 4.3 1.6 4.3 4.3 0 5.7-8.5 11.2-8.5 11.2Z" fill="#e5484d"/></svg>',
+  'stamp:flower': '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="6" r="3" fill="#e8c9d0"/><circle cx="18" cy="12" r="3" fill="#e8c9d0"/><circle cx="12" cy="18" r="3" fill="#e8c9d0"/><circle cx="6" cy="12" r="3" fill="#e8c9d0"/><circle cx="12" cy="12" r="3.2" fill="#f5d90a"/></svg>',
+  'stamp:star': '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" fill="#f5d90a" stroke="#b08d3e" stroke-width="1" stroke-linejoin="round"/></svg>',
+  'stamp:cat': '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1e2748" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>'
+};
+var pxStampSVG = function (id) { return PX_STAMP_SVG[id] || ''; };
+var pxStampName = function (v) { for (var i = 0; i < PX_STAMPS.length; i++) if (PX_STAMPS[i].id === v) return PX_STAMPS[i].name; return v; };
+var drawPxStamp = function (ctx, id, x, y, s) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s / 24, s / 24);
+  if (id === 'stamp:smile') {
+    ctx.fillStyle = '#ffd93b'; ctx.beginPath(); ctx.arc(12, 12, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1e2748'; ctx.beginPath(); ctx.arc(8.5, 10, 1.5, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(15.5, 10, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#1e2748'; ctx.lineWidth = 1.7; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(8.5, 14.5); ctx.quadraticCurveTo(12, 17.5, 15.5, 14.5); ctx.stroke();
+  } else if (id === 'stamp:heart') {
+    ctx.fillStyle = '#e5484d'; ctx.beginPath(); ctx.arc(8, 9, 4, Math.PI, 0); ctx.arc(16, 9, 4, Math.PI, 0); ctx.lineTo(12, 20); ctx.closePath(); ctx.fill();
+  } else if (id === 'stamp:flower') {
+    ctx.fillStyle = '#e8c9d0';
+    [[12, 6], [18, 12], [12, 18], [6, 12]].forEach(function (p) { ctx.beginPath(); ctx.arc(p[0], p[1], 3, 0, Math.PI * 2); ctx.fill(); });
+    ctx.fillStyle = '#f5d90a'; ctx.beginPath(); ctx.arc(12, 12, 3.2, 0, Math.PI * 2); ctx.fill();
+  } else if (id === 'stamp:star') {
+    ctx.beginPath();
+    for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5; var r = (i % 2 === 0) ? 9 : 3.8; var px = 12 + Math.cos(a) * r, py = 12 + Math.sin(a) * r; if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+    ctx.closePath(); ctx.fillStyle = '#f5d90a'; ctx.fill(); ctx.strokeStyle = '#b08d3e'; ctx.lineWidth = 1; ctx.stroke();
+  } else if (id === 'stamp:cat') {
+    ctx.fillStyle = '#f5a623';
+    ctx.beginPath(); ctx.moveTo(4, 9); ctx.lineTo(4.5, 3); ctx.lineTo(9, 6); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(20, 9); ctx.lineTo(19.5, 3); ctx.lineTo(15, 6); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(12, 13, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1e2748'; ctx.beginPath(); ctx.arc(9, 12, 1.2, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(15, 12, 1.2, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#1e2748'; ctx.lineWidth = 1.2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(10, 15.5); ctx.quadraticCurveTo(12, 16.8, 14, 15.5); ctx.stroke();
+  }
+  ctx.restore();
+};
 var PX_HEART = [[5, 4], [6, 4], [9, 4], [10, 4], [4, 5], [5, 5], [6, 5], [7, 5], [8, 5], [9, 5], [10, 5], [11, 5], [4, 6], [5, 6], [6, 6], [7, 6], [8, 6], [9, 6], [10, 6], [11, 6], [5, 7], [6, 7], [7, 7], [8, 7], [9, 7], [10, 7], [6, 8], [7, 8], [8, 8], [9, 8], [7, 9], [8, 9]];
 var pxTool = '#e5484d';
 var pixelLoad = function () { var s = lsGet(PIXEL_KEY, null); if (!s || typeof s !== 'object' || !s.cells) return { cells: {}, updatedAt: 0 }; return s; };
 var pixelSave = function (s) { return lsSet(PIXEL_KEY, s); };
-var pixelPick = function (v) { pxTool = v; var n = document.getElementById('gv-px-note'); if (n) n.textContent = '当前工具：' + v; return pxTool; };
+var pixelPick = function (v) { pxTool = v; var n = document.getElementById('gv-px-note'); if (n) n.textContent = '当前工具：' + (isHex(v) ? v : pxStampName(v)); return pxTool; };
 var pixelPaint = function (x, y) {
   var s = pixelLoad();
   s.cells[x + ',' + y] = pxTool; s.updatedAt = Date.now(); pixelSave(s);
   var cell = document.querySelector('[data-gv-px="' + x + ',' + y + '"]');
-  if (cell) { if (isHex(pxTool)) { cell.style.background = pxTool; cell.textContent = ''; } else { cell.style.background = '#ffffff'; cell.textContent = pxTool; } }
+  if (cell) { if (isHex(pxTool)) { cell.style.background = pxTool; cell.innerHTML = ''; } else if (String(pxTool).indexOf('stamp:') === 0) { cell.style.background = '#ffffff'; cell.innerHTML = pxStampSVG(pxTool); } else { cell.style.background = '#ffffff'; cell.textContent = pxTool; } }
   return true;
 };
 var pixelCharDraw = function () {
@@ -511,7 +565,7 @@ var pixelCharDraw = function () {
   var color = ['#e5484d', '#f76b15', '#8e4ec6'][dayNum() % 3];
   var n = 0;
   PX_HEART.forEach(function (pt) { var k = pt[0] + ',' + pt[1]; if (!s.cells[k]) n++; s.cells[k] = color; });
-  s.cells['2,2'] = '⭐'; s.cells['13,3'] = '⭐'; n += 2;
+  s.cells['2,2'] = 'stamp:star'; s.cells['13,3'] = 'stamp:star'; n += 2;
   s.updatedAt = Date.now(); pixelSave(s);
   return { drawn: n, color: color };
 };
@@ -546,7 +600,7 @@ var pixelExport = function () {
     ctx.font = '14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     Object.keys(st.cells || {}).forEach(function (k) {
       var parts = k.split(','); var x = +parts[0], y = +parts[1]; var v = st.cells[k];
-      if (!isHex(v)) { try { ctx.fillText(v, x * 16 + 8, y * 16 + 8); } catch (e) {} }
+      if (!isHex(v)) { try { if (String(v).indexOf('stamp:') === 0) drawPxStamp(ctx, v, x * 16, y * 16, 16); else ctx.fillText(v, x * 16 + 8, y * 16 + 8); } catch (e) {} }
     });
     var url = cv.toDataURL('image/png');
     if (!url || url.indexOf('data:image/png') !== 0) return { ok: false, reason: 'no-canvas' };
@@ -564,24 +618,24 @@ var pixelExportUI = function () {
 var pixelHTML = function () {
   var st = pixelLoad();
   var pal = PX_COLORS.map(function (c) { return '<button type="button" class="gv-pal-sw" style="background:' + c + ';" title="' + c + '" onclick="window.GroupV.pixelPick(\'' + c + '\')"></button>'; }).join('')
-    + PX_STAMPS.map(function (e) { return '<button type="button" class="gv-pal-emoji" onclick="window.GroupV.pixelPick(\'' + e + '\')">' + e + '</button>'; }).join('');
+    + PX_STAMPS.map(function (st) { return '<button type="button" class="gv-pal-emoji" title="' + esc(st.name) + '" onclick="window.GroupV.pixelPick(\'' + st.id + '\')">' + pxStampSVG(st.id) + '</button>'; }).join('');
   var cells = '';
   for (var y = 0; y < 16; y++) for (var x = 0; x < 16; x++) {
     var v = (st.cells || {})[x + ',' + y];
     var bg = isHex(v) ? v : '#ffffff';
-    var inner = (!v || isHex(v)) ? '' : esc(v);
+    var inner = (!v || isHex(v)) ? '' : (String(v).indexOf('stamp:') === 0 ? pxStampSVG(v) : esc(v));
     cells += '<button type="button" class="gv-px" data-gv-px="' + x + ',' + y + '" style="background:' + bg + ';" onclick="window.GroupV.pixelPaint(' + x + ',' + y + ')">' + inner + '</button>';
   }
-  return '<div style="font-weight:700;margin:12px 0 6px;">🎨 像素画（16×16，一起画）</div>'
-    + '<div class="ot-muted">点格子填色或盖 emoji 章；机也会上来画几笔；画完导出 PNG。</div>'
+  return '<div style="font-weight:700;margin:12px 0 6px;">' + GV_PALETTE_SVG + ' 像素画（16×16，一起画）</div>'
+    + '<div class="ot-muted">点格子填色或盖印章；机也会上来画几笔；画完导出 PNG。</div>'
     + '<div class="gv-pal">' + pal + '</div>'
     + '<div class="gv-px-grid">' + cells + '</div>'
     + '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">'
-    + '<button class="ot-btn" onclick="window.GroupV.pixelCharDrawUI()">🐱 让机也画几笔</button>'
-    + '<button class="ot-btn ot-btn-ghost" onclick="window.GroupV.pixelClear()">🧹 清空</button>'
-    + '<button class="ot-btn ot-btn-ghost" onclick="window.GroupV.pixelExportUI()">⬇ 导出 PNG</button>'
-    + '<button class="ot-btn ot-btn-ghost" onclick="window.GroupV.sendPackSticker()">🎒 按心情发个表情包包</button></div>'
-    + '<div class="ot-muted" id="gv-px-note" style="margin-top:6px;">当前工具：' + esc(pxTool) + '</div>';
+    + '<button class="ot-btn" onclick="window.GroupV.pixelCharDrawUI()">' + GV_CAT_SVG + ' 让机也画几笔</button>'
+    + '<button class="ot-btn ot-btn-ghost" onclick="window.GroupV.pixelClear()">清空</button>'
+    + '<button class="ot-btn ot-btn-ghost" onclick="window.GroupV.pixelExportUI()">' + GV_DOWN_SVG + ' 导出 PNG</button>'
+    + '<button class="ot-btn ot-btn-ghost" onclick="window.GroupV.sendPackSticker()">' + GV_PACK_SVG + ' 按心情发个表情包包</button></div>'
+    + '<div class="ot-muted" id="gv-px-note" style="margin-top:6px;">当前工具：' + esc(isHex(pxTool) ? pxTool : pxStampName(pxTool)) + '</div>';
 };
 
 /* ══════════ A7 表情包包：按包定义，按心情匹配发送 ══════════
@@ -660,7 +714,7 @@ var packRowHTML = function () {
   var chips = STICKER_PACKS.map(function (p) {
     return '<button type="button" class="gv-pack-chip' + (p.mood === m ? ' gv-pack-on' : '') + '" title="' + esc(p.desc) + '：' + esc(p.keywords.join('、')) + '" onclick="window.GroupV.sendPackSticker(\'' + p.mood + '\')">' + esc(p.name) + '</button>';
   }).join('');
-  return '<div class="gv-pack-row"><div style="font-size:12px;color:#888;margin-bottom:6px;">🎒 表情包包（按心情匹配 · 当前心情：' + esc(m) + '）</div><div style="display:flex;gap:6px;flex-wrap:wrap;">' + chips + '</div><div style="margin-top:6px;"><button type="button" class="gv-pack-send" onclick="window.GroupV.sendPackSticker()">按现在的心情发一包</button></div></div>';
+  return '<div class="gv-pack-row"><div style="font-size:12px;color:#888;margin-bottom:6px;">' + GV_PACK_SVG + ' 表情包包（按心情匹配 · 当前心情：' + esc(m) + '）</div><div style="display:flex;gap:6px;flex-wrap:wrap;">' + chips + '</div><div style="margin-top:6px;"><button type="button" class="gv-pack-send" onclick="window.GroupV.sendPackSticker()">按现在的心情发一包</button></div></div>';
 };
 
 /* ── 样式（运行时注入，不碰原有 style 块）── */
@@ -683,6 +737,7 @@ var GV_CSS = [
   '.gv-pal{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center;}',
   '.gv-pal-sw{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ddd;cursor:pointer;padding:0;}',
   '.gv-pal-emoji{border:1px solid #e8ddd2;background:#fff;border-radius:8px;font-size:16px;padding:2px 6px;cursor:pointer;}',
+  '.gv-pal-emoji svg{display:block;}',
   '.gv-pack-row{margin-top:10px;background:#fff;border-radius:10px;padding:10px;}',
   '.gv-pack-chip{border:1px solid #e8ddd2;background:#f7f7f7;color:#333;border-radius:12px;padding:5px 10px;font-size:12px;cursor:pointer;}',
   '.gv-pack-chip.gv-pack-on{background:#07c160;color:#fff;border-color:#07c160;}',

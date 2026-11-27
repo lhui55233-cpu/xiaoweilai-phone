@@ -6,7 +6,26 @@
 var CHAIN_KEY = 'phone_model_fallback_v1';
 var FBKEYS_KEY = 'phone_model_fallback_keys_v1';
 var MAX_FB = 3;
-var REACT_EMOJIS = ['❤️', '😂', '😮', '😢', '👍', '🔥'];
+var REACT_EMOJIS = ['\u2764\uFE0F', '\uD83D\uDE02', '\uD83D\uDE2E', '\uD83D\uDE22', '\uD83D\uDC4D', '\uD83D\uDD25'];
+/* D 批禁 emoji：回应仍按 emoji 字符串存（已存聊天记录里的回应键不能改），显示一律画 SVG；
+   源码里用转义写键值，界面上不再出现 emoji 字形。自定义回应输入框见“需用户定夺”。 */
+var REACT_LABELS = {};
+REACT_LABELS['\u2764\uFE0F'] = '喜欢'; REACT_LABELS['\uD83D\uDE02'] = '大笑'; REACT_LABELS['\uD83D\uDE2E'] = '惊讶';
+REACT_LABELS['\uD83D\uDE22'] = '难过'; REACT_LABELS['\uD83D\uDC4D'] = '点赞'; REACT_LABELS['\uD83D\uDD25'] = '火热';
+var REACT_PATHS = {};
+REACT_PATHS['\u2764\uFE0F'] = '<path d="M12 20.5S3.5 15 3.5 9.3C3.5 6.6 5.6 5 7.8 5c1.8 0 3.2 1 4.2 2.4C13 6 14.4 5 16.2 5c2.2 0 4.3 1.6 4.3 4.3 0 5.7-8.5 11.2-8.5 11.2Z" fill="#e5484d"/>';
+REACT_PATHS['\uD83D\uDE02'] = '<circle cx="12" cy="12" r="9" fill="#ffd93b"/><path d="M7 10.5Q9 8 11 10.5M13 10.5Q15 8 17 10.5" stroke="#1e2748" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M7.5 13.5Q12 19.5 16.5 13.5Z" fill="#1e2748"/><path d="M18.5 7.5c.8.6 1 1.6.5 2.6" stroke="#7db8e8" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+REACT_PATHS['\uD83D\uDE2E'] = '<circle cx="12" cy="12" r="9" fill="#ffd93b"/><circle cx="9" cy="10" r="1.3" fill="#1e2748"/><circle cx="15" cy="10" r="1.3" fill="#1e2748"/><ellipse cx="12" cy="15.5" rx="2.2" ry="2.8" fill="#1e2748"/>';
+REACT_PATHS['\uD83D\uDE22'] = '<circle cx="12" cy="12" r="9" fill="#ffd93b"/><path d="M7 9.5Q9 7.5 11 9.5M13 9.5Q15 7.5 17 9.5" stroke="#1e2748" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M8.5 16.5Q12 13.5 15.5 16.5" stroke="#1e2748" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M17.5 12.5c.9.8 1.2 2 .6 3.2" stroke="#7db8e8" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+REACT_PATHS['\uD83D\uDC4D'] = '<path d="M6.5 20.5v-8h11l-1.2 5.6a2 2 0 0 1-2 1.4H6.5Z" fill="#ffd93b" stroke="#1e2748" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.5 12.5V5.8a1.6 1.6 0 0 1 3.2-.4l.5 3.4h2" fill="#ffd93b" stroke="#1e2748" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>';
+REACT_PATHS['\uD83D\uDD25'] = '<path d="M12 2.8c1 2.6-1.6 4-1.6 6.4a3.4 3.4 0 0 0 6.8.5c0-.5-.1-1-.3-1.4.9 1.2 1.6 2.6 1.6 4.2a6.5 6.5 0 1 1-13 0c0-3.6 2.6-5.4 4-7 .5 1 1.3 1.7 2.5 1.7-.6-1.8-.5-3.3 0-4.4Z" fill="#f76b15"/>';
+function reactIcon(em, size) { var p = REACT_PATHS[em]; if (!p) return ''; var s = size || 16; return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" style="vertical-align:-3px" aria-hidden="true">' + p + '</svg>'; }
+/* act 小卡状态图标：进行中时钟 / 完成对勾 / 失败叉号 + 展开三角。 */
+var BS_CLOCK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
+var BS_CHECK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>';
+var BS_X_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-2px" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+var BS_CHEV_RIGHT = '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-2px" aria-hidden="true"><path d="M9 5l7 7-7 7Z"/></svg>';
+var BS_CHEV_DOWN = '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-2px;transform:rotate(90deg)" aria-hidden="true"><path d="M9 5l7 7-7 7Z"/></svg>';
 var STREAM_INPUT_PLACEHOLDER = '正在输入…';
 var STREAM_INPUT_DEFAULT = '输入内容...';
 
@@ -229,6 +248,13 @@ function charAddReaction(sid, mid, emoji) {
     if (!s) return { ok: false, reason: 'not_found' };
     return toggleReaction(sid, mid, emoji, s.name);
 }
+/* D 批禁 emoji：chip/选择器里不再出现 emoji 字形——内置 6 个回应只传下标查表，
+   onclick 与 data 属性里都不再嵌 emoji 字符串；存量键仍是 emoji 字符串，不动数据。 */
+function toggleReactionByIndex(sid, mid, idx) {
+    var em = REACT_EMOJIS[idx];
+    if (!em) return { ok: false, reason: 'not_found' };
+    return toggleReaction(sid, mid, em, '我');
+}
 function reactionsHTML(m, sid) {
     var list = Array.isArray(m.reactions) ? m.reactions : [];
     if (!list.length) return '';
@@ -241,9 +267,14 @@ function reactionsHTML(m, sid) {
     var chips = order.map(function (em) {
         var bys = groups[em];
         var mine = bys.indexOf('我') >= 0;
-        var label = bys.length > 1 ? (em + ' ' + bys.length) : em;
-        var title = bys.join('、');
-        return '<button type="button" class="bs-react-chip' + (mine ? ' bs-react-mine' : '') + '" title="' + esc(title) + '" onclick="event.stopPropagation();WeChatAppEngine.toggleReaction(\'' + esc(sid) + '\',\'' + esc(m.id) + '\',\'' + esc(em) + '\')">' + esc(label) + '</button>';
+        var shown = reactIcon(em, 15) || esc(em);
+        var label = bys.length > 1 ? (shown + ' ' + bys.length) : shown;
+        var title = (REACT_LABELS[em] ? REACT_LABELS[em] + ' · ' : '') + bys.join('、');
+        var ri = REACT_EMOJIS.indexOf(em);
+        var call = ri >= 0
+            ? 'WeChatAppEngine.toggleReactionByIndex(\'' + esc(sid) + '\',\'' + esc(m.id) + '\',' + ri + ')'
+            : 'WeChatAppEngine.toggleReaction(\'' + esc(sid) + '\',\'' + esc(m.id) + '\',\'' + esc(em) + '\')';
+        return '<button type="button" class="bs-react-chip' + (mine ? ' bs-react-mine' : '') + '" title="' + esc(title) + '" onclick="event.stopPropagation();' + call + '">' + label + '</button>';
     }).join('');
     return '<div class="bs-reactions" data-mid="' + esc(m.id) + '">' + chips
         + '<button type="button" class="bs-react-add" onclick="event.stopPropagation();WeChatAppEngine.openReactionPicker(\'' + esc(sid) + '\',\'' + esc(m.id) + '\')">＋</button></div>';
@@ -254,15 +285,16 @@ function ensurePicker() {
     if (p) return p;
     p = document.createElement('div');
     p.id = 'bs-reaction-picker';
-    p.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:2px;">' + REACT_EMOJIS.map(function (em) {
-        return '<button type="button" class="bs-rp-emo" data-emo="' + esc(em) + '">' + esc(em) + '</button>';
+    p.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:2px;">' + REACT_EMOJIS.map(function (em, i) {
+        return '<button type="button" class="bs-rp-emo" data-ri="' + i + '" title="' + esc(REACT_LABELS[em] || '') + '">' + reactIcon(em, 24) + '</button>';
     }).join('') + '</div>'
         + '<div class="bs-rp-custom"><input id="bs-rp-custom" type="text" placeholder="自定义一个 emoji" maxlength="4"><button type="button" id="bs-rp-custom-btn">贴</button></div>'
         + '<button type="button" class="bs-rp-close" id="bs-rp-close">取消</button>';
     p.addEventListener('click', function (ev) {
         var t = ev.target;
-        if (t && t.getAttribute && t.getAttribute('data-emo')) {
-            if (_pickerTarget) toggleReaction(_pickerTarget.sid, _pickerTarget.mid, t.getAttribute('data-emo'), '我');
+        var emoBtn = (t && t.closest) ? t.closest('[data-ri]') : null;
+        if (emoBtn) {
+            if (_pickerTarget) toggleReactionByIndex(_pickerTarget.sid, _pickerTarget.mid, Number(emoBtn.getAttribute('data-ri')));
             closeReactionPicker();
         } else if (t && t.id === 'bs-rp-custom-btn') { customReaction(); }
         else if (t && t.id === 'bs-rp-close') { closeReactionPicker(); }
@@ -297,10 +329,10 @@ function customReaction() {
 var ACT_LABELS = { schedule: '日程', diary: '日记', photo: '照片', file: '文件' };
 function actCardHTML(m) {
     var st = m.status || 'running';
-    var icon = st === 'running' ? '⏳' : (st === 'done' ? '✓' : '✗');
+    var icon = st === 'running' ? BS_CLOCK_SVG : (st === 'done' ? BS_CHECK_SVG : BS_X_SVG);
     var title = m.title || ('正在查' + (ACT_LABELS[m.actKind] || '东西') + '…');
     return '<div class="bs-act-card bs-act-' + esc(st) + '" data-mid="' + esc(m.id) + '" onclick="WeChatAppEngine.toggleActCard(\'' + esc(m.id) + '\')">'
-        + '<div class="bs-act-head"><span>' + icon + '</span><span>' + esc(title) + '</span><span class="bs-act-chev">' + (m._expanded ? '▾' : '▸') + '</span></div>'
+        + '<div class="bs-act-head"><span>' + icon + '</span><span>' + esc(title) + '</span><span class="bs-act-chev">' + (m._expanded ? BS_CHEV_DOWN : BS_CHEV_RIGHT) + '</span></div>'
         + '<div class="bs-act-summary">' + esc(m.summary || '') + '</div>'
         + (m._expanded ? '<div class="bs-act-detail">' + esc(m.detail || '') + '</div>' : '')
         + '</div>';
@@ -453,6 +485,7 @@ function wireUp() {
             WeChatAppEngine.bsModelReply = bsModelReply;
             WeChatAppEngine.bsStreamAttempt = streamAttempt;
             WeChatAppEngine.toggleReaction = toggleReaction;
+            WeChatAppEngine.toggleReactionByIndex = toggleReactionByIndex;
             WeChatAppEngine.charAddReaction = charAddReaction;
             WeChatAppEngine.bsReactionsHTML = reactionsHTML;
             WeChatAppEngine.openReactionPicker = openReactionPicker;
@@ -529,7 +562,7 @@ window.GroupBS = {
     parseSSELine: parseSSELine, parseSSEText: parseSSEText,
     streamAttempt: streamAttempt, modelReplyWithFallback: bsModelReply,
     streamLog: function () { return _streamLog.slice(); },
-    toggleReaction: toggleReaction, charAddReaction: charAddReaction,
+    toggleReaction: toggleReaction, toggleReactionByIndex: toggleReactionByIndex, charAddReaction: charAddReaction,
     reactionsHTML: reactionsHTML,
     openReactionPicker: openReactionPicker, closeReactionPicker: closeReactionPicker,
     customReaction: customReaction,

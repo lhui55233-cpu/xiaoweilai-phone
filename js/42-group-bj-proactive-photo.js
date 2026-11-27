@@ -359,7 +359,7 @@ function sendPhotoNow(trigger, opts) {
   sess.unread = (sess.unread || 0) + 1;
   persistWx(); renderWx(); scrollChat();
   try { if (typeof MemoryCore !== 'undefined' && MemoryCore.write) MemoryCore.write({ source: name, content: '[照片 · ' + trigger.source + '] ' + (trigger.caption || ''), layer: 'short', forceWeight: 0.4 }); } catch (e) {}
-  island(name, '📷 ' + (trigger.caption || '[图片]'));
+  island(name, (trigger.caption || '[图片]'));
   try { if (window.GroupR && window.GroupR.recordSent) window.GroupR.recordSent('photo:' + trigger.kind, trigger.caption || '[图片]', { kind: 'photo:' + trigger.kind, key: trigger.key, text: trigger.caption || '', ref: trigger.ref || '' }); } catch (e) {}
   try { if (window.CharInnerLife && window.CharInnerLife.noteSent) window.CharInnerLife.noteSent('photo:' + trigger.kind, trigger.caption || '[图片]', name); } catch (e) {}
   var st = readState();

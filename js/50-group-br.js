@@ -449,7 +449,7 @@ function openInvitePicker() {
         var on = item.classList.contains('checked');
         ck.style.background = on ? '#07c160' : '';
         ck.style.borderColor = on ? '#07c160' : '#ccc';
-        ck.textContent = on ? '✓' : '';
+        ck.innerHTML = on ? '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
       }
       return;
     }

@@ -18,6 +18,8 @@ var GC_KEY = 'guichao.memories.v1', ALBUM_KEY = 'cike_album_v1';
 var CA_ARCHIVE_KEY = 'phone_script_character_archive_v1';
 var esc2 = function (s) { return String(s == null? '': s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');};
 var rd2 = function (k, dflt) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined)? dflt: v;} catch (e) { return dflt;}};
+/* UI 图标一处定义：线稿 SVG（xwl-ui-vector，当前色），不用 emoji；收藏切换两侧共用同一份，避免一半改一半没改。 */
+var AW_NEWS_ICO = { star: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg>', starFill: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg>', news: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="15" height="16" rx="2"/><path d="M18 9h1.5a1.5 1.5 0 0 1 1.5 1.5V19a2 2 0 0 1-2 2H6"/><path d="M6.5 8.5h8M6.5 12h8M6.5 15.5h5"/></svg>', mail: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>', folder: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2h9v10.8H3.5Z"/><path d="M3.5 9h17"/></svg>', save: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h11L20 7.5v13H5Z"/><path d="M8 3.5V9h7V3.5M8 20.5v-6.5h8v6.5"/></svg>', doc: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4V20H6Z"/><path d="M14 3.5v4h4M9 12h6m-6 3h6"/></svg>', spark: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg>' };
 var wr2 = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true;} catch (e) { return false;}};
 var uid2 = function (p) { return p + '_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1e6).toString(36);};
 var pad2b = function (n) { return (n < 10? '0': '') + n;};
@@ -131,7 +133,7 @@ return back + '<div class="aw-news-mast"><div class="aw-news-mastname">《此刻
 + '<div class="aw-news-article"><h2>' + esc2(art.title) + '</h2>'
 + '<div class="aw-news-meta">日期 ' + esc2(art.date) + ' · 版面 ' + esc2(art.section) + ' · 相关人物 ' + esc2(art.people || '—') + ' · 字数 ' + wc + ' · 阅读 ' + (art.views || 0) + ' 次</div>'
 + '<div class="aw-news-body">' + esc2(art.body) + '</div>'
-+ '<div style="margin-top:10px"><button type="button" class="aw-news-btn" data-aw-news="fav" data-id="' + art.id + '">' + (isNewsFav(art.id)? '★ 已收藏': '☆ 收藏') + '</button></div>'
++ '<div style="margin-top:10px"><button type="button" class="aw-news-btn" data-aw-news="fav" data-id="' + art.id + '">' + (isNewsFav(art.id) ? AW_NEWS_ICO.starFill + ' 已收藏' : AW_NEWS_ICO.star + ' 收藏') + '</button></div>'
 + '<div class="aw-news-cmt"><b>写评论</b><div style="display:flex;gap:8px;margin-top:8px"><input id="aw-news-cmt-input" type="text" maxlength="300" placeholder="写下你的评论…" style="flex:1"><button type="button" class="aw-news-btn" data-aw-news="comment" data-id="' + art.id + '">发表</button></div>'
 + '<div style="margin-top:10px">' + (comments.length? comments.map(function (c) { return '<div class="aw-news-cmt-row"><b>' + esc2(c.author) + '</b> <span style="color:#a08a7a">' + esc2(c.floor) + '楼 · ' + esc2(c.time) + '</span><br>' + esc2(c.content) + '</div>';}).join(''): '<div class="aw-news-empty">还没有评论。</div>') + '</div></div></div>';
 }
@@ -170,7 +172,7 @@ if (act === 'back') { ov.classList.remove('show'); return;}
 if (act === 'generate') { var is = generateNewspaperIssue(); if (is) { toast2('新一期报纸出了'); openNewsOverlay('issue', is.id);} else { toast2('最近没什么值得报道的事'); openNewsOverlay('home');} return;}
 if (act === 'issue') { openNewsOverlay('issue', id); return;}
 if (act === 'article') { readNewsArticle(id, id2); openNewsOverlay('article', id, id2); return;}
-if (act === 'fav') { var on = toggleNewsFav(id); b.textContent = on? '★ 已收藏': '☆ 收藏'; return;}
+if (act === 'fav') { var on = toggleNewsFav(id); b.innerHTML = on ? AW_NEWS_ICO.starFill + ' 已收藏' : AW_NEWS_ICO.star + ' 收藏'; return;}
 if (act === 'comment') { var inp = document.getElementById('aw-news-cmt-input'); try { commentNewsArticle(id, inp? inp.value: ''); openNewsOverlay('article', ov._awIssue || '', id);} catch (e) { toast2(e.message || '评论失败');} return;}
 if (act === 'polish') { var out = document.getElementById('aw-news-polish-out'); if (out) out.textContent = '润色中…'; polishNewsIssue(id).then(function (r) { if (out) out.textContent = r.ok? ('已润色（模型' + (r.model? ' · ' + r.model: '') + '）'): ('未改动：' + (r.reason || '')); if (r.ok) openNewsOverlay('issue', id);}); return;}
 };
@@ -181,13 +183,13 @@ var titlebar = root.querySelector('.fm-titlebar');
 if (titlebar &&!document.getElementById('aw-news-btn')) {
 var btn = document.createElement('span'); btn.id = 'aw-news-btn';
 btn.style.cssText = 'font-size:14px;color:#b08d3e;font-weight:700;cursor:pointer;';
-btn.textContent = '📰 报纸' + (collectNewsEvents().length? ' ·新': '');
+btn.innerHTML = AW_NEWS_ICO.news + ' 报纸' + (collectNewsEvents().length ? ' ·新' : '');
 btn.addEventListener('click', function () { openNewsOverlay('home');});
 titlebar.appendChild(btn);
 }
 var toolbar = root.querySelector('.fm-d-toolbar');
 if (toolbar &&!toolbar.querySelector('[data-aw-news-publish]')) {
-var pub = document.createElement('div'); pub.className = 'fm-d-toolbtn'; pub.setAttribute('data-aw-news-publish', '1'); pub.textContent = '📰 登报';
+var pub = document.createElement('div'); pub.className = 'fm-d-toolbtn'; pub.setAttribute('data-aw-news-publish', '1'); pub.innerHTML = AW_NEWS_ICO.news + ' 登报';
 pub.addEventListener('click', function () {
 var detail = root.querySelector('.fm-detail') || root;
 var title = (detail.querySelector('.fm-d-title') || {}).textContent || '';
@@ -304,7 +306,7 @@ function checkNewLetters() {
   var st = loadLetterState();
   if (n > (st.lastSeenCount || 0) && st.lastSeenCount > 0) {
     st.lastSeenCount = n; saveLetterState(st);
-    try { if (window.GroupAS && window.GroupAS.notifyExternal) window.GroupAS.notifyExternal({ kind: 'char', app: 'cike', appName: '此刻', sender: mainName2(), title: '✉️ 新信到了', body: '信箱里多了一封信，去看看吧', targetApp: 'cike', refId: 'letter_' + n }); } catch (e) {}
+    try { if (window.GroupAS && window.GroupAS.notifyExternal) window.GroupAS.notifyExternal({ kind: 'char', app: 'cike', appName: '此刻', sender: mainName2(), title: '新信到了', body: '信箱里多了一封信，去看看吧', targetApp: 'cike', refId: 'letter_' + n }); } catch (e) {}
     return true;
   }
   st.lastSeenCount = n; saveLetterState(st); return false;
@@ -316,16 +318,16 @@ function pastArchiveHTML(opts) {
   var list = filterPastLetters(opts);
   var senders = pastLetterSenders();
   var rows = list.length ? list.map(function (L) {
-    return '<div class="aw-news-row" data-aw-letter-open="' + L.index + '"><span class="aw-news-sec">' + esc2(L.role) + ' · ' + esc2(L.time || '时间未知') + ' ' + (L.read ? '' : '· 未读') + (L.starred ? ' · ★' : '') + '</span><b>' + esc2(L.title) + '</b><span class="aw-news-rowmeta">' + esc2(String(L.text).replace(/\n/g, ' ').slice(0, 40)) + '……</span></div>';
+    return '<div class="aw-news-row" data-aw-letter-open="' + L.index + '"><span class="aw-news-sec">' + esc2(L.role) + ' · ' + esc2(L.time || '时间未知') + ' ' + (L.read ? '' : '· 未读') + (L.starred ? ' · ' + AW_NEWS_ICO.starFill : '') + '</span><b>' + esc2(L.title) + '</b><span class="aw-news-rowmeta">' + esc2(String(L.text).replace(/\n/g, ' ').slice(0, 40)) + '……</span></div>';
   }).join('') : '<div class="aw-news-empty">还没有旧信，char 写信后会收在这里。</div>';
   return '<div class="aw-news-mast"><div class="aw-news-mastname">过往信件</div><div class="aw-news-mastsub">档案 · 全部 ' + listPastLetters().length + ' 封 · 只列真实信件</div></div>'
     + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><input id="aw-la-q" type="text" placeholder="搜关键词…" value="' + esc2(opts.q || '') + '" style="flex:1;min-width:110px">'
     + '<select id="aw-la-sender"><option value="">全部寄件人</option>' + senders.map(function (s) { return '<option value="' + esc2(s) + '"' + (opts.sender === s ? ' selected' : '') + '>' + esc2(s) + '</option>'; }).join('') + '</select>'
     + '<input id="aw-la-date" type="text" placeholder="日期 如 2026-11-26" value="' + esc2(opts.date || '') + '" style="width:130px">'
     + '<button type="button" class="aw-news-btn ghost" data-aw-letter="filter">筛选</button>'
-    + '<button type="button" class="aw-news-btn ghost" data-aw-letter="starred">★ 收藏</button></div>'
+    + '<button type="button" class="aw-news-btn ghost" data-aw-letter="starred">' + AW_NEWS_ICO.star + ' 收藏</button></div>'
     + '<div class="aw-news-list">' + rows + '</div>'
-    + '<div style="margin-top:12px"><button type="button" class="aw-news-btn ghost" data-aw-letter="write">✉️ 写信</button></div>';
+    + '<div style="margin-top:12px"><button type="button" class="aw-news-btn ghost" data-aw-letter="write">' + AW_NEWS_ICO.mail + ' 写信</button></div>';
 }
 function openPastArchive(hostOv) {
   var ov = hostOv || document.querySelector('.gB-ov');
@@ -396,7 +398,7 @@ function ensureLetterRetro() {
     if (body && !body.querySelector('[data-aw-letterbar]')) {
       var bar = document.createElement('div'); bar.setAttribute('data-aw-letterbar', '1');
       bar.style.cssText = 'display:flex;gap:8px;padding:10px 14px 0;';
-      bar.innerHTML = '<button type="button" class="aw-news-btn ghost" data-aw-letterbar-btn="archive" style="flex:1">📜 过往信件</button><button type="button" class="aw-news-btn ghost" data-aw-letterbar-btn="write" style="flex:1">✉️ 写信</button>';
+      bar.innerHTML = '<button type="button" class="aw-news-btn ghost" data-aw-letterbar-btn="archive" style="flex:1">' + AW_NEWS_ICO.doc + ' 过往信件</button><button type="button" class="aw-news-btn ghost" data-aw-letterbar-btn="write" style="flex:1">' + AW_NEWS_ICO.mail + ' 写信</button>';
       body.insertBefore(bar, body.firstChild);
       bar.addEventListener('click', function (ev) {
         var b = ev.target && ev.target.closest ? ev.target.closest('[data-aw-letterbar-btn]') : null; if (!b) return;
@@ -408,7 +410,7 @@ function ensureLetterRetro() {
     if (stage && !gb.querySelector('[data-aw-letter-save]')) {
       var faces = gb.querySelectorAll('.gB-face');
       var saveBtn = document.createElement('button'); saveBtn.type = 'button'; saveBtn.setAttribute('data-aw-letter-save', '1');
-      saveBtn.className = 'aw-news-btn ghost'; saveBtn.textContent = '💾 存成归巢记忆'; saveBtn.style.cssText = 'margin:10px 14px;';
+      saveBtn.className = 'aw-news-btn ghost'; saveBtn.innerHTML = AW_NEWS_ICO.save + ' 存成归巢记忆'; saveBtn.style.cssText = 'margin:10px 14px;';
       saveBtn.addEventListener('click', function () {
         var text = ''; faces.forEach(function (f) { text += (f.textContent || '') + '\n'; });
         text = text.trim(); if (!text) { toast2('这封信没有正文'); return; }
@@ -821,7 +823,7 @@ function openCharLibrary(host) {
   var chars = allArchiveChars();
   ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-lib="back">‹ 返回</button><span style="font-size:13px;color:#8a6a52">角色库 · 与微信创建人物同一套数据</span><button type="button" data-aw-lib="new">＋ 创建人物</button></div>'
     + chars.map(function (ch) {
-      return '<div class="aw-lib-row"><div><b>' + esc2(ch.name) + '</b> <span style="font-size:12px;color:#8a6a52">' + esc2(ch.isMain ? '主角 TA' : (ch.relationship || '联系人')) + (ch.status === 'pending' ? ' · 待审阅' : '') + '</span><br><span style="font-size:12px;color:#a08a7a">' + esc2(ch.occupation || '') + ' ' + esc2(ch.traits || '') + '</span></div><div><button type="button" class="aw-news-btn ghost" data-aw-lib="archive" data-id="' + esc2(ch.id) + '">📁 档案</button></div></div>';
+      return '<div class="aw-lib-row"><div><b>' + esc2(ch.name) + '</b> <span style="font-size:12px;color:#8a6a52">' + esc2(ch.isMain ? '主角 TA' : (ch.relationship || '联系人')) + (ch.status === 'pending' ? ' · 待审阅' : '') + '</span><br><span style="font-size:12px;color:#a08a7a">' + esc2(ch.occupation || '') + ' ' + esc2(ch.traits || '') + '</span></div><div><button type="button" class="aw-news-btn ghost" data-aw-lib="archive" data-id="' + esc2(ch.id) + '">' + AW_NEWS_ICO.folder + ' 档案</button></div></div>';
     }).join('')
     + '<div style="font-size:12px;color:#a08a7a;line-height:1.8">剧本里选中的人物就是这里的人物，改一处两处都变。导入的卡默认禁用，审阅启用后才出现在这里。</div>';
   ov.style.display = 'block';
@@ -849,7 +851,7 @@ function ensureCreateCharArchiveBtns() {
     field.querySelectorAll('[data-aw-cc="edit"]').forEach(function (editBtn) {
       var id = editBtn.getAttribute('data-id');
       if (id && !field.querySelector('[data-aw-ca-btn="' + id + '"]')) {
-        var ab = document.createElement('button'); ab.type = 'button'; ab.className = 'aw-btn ghost'; ab.setAttribute('data-aw-ca-btn', id); ab.textContent = '📁 档案';
+        var ab = document.createElement('button'); ab.type = 'button'; ab.className = 'aw-btn ghost'; ab.setAttribute('data-aw-ca-btn', id); ab.innerHTML = AW_NEWS_ICO.folder + ' 档案';
         ab.addEventListener('click', function (e) { e.stopPropagation(); openArchive(id); });
         editBtn.parentNode.insertBefore(ab, editBtn.nextSibling);
       }
@@ -918,7 +920,7 @@ function ensureCharGen() {
   var anchor = page.querySelector('.aw-cc-field');
   if (!anchor || document.getElementById('aw-cc-gen')) return true;
   var block = document.createElement('div'); block.className = 'aw-cc-field'; block.id = 'aw-cc-gen';
-  block.innerHTML = '<label>✨ 智能体生成档案</label>'
+  block.innerHTML = '<label>' + AW_NEWS_ICO.spark + ' 智能体生成档案</label>'
     + '<input id="aw-cc-keywords" type="text" placeholder="关键词（可选，如：冷静、爱猫、摄影师）">'
     + '<label style="display:flex;gap:6px;align-items:center;margin-top:6px"><input id="aw-cc-gen-switch" type="checkbox" style="width:auto"' + (genSwitch() ? ' checked' : '') + '> 允许模型生成（分功能开关：角色/档案生成）</label>'
     + '<div style="font-size:11px;color:#888;line-height:1.7;margin-top:4px">只填名字也能生成；只传一张图也可以（头像不发给模型）。生成只把你为这个人物填的内容 + 生成提示发给模型，不发其他数据。生成结果先填入表单给你审阅，确认保存后才入库，不自动保存。</div>'

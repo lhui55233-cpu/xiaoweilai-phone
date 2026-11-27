@@ -321,7 +321,7 @@ window.GroupBH = (function () {
     try { sizeKB = Math.round((localStorage.getItem(KEY) || '').length / 1024); } catch (e) {}
     var builtinRows = BUILTIN.map(function (b) {
       var sel = (g.source === 'builtin' && g.id === b.id);
-      return '<div class="st-row"><span class="st-label">' + esc(b.name) + ' · ' + esc(b.desc) + (sel ? ' ✓' : '') + '</span><div class="st-row-right">'
+      return '<div class="st-row"><span class="st-label">' + esc(b.name) + ' · ' + esc(b.desc) + (sel ? ' <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') + '</span><div class="st-row-right">'
         + '<button type="button" data-bh="pv-builtin" data-id="' + b.id + '" style="padding:8px 12px;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);background:var(--st-paper,#fffdf8);font-size:17px;color:var(--st-ink,#1e2748);margin-right:8px;">试听</button>'
         + '<button type="button" data-bh="set-builtin" data-id="' + b.id + '" style="padding:8px 12px;border:0;border-radius:var(--st-radius-md,8px);background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);font-size:17px;">' + (sel ? '当前铃声' : '设为铃声') + '</button>'
         + '</div></div>';

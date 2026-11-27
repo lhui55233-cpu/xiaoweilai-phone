@@ -119,7 +119,7 @@
                     if (!modal) return;
                     modal.innerHTML = `
                         <div class="sys-crash-dialog">
-                            <h3>⚠️ 系统执行保护</h3>
+                            <h3><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.7 20h18.6Z"/><path d="M12 9v5m0 3h.01"/></svg> 系统执行保护</h3>
                             <p>模块 [${context}] 遇到意外错误，已为您自动隔离，避免系统崩溃。</p>
                             <button class="sys-crash-btn" onclick="document.getElementById('sys-modal-container').innerHTML=''">确定</button>
                         </div>
@@ -1756,7 +1756,7 @@ const load = () => {
 window.DynamicIsland = (() => {
   'use strict';
   var PRIORITY = { call: 1, recording: 2, music: 3, pomodoro: 4, message: 5 };
-  var ICON = { call: '📞', recording: '🎙️', music: '🎵', pomodoro: '🍅', message: '💬' };
+  var ICON = { call: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3.8h9.6a2 2 0 0 1 2 2v12.4a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2Z"/><path d="M9 6.5h6m-6 10h6"/></svg>', recording: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6"/></svg>', music: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5Z"/></svg>', pomodoro: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg>', message: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg>' };
   var LABEL = { call: '通话', recording: '录音', music: '音乐', pomodoro: '番茄钟', message: '消息' };
   var PHASE_LABEL = { focus: '专注', short: '短休息', long: '长休息' };
   var acts = {};
@@ -1804,11 +1804,11 @@ window.DynamicIsland = (() => {
   }
   function timerSpan(a) { return '<span data-bn-timer="' + a.type + '">' + esc(timerText(a)) + '</span>'; }
   function summaryHTML(a) {
-    var mute = muted[a.type] ? '🔇 ' : '';
+    var mute = muted[a.type] ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="m16 9 5 6m0-6-5 6"/></svg> ' : '';
     if (a.type === 'call') return mute + esc(a.name || '通话') + ' · ' + timerSpan(a);
     if (a.type === 'recording') return mute + '录音中 ' + timerSpan(a);
     if (a.type === 'music') return mute + esc(a.title || '音乐') + (a.playing === false ? ' · 已暂停' : ' · 播放中');
-    if (a.type === 'pomodoro') { var c = catName(); return mute + timerSpan(a) + (c ? ' · 🐱' + esc(c) : ' · 还没有猫'); }
+    if (a.type === 'pomodoro') { var c = catName(); return mute + timerSpan(a) + (c ? ' · <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>' + esc(c) : ' · 还没有猫'); }
     if (a.type === 'message') { var t = String(a.text || ''); return mute + esc(a.name || '') + '：' + esc(t) + (String(a.full || '').length > 16 ? '…' : ''); }
     return mute + esc(a.title || a.type);
   }
@@ -1827,9 +1827,9 @@ window.DynamicIsland = (() => {
     return '<span class="bn-wave" data-bn-wave="recording">' + bars + '</span>';
   }
   function detailHTML(a) {
-    if (a.type === 'call') return esc(a.name || '通话') + (a.number ? ' · ' + esc(a.number) : '') + (a.reason ? ' · ' + esc(a.reason) : '') + '<br>' + (a.phase === 'ringing' ? '来电响铃中' : '通话时长 ') + timerSpan(a) + (muted.call ? ' · 🔇 已静音' : '');
-    if (a.type === 'music') return esc(a.title || '音乐') + ' · ' + esc(a.artist || '未知歌手') + '<br>' + (a.playing === false ? '已暂停' : '正在播放') /* GROUP-FIX11: 合成旋律已删，音乐现在是真实音频播放 */ + (muted.music ? ' · 🔇 已静音' : '');
-    if (a.type === 'pomodoro') { var c = catName(); return (PHASE_LABEL[a.phase] || a.phase || '专注') + ' · ' + timerSpan(a) + '<br>' + (c ? '🐱 ' + esc(c) + '在旁边陪你专注' : '还没有猫，去乙游 3D 家里领养一只'); }
+    if (a.type === 'call') return esc(a.name || '通话') + (a.number ? ' · ' + esc(a.number) : '') + (a.reason ? ' · ' + esc(a.reason) : '') + '<br>' + (a.phase === 'ringing' ? '来电响铃中' : '通话时长 ') + timerSpan(a) + (muted.call ? ' · <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="m16 9 5 6m0-6-5 6"/></svg> 已静音' : '');
+    if (a.type === 'music') return esc(a.title || '音乐') + ' · ' + esc(a.artist || '未知歌手') + '<br>' + (a.playing === false ? '已暂停' : '正在播放') /* GROUP-FIX11: 合成旋律已删，音乐现在是真实音频播放 */ + (muted.music ? ' · <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="m16 9 5 6m0-6-5 6"/></svg> 已静音' : '');
+    if (a.type === 'pomodoro') { var c = catName(); return (PHASE_LABEL[a.phase] || a.phase || '专注') + ' · ' + timerSpan(a) + '<br>' + (c ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg> ' + esc(c) + '在旁边陪你专注' : '还没有猫，去乙游 3D 家里领养一只'); }
     if (a.type === 'message') return esc(a.full || a.text || '');
     if (a.type === 'recording') return '时长 ' + timerSpan(a) + ' · 松开发送，上滑取消' + waveHTML(a);
     return '';
@@ -1839,8 +1839,8 @@ window.DynamicIsland = (() => {
     if (a.type === 'call') {
       if (a.phase === 'ringing') btns = '<button type="button" class="bn-go" data-bn-act="answer" data-bn-type="call">接听</button><button type="button" class="bn-danger" data-bn-act="hangup" data-bn-type="call">挂断</button>';
       else btns = '<button type="button" class="bn-danger" data-bn-act="hangup" data-bn-type="call">挂断</button>';
-    } else if (a.type === 'music') btns = '<button type="button" data-bn-act="toggle-music" data-bn-type="music">' + (a.playing === false ? '▶ 播放' : '⏸ 暂停') + '</button><button type="button" data-bn-act="end" data-bn-type="music">结束</button>';
-    else if (a.type === 'pomodoro') btns = '<button type="button" data-bn-act="toggle-pomo" data-bn-type="pomodoro">' + (a.paused ? '▶ 继续' : '⏸ 暂停') + '</button><button type="button" class="bn-danger" data-bn-act="end" data-bn-type="pomodoro">结束</button>';
+    } else if (a.type === 'music') btns = '<button type="button" data-bn-act="toggle-music" data-bn-type="music">' + (a.playing === false ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 播放' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/></svg> 暂停') + '</button><button type="button" data-bn-act="end" data-bn-type="music">结束</button>';
+    else if (a.type === 'pomodoro') btns = '<button type="button" data-bn-act="toggle-pomo" data-bn-type="pomodoro">' + (a.paused ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 继续' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/></svg> 暂停') + '</button><button type="button" class="bn-danger" data-bn-act="end" data-bn-type="pomodoro">结束</button>';
     else if (a.type === 'recording') btns = '<button type="button" class="bn-danger" data-bn-act="end" data-bn-type="recording">停止</button>';
     else if (a.type === 'message') btns = '<button type="button" class="bn-go" data-bn-act="jump" data-bn-type="message">去聊天</button><button type="button" data-bn-act="end" data-bn-type="message">忽略</button>';
     return '<div class="bn-row" data-bn-jump="' + a.type + '"><span class="bn-ico">' + ICON[a.type] + '</span><div class="bn-main"><div class="bn-title">' + esc(rowTitle(a)) + '</div><div class="bn-sub">' + detailHTML(a) + '</div></div><div class="bn-btns">' + btns + '</div></div>';
@@ -2063,10 +2063,10 @@ window.DynamicIsland = (() => {
       });
     }
     menu.setAttribute('data-bn-type', primary.type);
-    menu.innerHTML = '<button type="button" data-bn-menu-act="mute">' + (muted[primary.type] ? '🔊 取消静音 · ' : '🔇 静音 · ') + esc(LABEL[primary.type]) + '</button>'
-      + '<button type="button" data-bn-menu-act="end" class="bn-danger">■ 结束当前活动 · ' + esc(LABEL[primary.type]) + '</button>'
-      + '<button type="button" data-bn-menu-act="open">↗ 打开' + esc(appName(primary.type)) + '</button>'
-      + '<button type="button" data-bn-menu-act="close">✕ 关闭菜单</button>';
+    menu.innerHTML = '<button type="button" data-bn-menu-act="mute">' + (muted[primary.type] ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/></svg> 取消静音 · ' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="m16 9 5 6m0-6-5 6"/></svg> 静音 · ') + esc(LABEL[primary.type]) + '</button>'
+      + '<button type="button" data-bn-menu-act="end" class="bn-danger"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor" stroke="none"/></svg> 结束当前活动 · ' + esc(LABEL[primary.type]) + '</button>'
+      + '<button type="button" data-bn-menu-act="open">打开' + esc(appName(primary.type)) + '</button>'
+      + '<button type="button" data-bn-menu-act="close"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg> 关闭菜单</button>';
     menu.style.display = '';
     return true;
   }
@@ -2253,7 +2253,7 @@ window.DynamicIsland = (() => {
                     const ahwCardTime = document.getElementById('ahw-card-time');
                     const _hh = h;   // h/m 已是 padStart(2,'0') 后的字符串，不可再按数字补零
                     const _mm = m;
-                    if (ahwTopTime) ahwTopTime.innerHTML = `${_hh} <span>🐾</span> ${_mm}`;
+                    if (ahwTopTime) ahwTopTime.innerHTML = `${_hh}:${_mm}`;
                     if (ahwCardTime) ahwCardTime.textContent = `${_hh}:${_mm}`;
                     cd0.innerText = `${now.getMonth()+1}月${now.getDate()}日${wkAbbr[now.getDay()]}${lunarSuffix ? ' · ' + lunarSuffix : ''}`;
                 }
@@ -2644,18 +2644,18 @@ const DesktopWidgets = (() => {
         })();
         const avatarHtml = avatarUrl
             ? `<img src="${avatarUrl}" class="ahw-avatar" alt="">`
-            : `<div class="ahw-avatar" style="display:flex;align-items:center;justify-content:center;font-size:20px;">🐱</div>`;
+            : `<div class="ahw-avatar" style="display:flex;align-items:center;justify-content:center;font-size:20px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg></div>`;
         return `
         <div class="sys-widget-host" data-widget-host="ahuiTopBar" style="touch-action:none;">
             <div class="sys-widget-del" data-widget-del="ahuiTopBar">×</div>
             <div class="ahw-top-bar" data-widget-tap="ahuiTopBar">
                 ${avatarHtml}
                 <div class="ahw-center">
-                    <div class="ahw-time-row" id="ahw-topbar-time">${h} <span>🐾</span> ${m}</div>
-                    <div class="ahw-quote">我說幸福就是在你身邊 *. ☁ ♡ ☁ .*</div>
+                    <div class="ahw-time-row" id="ahw-topbar-time">${h}:${m}</div>
+                    <div class="ahw-quote">我說幸福就是在你身邊</div>
                 </div>
                 <div class="ahw-battery">
-                    <span>⚡</span><span>${batt}%</span>
+                    <span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m13.5 2.5-8 11h6l-1 8 8-11h-6Z" fill="currentColor" stroke="none"/></svg></span><span>${batt}%</span>
                 </div>
             </div>
         </div>`;
@@ -2671,7 +2671,7 @@ const DesktopWidgets = (() => {
         })();
         const photoHtml = photoUrl
             ? `<img src="${photoUrl}" alt="">`
-            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:#f5f5f5;border-radius:3px;">🌸</div>`;
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:#f5f5f5;border-radius:3px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c-4.5-1-5.3-4.2-3.2-5.3 1.5-.8 3.1.4 3.2 3.3.1-2.9 1.7-4.1 3.2-3.3 2.1 1.1 1.3 4.3-3.2 5.3 4.5-1 6.2 1.8 4.3 3.5-1.3 1.2-3.2.4-4.3-2.4 1.1 2.8.2 4.6-1.6 4.4-2.4-.2-3-3.4 1.6-6.2-4.6 2.8-7.1.7-5.8-1.5 1-1.6 3-.9 5.8 1.5Z"/><circle cx="12" cy="12" r="2"/></svg></div>`;
         return `
         <div class="sys-widget-host" data-widget-host="ahuiNotebook" style="touch-action:none;">
             <div class="sys-widget-del" data-widget-del="ahuiNotebook">×</div>
@@ -2679,7 +2679,7 @@ const DesktopWidgets = (() => {
                 <div class="ahw-nb-page left">
                     <div class="ahw-pill">weather: 19°C</div>
                     <div class="ahw-pill">${month}月${day}日 · ${hh<10?'0'+hh:hh}:${mm<10?'0'+mm:mm}</div>
-                    <div class="ahw-pill">.* 白昼梦 .* 🎀</div>
+                    <div class="ahw-pill">.* 白昼梦 .*</div>
                 </div>
                 <div class="ahw-spiral">
                     <div class="ahw-ring"></div><div class="ahw-ring"></div>
@@ -2705,26 +2705,26 @@ const DesktopWidgets = (() => {
         })();
         const avatarHtml = avatarUrl
             ? `<img src="${avatarUrl}" alt="">`
-            : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e0e0e0,#ccc);display:flex;align-items:center;justify-content:center;font-size:22px;">🐱</div>`;
+            : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e0e0e0,#ccc);display:flex;align-items:center;justify-content:center;font-size:22px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg></div>`;
         return `
         <div class="sys-widget-host" data-widget-host="ahuiBottomCard" style="touch-action:none;">
             <div class="sys-widget-del" data-widget-del="ahuiBottomCard">×</div>
             <div class="ahw-bottom-card" data-widget-tap="ahuiBottomCard">
                 <div class="ahw-bc-head">
-                    <span class="sparkle">✦</span>
+                    <span class="sparkle"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg></span>
                     ${avatarHtml}
-                    <span class="sparkle">✦</span>
+                    <span class="sparkle"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg></span>
                 </div>
-                <div class="ahw-bc-cute">●ω● かわい可爱.!!</div>
+                <div class="ahw-bc-cute">ω かわい可爱.!!</div>
                 <div class="ahw-bc-time">
-                    <span>☆</span>
+                    <span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg></span>
                     <div class="ahw-tc">
                         <span class="t1" id="ahw-card-time">${h}:${m}</span>
                         <span class="t2">${dateStr}</span>
                     </div>
-                    <span>♡</span>
+                    <span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg></span>
                 </div>
-                <div class="ahw-bc-status"><span>🛜</span><span>📶</span><span>ᛒ</span></div>
+                <div class="ahw-bc-status"><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a12 12 0 0 1 16 0M7.5 13.5a7 7 0 0 1 9 0M11 17a2.5 2.5 0 0 1 2 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor" stroke="none"/></svg></span><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-5m5.5 5v-9m5.5 9V9M21 20V4"/></svg></span><span>ᛒ</span></div>
             </div>
         </div>`;
     };
@@ -2754,8 +2754,8 @@ const DesktopWidgets = (() => {
                     <div class="sys-w-cal" style="display:flex;gap:10px;justify-content:center;font-size:12px;color:#8E8E93;margin-top:4px;"><span id="sys-w-cal-month">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]}</span><span id="sys-w-cal-day">${date}</span><span id="sys-w-cal-week">${dayStr}</span></div>
                     <div class="sys-w-clock-emoji">
                         <span>ฅ^•ﻌ•^ฅ</span>
-                        <span>✨</span>
-                        <span>🐕</span>
+                        <span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg></span>
+                        <span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9 3.8 5.5c-.3-1 1-1.7 1.8-1l3.2 2.3a10 10 0 0 1 6.4 0l3.2-2.3c.8-.7 2.1 0 1.8 1L19 9a7.5 7.5 0 0 1 1 3.8c0 4.6-3.3 7.4-8 7.4s-8-2.8-8-7.4A7.5 7.5 0 0 1 5 9Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.3 1 2.7 1 4 0"/></svg></span>
                     </div>
                 </div>
             </div>
@@ -2767,7 +2767,7 @@ const DesktopWidgets = (() => {
         const t = getTokenStats();
         const avatarHTML = t.avatar
             ? `<img src="${t.avatar}" alt="">`
-            : `<span class="sys-w-token-hero-ph">🐱</span>`;
+            : `<span class="sys-w-token-hero-ph"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg></span>`;
         // 把 token 数字精简显示
         const fmt = (n) => {
             if (n < 1000) return String(n);
@@ -2784,7 +2784,7 @@ const DesktopWidgets = (() => {
             <div class="sys-widget-del" data-widget-del="token">−</div>
             <div class="sys-widget sys-w-token" id="sys-w-token" data-widget-tap="token">
                 <div class="sys-w-token-hero">
-                    <div class="sys-w-token-hearts"><span>♡</span><span>♡</span><span>♡</span></div>
+                    <div class="sys-w-token-hearts"><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg></span><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg></span><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg></span></div>
                     <div class="sys-w-token-bubble">òωó</div>
                     <div class="sys-w-token-wing left">
                         <svg viewBox="0 0 28 22" fill="none" stroke="#D8D2C9" stroke-width="1.6">
@@ -2876,7 +2876,7 @@ const DesktopWidgets = (() => {
             <div class="sys-widget-del" data-widget-del="diary">−</div>
             <div class="sys-widget sys-w-diary" id="sys-w-diary" data-widget-tap="diary">
                 <div class="sys-w-diary-hero">
-                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${cloth};color:#fdf8ec;font-size:40px;">📖</div>
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${cloth};color:#fdf8ec;font-size:40px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg></div>
                     <div class="sys-w-diary-rings">
                         <span></span><span></span><span></span><span></span><span></span>
                         <span></span><span></span><span></span><span></span><span></span>
@@ -2888,9 +2888,9 @@ const DesktopWidgets = (() => {
                     </div>
                 </div>
                 <div class="sys-w-diary-header">
-                    <div class="sys-w-diary-header-av">📖</div>
+                    <div class="sys-w-diary-header-av"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg></div>
                     <div class="sys-w-diary-header-title">${entry ? escW((entry.role || 'TA') + '的日记') : '日记'}</div>
-                    <div class="sys-w-diary-header-hearts">♥ ♥ ♥</div>
+                    <div class="sys-w-diary-header-hearts"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg> <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg> <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg></div>
                 </div>
                 <div class="sys-w-diary-content">
                     ${entry
@@ -2917,7 +2917,7 @@ const DesktopWidgets = (() => {
     const repaint = () => {
         const host = document.getElementById('sys-widget-row');
         if (!host) return;
-        let html = '<div id="wdrag-hint">长按小组件可拖拽调整位置 ↕</div>';
+        let html = '<div id="wdrag-hint">长按小组件可拖拽调整位置</div>';
         // 组件渲染映射
         const renderMap = {
             clock:          () => state.showClock        ? renderClockWidget()      : '',
@@ -3016,9 +3016,9 @@ const DesktopWidgets = (() => {
         if (!state.showClock) opts.push({ id: 'clock', name: '时钟' });
         if (!state.showToken) opts.push({ id: 'token', name: 'Token 头像' });
         if (!state.showDiary) opts.push({ id: 'diary', name: '日记' });
-        if (!state.showAhuiTopBar) opts.push({ id: 'ahuiTopBar', name: '✨ A-Hui 状态条' });
-        if (!state.showAhuiNotebook) opts.push({ id: 'ahuiNotebook', name: '✨ A-Hui 笔记本' });
-        if (!state.showAhuiBottomCard) opts.push({ id: 'ahuiBottomCard', name: '✨ A-Hui 浮动卡片' });
+        if (!state.showAhuiTopBar) opts.push({ id: 'ahuiTopBar', name: 'A-Hui 状态条' });
+        if (!state.showAhuiNotebook) opts.push({ id: 'ahuiNotebook', name: 'A-Hui 笔记本' });
+        if (!state.showAhuiBottomCard) opts.push({ id: 'ahuiBottomCard', name: 'A-Hui 浮动卡片' });
         if (!opts.length) return;
         if (opts.length === 1) {
             if (opts[0].id === 'clock')              state.showClock = true;
@@ -3105,12 +3105,12 @@ const DesktopWidgets = (() => {
                         if (r) total = (JSON.parse(r) || {}).total || 0;
                     } catch(e) {}
                     const tiers = [
-                        { name:'青铜',     min:0,        next:10000,   icon:'🥉' },
-                        { name:'白银',     min:10000,    next:50000,   icon:'🥈' },
-                        { name:'黄金',     min:50000,    next:200000,  icon:'🥇' },
-                        { name:'铂金',     min:200000,   next:500000,  icon:'💎' },
-                        { name:'钻石',     min:500000,   next:1000000, icon:'💠' },
-                        { name:'传说',     min:1000000,  next:Infinity,icon:'👑' }
+                        { name:'青铜',     min:0,        next:10000 },
+                        { name:'白银',     min:10000,    next:50000 },
+                        { name:'黄金',     min:50000,    next:200000 },
+                        { name:'铂金',     min:200000,   next:500000 },
+                        { name:'钻石',     min:500000,   next:1000000 },
+                        { name:'传说',     min:1000000,  next:Infinity }
                     ];
                     let cur = tiers[0];
                     for (let i = tiers.length-1; i >= 0; i--) {
@@ -3118,8 +3118,8 @@ const DesktopWidgets = (() => {
                     }
                     const remain = cur.next === Infinity ? 0 : cur.next - total;
                     const msg = cur.next === Infinity
-                        ? `${cur.icon} 你已达最高等级：${cur.name}\n累计 Token：${total.toLocaleString()}`
-                        : `${cur.icon} 当前等级：${cur.name}\n累计 Token：${total.toLocaleString()}\n距下一级还差：${remain.toLocaleString()} tokens`;
+                        ? `你已达最高等级：${cur.name}\n累计 Token：${total.toLocaleString()}`
+                        : `当前等级：${cur.name}\n累计 Token：${total.toLocaleString()}\n距下一级还差：${remain.toLocaleString()} tokens`;
                     if (typeof SysDialog !== 'undefined' && SysDialog.alert) {
                         SysDialog.alert(msg);
                     } else { alert(msg); }
@@ -4084,7 +4084,7 @@ let visionCfg = {};
                         <div style="font-size:12px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:2px;">
                             ${v.voiceId ? `Voice ID: ${v.voiceId.slice(0,20)}…` : (v.desc || '本地保存')}
                         </div>
-                        ${v.status === 'ready' ? '<div style="font-size:12px;color:var(--st-ink,#1e2748);margin-top:2px;">✓ 可用</div>' : ''}
+                        ${v.status === 'ready' ? '<div style="font-size:12px;color:var(--st-ink,#1e2748);margin-top:2px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 可用</div>' : ''}
                         ${v.status === 'training' ? '<div style="font-size:12px;color:var(--st-ink,#1e2748);margin-top:2px;">训练中</div>' : ''}
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
@@ -4174,7 +4174,7 @@ let visionCfg = {};
                 </div>
             </div>
 
-            <!-- ★ ASR 语音识别 API 配置 -->
+            <!-- ASR 语音识别 API 配置 -->
             <div class="st-group" style="margin:12px 16px;">
                 <div style="padding:14px 16px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -4260,9 +4260,9 @@ let visionCfg = {};
 ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderVoiceRefHTML() : ''}
 <div class="st-foot" style="margin:0 16px 20px;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.6;">
                 语音克隆使用 MiniMax TTS，视觉解析使用 GLM-4V / Qwen-VL，语音识别使用 SenseVoice / Whisper 等 OpenAI 兼容接口。聊天、语音、视觉、ASR 四套 API 互相独立，调用时并行触发。<br>
-                <a href="https://platform.minimaxi.com" style="color:var(--st-ink,#1e2748);text-decoration:none;">获取 MiniMax 密钥 →</a>　
-                <a href="https://open.bigmodel.cn" style="color:var(--st-ink,#1e2748);text-decoration:none;">获取智谱 GLM 密钥 →</a>　
-                <a href="https://cloud.siliconflow.cn" style="color:var(--st-ink,#1e2748);text-decoration:none;">获取硅基流动密钥（ASR）→</a>
+                <a href="https://platform.minimaxi.com" style="color:var(--st-ink,#1e2748);text-decoration:none;">获取 MiniMax 密钥 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>　
+                <a href="https://open.bigmodel.cn" style="color:var(--st-ink,#1e2748);text-decoration:none;">获取智谱 GLM 密钥 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>　
+                <a href="https://cloud.siliconflow.cn" style="color:var(--st-ink,#1e2748);text-decoration:none;">获取硅基流动密钥（ASR）<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>
             </div>
             <div style="height:40px;"></div>
         </div>`
@@ -4309,7 +4309,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
             <div class="st-tk-cover" id="st-tk-cover" data-tk="cover">${tokenStats.cover ? `<img src="${tokenStats.cover}">` : ''}<div class="st-tk-cover-edit">更换封面</div></div>
             <div class="st-tk-profile">
                 <div class="st-tk-avatar" id="st-tk-avatar" data-tk="avatar">${tokenStats.avatar ? `<img src="${tokenStats.avatar}">` : (tokenStats.userName ? tokenStats.userName.charAt(0) : '')}</div>
-                <div class="st-tk-name" id="st-tk-name" data-tk="name">${tokenStats.userName || '未设置名字'} ✎</div>
+                <div class="st-tk-name" id="st-tk-name" data-tk="name">${tokenStats.userName || '未设置名字'} <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></div>
             </div>
             <div class="st-bigtitle" style="padding-top:4px;">用量</div>
             <!-- 总览 -->
@@ -4412,9 +4412,9 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
             <!-- 性别 -->
             <div class="st-pf-field-label">性别</div>
             <div class="st-pf-gender-row">
-                <div class="st-pf-gender ${gen==='男'?'on':''}"   data-pf-gender="男">♂ 男</div>
-                <div class="st-pf-gender ${gen==='女'?'on':''}"   data-pf-gender="女">♀ 女</div>
-                <div class="st-pf-gender ${gen==='其他'?'on':''}" data-pf-gender="其他">⚧ 其他</div>
+                <div class="st-pf-gender ${gen==='男'?'on':''}"   data-pf-gender="男">男</div>
+                <div class="st-pf-gender ${gen==='女'?'on':''}"   data-pf-gender="女">女</div>
+                <div class="st-pf-gender ${gen==='其他'?'on':''}" data-pf-gender="其他">其他</div>
             </div>
 
             <!-- 简介 -->
@@ -4555,7 +4555,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         if (!gid || !key) { const _r0 = voiceSub.querySelector('#mm-test-result'); if (_r0) { _r0.textContent = '请先填写 Group ID 和 API Key（两项都要填），没保存'; _r0.style.color = 'var(--st-danger,#7c2d2d)'; } return; }
                         try { localStorage.setItem('phone_minimax_cfg', JSON.stringify({groupId:gid, apiKey:key})); } catch(ee){}
                         const res = voiceSub.querySelector('#mm-test-result');
-                        if(res) { res.textContent = '✓ 配置已保存'; res.style.color='var(--st-ink,#1e2748)'; setTimeout(()=>{ if(res)res.textContent=''; },2000); }
+                        if(res) { res.textContent = '配置已保存'; res.style.color='var(--st-ink,#1e2748)'; setTimeout(()=>{ if(res)res.textContent=''; },2000); }
                         return;
                     }
                     // 测试MiniMax连接
@@ -4575,11 +4575,11 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                             body:JSON.stringify({model:'speech-01-turbo',text:'测试',stream:false,voice_setting:{voice_id:'female-tianmei',speed:1.0,vol:1.0,pitch:0}})
                         }).then(r=>r.json()).then(d=>{
                             if(d.base_resp?.status_code===0||d.audio_file) {
-                                if(res){res.textContent='✓ 连接成功！';res.style.color='var(--st-ink,#1e2748)';}
+                                if(res){res.textContent='连接成功！';res.style.color='var(--st-ink,#1e2748)';}
                             } else {
-                                if(res){res.textContent='✗ '+( d.base_resp?.status_msg||'连接失败');res.style.color='var(--st-danger,#7c2d2d)';}
+                                if(res){res.textContent=''+( d.base_resp?.status_msg||'连接失败');res.style.color='var(--st-danger,#7c2d2d)';}
                             }
-                        }).catch(err=>{ if(res){res.textContent='✗ 网络错误：'+err.message;res.style.color='var(--st-danger,#7c2d2d)';} });
+                        }).catch(err=>{ if(res){res.textContent='网络错误：'+err.message;res.style.color='var(--st-danger,#7c2d2d)';} });
                         return;
                     }
                     // ── 视觉模型：预设切换 ──
@@ -4595,7 +4595,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         if (!baseUrl || !apiKey || !model) { const _r1 = voiceSub.querySelector('#vis-test-result'); if (_r1) { _r1.textContent = '请先填写 Base URL / API Key / 模型名（三项都要填），没保存'; _r1.style.color = 'var(--st-danger,#7c2d2d)'; } return; }
                         try { localStorage.setItem('phone_vision_cfg', JSON.stringify({baseUrl, apiKey, model})); } catch(ee){}
                         const res = voiceSub.querySelector('#vis-test-result');
-                        if (res) { res.textContent = '✓ 视觉模型配置已保存'; res.style.color = 'var(--st-ink,#1e2748)'; setTimeout(()=>{ if(res) res.textContent=''; }, 2000); }
+                        if (res) { res.textContent = '视觉模型配置已保存'; res.style.color = 'var(--st-ink,#1e2748)'; setTimeout(()=>{ if(res) res.textContent=''; }, 2000); }
                         return;
                     }
                     // ── 视觉模型：测试连接（发送一条最小文本请求验证连通性）──
@@ -4612,7 +4612,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         if (res) { res.textContent = '连接中…'; res.style.color = 'var(--st-ink-60,rgba(30,39,72,.6))'; }
                         // Anthropic 原生接口与 OpenAI 格式不兼容：直接报明原因，而不是发一个必定失败的请求
                         if (/anthropic\.com/i.test(baseUrl)) {
-                            if (res) { res.textContent = '✗ Claude 原生接口与 OpenAI 格式不兼容，请使用支持 OpenAI 兼容格式的中转地址'; res.style.color = 'var(--st-danger,#7c2d2d)'; }
+                            if (res) { res.textContent = 'Claude 原生接口与 OpenAI 格式不兼容，请使用支持 OpenAI 兼容格式的中转地址'; res.style.color = 'var(--st-danger,#7c2d2d)'; }
                             return;
                         }
                         // Gemini 官方端点需走 OpenAI 兼容路径 /v1beta/openai
@@ -4639,12 +4639,12 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         }).then(d => {
                             const reply = d?.choices?.[0]?.message?.content;
                             if (reply !== undefined) {
-                                if (res) { res.textContent = '✓ 视觉模型连接正常'; res.style.color = 'var(--st-ink,#1e2748)'; }
+                                if (res) { res.textContent = '视觉模型连接正常'; res.style.color = 'var(--st-ink,#1e2748)'; }
                             } else {
-                                if (res) { res.textContent = '⚠ 返回格式异常，但可达'; res.style.color = '#FF9500'; }
+                                if (res) { res.textContent = '返回格式异常，但可达'; res.style.color = '#FF9500'; }
                             }
                         }).catch(err => {
-                            if (res) { res.textContent = '✗ ' + (err.message || '连接失败'); res.style.color = 'var(--st-danger,#7c2d2d)'; }
+                            if (res) { res.textContent = '' + (err.message || '连接失败'); res.style.color = 'var(--st-danger,#7c2d2d)'; }
                         });
 return;
                     }
@@ -4658,7 +4658,7 @@ return;
                         if (!baseUrl || !apiKey || !model) { const _r2 = voiceSub.querySelector('#asr-test-result'); if (_r2) { _r2.textContent = '请先填写 Base URL / API Key / 模型名（三项都要填），没保存'; _r2.style.color = 'var(--st-danger,#7c2d2d)'; } return; }
                         try { localStorage.setItem('phone_asr_cfg', JSON.stringify({baseUrl, apiKey, model, language})); } catch(ee){}
                         const res = voiceSub.querySelector('#asr-test-result');
-                        if (res) { res.textContent = '✓ ASR 配置已保存'; res.style.color = 'var(--st-ink,#1e2748)'; setTimeout(()=>{ if(res) res.textContent=''; }, 2000); }
+                        if (res) { res.textContent = 'ASR 配置已保存'; res.style.color = 'var(--st-ink,#1e2748)'; setTimeout(()=>{ if(res) res.textContent=''; }, 2000); }
                         return;
                     }
                     // ── ASR：测试连接（发一段最小静默 WAV 测连通性）──
@@ -4696,10 +4696,10 @@ return;
                         fetch(url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + apiKey }, body: fd })
                         .then(r => { if (!r.ok) return r.text().then(t => { throw new Error('HTTP ' + r.status + ' ' + t.slice(0, 120)); }); return r.json(); })
                         .then(d => {
-                            if (d.text !== undefined) { if (res) { res.textContent = '✓ ASR 连接正常'; res.style.color = 'var(--st-ink,#1e2748)'; } }
-                            else { if (res) { res.textContent = '⚠ 返回格式异常，但可达'; res.style.color = '#FF9500'; } }
+                            if (d.text !== undefined) { if (res) { res.textContent = 'ASR 连接正常'; res.style.color = 'var(--st-ink,#1e2748)'; } }
+                            else { if (res) { res.textContent = '返回格式异常，但可达'; res.style.color = '#FF9500'; } }
                         })
-                        .catch(err => { if (res) { res.textContent = '✗ ' + (err.message || '连接失败'); res.style.color = 'var(--st-danger,#7c2d2d)'; } });
+                        .catch(err => { if (res) { res.textContent = '' + (err.message || '连接失败'); res.style.color = 'var(--st-danger,#7c2d2d)'; } });
                         return;
                     }
                     // 展开添加面板
@@ -5158,7 +5158,7 @@ win.addEventListener('change', (e) => {
             SysDialog.prompt('', tokenStats.userName, { title: '修改名称', placeholder: '请输入新名称', maxlength: 20 }).then(nv => {
                 if (nv && nv.trim()) {
                     tokenStats.userName = nv.trim(); tSave();
-                    const n = win.querySelector('#st-tk-name'); if(n) n.textContent = tokenStats.userName + ' ✎';
+                    const n = win.querySelector('#st-tk-name'); if(n) n.textContent = tokenStats.userName;
                     const hn = win.querySelector('.st-acc-name'); if(hn) hn.textContent = tokenStats.userName;
                 }
             });
@@ -5624,7 +5624,7 @@ win.addEventListener('change', (e) => {
                 break;
             }
             case 'clearAll':
-                if (confirm('⚠️ 确定清空所有数据吗？\n将删除全部聊天记录、角色、设置，且无法恢复！')) {
+                if (confirm('确定清空所有数据吗？\n将删除全部聊天记录、角色、设置，且无法恢复！')) {
                     if (confirm('再次确认：真的要清空一切吗？')) {
                         try { localStorage.clear(); } catch(e){}
                         SysDialog.alert('所有数据已清空，即将重新加载。');
@@ -5823,7 +5823,7 @@ AppManager.register('beautify', (() => {
            .b-palette-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--st-silver-light,#dce2f1); cursor: pointer; }
            .b-palette-dot:active { transform: scale(0.9); }
            .b-color-picker-custom { background: transparent; border: none; width: 28px; height: 28px; cursor: pointer; }
-           /* ★ 布局子页:开关行 */
+           /* 布局子页:开关行 */
            .b-layout-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; min-height: 56px; border-bottom: 1px solid var(--st-ink-08,rgba(30,39,72,.08)); }
            .b-layout-row:last-child { border-bottom: none; }
            .b-layout-text { flex: 1; min-width: 0; padding-right: 14px; }
@@ -5872,7 +5872,7 @@ AppManager.register('beautify', (() => {
        </style>
 
 <div class="b-sandbox-core">
-          <!-- ★ iOS 设置式主页：替代原底部 dock -->
+          <!-- iOS 设置式主页：替代原底部 dock -->
           <style>
               /* 默认隐藏所有子页 */
               .b-page-view { display: none; }
@@ -6204,7 +6204,7 @@ AppManager.register('beautify', (() => {
        </div>
 
        <div class="b-card-frame" style="margin-top:12px;">
-           <div class="b-card-title">✨ A-Hui 精致白灰组件</div>
+           <div class="b-card-title">A-Hui 精致白灰组件</div>
            <div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:-4px 0 10px;padding:0 2px;">来自「A-Hui's Virtual Horizon」桌面风格</div>
            <div class="b-widgets-layout">
                <div class="b-widget-shell">
@@ -6213,9 +6213,9 @@ AppManager.register('beautify', (() => {
                        <div style="width:88%;height:38px;background:var(--st-paper,#fffdf8);border-radius:20px;border:1.5px solid #f0f0f0;display:flex;align-items:center;justify-content:center;gap:4px;">
                            <div style="width:24px;height:24px;border-radius:50%;background:#e8e8e8;"></div>
                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                               <div style="font-size:12px;font-weight:700;color:#b0b0b0;letter-spacing:2px;">14 🐾 50</div>
+                               <div style="font-size:12px;font-weight:700;color:#b0b0b0;letter-spacing:2px;">14:50</div>
                            </div>
-                           <div style="width:22px;height:22px;border-radius:50%;border:2px solid #eee;display:flex;align-items:center;justify-content:center;font-size:8px;color:#aaa;">⚡</div>
+                           <div style="width:22px;height:22px;border-radius:50%;border:2px solid #eee;display:flex;align-items:center;justify-content:center;font-size:8px;color:#aaa;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m13.5 2.5-8 11h6l-1 8 8-11h-6Z" fill="currentColor" stroke="none"/></svg></div>
                        </div>
                        <div class="ahui-wbtn" style="font-size:12px;color:var(--st-ink,#1e2748);margin-top:2px;">添加到桌面</div>
                    </div>
@@ -6247,7 +6247,7 @@ AppManager.register('beautify', (() => {
                    <div class="b-widget-viewport" style="background:#f9f9f9;flex-direction:column;justify-content:center;align-items:center;gap:5px;padding:8px;"
                         onclick="if(window.DesktopWidgets){window.DesktopWidgets._toggleWidget('ahuiBottomCard');this.querySelector('.ahui-wbtn').textContent=window.DesktopWidgets._isShown('ahuiBottomCard')?'已显示':'添加到桌面';}">
                        <div style="width:36px;height:36px;border-radius:50%;background:#e8e8e8;border:2px solid var(--st-paper,#fffdf8);box-shadow:0 2px 6px rgba(0,0,0,0.06);"></div>
-                       <div style="font-size:12px;color:#888;font-weight:700;">●ω● かわい.!!</div>
+                       <div style="font-size:12px;color:#888;font-weight:700;">ω かわい.!!</div>
                        <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:1px;">14:50</div>
                        <div class="ahui-wbtn" style="font-size:12px;color:var(--st-ink,#1e2748);">添加到桌面</div>
                    </div>
@@ -6255,7 +6255,7 @@ AppManager.register('beautify', (() => {
                </div>
            </div>
            <div style="padding:0 2px 4px;font-size:12px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5;margin-top:8px;">
-               💡 点击上方组件可快速添加/移除。长按桌面组件可拖拽调整位置。
+               点击上方组件可快速添加/移除。长按桌面组件可拖拽调整位置。
            </div>
        </div>
    </div>
@@ -6606,7 +6606,7 @@ AppManager.register('beautify', (() => {
                            window.BeautifyEngine._applyAppBgCSS(curApp);
                        }
                    } catch(e){}
-                   SysDialog.alert('已应用 ✓');
+                   SysDialog.alert('已应用');
                },
                clearChatBg: () => {
                    const appSel = winDom.querySelector('#b-chatbg-app');
@@ -6652,7 +6652,7 @@ AppManager.register('beautify', (() => {
                    const activeTab = winDom.querySelector('.b-rail-tab.active');
                    if (activeTab) {
                        const original = activeTab.innerText;
-                       activeTab.innerText = "已拉取源 ✓";
+                       activeTab.innerText = "已拉取源";
                        setTimeout(() => activeTab.innerText = original, 800);
                    }
                },
@@ -7497,7 +7497,7 @@ const styleBlock = `
               user-select: none; -webkit-user-select: none; transition: filter 0.3s;
           }
           .wx-app-root.wx-dark-mode { filter: invert(0.92) hue-rotate(180deg); }
-          /* ★ Bug5 修复：全屏+暗色同时激活时，把滤镜从 root 移走，
+          /* Bug5 修复：全屏+暗色同时激活时，把滤镜从 root 移走，
               避免 filter+position:fixed 破坏后代 fixed 元素的包含块 */
           .wx-app-root.wx-fullscreen.wx-dark-mode {
               filter: none;
@@ -7512,7 +7512,7 @@ const styleBlock = `
           .wx-app-root.wx-dark-mode .wx-moments-cover {
               filter: invert(0.92) hue-rotate(180deg);
           }
-          /* ★ 全屏模式：脱离 APP 窗口，挂到 body，覆盖全部系统层（含灵动岛/状态栏/桌面） */
+          /* 全屏模式：脱离 APP 窗口，挂到 body，覆盖全部系统层（含灵动岛/状态栏/桌面） */
           .wx-app-root.wx-fullscreen {
               position: fixed !important;
               top: 0 !important; left: 0 !important;
@@ -8139,7 +8139,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               border:1.5px solid #ccc; flex-shrink:0; display:flex;
               align-items:center; justify-content:center; }
           .wx-cg-item.checked .wx-cg-check { background:#07c160; border-color:#07c160; }
-          .wx-cg-item.checked .wx-cg-check::after { content:'✓'; color:#fff; font-size:14px; }
+          .wx-cg-item.checked .wx-cg-check::after { content:''; width:5px; height:10px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(45deg); margin-top:-2px; }
           .wx-cg-avatar { width:42px; height:42px; border-radius:6px;
               background:#ddd; display:flex; align-items:center; justify-content:center;
               font-size:22px; flex-shrink:0; overflow:hidden; }
@@ -8324,10 +8324,10 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           ${styleBlock}
           <div class="wx-app-root" id="wx-app-root" onclick="WeChatAppEngine.hideExtPanels(event)">
               <!-- 全屏模式退出按钮 -->
-              <div class="wx-fs-exit" id="wx-fs-exit" onclick="WeChatAppEngine.exitFullscreen(event)" title="退出全屏">✕</div>
+              <div class="wx-fs-exit" id="wx-fs-exit" onclick="WeChatAppEngine.exitFullscreen(event)" title="退出全屏"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></div>
               
               <div class="wx-toast" id="wx-global-toast">
-                  <span id="wx-toast-icon">✓</span>
+                  <span id="wx-toast-icon"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg></span>
                   <span id="wx-toast-text">设置完毕</span>
               </div>
               
@@ -8335,7 +8335,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('recall')">撤回消息</div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('ref')">快捷引用</div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('favorite')">加入收藏</div>
-                  <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('react')">贴回应 ❤️</div>
+                  <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('react')">贴回应 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg></div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('forward')">转发</div>
                   <div class="wx-ctx-item" data-wxu="pin" onclick="WeChatAppEngine.ctxAction('wxu_pin')">置顶这条</div>
                   <div class="wx-ctx-item" data-wxu="remember" onclick="WeChatAppEngine.ctxAction('wxu_remember')">记住这条</div>
@@ -8394,7 +8394,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   </div>
                   <div class="wx-session-item wx-contact-entry" onclick="WeChatAppEngine.openTagsList()" style="border-bottom:1px solid #f0f0f0;">
                       <div class="wx-avatar-wrapper" style="background:#8a5cf6;color:#fff;border-radius:8px;">
-                          <span style="font-size:18px;">🏷</span>
+                          <span style="font-size:18px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-7 7Z"/><circle cx="8" cy="8" r="1"/></svg></span>
                       </div>
                       <div class="wx-session-info"><div class="wx-session-name">标签</div></div>
                       <div style="color:#b0b0b0;font-size:16px;padding-right:4px;">›</div>
@@ -8494,28 +8494,28 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
   <div class="wx-cell-group" style="background: #ffffff; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5;">
       <div class="wx-cell" onclick="WeChatAppEngine.openFavorites()" style="border-bottom: 1px solid #e5e5e5;">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#ff9f00;">★</div>
+              <div class="wx-cell-icon" style="color:#ff9f00;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" fill="currentColor" stroke="none"/></svg></div>
               <span>收藏</span>
           </div>
           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
       </div>
       <div class="wx-cell" onclick="WeChatAppEngine.openMyAlbum()" style="border-bottom: 1px solid #e5e5e5;">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#10aeff;">▣</div>
+              <div class="wx-cell-icon" style="color:#10aeff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></div>
               <span>相册</span>
           </div>
           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
       </div>
       <div class="wx-cell" onclick="WeChatAppEngine.openCardPack()" style="border-bottom: 1px solid #e5e5e5;">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#07c160;">▤</div>
+              <div class="wx-cell-icon" style="color:#07c160;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
               <span>卡包</span>
           </div>
           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
       </div>
       <div class="wx-cell" onclick="WeChatAppEngine.openStickersPage()">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#ff7a45;">☺</div>
+              <div class="wx-cell-icon" style="color:#ff7a45;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
               <span>表情</span>
           </div>
           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
@@ -8599,9 +8599,9 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                                     <div class="ot-scrim" id="ot-fan-scrim" onclick="WeChatAppEngine.toggleChatMoreMenu(event,true)"></div>
                   <!-- GROUP-BA · BA-3 ••• 下拉菜单：三项，复用 F 组 otomeMenuGo 入口 -->
                   <div class="ot-fan ba-wx-menu" id="ot-fan-menu" role="menu" aria-label="聊天菜单">
-                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('profile',event)"><span class="ot-fan-ico">👤</span><span class="ot-fan-lab">TA的主页</span></button>
-                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('otome',event)"><span class="ot-fan-ico">🎮</span><span class="ot-fan-lab">乙游模式</span></button>
-                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('diary',event)"><span class="ot-fan-ico">📖</span><span class="ot-fan-lab">日记</span></button>
+                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('profile',event)"><span class="ot-fan-ico"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/></svg></span><span class="ot-fan-lab">TA的主页</span></button>
+                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('otome',event)"><span class="ot-fan-ico"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5.3l-1.4 4.2a2.5 2.5 0 0 1-4.2 1l-2-2h-2l-2 2a2.5 2.5 0 0 1-4.2-1l-1.4-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v4m-2-2h4m7-.5h.1m2 2h.1"/></svg></span><span class="ot-fan-lab">乙游模式</span></button>
+                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('diary',event)"><span class="ot-fan-ico"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg></span><span class="ot-fan-lab">日记</span></button>
                   </div>
 
                   <div class="wx-chat-state-bar" id="wx-chat-state-bar">对方正在输入…</div>
@@ -8626,14 +8626,14 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           oninput="WeChatAppEngine.handleInput(this)"
                           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();WeChatAppEngine.sendMsg();}"></textarea></div>
                       <div class="wx-icon-btn wx-sticker-btn" onclick="WeChatAppEngine.toggleExtPanel('sticker', event)" style="flex-shrink:0;"><svg viewBox="0 0 28 28" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="14" cy="14" r="11"></circle><circle cx="9.8" cy="11.5" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="18.2" cy="11.5" r="1.3" fill="currentColor" stroke="none"></circle><path d="M9 16.5c1.2 1.6 3 2.5 5 2.5s3.8-.9 5-2.5" stroke-linecap="round"></path></svg></div>
-                      <div class="wx-icon-btn" onclick="WeChatAppEngine.toggleExtPanel('pill', event); if (window.GroupN && window.GroupN.showPillPanel) window.GroupN.showPillPanel();" style="flex-shrink:0;">💊</div>
+                      <div class="wx-icon-btn" onclick="WeChatAppEngine.toggleExtPanel('pill', event); if (window.GroupN && window.GroupN.showPillPanel) window.GroupN.showPillPanel();" style="flex-shrink:0;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 18.8a5 5 0 0 1 0-7.1l4.5-4.5a5 5 0 1 1 7.1 7.1l-4.5 4.5a5 5 0 0 1-7.1 0Z"/><path d="m9 9 6 6"/></svg></div>
                       <div class="wx-icon-btn" id="wx-plus-btn" onclick="WeChatAppEngine.toggleExtPanel('tool', event)" style="flex-shrink:0;"><svg viewBox="0 0 32 32" width="29" height="29" fill="none"><circle cx="16" cy="16" r="13.2" stroke="#181818" stroke-width="2.2"/><line x1="16" y1="9.5" x2="16" y2="22.5" stroke="#181818" stroke-width="2.2" stroke-linecap="round"/><line x1="9.5" y1="16" x2="22.5" y2="16" stroke="#181818" stroke-width="2.2" stroke-linecap="round"/></svg></div>
                       <button class="wx-send-btn" id="wx-send-btn-el" onclick="WeChatAppEngine.sendMsg()" style="display:none;">发送</button>
                   </div>
                   <div class="wx-ext-panel" id="wx-panel-sticker">
                       <div class="wx-sim-form-card">
                           <span>自定义表情推入</span>
-                          <button class="wx-native-btn" style="margin:2px 0;padding:6px;font-size:12px;width:100%;" onclick="document.getElementById('wx-img-upload').click()">📁 本地图片文件</button>
+                          <button class="wx-native-btn" style="margin:2px 0;padding:6px;font-size:12px;width:100%;" onclick="document.getElementById('wx-img-upload').click()">本地图片文件</button>
                           <input type="text" class="wx-native-input" style="border:1px solid #d9d9d9;background:#f7f7f7;padding:4px 8px;border-radius:4px;color:#000000;font-size:12px;" placeholder="外链地址..." onchange="WeChatAppEngine.sendCustomStickerUrl(this.value); this.value=''">
                       </div>
                        <div id="wx-sticker-filter" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
@@ -8738,7 +8738,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="ot-home-top">
                       <span class="ot-back" onclick="WeChatAppEngine.closeOtomeHome()">‹ 返回聊天</span>
                       <span class="ot-title" id="ot-home-title">我们的家</span>
-                      <span class="ot-aff-pill" id="ot-aff-pill" onclick="WeChatAppEngine.otomeShowPanel('perception')">💗 好感 --</span>
+                      <span class="ot-aff-pill" id="ot-aff-pill" onclick="WeChatAppEngine.otomeShowPanel('perception')">好感 --</span>
                   </div>
                   <div class="ot-stage" id="ot-stage">
                       <div class="ot-book" id="ot-book">
@@ -8752,27 +8752,27 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                       <div class="ot-char" id="ot-char" data-expr="normal"></div>
                       <div class="ot-me" id="ot-me"><span class="ot-me-tag">我</span></div>
                       <div class="ot-caption" id="ot-caption">欢迎回家。</div>
-                      <div class="ot-duet-bar"><button type="button" onclick="window.GroupN && window.GroupN.showDuetMini('otome')">🎵 一起听</button><span id="ot-duet-now" style="font-size:12px;color:#7a5a40;"></span></div>
+                      <div class="ot-duet-bar"><button type="button" onclick="window.GroupN && window.GroupN.showDuetMini('otome')">一起听</button><span id="ot-duet-now" style="font-size:12px;color:#7a5a40;"></span></div>
                   </div>
                   <div class="ot-dialog" id="ot-dialog" onclick="WeChatAppEngine.otomeDialogTap(event)">
                       <div class="ot-dialog-name" id="ot-dialog-name"></div>
                       <div class="ot-dialog-text" id="ot-dialog-text"></div>
                       <div class="ot-choices" id="ot-choices"></div>
-                      <div class="ot-dialog-hint" id="ot-dialog-hint">▸ 点击继续</div>
+                      <div class="ot-dialog-hint" id="ot-dialog-hint">点击继续</div>
                   </div>
-                  <div class="groupp-motion-row" id="groupp-ot-motion" title="动作台：点一下，char 做个动作，1-2 秒后回待机"><span class="groupp-motion-label">动作</span><button type="button" onclick="window.GroupP && window.GroupP.motion('greet','otome')">👋 打招呼</button><button type="button" onclick="window.GroupP && window.GroupP.motion('wave','otome')">🙋 挥手</button><button type="button" onclick="window.GroupP && window.GroupP.motion('bow','otome')">🙇 鞠躬</button><button type="button" onclick="window.GroupP && window.GroupP.motion('laugh','otome')">😄 笑</button><button type="button" onclick="window.GroupP && window.GroupP.motion('sleep','otome')">😴 睡</button></div>
+                  <div class="groupp-motion-row" id="groupp-ot-motion" title="动作台：点一下，char 做个动作，1-2 秒后回待机"><span class="groupp-motion-label">动作</span><button type="button" onclick="window.GroupP && window.GroupP.motion('greet','otome')">打招呼</button><button type="button" onclick="window.GroupP && window.GroupP.motion('wave','otome')">挥手</button><button type="button" onclick="window.GroupP && window.GroupP.motion('bow','otome')">鞠躬</button><button type="button" onclick="window.GroupP && window.GroupP.motion('laugh','otome')">笑</button><button type="button" onclick="window.GroupP && window.GroupP.motion('sleep','otome')">睡</button></div>
                   <div class="ot-bar">
-                      <button type="button" data-otbar="story" onclick="WeChatAppEngine.otomeStartStory()">💬 对话</button>
-                      <button type="button" data-otbar="pet" onclick="WeChatAppEngine.otomeShowPanel('pet')">🐾 养宠</button>
-                      <button type="button" data-otbar="gift" onclick="WeChatAppEngine.otomeShowPanel('gift')">🎁 赠礼</button>
-                      <button type="button" data-otbar="explore" onclick="WeChatAppEngine.otomeShowPanel('explore')">🧭 外出</button>
-                      <button type="button" data-otbar="perception" onclick="WeChatAppEngine.otomeShowPanel('perception')">💗 看法</button>
-                      <button type="button" data-otbar="settings" onclick="WeChatAppEngine.otomeShowPanel('settings')">⚙️ 设置</button>
-                      <button type="button" data-otbar="play" onclick="WeChatAppEngine.otomeShowPanel('play')">🎣 一起玩</button>
-                      <button type="button" data-otbar="toys" onclick="window.GroupAH && window.GroupAH.open('toys')">🧸 玩具盒</button>
-                      <button type="button" data-otbar="focus" onclick="WeChatAppEngine.otomeShowPanel('focus')">🍅 专注</button>
-                      <button type="button" data-otbar="tasks" onclick="WeChatAppEngine.otomeShowPanel('tasks')">📋 任务</button>
-                      <button type="button" data-otbar="decor" onclick="WeChatAppEngine.otomeShowPanel('decor')">🏠 装修</button>
+                      <button type="button" data-otbar="story" onclick="WeChatAppEngine.otomeStartStory()">对话</button>
+                      <button type="button" data-otbar="pet" onclick="WeChatAppEngine.otomeShowPanel('pet')">养宠</button>
+                      <button type="button" data-otbar="gift" onclick="WeChatAppEngine.otomeShowPanel('gift')">赠礼</button>
+                      <button type="button" data-otbar="explore" onclick="WeChatAppEngine.otomeShowPanel('explore')">外出</button>
+                      <button type="button" data-otbar="perception" onclick="WeChatAppEngine.otomeShowPanel('perception')">看法</button>
+                      <button type="button" data-otbar="settings" onclick="WeChatAppEngine.otomeShowPanel('settings')">设置</button>
+                      <button type="button" data-otbar="play" onclick="WeChatAppEngine.otomeShowPanel('play')">一起玩</button>
+                      <button type="button" data-otbar="toys" onclick="window.GroupAH && window.GroupAH.open('toys')">玩具盒</button>
+                      <button type="button" data-otbar="focus" onclick="WeChatAppEngine.otomeShowPanel('focus')">专注</button>
+                      <button type="button" data-otbar="tasks" onclick="WeChatAppEngine.otomeShowPanel('tasks')">任务</button>
+                      <button type="button" data-otbar="decor" onclick="WeChatAppEngine.otomeShowPanel('decor')">装修</button>
                   </div>
                   <div class="ot-panel" id="ot-panel"></div>
                   <div class="ot-toast" id="ot-toast"></div>
@@ -8847,7 +8847,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
         <div class="wx-header-right"></div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;padding:24px 20px;">
-        <div class="av-rp-hero"><div class="av-rp-coin">🧧</div><div id="av-rp-to" style="font-size:15px;font-weight:600;">—</div><div id="av-rp-balance" style="font-size:12px;opacity:.85;margin-top:4px;">可用余额 ¥--</div></div>
+        <div class="av-rp-hero"><div class="av-rp-coin"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div><div id="av-rp-to" style="font-size:15px;font-weight:600;">—</div><div id="av-rp-balance" style="font-size:12px;opacity:.85;margin-top:4px;">可用余额 ¥--</div></div>
         <div class="av-money-input"><span>¥</span><input id="av-rp-amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
         <div class="av-quick">
             <button type="button" onclick="WeChatAppEngine.avQuickAmt('rp', 6.66)">6.66</button>
@@ -8971,7 +8971,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   </div>
                   <div class="wx-search-bar-wrap">
                       <div class="wx-search-box">
-                          <span>🔍</span>
+                          <span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20.5 20.5-4.6-4.6"/></svg></span>
                           <input type="text" placeholder="检索字卡集..." oninput="WeChatAppEngine.filterWordBank(this.value)">
                       </div>
                   </div>
@@ -8995,31 +8995,31 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                               <div class="wx-cell-right"><span>UID级别</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('accOs')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">🛡️</div><span>遥测中心</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5.5c0 4.6-3.3 7.7-8 9.5-4.7-1.8-8-4.9-8-9.5V6Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></div><span>遥测中心</span></div>
                               <div class="wx-cell-right"><span>人设态</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('accDisk')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">☁️</div><span>云端同步</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 18.5h11.2a4 4 0 0 0 .2-8 6 6 0 0 0-11.6.9 3.6 3.6 0 0 0 .2 7.1Z"/></svg></div><span>云端同步</span></div>
                               <div class="wx-cell-right"><span>快照管理</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('dataCenter')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">🗄️</div><span>数据管道</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="3"/><path d="M4.5 5.5v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-12M4.5 11.5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg></div><span>数据管道</span></div>
                               <div class="wx-cell-right"><span>导出/导入</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('api')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">🔌</div><span>API连接</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5m8-5v5M6 8h12v3a6 6 0 0 1-6 6v4m-3-10h6"/></svg></div><span>API连接</span></div>
                               <div class="wx-cell-right"><span>模型节点</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('words')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">📇</div><span>离线字卡</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19M6 15h4"/></svg></div><span>离线字卡</span></div>
                               <div class="wx-cell-right"><span>规则库</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubModal('diary')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">📖</div><span>日记本</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg></div><span>日记本</span></div>
                               <div class="wx-cell-right"><span>快照</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell" onclick="WeChatAppEngine.openSubModal('innervoice')">
-                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;">💭</div><span>内心独白</span></div>
+                              <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#1e2748;color:#ffffff;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg></div><span>内心独白</span></div>
                               <div class="wx-cell-right"><span>心绪</span><span class="wx-cell-arrow">›</span></div>
                           </div>
                       </div>
@@ -9184,7 +9184,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                       <div class="wx-moments-cover" onclick="WeChatAppEngine.uploadMomentsCover()">
                           <div class="wx-moments-avatar-box">
                               <span class="wx-moments-nick" id="wx-moments-wall-nick">我</span>
-                              <div class="wx-avatar-wrapper" style="width:56px;height:56px;border:2px solid #ffffff;cursor:pointer;" id="wx-moments-wall-avatar" onclick="WeChatAppEngine.uploadMomentsAvatar()">😎</div>
+                              <div class="wx-avatar-wrapper" style="width:56px;height:56px;border:2px solid #ffffff;cursor:pointer;" id="wx-moments-wall-avatar" onclick="WeChatAppEngine.uploadMomentsAvatar()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
                           </div>
                       </div>
                       <div class="wx-moments-feed" id="wx-moments-container"></div>
@@ -9276,7 +9276,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               
               <div class="wx-overlay wx-redpacket-overlay" id="wx-redpacket-overlay">
-                  <div style="position:absolute;top:20px;left:20px;font-size:24px;color:#fee4b3;cursor:pointer;" onclick="NavigationManager.back()">✕</div>
+                  <div style="position:absolute;top:20px;left:20px;font-size:24px;color:#fee4b3;cursor:pointer;" onclick="NavigationManager.back()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></div>
                   <div style="font-size:20px;font-weight:bold;">红包凭条</div>
                   <div id="wx-rp-greeting" style="font-size:14px;opacity:0.9;margin-top:10px;"></div>
                   <div class="wx-open-coin" id="wx-open-coin" onclick="WeChatAppEngine.executeOpenRedPacket(this)">开</div>
@@ -9292,14 +9292,14 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div style="margin-top:15px;color:#d93b26;display:flex;align-items:baseline;gap:4px;">
                       <span id="wx-rp-result-amount" style="font-size:42px;font-weight:bold;line-height:1;">88.88</span><span style="font-size:16px;font-weight:500;">元</span>
                   </div>
-                  <div style="font-size:12px;color:var(--wx-theme-color, #07c160);margin-top:12px;">✓ 存入底盘</div>
+                  <div style="font-size:12px;color:var(--wx-theme-color, #07c160);margin-top:12px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 存入底盘</div>
               </div>
               
               <div class="wx-overlay wx-call-overlay" id="wx-call-overlay">
                   <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;position:relative;z-index:1;">
                       <div style="position:relative;width:86px;height:86px;">
                           <div class="wx-call-avatar-ring"></div>
-                          <div class="wx-avatar-wrapper" style="width:86px;height:86px;font-size:44px;border-radius:18px;background:white;box-shadow:0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10);position:relative;z-index:1;">😎</div>
+                          <div class="wx-avatar-wrapper" style="width:86px;height:86px;font-size:44px;border-radius:18px;background:white;box-shadow:0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10);position:relative;z-index:1;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
                       </div>
                       <div style="font-size:20px;font-weight:500;color:#2e3d4f;letter-spacing:.8px;">模拟通话 · 对方是 AI 角色</div>
                       <div id="wx-call-status" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:300;color:#72b8a0;">呼叫中<span class="wx-call-dot-loader"><span></span><span></span><span></span></span></div>
@@ -9308,7 +9308,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div style="position:relative;z-index:1;width:100%;">
                       <div class="wx-call-btn-row">
                           <div style="display:flex;flex-direction:column;align-items:center;gap:7px;">
-                              <div class="wx-call-btn" id="wx-call-mute-btn" onclick="(function(el){el.dataset.on=el.dataset.on==='1'?'0':'1';el.textContent=el.dataset.on==='1'?'🔇':'🎤';el.style.background=el.dataset.on==='1'?'rgba(190,210,225,0.7)':''})(document.getElementById('wx-call-mute-btn'))">🎤</div>
+                              <div class="wx-call-btn" id="wx-call-mute-btn" onclick="(function(el){el.dataset.on=el.dataset.on==='1'?'0':'1';var on=el.dataset.on==='1';el.children[0].style.display=on?'none':'';el.children[1].style.display=on?'':'none';el.style.background=on?'rgba(190,210,225,0.7)':''})(document.getElementById('wx-call-mute-btn'))"><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4m-3 0h6"/></svg></span><span style="display:none"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="m16 9 5 6m0-6-5 6"/></svg></span></div>
                               <span class="wx-call-btn-label">静音</span>
                           </div>
                           <div style="display:flex;flex-direction:column;align-items:center;gap:7px;">
@@ -9318,7 +9318,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                               <span class="wx-call-btn-label">挂断</span>
                           </div>
                           <div style="display:flex;flex-direction:column;align-items:center;gap:7px;">
-                              <div class="wx-call-btn" id="wx-call-spk-btn" onclick="(function(el){el.dataset.on=el.dataset.on==='1'?'0':'1';el.textContent=el.dataset.on==='1'?'📢':'🔊';el.style.background=el.dataset.on==='1'?'rgba(160,210,190,0.55)':''})(document.getElementById('wx-call-spk-btn'))">🔊</div>
+                              <div class="wx-call-btn" id="wx-call-spk-btn" onclick="(function(el){el.dataset.on=el.dataset.on==='1'?'0':'1';el.style.background=el.dataset.on==='1'?'rgba(160,210,190,0.55)':''})(document.getElementById('wx-call-spk-btn'))"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/></svg></div>
                               <span class="wx-call-btn-label">免提</span>
                           </div>
                       </div>
@@ -9337,7 +9337,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <div class="wechat-modal-clean" id="wechat-modal-innervoice" onclick="NavigationManager.back()">
                   <div class="wechat-ticket-box" onclick="event.stopPropagation()">
                       <div style="height:90px;background-image:url('https://img.imgos.cn/cdn/20260505/dbcae39ea9cc856722ad97ab83e5e523.png');background-size:cover;background-position:center;position:relative;">
-                          <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;">🦊</div>
+                          <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
                       </div>
                       <div style="padding:30px 15px 15px;text-align:left;font-size:13px;line-height:1.6;">
                           <div style="font-weight:bold;color:#07c160;" id="innervoice-mood">心绪：满载温柔控制</div>
@@ -9348,7 +9348,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           <button style="background:#111;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;" onclick="WeChatAppEngine.showHeartsVoice()">往事墙</button>
                       </div>
                   </div>
-                  <div style="margin-top:20px;background:#222;padding:10px 20px;border-radius:6px;color:#07c160;font-weight:bold;cursor:pointer;" onclick="WeChatAppEngine.copyInnerVoice()">🖨️ 压发按键 / 重复打印</div>
+                  <div style="margin-top:20px;background:#222;padding:10px 20px;border-radius:6px;color:#07c160;font-weight:bold;cursor:pointer;" onclick="WeChatAppEngine.copyInnerVoice()">压发按键 / 重复打印</div>
               </div>
               
               <div class="wechat-modal-clean" id="wechat-modal-diary" onclick="NavigationManager.back()">
@@ -9801,7 +9801,7 @@ const sBox = document.getElementById('wx-sessions-container');
           const renderMsgs = curSess.messages.slice(-renderLimit);
           const hasOlder = curSess.messages.length > renderLimit;
           const olderHint = hasOlder
-              ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#07c160;cursor:pointer;">▲ 查看更早消息（${curSess.messages.length - renderLimit}条）</div>`
+              ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#07c160;cursor:pointer;">查看更早消息（${curSess.messages.length - renderLimit}条）</div>`
               : '';
           streamBox.innerHTML = olderHint + renderMsgs.map(m => {
               const isSelf = m.sender === '我';
@@ -9896,7 +9896,7 @@ const sBox = document.getElementById('wx-sessions-container');
               } else if (m.type === 'red_packet') {
                   innerHTML = `
                       <div class="wx-rich-card" style="background:#f35543;" onclick="WeChatAppEngine.openRedPacket('${m.greeting}', '${m.amount || ''}', '${m.id}')">
-                          <div class="wx-rich-icon" style="background:#fee4b3;color:#f35543;">🧧</div>
+                          <div class="wx-rich-icon" style="background:#fee4b3;color:#f35543;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
                           <div class="wx-rich-info">
                               <div class="wx-rich-title">${m.title}</div>
                               <div class="wx-rich-sub">${m.greeting}</div>
@@ -9916,7 +9916,7 @@ const sBox = document.getElementById('wx-sessions-container');
                   }).join('');
                   innerHTML = `
                       <div class="wx-card-poll">
-                          <div class="wx-poll-title">📊 ${m.title}</div>
+                          <div class="wx-poll-title">${m.title}</div>
                           ${opts}
                       </div>
                   `;
@@ -9947,7 +9947,7 @@ const sBox = document.getElementById('wx-sessions-container');
                               <div class="wx-biz-title">${m.title}</div>
                               <div class="wx-biz-sub">${m.artist || ''}</div>
                           </div>
-                          <div class="wx-biz-cover">${m.cover || '🎵'}</div>
+                          <div class="wx-biz-cover">${m.cover || '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5Z"/></svg>'}</div>
                       </div>
                   `;
               } else if (m.type === 'file') {
@@ -9961,7 +9961,7 @@ const sBox = document.getElementById('wx-sessions-container');
                   } else if (_psPhotos.length >= 2) {
                       innerHTML = WeChatAppEngine.PhotoStack.stackHTML(m.id, _psPhotos, 'chat');
                   } else {
-                      innerHTML = `<img src="${m.url}" style="max-width:180px;border-radius:4px;cursor:pointer;display:block;" class="wx-zoomable" onclick="WeChatAppEngine.zoomImage(this.src)">` + (m.stickerPack ? '<div style="font-size:11px;color:#999;margin-top:4px;">' + (m.stickerName || '') + ' · ' + (m.stickerPack || '') + '</div>' : '') + (m.photoSource ? '<div style="font-size:11px;color:#999;margin-top:4px;">📷 ' + String(m.photoSource).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + (m.photoCaption ? ' · ' + String(m.photoCaption).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '') + '</div>' : '') + (m.sender === '我' ? '<div style="margin-top:4px;"><button type="button" class="groupp-save-photo" data-mid="' + m.id + '" onclick="window.GroupP && window.GroupP.savePhotoMemory(this.dataset.mid)">' + (m.savedToMemory ? '✓ 已存成记忆' : '📷 存成记忆') + '</button><div style="font-size:10px;color:#999;margin-top:2px;">照片默认不存进记忆，点了才存进相册</div></div>' : '');
+                      innerHTML = `<img src="${m.url}" style="max-width:180px;border-radius:4px;cursor:pointer;display:block;" class="wx-zoomable" onclick="WeChatAppEngine.zoomImage(this.src)">` + (m.stickerPack ? '<div style="font-size:11px;color:#999;margin-top:4px;">' + (m.stickerName || '') + ' · ' + (m.stickerPack || '') + '</div>' : '') + (m.photoSource ? '<div style="font-size:11px;color:#999;margin-top:4px;">' + String(m.photoSource).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + (m.photoCaption ? ' · ' + String(m.photoCaption).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '') + '</div>' : '') + (m.sender === '我' ? '<div style="margin-top:4px;"><button type="button" class="groupp-save-photo" data-mid="' + m.id + '" onclick="window.GroupP && window.GroupP.savePhotoMemory(this.dataset.mid)">' + (m.savedToMemory ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 已存成记忆' : '存成记忆') + '</button><div style="font-size:10px;color:#999;margin-top:2px;">照片默认不存进记忆，点了才存进相册</div></div>' : '');
                   }
               }
               
@@ -10351,7 +10351,7 @@ const sBox = document.getElementById('wx-sessions-container');
               // 模拟搜索结果
               result.innerHTML = `
                   <div class="wx-af-card">
-                      <div class="wx-af-card-avatar">👤</div>
+                      <div class="wx-af-card-avatar"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/></svg></div>
                       <div class="wx-af-card-info">
                           <div class="wx-af-card-name">${kw}</div>
                           <div class="wx-af-card-id">微信号: wxid_${kw.toLowerCase().replace(/\s/g,'')}</div>
@@ -10454,7 +10454,7 @@ const sBox = document.getElementById('wx-sessions-container');
       if (typeof store._persist === 'function') store._persist();
       if (store.config.friendActive) {
           WeChatAppEngine.socialEngine.start();
-          WeChatAppEngine.triggerToast('好友活跃已开启 ✓');
+          WeChatAppEngine.triggerToast('好友活跃已开启');
       } else {
           WeChatAppEngine.socialEngine.stop();
           WeChatAppEngine.triggerToast('好友活跃已关闭');
@@ -10474,7 +10474,7 @@ const sBox = document.getElementById('wx-sessions-container');
           s => `今天${s.event}，感觉还不错`,
           s => `${s.event}，有点${s.mood === 'emo' ? '伤感' : s.mood}`,
           s => `突然想分享：${s.event}这件事真的太真实了`,
-          s => `${s.event}中…${s.mood === '无聊' ? '好无聊喔 😴' : ''}`,
+          s => `${s.event}中…${s.mood === '无聊' ? '好无聊喔' : ''}`,
           s => `刚才${s.event}，${s.mood}的心情难以言说`,
       ];
       const _comments = [
@@ -10679,7 +10679,7 @@ exitFullscreen: (e) => {
                                   store.accountMeta.nickname = newNick.trim();
                                   if (typeof SystemStore !== 'undefined') SystemStore.set('wx-user-nickname', newNick.trim());
                                   const nameDom = document.getElementById('wx-me-name-display');
-                                  if(nameDom) nameDom.innerHTML = newNick.trim() + ' <span style="font-size:13px;color:#888888;">✎</span>';
+                                  if(nameDom) nameDom.innerHTML = newNick.trim() + ' <span style="font-size:13px;color:#888888;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></span>';
                                   WeChatAppEngine.triggerToast('昵称更新完毕');
                               }
                           });
@@ -10765,7 +10765,7 @@ exitFullscreen: (e) => {
       const vBody = document.getElementById('wechat-voucher-body');
       if (item && vBody) {
           vBody.innerHTML = `
-              <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;"><span>状态</span><span style="color:#07c160;font-weight:bold;">成功 ✓</span></div>
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;"><span>状态</span><span style="color:#07c160;font-weight:bold;">成功 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg></span></div>
               <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:6px;"><span>标的</span><span>${item.title}</span></div>
               <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:6px;"><span>类型</span><span>${item.type}</span></div>
               <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:6px;"><span>金额</span><span style="font-weight:bold;color:${item.amount.startsWith('+')?'#07c160':'#ff5b60'};">${item.amount} 元</span></div>
@@ -10932,7 +10932,7 @@ exitFullscreen: (e) => {
       const renderMsgs = curSess.messages.slice(-curSess._renderOffset);
       const hasOlder = curSess.messages.length > curSess._renderOffset;
       const olderHint = hasOlder
-          ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#07c160;cursor:pointer;">▲ 查看更早消息（${curSess.messages.length - curSess._renderOffset}条）</div>`
+          ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#07c160;cursor:pointer;">查看更早消息（${curSess.messages.length - curSess._renderOffset}条）</div>`
           : `<div style="text-align:center;padding:10px;font-size:11px;color:#aaa;">— 已显示全部消息 —</div>`;
       const scrollTop = streamBox.scrollTop;
       const scrollHeight = streamBox.scrollHeight;
@@ -10950,7 +10950,7 @@ exitFullscreen: (e) => {
       if (!container || !store) return;
       
       container.innerHTML = store.apiConfigs.map(api => {
-          const statusText = api.status === 'connected' ? '● 正常' : (api.status === 'unverified' ? '○ 未验证' : '○ 断开');
+          const statusText = api.status === 'connected' ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg> 正常' : (api.status === 'unverified' ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg> 未验证' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg> 断开');
           return `
               <div class="wx-api-card" onclick="WeChatAppEngine.openApiEditView('${api.id}')">
                   <div class="wx-api-header-row">
@@ -11131,12 +11131,12 @@ exitFullscreen: (e) => {
           target.status = 'connected';
           target.baseUrl = baseUrl; target.key = key; target.model = model;
           WeChatAppEngine.renderUpdates();
-          alert('✓ 连接成功！API 可正常使用。');
+          alert('连接成功！API 可正常使用。');
       })
       .catch(err => {
           target.status = 'disconnected';
           WeChatAppEngine.renderUpdates();
-          alert('✗ 连接失败：' + err.message + '\n\n请检查地址、密钥、模型名是否正确。');
+          alert('连接失败：' + err.message + '\n\n请检查地址、密钥、模型名是否正确。');
       });
   },
 
@@ -11237,7 +11237,7 @@ exitFullscreen: (e) => {
           return `
               <div class="wx-card-item" onclick="WeChatAppEngine.viewCardDetail('${c.id}', '${c.scope}')">
                   <div class="wx-card-header">
-                      <span class="wx-card-title"><span style="color:var(--wx-theme-color, #07c160);">▪</span>${c.title}</span>
+                      <span class="wx-card-title"><span style="display:inline-block;width:8px;height:8px;background:var(--wx-theme-color,#07c160);border-radius:2px;"></span>${c.title}</span>
                       <span class="wx-card-scope-tag">${scopeLabel}</span>
                   </div>
                   <div class="wx-card-tags-row">
@@ -12390,7 +12390,7 @@ sysPrompt += `\n
       feedContainerDom.innerHTML = hits.map(m => {
           const _psMomPhotos = WeChatAppEngine.PhotoStack.photosOfMoment(m);
           const imgContent = WeChatAppEngine.PhotoStack.gridHTML(m.id, _psMomPhotos, 'moment');
-          const likesContent = m.likes.length > 0 ? `<div class="wx-feed-likes" style="color:var(--wx-theme-color, #07c160);">♡ ${m.likes.join(', ')}</div>` : '';
+          const likesContent = m.likes.length > 0 ? `<div class="wx-feed-likes" style="color:var(--wx-theme-color, #07c160);"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg> ${m.likes.join(', ')}</div>` : '';
           const commentsContent = m.comments.map(c => `<div><span style="color:var(--wx-theme-color, #07c160);">${c.author}:</span> <span style="color:#333333;">${c.text}</span></div>`).join('');
           const interBox = (m.likes.length > 0 || m.comments.length > 0) ? `<div class="wx-feed-likes-comments">${likesContent}${commentsContent}</div>` : '';
           return `
@@ -12513,31 +12513,31 @@ sysPrompt += `\n
       if (!body) return;
       body.innerHTML = `
           <div class="wx-pe-card">
-              <div class="wx-pe-label">👤 AI 的昵称</div>
+              <div class="wx-pe-label">AI 的昵称</div>
               <input class="wx-pe-input" id="pe-aiName" value="${p.aiName}" maxlength="24">
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">👤 我的昵称</div>
+              <div class="wx-pe-label">我的昵称</div>
               <input class="wx-pe-input" id="pe-myName" value="${p.myName}" maxlength="24">
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">📝 角色描述</div>
+              <div class="wx-pe-label">角色描述</div>
               <textarea class="wx-pe-textarea" id="pe-desc" placeholder="描述这个角色的性格、背景、说话方式…" maxlength="2048">${p.desc}</textarea>
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">💬 AI 开场白</div>
+              <div class="wx-pe-label">AI 开场白</div>
               <textarea class="wx-pe-textarea" id="pe-opening" placeholder="角色登场时说的第一句话…" maxlength="2048">${p.opening}</textarea>
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">💭 回复格式 <span class="opt">选填</span></div>
+              <div class="wx-pe-label">回复格式 <span class="opt">选填</span></div>
               <textarea class="wx-pe-textarea" id="pe-replyFormat" placeholder="AI 回复的固定前缀格式…" maxlength="16" style="min-height:50px;">${p.replyFormat}</textarea>
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">📋 模板简介 <span class="opt">选填</span></div>
+              <div class="wx-pe-label">模板简介 <span class="opt">选填</span></div>
               <textarea class="wx-pe-textarea" id="pe-intro" placeholder="简要介绍此模板核心主题，不影响 AI 性格…" maxlength="1536">${p.intro}</textarea>
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">⚧ 模板性别</div>
+              <div class="wx-pe-label">模板性别</div>
               <div class="wx-pe-gender">
                   <label><input type="radio" name="pe-gender" value="male" ${p.gender==='male'?'checked':''}> 男生</label>
                   <label><input type="radio" name="pe-gender" value="female" ${p.gender==='female'?'checked':''}> 女生</label>
@@ -12545,9 +12545,9 @@ sysPrompt += `\n
               </div>
           </div>
           <div class="wx-pe-card">
-              <div class="wx-pe-label">🏷 模板标签 <span class="opt">选填</span></div>
+              <div class="wx-pe-label">模板标签 <span class="opt">选填</span></div>
               <div class="wx-pe-tags" id="pe-tags">
-                  ${p.tags.map(t => `<span class="wx-pe-tag">#${t}<span class="x" data-tag="${t}">✕</span></span>`).join('')}
+                  ${p.tags.map(t => `<span class="wx-pe-tag">#${t}<span class="x" data-tag="${t}"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span></span>`).join('')}
                   <span class="wx-pe-tag-add" id="pe-tag-add">#添加标签</span>
               </div>
           </div>`;
@@ -13723,7 +13723,7 @@ handleImgUpload: (input) => {
           time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
       };
       curSess.messages.push(msg);
-      curSess.preview = '📍[位置] ' + title;
+      curSess.preview = '[位置] ' + title;
       curSess.lastTime = '刚刚';
       if (typeof store._persist === 'function') store._persist();
       WeChatAppEngine.renderUpdates();
@@ -13860,7 +13860,7 @@ handleImgUpload: (input) => {
       o.className = 'wx-overlay wx-active';
       o.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.65);z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
       const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const listHtml = favs.length ? favs.map(f => `<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eee;font-size:13px;"><span style="flex:1;word-break:break-all;">${f.type === 'image' ? '🖼 图片' : ''}${esc(typeof f.content === 'string' ? f.content.slice(0, 60) : '')}<span style="color:#999;">（来自 ${esc(f.from || '')}）</span></span><span style="color:#ff5b60;cursor:pointer;flex-shrink:0;" onclick="WeChatAppEngine.removeFavorite('${f.id}')">删除</span></div>`).join('') : '<div style="text-align:center;color:#888;padding:30px 0;">暂无已收藏内容</div>';
+      const listHtml = favs.length ? favs.map(f => `<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eee;font-size:13px;"><span style="flex:1;word-break:break-all;">${f.type === 'image' ? '图片' : ''}${esc(typeof f.content === 'string' ? f.content.slice(0, 60) : '')}<span style="color:#999;">（来自 ${esc(f.from || '')}）</span></span><span style="color:#ff5b60;cursor:pointer;flex-shrink:0;" onclick="WeChatAppEngine.removeFavorite('${f.id}')">删除</span></div>`).join('') : '<div style="text-align:center;color:#888;padding:30px 0;">暂无已收藏内容</div>';
       o.innerHTML = `<div style="background:#fff;border-radius:10px;width:100%;max-width:420px;max-height:80%;overflow-y:auto;padding:16px;box-sizing:border-box;">
           <div style="font-size:16px;font-weight:bold;margin-bottom:8px;">我的收藏（${favs.length}）</div>
           ${listHtml}
@@ -14105,7 +14105,7 @@ handleImgUpload: (input) => {
   },
   _closeDiscoverOverlay: () => { document.getElementById('wx-discover-overlay')?.remove(); if (WeChatAppEngine._shakeHandler) { window.removeEventListener('devicemotion', WeChatAppEngine._shakeHandler); WeChatAppEngine._shakeHandler = null; } },
   openShake: () => {
-      WeChatAppEngine._openDiscoverOverlay('摇一摇', `<div style="text-align:center;padding:32px 8px;"><div style="font-size:44px;">📳</div><div style="font-size:15px;margin:14px 0 6px;">摇动手机，或点下方按钮</div><div style="font-size:12px;color:#888;">摇到也在摇手机的人（本地联系人模拟）</div><button class="wx-native-btn" style="margin-top:22px;width:200px;" onclick="WeChatAppEngine._doShake()">摇一下</button><div id="wx-shake-result" style="margin-top:22px;"></div></div>`);
+      WeChatAppEngine._openDiscoverOverlay('摇一摇', `<div style="text-align:center;padding:32px 8px;"><div style="font-size:44px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3.8h9.6a2 2 0 0 1 2 2v12.4a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2Z"/><path d="M9 6.5h6m-6 10h6"/></svg></div><div style="font-size:15px;margin:14px 0 6px;">摇动手机，或点下方按钮</div><div style="font-size:12px;color:#888;">摇到也在摇手机的人（本地联系人模拟）</div><button class="wx-native-btn" style="margin-top:22px;width:200px;" onclick="WeChatAppEngine._doShake()">摇一下</button><div id="wx-shake-result" style="margin-top:22px;"></div></div>`);
       const handler = (e) => {
           const a = e.accelerationIncludingGravity || e.acceleration;
           if (!a) return;
@@ -14125,7 +14125,7 @@ handleImgUpload: (input) => {
       box.innerHTML = `<div style="background:#fff;border-radius:10px;padding:16px;"><div style="font-size:15px;font-weight:600;">摇到了：${f.remark || f.name}</div><div style="font-size:12px;color:#888;margin:6px 0 12px;">本地模拟 · 距你约 ${(f.name.length * 137) % 900 + 100} 米</div><button class="wx-native-btn" style="width:100%;" onclick="WeChatAppEngine._closeDiscoverOverlay();WeChatAppEngine.openChatDetail('${f.id}')">打招呼</button></div>`;
   },
   openDiscoverSearch: () => {
-      WeChatAppEngine._openDiscoverOverlay('搜一搜', `<div class="wx-search-box" style="margin-bottom:12px;"><span>🔍</span><input id="wx-discover-search-input" type="text" placeholder="搜索聊天、联系人、朋友圈" oninput="WeChatAppEngine._renderDiscoverSearch(this.value)"></div><div id="wx-discover-search-results" style="font-size:13px;color:#888;">输入关键词开始搜索</div>`);
+      WeChatAppEngine._openDiscoverOverlay('搜一搜', `<div class="wx-search-box" style="margin-bottom:12px;"><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20.5 20.5-4.6-4.6"/></svg></span><input id="wx-discover-search-input" type="text" placeholder="搜索聊天、联系人、朋友圈" oninput="WeChatAppEngine._renderDiscoverSearch(this.value)"></div><div id="wx-discover-search-results" style="font-size:13px;color:#888;">输入关键词开始搜索</div>`);
       setTimeout(() => document.getElementById('wx-discover-search-input')?.focus(), 60);
   },
   _renderDiscoverSearch: (q) => {
@@ -14256,7 +14256,7 @@ handleImgUpload: (input) => {
         + '<div class="ot-prof-row"><span>标签</span><span style="color:#888;">' + (tags || '暂无') + '</span></div>'
         + '<div class="ot-prof-row"><span>性别</span><span style="color:#888;">' + esc(sess.gender === 'female' ? '女生' : (sess.gender === 'male' ? '男生' : '暂无')) + '</span></div>'
         + '</div>'
-        + '<div class="ot-card"><div style="font-weight:700;margin-bottom:6px;">朋友圈</div>' + (moments.length ? moments.slice(0, 5).map(m => '<div class="ot-mom"><div>' + esc(m.content || '') + '</div>' + (m.img ? '<img src="' + esc(m.img) + '" style="max-width:100%;border-radius:8px;margin-top:6px;">' : '') + '<div class="ot-muted">' + esc(m.time || '') + ((m.likes && m.likes.length) ? ' · ♡ ' + esc(m.likes.join('、')) : '') + '</div></div>').join('') : '<div class="ot-muted">暂无朋友圈</div>') + '</div>'
+        + '<div class="ot-card"><div style="font-weight:700;margin-bottom:6px;">朋友圈</div>' + (moments.length ? moments.slice(0, 5).map(m => '<div class="ot-mom"><div>' + esc(m.content || '') + '</div>' + (m.img ? '<img src="' + esc(m.img) + '" style="max-width:100%;border-radius:8px;margin-top:6px;">' : '') + '<div class="ot-muted">' + esc(m.time || '') + ((m.likes && m.likes.length) ? ' · <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg> ' + esc(m.likes.join('、')) : '') + '</div></div>').join('') : '<div class="ot-muted">暂无朋友圈</div>') + '</div>'
         + cikeHtml
         + '<div style="padding:0 12px 20px;display:flex;gap:10px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.closeOtomeOverlay(\'wx-otome-profile\')">发消息</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.closeOtomeOverlay(\'wx-otome-profile\');WeChatAppEngine.openMomentsPage(\'当前\')">查看朋友圈</button></div>';
     }
@@ -14319,10 +14319,10 @@ handleImgUpload: (input) => {
   },
   // ── 3D家：立体书房子（房间绕书脊扇形展开，等距纸卡家具） + 点按走动 ──
   _otomeRooms: () => [
-    { id: 'living', name: '客厅', en: 'LIVING', cls: 'ot-room-living', furn: [{ id: 'sofa', ico: '🛋️', label: '坐下' }, { id: 'tea', ico: '🍵', label: '喝茶' }, { id: 'books', ico: '📚', label: '看书' }] },
-    { id: 'bed', name: '卧室', en: 'BEDROOM', cls: 'ot-room-bed', furn: [{ id: 'bed', ico: '🛏️', label: '休息' }, { id: 'wardrobe', ico: '👗', label: '换装' }, { id: 'lamp', ico: '💡', label: '台灯' }] },
-    { id: 'kitchen', name: '厨房', en: 'KITCHEN', cls: 'ot-room-kitchen', furn: [{ id: 'stove', ico: '🍳', label: '做饭' }, { id: 'fridge', ico: '🧊', label: '冰箱' }, { id: 'table', ico: '🍽️', label: '餐桌' }] },
-    { id: 'balcony', name: '阳台', en: 'BALCONY', cls: 'ot-room-balcony', furn: [{ id: 'flower', ico: '🌷', label: '浇花' }, { id: 'chair', ico: '🪑', label: '摇椅' }, { id: 'scope', ico: '🔭', label: '看风景' }] }
+    { id: 'living', name: '客厅', en: 'LIVING', cls: 'ot-room-living', furn: [{ id: 'sofa', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11V7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5V11"/><path d="M3.5 13a2 2 0 0 1 4 0v1h9v-1a2 2 0 0 1 4 0v2.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V13Z"/><path d="M7 19.5v1.5m10-1.5v1.5"/></svg>', label: '坐下' }, { id: 'tea', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/></svg>', label: '喝茶' }, { id: 'books', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg>', label: '看书' }] },
+    { id: 'bed', name: '卧室', en: 'BEDROOM', cls: 'ot-room-bed', furn: [{ id: 'bed', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6.5M4 13.5h16V18M4 18v1.5m16-1.5v1.5"/><path d="M4 13.5v-2a2 2 0 0 1 2-2h6a3.5 3.5 0 0 1 3.5 3.5"/></svg>', label: '休息' }, { id: 'wardrobe', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M12 3v18M9.5 11h.01M14.5 11h.01"/></svg>', label: '换装' }, { id: 'lamp', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16c0-2-3-3.2-3-7a7 7 0 0 1 14 0c0 3.8-3 5-3 7Zm1 2h6m-5 3h4"/></svg>', label: '台灯' }] },
+    { id: 'kitchen', name: '厨房', en: 'KITCHEN', cls: 'ot-room-kitchen', furn: [{ id: 'stove', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="12" rx="1.5"/><circle cx="9" cy="14.5" r="2"/><circle cx="15" cy="14.5" r="2"/><path d="M8 5.5h.01M12 5.5h.01M16 5.5h.01"/></svg>', label: '做饭' }, { id: 'fridge', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="1.5"/><path d="M7 10.5h10M14 5.5v3M14 13.5v3"/></svg>', label: '冰箱' }, { id: 'table', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9h17M5.5 9v11M18.5 9v11M5.5 14.5h13"/></svg>', label: '餐桌' }] },
+    { id: 'balcony', name: '阳台', en: 'BALCONY', cls: 'ot-room-balcony', furn: [{ id: 'flower', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c-4.5-1-5.3-4.2-3.2-5.3 1.5-.8 3.1.4 3.2 3.3.1-2.9 1.7-4.1 3.2-3.3 2.1 1.1 1.3 4.3-3.2 5.3 4.5-1 6.2 1.8 4.3 3.5-1.3 1.2-3.2.4-4.3-2.4 1.1 2.8.2 4.6-1.6 4.4-2.4-.2-3-3.4 1.6-6.2-4.6 2.8-7.1.7-5.8-1.5 1-1.6 3-.9 5.8 1.5Z"/><circle cx="12" cy="12" r="2"/></svg>', label: '浇花' }, { id: 'chair', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v8m0 0h8v2.5H8M8 13.5V18m8-4.5V18"/><path d="M4.5 20c2.5 1.2 5 1.8 7.5 1.8s5-.6 7.5-1.8"/></svg>', label: '摇椅' }, { id: 'scope', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 19.5 12 11"/><path d="m12 11 5-5 3.5 3.5-5 5"/><path d="M7 21l-2.5-4M12 21l-1-4M17 21l-3.5-4"/></svg>', label: '看风景' }] }
   ],
   _otomeFurnLines: () => ({
     sofa: ['你窝进沙发里，他顺手递过来一个靠垫。', 'happy'],
@@ -14503,7 +14503,7 @@ handleImgUpload: (input) => {
     if (!pill) return;
     const name = WeChatAppEngine._otomeState().charName || WeChatAppEngine._otomeCharName();
     const rec = OtomeF.loadAff(name);
-    pill.textContent = '💗 好感 ' + rec.value + ' · ' + OtomeF.tierOf(rec.value).label;
+    pill.textContent = '好感 ' + rec.value + ' · ' + OtomeF.tierOf(rec.value).label;
   },
   otomeCaption: (txt) => { const el = document.getElementById('ot-caption'); if (el) el.textContent = txt; },
   otomeToast: (msg) => {
@@ -14521,7 +14521,7 @@ handleImgUpload: (input) => {
     if (old) old.remove();
     const home = OtomeF.loadHome();
     if (!home.pet) return;
-    const kind = OtomeF.PET_KINDS[home.pet.kind] || { ico: '🐾' };
+    const kind = OtomeF.PET_KINDS[home.pet.kind] || { ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16.4" rx="5.5" ry="4.2"/><ellipse cx="5.8" cy="9.2" rx="1.8" ry="2.5"/><ellipse cx="10.1" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="14.4" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="18.6" cy="9.2" rx="1.8" ry="2.5"/></svg>' };
     const el = document.createElement('div');
     el.className = 'ot-pet'; el.id = 'ot-pet';
     el.textContent = kind.ico;
@@ -14576,7 +14576,7 @@ handleImgUpload: (input) => {
     st.story.typing = true;
     st.story.fullText = node.text;
     if (textEl) textEl.textContent = '';
-    if (hintEl) hintEl.textContent = node.choices ? '' : '▸ 点击继续';
+    if (hintEl) hintEl.textContent = node.choices ? '' : '点击继续';
     if (st.typeTimer) clearInterval(st.typeTimer);
     if (st.mouthTimer) clearInterval(st.mouthTimer);
     let i = 0;
@@ -14607,7 +14607,7 @@ handleImgUpload: (input) => {
       if (hintEl) hintEl.textContent = '选一个吧';
     } else if (node && node.src === 'ending') {
       const hintEl = document.getElementById('ot-dialog-hint');
-      if (hintEl) hintEl.textContent = '▸ 重新开始';
+      if (hintEl) hintEl.textContent = '重新开始';
       if (!st.story.done) {
         st.story.done = true;
         const rec = OtomeF.addAff(st.charName, 2, null);
@@ -14691,17 +14691,17 @@ handleImgUpload: (input) => {
     if (pet) { const h = OtomeF.loadHome(); h.pet = pet; OtomeF.saveHome(h); }
     const esc = OtomeF.esc;
     if (!pet) {
-      pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>🐾 领养一只小动物</h3><div class="ot-muted">领养后它会住在家里，可以喂食、摸摸。它会饿，记得回来喂食哦。</div><div class="ot-pet-opt">'
+      pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>领养一只小动物</h3><div class="ot-muted">领养后它会住在家里，可以喂食、摸摸。它会饿，记得回来喂食哦。</div><div class="ot-pet-opt">'
         + Object.keys(OtomeF.PET_KINDS).map(k => '<button class="' + ((st.petKind || 'cat') === k ? 'ot-sel' : '') + '" onclick="WeChatAppEngine.otomeAdopt(\'' + k + '\')">' + OtomeF.PET_KINDS[k].ico + ' ' + OtomeF.PET_KINDS[k].name + '</button>').join('')
         + '</div><div style="display:flex;gap:8px;"><input id="ot-pet-name" placeholder="给它起个名字（可不填）" style="flex:1;border:1px solid #ddd;border-radius:8px;padding:9px 10px;font-size:14px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeAdoptGo()">领养</button></div>';
       return;
     }
-    const kind = OtomeF.PET_KINDS[pet.kind] || { ico: '🐾', name: '小动物' };
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>' + kind.ico + ' ' + esc(pet.name) + '</h3>'
+    const kind = OtomeF.PET_KINDS[pet.kind] || { ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16.4" rx="5.5" ry="4.2"/><ellipse cx="5.8" cy="9.2" rx="1.8" ry="2.5"/><ellipse cx="10.1" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="14.4" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="18.6" cy="9.2" rx="1.8" ry="2.5"/></svg>', name: '小动物' };
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>' + kind.ico + ' ' + esc(pet.name) + '</h3>'
       + '<div style="font-size:40px;text-align:center;">' + kind.ico + '</div>'
       + '<div class="ot-muted" style="text-align:center;">饱食度 ' + pet.satiety + ' · 心情 ' + pet.mood + ' · 喂食 ' + pet.feeds + ' 次 · 摸摸 ' + pet.pats + ' 次</div>'
       + '<div class="ot-aff-bar"><div class="ot-aff-fill" style="width:' + pet.satiety + '%;background:linear-gradient(90deg,#fcd34d,#f59e0b);"></div></div>'
-      + '<div style="display:flex;gap:8px;margin-top:10px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFeedPet()">🍗 喂食</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomePatPet()">🤲 摸摸</button></div>'
+      + '<div style="display:flex;gap:8px;margin-top:10px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFeedPet()">喂食</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomePatPet()">摸摸</button></div>'
       + '<div class="ot-muted" style="margin-top:8px;">点家里地面上的它也可以摸摸。饱食度会随时间慢慢下降。</div>';
   },
   otomeAdopt: (kind) => { const st = WeChatAppEngine._otomeState(); st.petKind = kind; WeChatAppEngine._otomePanelPet(); },
@@ -14734,10 +14734,10 @@ handleImgUpload: (input) => {
     const name = WeChatAppEngine._otomeState().charName || WeChatAppEngine._otomeCharName();
     const rec = OtomeF.loadAff(name);
     const today = OtomeF.todayStr();
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>🎁 赠礼</h3><div class="ot-muted">送他喜欢的东西，好感加得更多。同一件礼物一天内重复送只加 1 点。</div><div class="ot-gift-grid" style="margin-top:10px;">'
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>赠礼</h3><div class="ot-muted">送他喜欢的东西，好感加得更多。同一件礼物一天内重复送只加 1 点。</div><div class="ot-gift-grid" style="margin-top:10px;">'
       + OtomeF.GIFTS.map(g => {
         const sentToday = (rec.gifts || []).some(x => x.id === g.id && x.date === today);
-        return '<button class="ot-gift" onclick="WeChatAppEngine.otomeGiveGift(\'' + g.id + '\')"><div class="ot-g-ico">' + g.ico + '</div><div class="ot-g-name">' + g.name + (g.fav ? ' <span style="color:#e11d48;font-size:11px;">♥他喜欢</span>' : '') + '</div><div class="ot-g-desc">' + g.desc + ' · 好感 +' + g.delta + (sentToday ? '（今日已送）' : '') + '</div></button>';
+        return '<button class="ot-gift" onclick="WeChatAppEngine.otomeGiveGift(\'' + g.id + '\')"><div class="ot-g-ico">' + g.ico + '</div><div class="ot-g-name">' + g.name + (g.fav ? ' <span style="color:#e11d48;font-size:11px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg>他喜欢</span>' : '') + '</div><div class="ot-g-desc">' + g.desc + ' · 好感 +' + g.delta + (sentToday ? '（今日已送）' : '') + '</div></button>';
       }).join('') + '</div>';
   },
   otomeGiveGift: (id) => {
@@ -14761,7 +14761,7 @@ handleImgUpload: (input) => {
     const name = st.charName || WeChatAppEngine._otomeCharName();
     const rec = OtomeF.loadAff(name);
     const done = rec.events || [];
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>🧭 外出探险</h3><div class="ot-muted">选一个地方出门，会触发小事件。每个事件的奖励只拿一次。</div><div class="ot-loc-grid" style="margin-top:10px;">'
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>外出探险</h3><div class="ot-muted">选一个地方出门，会触发小事件。每个事件的奖励只拿一次。</div><div class="ot-loc-grid" style="margin-top:10px;">'
       + OtomeF.EXPLORE_LOCS.map(l => {
         const total = (OtomeF.EXPLORE_EVENTS[l.id] || []).length;
         const did = (OtomeF.EXPLORE_EVENTS[l.id] || []).filter(e => done.includes(e.id)).length;
@@ -14798,12 +14798,12 @@ handleImgUpload: (input) => {
   _otomePanelTasks: () => {
     const pnl = document.getElementById('ot-panel');
     if (!pnl || !window.GroupZ) return;
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>📋 任务 · 奖励</h3>' + window.GroupZ.taskPanelHTML() + window.GroupZ.rewardsHTML();
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>任务 · 奖励</h3>' + window.GroupZ.taskPanelHTML() + window.GroupZ.rewardsHTML();
   },
   _otomePanelDecor: () => {
     const pnl = document.getElementById('ot-panel');
     if (!pnl || !window.GroupZ) return;
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>🏠 装修方案</h3>' + window.GroupZ.decorPanelHTML();
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>装修方案</h3>' + window.GroupZ.decorPanelHTML();
   },
   otomeTaskAct: (act, arg) => {
     const Z = window.GroupZ;
@@ -14830,11 +14830,11 @@ handleImgUpload: (input) => {
     if (act === 'plan') {
       const plan = Z.decorPlan(arg);
       if (!plan || !box) return;
-      box.innerHTML = '<div class="ot-card" style="margin:0;"><div style="font-weight:700;">方案预览：' + Z.esc(plan.item.ico + ' ' + plan.item.name) + '</div>'
-        + '<div style="font-size:13px;line-height:1.9;margin-top:4px;">摆在哪：' + Z.esc(plan.room) + '<br>长什么样：' + Z.esc(plan.item.ico + ' ' + plan.item.name) + '<br>材料：' + plan.materials.map((m) => Z.esc(m.name) + '×' + m.qty).join('、') + '<br>金币：' + plan.cost + '（你现在有 ' + plan.balance + '）</div>'
+      box.innerHTML = '<div class="ot-card" style="margin:0;"><div style="font-weight:700;">方案预览：' + plan.item.ico + ' ' + Z.esc(plan.item.name) + '</div>'
+        + '<div style="font-size:13px;line-height:1.9;margin-top:4px;">摆在哪：' + Z.esc(plan.room) + '<br>长什么样：' + plan.item.ico + ' ' + Z.esc(plan.item.name) + '<br>材料：' + plan.materials.map((m) => Z.esc(m.name) + '×' + m.qty).join('、') + '<br>金币：' + plan.cost + '（你现在有 ' + plan.balance + '）</div>'
         + (plan.alreadyPlaced ? '<div class="ot-muted">这件已经摆好了。</div>'
           : !plan.affordable ? '<div class="ot-muted">金币不够，还差 ' + (plan.cost - plan.balance) + '。去专注、钓鱼、阅读里攒一攒再来。</div>'
-          : '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeDecorAct(\'confirm\',\'' + plan.item.id + '\')">✅ 确认摆放，扣 ' + plan.cost + ' 金币</button></div>')
+          : '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeDecorAct(\'confirm\',\'' + plan.item.id + '\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 确认摆放，扣 ' + plan.cost + ' 金币</button></div>')
         + '</div>';
       return;
     }
@@ -14901,7 +14901,7 @@ handleImgUpload: (input) => {
     const tier = OtomeF.tierOf(rec.value);
     const pnl = document.getElementById('ot-panel');
     if (!pnl) return;
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>💗 ' + OtomeF.esc(name) + '眼中的你</h3>'
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>' + OtomeF.esc(name) + '眼中的你</h3>'
       + '<div style="display:flex;justify-content:space-between;font-size:14px;"><span>好感度</span><b style="color:#e11d48;">' + rec.value + ' / 100 · ' + tier.label + '</b></div>'
       + '<div class="ot-aff-bar"><div class="ot-aff-fill" style="width:' + rec.value + '%;"></div></div>'
       + '<div class="ot-muted">关系状态会随好感度变化：相识（0–19）→ 朋友（20–49）→ 暧昧（50–74）→ 恋人（75–100）。对话选项、赠礼、约会、外出都会影响好感。</div>'
@@ -14917,23 +14917,23 @@ handleImgUpload: (input) => {
     const chars = OtomeF.loadCustomChars();
     const voice = OtomeF.loadVoice();
     const hasTTS = ('speechSynthesis' in window) && !!window.speechSynthesis;
-    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>⚙️ 人物与声音设置</h3>'
+    pnl.innerHTML = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>人物与声音设置</h3>'
       + '<div style="font-weight:700;margin:10px 0 6px;">人物立绘</div>'
       + '<div class="ot-muted">默认是 QQ 小人立绘（自绘 SVG）；也可以上传图片抠图做人物。</div>'
       + '<div id="ot-char-list" style="margin-top:8px;">'
-      + '<button class="ot-choice" style="width:100%;" onclick="WeChatAppEngine.otomeUseChar(\'\')">🙂 默认 QQ 小人' + (chars.activeId ? '' : '（使用中）') + '</button>'
+      + '<button class="ot-choice" style="width:100%;" onclick="WeChatAppEngine.otomeUseChar(\'\')">默认 QQ 小人' + (chars.activeId ? '' : '（使用中）') + '</button>'
       + chars.chars.map(c => '<div style="display:flex;gap:8px;align-items:center;margin-top:6px;"><img src="' + c.dataUrl + '" style="width:40px;height:52px;object-fit:contain;background:#f5efe6;border-radius:8px;"><span style="flex:1;font-size:13px;">' + OtomeF.esc(c.name) + (chars.activeId === c.id ? '（使用中）' : '') + '</span><button class="ot-btn ot-btn-ghost" style="padding:6px 10px;" onclick="WeChatAppEngine.otomeUseChar(\'' + c.id + '\')">使用</button><button class="ot-btn ot-btn-ghost" style="padding:6px 10px;" onclick="WeChatAppEngine.otomeDelChar(\'' + c.id + '\')">删除</button></div>').join('')
       + '</div>'
-      + '<div style="margin-top:10px;"><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;">📷 上传图片抠图<input type="file" accept="image/*" style="display:none;" id="bg-ot-cutout-file" onchange="WeChatAppEngine.otomeCutoutFile(this)"></label><button type="button" class="ot-btn" style="margin-top:8px;" onclick="window.GroupBG&&window.GroupBG.fillInputFromCamera(\'bg-ot-cutout-file\')">📷 拍照抠图</button>'
+      + '<div style="margin-top:10px;"><label class="ot-btn ot-btn-ghost" style="display:block;text-align:center;cursor:pointer;">上传图片抠图<input type="file" accept="image/*" style="display:none;" id="bg-ot-cutout-file" onchange="WeChatAppEngine.otomeCutoutFile(this)"></label><button type="button" class="ot-btn" style="margin-top:8px;" onclick="window.GroupBG&&window.GroupBG.fillInputFromCamera(\'bg-ot-cutout-file\')">拍照抠图</button>'
       + '<div style="margin-top:8px;font-size:13px;">抠图容差：<input type="range" id="ot-cut-tol" min="0" max="150" value="60" style="width:150px;vertical-align:middle;" oninput="document.getElementById(\'ot-cut-tol-v\').textContent=this.value;WeChatAppEngine.otomeCutoutPreview()"><span id="ot-cut-tol-v">60</span></div>'
       + '<div class="ot-muted" style="margin-top:4px;">纯色背景效果最好，花背景可能抠不干净。抠图在浏览器本地完成，图片不会上传。</div>'
       + '<div id="ot-cut-preview" style="margin-top:8px;text-align:center;"></div></div>'
       + '<div style="font-weight:700;margin:14px 0 6px;">换装（与此刻互通）</div>'
       + '<div class="ot-muted">当前发色 <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:' + look.hair + ';vertical-align:-2px;"></span> 瞳色 <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:' + look.eye + ';vertical-align:-2px;"></span> —— 换装请去「此刻」小世界里改，这里会自动同步。</div>'
-      + '<div style="font-weight:700;margin:14px 0 6px;">🔊 捏声音</div>'
+      + '<div style="font-weight:700;margin:14px 0 6px;">捏声音</div>'
       + (hasTTS
         ? '<div style="font-size:13px;line-height:2.2;">音调 <input type="range" id="ot-v-pitch" min="0.5" max="2" step="0.1" value="' + voice.pitch + '" style="width:130px;" oninput="WeChatAppEngine.otomeVoiceChange()"> <span id="ot-v-pitch-v">' + voice.pitch + '</span><br>语速 <input type="range" id="ot-v-rate" min="0.5" max="2" step="0.1" value="' + voice.rate + '" style="width:130px;" oninput="WeChatAppEngine.otomeVoiceChange()"> <span id="ot-v-rate-v">' + voice.rate + '</span><br>音量 <input type="range" id="ot-v-vol" min="0" max="1" step="0.1" value="' + voice.volume + '" style="width:130px;" oninput="WeChatAppEngine.otomeVoiceChange()"> <span id="ot-v-vol-v">' + voice.volume + '</span><br>音色 <select id="ot-v-voice" style="max-width:210px;padding:6px;border:1px solid #ddd;border-radius:8px;" onchange="WeChatAppEngine.otomeVoiceChange()"></select><br><label><input type="checkbox" id="ot-v-mute" ' + (voice.muted ? 'checked' : '') + ' onchange="WeChatAppEngine.otomeVoiceChange()"> 静音（文游里不读出 TA 的话）</label></div>'
-        + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeVoiceTest()">▶ 试听一句话</button><button class="ot-btn ot-btn-ghost" onclick="window.GroupBG&&window.GroupBG.voiceSampleTest()">🎙 录音试听</button><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeVoiceSave(true)">保存声音</button></div>'
+        + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeVoiceTest()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 试听一句话</button><button class="ot-btn ot-btn-ghost" onclick="window.GroupBG&&window.GroupBG.voiceSampleTest()">录音试听</button><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeVoiceSave(true)">保存声音</button></div>'
         + '<div class="ot-muted" style="margin-top:6px;">用的是设备自带的语音合成（speechSynthesis）调音，不是另外训练的真人声模型。</div>'
         : '<div class="ot-muted">当前环境没有语音合成（speechSynthesis），声音功能已跳过，不影响其他玩法。</div>');
     try { var _gpPanel = document.getElementById('ot-panel'); if (_gpPanel && window.GroupP) _gpPanel.insertAdjacentHTML('beforeend', window.GroupP.settingsHtml()); } catch(e){}
@@ -15061,19 +15061,19 @@ handleImgUpload: (input) => {
     const score = G.ddzScore();
     const garden = G.gardenLoad();
     const esc = G.esc;
-    let h = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>🎣 一起玩</h3><div class="ot-muted">钓鱼、斗地主、共享花园，都在这里。猫在花园里等你。</div>';
+    let h = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>一起玩</h3><div class="ot-muted">钓鱼、斗地主、共享花园，都在这里。猫在花园里等你。</div>';
     // ── 钓鱼 ──
     const fs = st.fish || { phase: 'idle', casts: fish.casts, patience: 0, biteAt: 2 };
-    h += '<div style="font-weight:700;margin:12px 0 6px;">🎣 文字钓鱼</div><div class="ot-muted">抛竿 → 等鱼上钩 → 收竿。鱼按固定规则出，不靠运气：咬钩要等 ' + (fs.biteAt || 2) + ' 次。</div>'
-      + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomePlay(\'fish-cast\')">🎣 抛竿</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomePlay(\'fish-wait\')">⏳ 等一等</button><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomePlay(\'fish-reel\')">🪝 收竿</button></div>'
+    h += '<div style="font-weight:700;margin:12px 0 6px;">文字钓鱼</div><div class="ot-muted">抛竿 → 等鱼上钩 → 收竿。鱼按固定规则出，不靠运气：咬钩要等 ' + (fs.biteAt || 2) + ' 次。</div>'
+      + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomePlay(\'fish-cast\')">抛竿</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomePlay(\'fish-wait\')">等一等</button><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomePlay(\'fish-reel\')">收竿</button></div>'
       + '<div class="ot-muted" style="margin-top:6px;">状态：' + (fs.phase === 'waiting' ? '等待中（已等 ' + (fs.patience || 0) + '/' + (fs.biteAt || 2) + ' 次）' : fs.phase === 'bite' ? '有鱼上钩了！快收竿！' : '还没抛竿') + ' · 已抛竿 ' + fish.casts + ' 次 · 钓到 ' + fish.caught.length + ' 条</div>'
-      + '<div style="margin-top:6px;font-size:13px;">📖 图鉴：' + (Object.keys(fish.codex).length ? Object.keys(fish.codex).map((k) => esc(k) + '×' + fish.codex[k]).join(' · ') : '还没钓到鱼') + '</div>'
+      + '<div style="margin-top:6px;font-size:13px;">图鉴：' + (Object.keys(fish.codex).length ? Object.keys(fish.codex).map((k) => esc(k) + '×' + fish.codex[k]).join(' · ') : '还没钓到鱼') + '</div>'
       + (fish.caught.length ? '<div class="ot-muted">最近：' + esc(fish.caught[0].species) + ' ' + fish.caught[0].size + '斤 · ' + esc(fish.caught[0].date) + '</div>' : '');
     // ── 斗地主 ──
-    h += '<div style="font-weight:700;margin:14px 0 6px;">🃏 斗地主（你 + ' + esc(WeChatAppEngine._otomeCharName()) + ' + 阿九）</div><div class="ot-muted">你是地主。单张/对子/三张/三带一/三带二/顺子/炸弹/王炸都能出。赢 +10 分，输 -10 分（当前 ' + (score.ddzScore || 0) + ' 分，胜 ' + (score.ddzWins || 0) + ' / 负 ' + (score.ddzLosses || 0) + '）。</div>';
+    h += '<div style="font-weight:700;margin:14px 0 6px;">斗地主（你 + ' + esc(WeChatAppEngine._otomeCharName()) + ' + 阿九）</div><div class="ot-muted">你是地主。单张/对子/三张/三带一/三带二/顺子/炸弹/王炸都能出。赢 +10 分，输 -10 分（当前 ' + (score.ddzScore || 0) + ' 分，胜 ' + (score.ddzWins || 0) + ' / 负 ' + (score.ddzLosses || 0) + '）。</div>';
     h += window.GroupY ? window.GroupY.ddzChatHtml() : '';
     if (!ddz) {
-      h += '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'ddz-new\')">🃏 开一局斗地主</button></div>';
+      h += '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'ddz-new\')">开一局斗地主</button></div>';
     } else {
       const sel = st.ddzSel || [];
       const handHtml = ddz.hands.me.map((c) => '<button class="' + (sel.indexOf(c.id) >= 0 ? 'gn-sel' : '') + '" onclick="WeChatAppEngine.otomePlay(\'ddz-sel\',\'' + c.id + '\')">' + c.v + c.s + '</button>').join('');
@@ -15083,15 +15083,15 @@ handleImgUpload: (input) => {
         + '<div style="margin-top:6px;font-size:13px;line-height:1.8;max-height:120px;overflow:auto;">' + (ddz.log || []).slice(-6).map((l) => '<div>· ' + esc(l) + '</div>').join('') + '</div>';
     }
     // ── 花园 ──
-    h += '<div style="font-weight:700;margin:14px 0 6px;">🌷 共享小花园</div><div class="ot-muted">' + esc(G.gardenCatNote()) + '</div>';
+    h += '<div style="font-weight:700;margin:14px 0 6px;">共享小花园</div><div class="ot-muted">' + esc(G.gardenCatNote()) + '</div>';
     garden.plots.forEach((p, i) => {
       const crop = p.crop ? G.GARDEN_CROPS.find((c) => c.id === p.crop) : null;
-      h += '<div class="ot-card" style="margin:8px 0 0;display:flex;gap:8px;align-items:center;"><div style="font-size:26px;">' + (crop ? crop.ico : '🟫') + '</div><div style="flex:1;"><div style="font-size:14px;">' + (crop ? esc(crop.name) + ' · ' + (p.stage === 0 ? '种子' : p.stage === 1 ? '发芽了' : '长成了，可以收获') : '空地') + '</div></div>'
+      h += '<div class="ot-card" style="margin:8px 0 0;display:flex;gap:8px;align-items:center;"><div style="font-size:26px;">' + (crop ? crop.ico : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" fill="#8B5E3C" stroke="none"/></svg>') + '</div><div style="flex:1;"><div style="font-size:14px;">' + (crop ? esc(crop.name) + ' · ' + (p.stage === 0 ? '种子' : p.stage === 1 ? '发芽了' : '长成了，可以收获') : '空地') + '</div></div>'
         + (!crop
           ? G.GARDEN_CROPS.map((c) => '<button class="ot-btn ot-btn-ghost" style="padding:6px 8px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'garden-plant\',' + i + ',\'' + c.id + '\')">种' + c.name + '</button>').join('')
           : (p.stage < 2
-            ? '<button class="ot-btn" style="padding:6px 10px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'garden-water\',' + i + ')">💧 浇水</button>'
-            : '<button class="ot-btn" style="padding:6px 10px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'garden-harvest\',' + i + ')">🧺 收获</button>'))
+            ? '<button class="ot-btn" style="padding:6px 10px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'garden-water\',' + i + ')">浇水</button>'
+            : '<button class="ot-btn" style="padding:6px 10px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'garden-harvest\',' + i + ')">收获</button>'))
         + '</div>';
     });
     h += '<div class="ot-muted" style="margin-top:6px;">累计收获 ' + (garden.harvested || 0) + ' 次。浇水能让作物长大，长成就能收获（收获好感 +1）。</div>';
@@ -15100,7 +15100,7 @@ handleImgUpload: (input) => {
     h += G.cookPanelHTML();
     h += (window.GroupV ? window.GroupV.pixelHTML() : '');
     h += G.mochiPanelHTML();
-    h += '<div style="margin-top:10px;"><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomePlay(\'sticker\')">😊 让他按现在的心情发个表情包</button></div>';
+    h += '<div style="margin-top:10px;"><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomePlay(\'sticker\')">让他按现在的心情发个表情包</button></div>';
     h += window.GroupZ ? window.GroupZ.wordSectionHTML() : '';
     h += window.GroupZ ? window.GroupZ.voteSectionHTML() : '';
     pnl.innerHTML = h;
@@ -15200,12 +15200,12 @@ handleImgUpload: (input) => {
     const s = G.focusStatus();
     const day = new Date();
     const todayKey = day.getFullYear() + '-' + (day.getMonth() + 1) + '-' + day.getDate();
-    let h = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()">✕</button><h3>🍅 专注陪伴</h3><div class="ot-muted">番茄专注计时，放在 3D 家里。开始时他会打气，结束时庆祝；专注进行中他不会发主动消息（静默），让你安心做事。</div>'
+    let h = '<button class="ot-close" onclick="WeChatAppEngine.otomeClosePanel()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h3>专注陪伴</h3><div class="ot-muted">番茄专注计时，放在 3D 家里。开始时他会打气，结束时庆祝；专注进行中他不会发主动消息（静默），让你安心做事。</div>'
       + '<div class="ot-muted" style="margin-top:8px;">累计专注 ' + (log.total || 0) + ' 分钟 · 今天 ' + (log.days[todayKey] || 0) + ' 分钟' + (log.lastMinutes ? ' · 上次专注了 ' + log.lastMinutes + ' 分钟' : '') + '</div>' + (window.GroupAM ? window.GroupAM.focusPanelHtml() : '');
     if (s) {
       const left = Math.max(0, Math.ceil((s.until - Date.now()) / 60000));
       h += '<div class="ot-card" style="margin-top:10px;text-align:center;"><div style="font-size:28px;font-weight:700;" id="ot-focus-left">还剩约 ' + left + ' 分钟</div><div class="ot-muted">专注进行中，他在旁边安静陪你，不打扰。</div></div>'
-        + '<div style="display:flex;gap:8px;margin-top:10px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFocusEnd(true)">✅ 完成专注</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeFocusEnd(false)">提前结束</button></div>';
+        + '<div style="display:flex;gap:8px;margin-top:10px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFocusEnd(true)"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 完成专注</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeFocusEnd(false)">提前结束</button></div>';
     } else {
       h += '<div style="display:flex;gap:8px;margin-top:10px;"><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFocusStart(15)">15 分钟</button><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFocusStart(25)">25 分钟</button><button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeFocusStart(45)">45 分钟</button></div>';
     }
@@ -15237,7 +15237,7 @@ handleImgUpload: (input) => {
     if (!pnl || document.getElementById('ot-charcard-btn')) return;
     const d = document.createElement('div');
     d.style.marginTop = '12px';
-    d.innerHTML = '<div style="font-weight:700;margin:10px 0 6px;">📇 角色卡</div><div class="ot-muted">把他的人设导出成标准角色卡 JSON，也能导回。</div><button id="ot-charcard-btn" class="ot-btn" style="width:100%;margin-top:8px;" onclick="WeChatAppEngine.otomeCharCardOpen()">📇 角色卡 · 导出 / 导入</button>';
+    d.innerHTML = '<div style="font-weight:700;margin:10px 0 6px;">角色卡</div><div class="ot-muted">把他的人设导出成标准角色卡 JSON，也能导回。</div><button id="ot-charcard-btn" class="ot-btn" style="width:100%;margin-top:8px;" onclick="WeChatAppEngine.otomeCharCardOpen()">角色卡 · 导出 / 导入</button>';
     pnl.appendChild(d);
   },
   stickerFilter: (mood) => {
@@ -15340,11 +15340,11 @@ const sendCharSticker = (mood) => {
 // ── 1a. 文字钓鱼（ai-fishing-game 做法；确定性规则）──
 const FISH_KEY = 'otome_fish_v1';
 const FISH_SPECIES = [
-  { name: '小鲫鱼', ico: '🐟', min: 0.2, max: 0.6 },
-  { name: '锦鲤', ico: '🐠', min: 0.3, max: 0.9 },
-  { name: '小丑鱼', ico: '🐡', min: 0.1, max: 0.4 },
-  { name: '鲶鱼', ico: '🐋', min: 0.8, max: 2.0 },
-  { name: '金龙鱼', ico: '✨', min: 1.0, max: 3.0 }
+  { name: '小鲫鱼', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2.5-3.8 6-5.5 9.5-5.5 3 0 5.5 2.5 7.5 5.5-2 3-4.5 5.5-7.5 5.5-3.5 0-7-1.7-9.5-5.5Z"/><path d="m4 12-2.5-3.5v7Z" fill="currentColor" stroke="none"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/></svg>', min: 0.2, max: 0.6 },
+  { name: '锦鲤', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2.5-3.8 6-5.5 9.5-5.5 3 0 5.5 2.5 7.5 5.5-2 3-4.5 5.5-7.5 5.5-3.5 0-7-1.7-9.5-5.5Z"/><path d="m4 12-2.5-3.5v7Z" fill="currentColor" stroke="none"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/></svg>', min: 0.3, max: 0.9 },
+  { name: '小丑鱼', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2.5-3.8 6-5.5 9.5-5.5 3 0 5.5 2.5 7.5 5.5-2 3-4.5 5.5-7.5 5.5-3.5 0-7-1.7-9.5-5.5Z"/><path d="m4 12-2.5-3.5v7Z" fill="currentColor" stroke="none"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/></svg>', min: 0.1, max: 0.4 },
+  { name: '鲶鱼', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c2.5-3.8 6-5.5 9.5-5.5 3 0 5.5 2.5 7.5 5.5-2 3-4.5 5.5-7.5 5.5-3.5 0-7-1.7-9.5-5.5Z"/><path d="m4 12-2.5-3.5v7Z" fill="currentColor" stroke="none"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/></svg>', min: 0.8, max: 2.0 },
+  { name: '金龙鱼', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg>', min: 1.0, max: 3.0 }
 ];
 const fishBiteAt = (casts) => 2 + ((casts || 0) % 3);
 const fishCatch = (casts, day) => {
@@ -15513,9 +15513,9 @@ const ddzScore = () => { const d = _read(PLAY_KEY, null) || { ddzWins: 0, ddzLos
 // ── 1c. 共享小花园（Rainholm Garden 做法；猫复用 otome_home_v1 宠物）──
 const GARDEN_KEY = 'otome_garden_v1';
 const GARDEN_CROPS = [
-  { id: 'sunflower', name: '向日葵', ico: '🌻', need: 2 },
-  { id: 'strawberry', name: '草莓', ico: '🍓', need: 2 },
-  { id: 'mint', name: '薄荷', ico: '🌿', need: 2 }
+  { id: 'sunflower', name: '向日葵', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c-4.5-1-5.3-4.2-3.2-5.3 1.5-.8 3.1.4 3.2 3.3.1-2.9 1.7-4.1 3.2-3.3 2.1 1.1 1.3 4.3-3.2 5.3 4.5-1 6.2 1.8 4.3 3.5-1.3 1.2-3.2.4-4.3-2.4 1.1 2.8.2 4.6-1.6 4.4-2.4-.2-3-3.4 1.6-6.2-4.6 2.8-7.1.7-5.8-1.5 1-1.6 3-.9 5.8 1.5Z"/><circle cx="12" cy="12" r="2"/></svg>', need: 2 },
+  { id: 'strawberry', name: '草莓', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5C8 8.5 5.5 11 5.5 14.5 5.5 18.5 8.5 21 12 21s6.5-2.5 6.5-6.5C18.5 11 16 8.5 12 8.5Z"/><path d="M12 8.5C11 6 9 5 7 5m5 3.5c1-2.5 3-3.5 5-3.5M9 13.5h.01M12 16h.01M15 13.5h.01"/></svg>', need: 2 },
+  { id: 'mint', name: '薄荷', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19C5 9 12 4 20 4c0 8-5 15-15 15Z"/><path d="M5 19c3-6 7-9 11-11"/></svg>', need: 2 }
 ];
 const gardenLoad = () => { const d = _read(GARDEN_KEY, null); if (d && Array.isArray(d.plots)) return Object.assign({ harvested: 0 }, d); return { plots: [{ crop: null, stage: 0 }, { crop: null, stage: 0 }, { crop: null, stage: 0 }], harvested: 0 }; };
 const gardenSave = (d) => _write(GARDEN_KEY, d);
@@ -15523,7 +15523,7 @@ const gardenPlant = (idx, cropId) => { const g = gardenLoad(); const crop = GARD
 const gardenWater = (idx) => { const g = gardenLoad(); const p = g.plots[idx]; if (!p || !p.crop || p.stage >= 2) return null; p.stage += 1; gardenSave(g); return g; };
 const gardenHarvest = (idx) => { const g = gardenLoad(); const p = g.plots[idx]; if (!p || !p.crop || p.stage < 2) return null; const crop = GARDEN_CROPS.find((c) => c.id === p.crop); g.plots[idx] = { crop: null, stage: 0 }; g.harvested = (g.harvested || 0) + 1; gardenSave(g); try { if (typeof OtomeF !== 'undefined' && OtomeF.addAff) OtomeF.addAff(charName(), 1, '一起收获了' + (crop ? crop.name : '作物') + '。'); } catch (e) {} return { g: g, crop: crop }; };
 const gardenCatNote = () => {
-  try { const home = _read('otome_home_v1', null); if (home && home.pet && home.pet.kind === 'cat') return '🐱 ' + (home.pet.name || '猫') + '蹲在花园边晒太阳，尾巴一下一下地晃，偶尔伸爪子碰碰叶子。'; if (home && home.pet) return '🐾 ' + (home.pet.name || '小动物') + '也在花园边转悠。'; } catch (e) {}
+  try { const home = _read('otome_home_v1', null); if (home && home.pet && home.pet.kind === 'cat') return '' + (home.pet.name || '猫') + '蹲在花园边晒太阳，尾巴一下一下地晃，偶尔伸爪子碰碰叶子。'; if (home && home.pet) return '' + (home.pet.name || '小动物') + '也在花园边转悠。'; } catch (e) {}
   return '花园边空着——去「养宠」领养一只猫，它就会来花园里晒太阳。';
 };
 // ── 2. 一起听（Duetto 做法；MIT）──
@@ -15603,7 +15603,7 @@ const maybeTarotInvite = (nowMs) => {
   if (!tarotNightDue(nowMs)) return false;
   if (isFocusSilent(nowMs)) return false;
   const name = charName();
-  const ok = _pushToCharSession('今晚塔罗之夜，要不要一起抽三张牌？我陪你。点开塔罗 app，今晚的牌阵等你。🌙');
+  const ok = _pushToCharSession('今晚塔罗之夜，要不要一起抽三张牌？我陪你。点开塔罗 app，今晚的牌阵等你。');
   if (ok) tarotNightMark(nowMs);
   return ok;
 };
@@ -15618,7 +15618,7 @@ const deliverTarotResult = (payload) => {
       const stPrev = _read(TAROT_NIGHT_KEY, null) || {};
       if (stPrev.lastDeliveredSession === payload.sessionId) return null;
     }
-    let text = '🔮 今晚的塔罗' + (payload.spreadName ? '（' + payload.spreadName + '）' : '') + '\n';
+    let text = '今晚的塔罗' + (payload.spreadName ? '（' + payload.spreadName + '）' : '') + '\n';
     text += '问题：' + (payload.question || '今晚的塔罗之夜') + '\n';
     cards.forEach((c) => {
       text += (c.position || '牌') + ' · ' + (c.name || '') + (c.reversed ? '（逆位）' : '') + (c.meaning ? '：' + c.meaning : '') + '\n';
@@ -15640,7 +15640,7 @@ const deliverTarotResult = (payload) => {
   const list = Array.isArray(payload) ? payload : [];
   const names = list.map((c) => (c.name || (c.card && c.card.name) || '') + ((c.isReversed || c.reversed) ? '(逆)' : '')).filter(Boolean);
   if (!names.length) return null;
-  const text = '🔮 今晚的塔罗：' + names.join(' · ') + '\n' + tarotReading(list.map((c) => ({ name: c.name || (c.card && c.card.name), reversed: !!(c.isReversed || c.reversed) })));
+  const text = '今晚的塔罗：' + names.join(' · ') + '\n' + tarotReading(list.map((c) => ({ name: c.name || (c.card && c.card.name), reversed: !!(c.isReversed || c.reversed) })));
   const ok = _pushToCharSession(text);
   return ok ? text : null;
 };
@@ -15767,13 +15767,13 @@ const showDuetMini = (where) => {
   const hist = duetHistory();
   const ov = document.createElement('div');
   ov.className = 'gn-overlay'; ov.id = 'gn-duet-overlay';
-  ov.innerHTML = '<div class="gn-sheet"><h3>🎵 一起听' + (where === 'cike' ? ' · 此刻小世界' : ' · 我们的家') + '</h3>'
+  ov.innerHTML = '<div class="gn-sheet"><h3>一起听' + (where === 'cike' ? ' · 此刻小世界' : ' · 我们的家') + '</h3>'
     + '<div class="gn-muted">和他一起听歌：歌单存在 duet_playlist_v1；听到哪首，他都会留一句关于这首歌的话，记在 duet_history_v1。播放是本机 WebAudio 合成旋律，不是原曲。</div>'
     + '<div class="gn-row"><input class="gn-input" id="gn-duet-title" placeholder="曲名"><input class="gn-input" id="gn-duet-artist" placeholder="歌手（可选）" style="flex:0 0 100px;"><button class="gn-btn" onclick="window.GroupN._duetMiniAdd()">＋加歌</button></div>'
-    + '<div id="gn-duet-list">' + (list.length ? list.map((t, i) => '<div class="gn-card" style="display:flex;gap:8px;align-items:center;"><div style="flex:1;min-width:0;"><div style="font-weight:700;">' + esc(t.title) + '</div><div class="gn-muted">' + esc(t.artist || '未知歌手') + ' · ' + esc(t.addedBy || '我') + '加的歌</div></div><button class="gn-btn" onclick="window.GroupN._duetMiniPlay(' + i + ')">▶ 播放</button></div>').join('') : '<div class="gn-muted" style="margin-top:10px;">歌单还是空的——先加一首歌，或去音乐 app 的「一起听」歌单里加。</div>') + '</div>'
-    + (hist.length ? '<div class="gn-card"><div style="font-weight:700;">他最近说过</div><div style="margin-top:4px;">🎵 ' + esc(hist[0].title) + ' —— ' + esc(hist[0].note) + '</div><div class="gn-muted">' + esc(hist[0].date) + '</div></div>' : '')
+    + '<div id="gn-duet-list">' + (list.length ? list.map((t, i) => '<div class="gn-card" style="display:flex;gap:8px;align-items:center;"><div style="flex:1;min-width:0;"><div style="font-weight:700;">' + esc(t.title) + '</div><div class="gn-muted">' + esc(t.artist || '未知歌手') + ' · ' + esc(t.addedBy || '我') + '加的歌</div></div><button class="gn-btn" onclick="window.GroupN._duetMiniPlay(' + i + ')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 播放</button></div>').join('') : '<div class="gn-muted" style="margin-top:10px;">歌单还是空的——先加一首歌，或去音乐 app 的「一起听」歌单里加。</div>') + '</div>'
+    + (hist.length ? '<div class="gn-card"><div style="font-weight:700;">他最近说过</div><div style="margin-top:4px;">' + esc(hist[0].title) + ' —— ' + esc(hist[0].note) + '</div><div class="gn-muted">' + esc(hist[0].date) + '</div></div>' : '')
     + '<div id="gn-duet-now" style="margin-top:10px;"></div>'
-    + '<div class="gn-row"><button class="gn-btn gn-btn-ghost" style="flex:1;" onclick="window.GroupN._duetMiniStop()">■ 停止</button><button class="gn-btn gn-btn-ghost" style="flex:1;" onclick="document.getElementById(\'gn-duet-overlay\').remove();window.GroupN._duetMiniStop()">关闭</button></div></div>';
+    + '<div class="gn-row"><button class="gn-btn gn-btn-ghost" style="flex:1;" onclick="window.GroupN._duetMiniStop()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor" stroke="none"/></svg> 停止</button><button class="gn-btn gn-btn-ghost" style="flex:1;" onclick="document.getElementById(\'gn-duet-overlay\').remove();window.GroupN._duetMiniStop()">关闭</button></div></div>';
   ov.addEventListener('click', (e) => { if (e.target === ov) { ov.remove(); duetStopMini(); } });
   document.body.appendChild(ov);
   return ov;
@@ -15801,9 +15801,9 @@ const showCharCardStudio = () => {
   const card = buildCharCard();
   const ov = document.createElement('div');
   ov.className = 'gn-overlay'; ov.id = 'gn-card-overlay';
-  ov.innerHTML = '<div class="gn-sheet"><h3>📇 角色卡（character-card-spec v2/v3 字段）</h3>'
+  ov.innerHTML = '<div class="gn-sheet"><h3>角色卡（character-card-spec v2/v3 字段）</h3>'
     + '<div class="gn-muted">把他的人设导出成一张标准角色卡 JSON（spec / spec_version / name / description / personality / scenario / system_prompt / post_history_instructions / first_mes / mes_example / alternate_greetings / creator_notes / tags / creator / character_version / extensions，对齐 ST v2/v3 字段；PNG 导入仍暂禁）。内容取自本机已有的人设数据，不连网。</div>'
-    + '<div class="gn-row"><button class="gn-btn" onclick="window.GroupN._cardRefresh()">↻ 重新导出当前人设</button><button class="gn-btn gn-btn-ghost" onclick="window.GroupN._cardCopy()">复制 JSON</button><button class="gn-btn gn-btn-ghost" onclick="window.GroupN._cardDownload()">下载 .json</button></div>'
+    + '<div class="gn-row"><button class="gn-btn" onclick="window.GroupN._cardRefresh()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3v5h-5"/></svg> 重新导出当前人设</button><button class="gn-btn gn-btn-ghost" onclick="window.GroupN._cardCopy()">复制 JSON</button><button class="gn-btn gn-btn-ghost" onclick="window.GroupN._cardDownload()">下载 .json</button></div>'
     + '<div style="margin-top:10px;"><textarea class="gn-ta" id="gn-card-ta">' + esc(JSON.stringify(card, null, 2)) + '</textarea></div>'
     + '<div id="gn-card-msg" class="gn-muted"></div>'
     + '<div class="gn-row"><button class="gn-btn" style="flex:1;" onclick="window.GroupN._cardImport()">从上方 JSON 导回人设</button><button class="gn-btn gn-btn-ghost" style="flex:1;" onclick="document.getElementById(\'gn-card-overlay\').remove()">关闭</button></div>'
@@ -15847,16 +15847,16 @@ const _cardImport = () => {
 const duetSectionHTML = () => {
   const list = duetLoad();
   const hist = duetHistory();
-  let h = '<div class="gd-card" style="margin-top:12px;"><div class="gd-label" style="margin-top:0;">🎵 一起听 · 共享歌单</div><div class="af-duet-src" data-af-duet-src></div>'
+  let h = '<div class="gd-card" style="margin-top:12px;"><div class="gd-label" style="margin-top:0;">一起听 · 共享歌单</div><div class="af-duet-src" data-af-duet-src></div>'
     + '<div style="font-size:12px;color:#9a958f;line-height:1.7;">和他一起听的歌单（duet_playlist_v1），你和他都能往里加。播到哪首，他都会留一句关于这首歌的话，记在 duet_history_v1。</div>';
   if (!list.length) h += '<div class="gd-empty" style="margin-top:8px;">歌单还是空的——在上面输入曲名，点「＋一起听」加一首。</div>';
   list.forEach((t) => {
     h += '<div class="gd-row" style="display:flex;gap:8px;align-items:center;margin-top:8px;"><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;">' + esc(t.title) + '</div><div style="font-size:12px;color:#9a958f;">' + esc(t.artist || '未知歌手') + ' · ' + esc(t.addedBy || '我') + '加的歌</div></div>'
-      + '<button class="gd-btn" data-act="duet-play" data-id="' + esc(t.title) + '" style="padding:8px 12px;font-size:13px;">▶ 一起听</button>'
+      + '<button class="gd-btn" data-act="duet-play" data-id="' + esc(t.title) + '" style="padding:8px 12px;font-size:13px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 一起听</button>'
       + '<button class="gd-btn-ghost" data-act="duet-del" data-id="' + esc(t.title) + '" style="padding:8px 10px;font-size:12px;">移除</button></div>';
   });
   h += '<div style="display:flex;gap:8px;margin-top:10px;"><button class="gd-btn" data-act="duet-add" style="flex:1;">＋ 把上面那首加进一起听歌单</button></div>';
-  if (hist.length) h += '<div style="font-size:12px;color:#8a6a52;line-height:1.7;margin-top:10px;">他最近说过：🎵 ' + esc(hist[0].title) + ' —— ' + esc(hist[0].note) + '（' + esc(hist[0].date) + '）</div>';
+  if (hist.length) h += '<div style="font-size:12px;color:#8a6a52;line-height:1.7;margin-top:10px;">他最近说过：' + esc(hist[0].title) + ' —— ' + esc(hist[0].note) + '（' + esc(hist[0].date) + '）</div>';
   h += '</div>';
   return h;
 };
@@ -15925,7 +15925,7 @@ var p = pillFind(h.id);
 var d = new Date(h.at);
 return '<div style="font-size:12px;color:#999;">· ' + esc(p? p.label: h.id) + '（' + (h.via === 'local'? '本地': '模型') + ' · ' + (d.getMonth() + 1) + '/' + d.getDate() + '）</div>';
 }).join('');
-return '<div style="font-size:13px;font-weight:700;margin-bottom:4px;">💊 药盒</div>'
+return '<div style="font-size:13px;font-weight:700;margin-bottom:4px;">药盒</div>'
 + '<div style="font-size:12px;color:#999;line-height:1.7;">选一张药片贴给下一条回复，用完即焚，不留进历史。标“本地可用”的没接模型也能用；其余需接模型。</div>'
 + '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">' + grid + '</div>'
 + '<div style="font-size:12px;color:#666;margin-bottom:8px;">' + (s.active? '当前药片：<b>' + esc(pillFind(s.active).label) + '</b>，下一条回复生效。': '现在没有贴着的药片。') + '</div>'
@@ -16072,7 +16072,7 @@ return true;
 }
 function cookPanelHTML() {
 var s = cookLoad();
-var h = '<div style="font-weight:700;margin:14px 0 6px;">🍳 一起做饭</div><div class="ot-muted">买菜 → 砍价 → 按步骤做 → 记下你的真实反馈。金币 ' + s.coins + ' · 已做 ' + (s.cooked || 0) + ' 道菜。</div>';
+var h = '<div style="font-weight:700;margin:14px 0 6px;">一起做饭</div><div class="ot-muted">买菜 → 砍价 → 按步骤做 → 记下你的真实反馈。金币 ' + s.coins + ' · 已做 ' + (s.cooked || 0) + ' 道菜。</div>';
 if (s.vendor) {
 var m = cookMarketById(s.vendor.ing);
 h += '<div class="ot-card" style="margin:8px 0 0;"><b>菜贩：' + esc(m.name) + ' ' + m.price + ' 金币/份</b><div class="ot-muted">第 ' + s.vendor.round + ' 轮（最多 3 轮）。他开价 ' + s.vendor.counter + ' 金币。</div>'
@@ -16105,7 +16105,7 @@ var lack = Object.keys(r.need).filter(function (k) { return (s.pantry[k] || 0) <
 return '<div class="ot-card" style="margin:8px 0 0;"><b>' + esc(r.name) + '</b><div class="ot-muted">需要：' + esc(cookNeedList(r)) + (lack.length? '（还缺：' + lack.map(function (k) { var mm = cookMarketById(k); return (mm? mm.name: k) + '×' + (r.need[k] - (s.pantry[k] || 0));}).join('、') + '）': '（料齐了）') + '</div>'
 + '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'cook-start\',\'' + r.id + '\')">做这道</button></div></div>';
 }).join('');
-h += '<div style="font-weight:700;margin:14px 0 6px;">🥬 菜市场</div>' + COOK_MARKET.map(function (mm) {
+h += '<div style="font-weight:700;margin:14px 0 6px;">菜市场</div>' + COOK_MARKET.map(function (mm) {
 return '<div class="ot-card" style="margin:8px 0 0;display:flex;gap:8px;align-items:center;"><div style="flex:1;"><b>' + esc(mm.name) + '</b> ' + mm.price + ' 金币/份 · 家里有 ' + (s.pantry[mm.id] || 0) + ' 份</div>'
 + '<button class="ot-btn ot-btn-ghost" style="padding:6px 10px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'cook-buy\',\'' + mm.id + '\')">买 1 份</button>'
 + '<button class="ot-btn ot-btn-ghost" style="padding:6px 10px;font-size:12px;" onclick="WeChatAppEngine.otomePlay(\'cook-bargain\',\'' + mm.id + '\')">砍价</button></div>';
@@ -16174,16 +16174,16 @@ return '<div style="margin:6px 0;font-size:13px;color:#4a3226;"><span style="dis
 }
 function mochiPanelHTML() {
 var s = mochiTick(Date.now());
-var h = '<div style="font-weight:700;margin:14px 0 6px;">🍼 反过来养我</div><div class="ot-muted">这次换他被你养：饥饿 / 心情 / 精力 / 清洁会随时间慢慢掉，掉光了他会生病，要照料三次才好。连续每天来照料， streak +1。</div>';
+var h = '<div style="font-weight:700;margin:14px 0 6px;">反过来养我</div><div class="ot-muted">这次换他被你养：饥饿 / 心情 / 精力 / 清洁会随时间慢慢掉，掉光了他会生病，要照料三次才好。连续每天来照料， streak +1。</div>';
 h += '<div class="ot-card" style="margin:8px 0 0;">'
 + mochiBar('饥饿', s.stats.hunger) + mochiBar('心情', s.stats.mood) + mochiBar('精力', s.stats.energy) + mochiBar('清洁', s.stats.clean)
 + '<div style="font-size:13px;margin-top:6px;">' + esc(mochiNag()) + '</div>'
-+ '<div class="ot-muted" style="margin-top:4px;">连续照料 ' + (s.streak || 0) + ' 天' + (s.sick? ' · 🤒 生病了，已照料 ' + (s.sickCare || 0) + '/3 次': '') + '</div>'
++ '<div class="ot-muted" style="margin-top:4px;">连续照料 ' + (s.streak || 0) + ' 天' + (s.sick? ' · 生病了，已照料 ' + (s.sickCare || 0) + '/3 次': '') + '</div>'
 + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">'
-+ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'eat\')">🍚 吃饭</button>'
-+ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'sleep\')">😴 睡觉</button>'
-+ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'wash\')">🛁 洗澡</button>'
-+ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'play\')">🎮 陪玩</button>'
++ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'eat\')">吃饭</button>'
++ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'sleep\')">睡觉</button>'
++ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'wash\')">洗澡</button>'
++ '<button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'mochi-act\',\'play\')">陪玩</button>'
 + '</div></div>';
 return h;
 }
@@ -16373,13 +16373,13 @@ var _tileHTML = function (it) {
     + ' onclick="window.GroupAU._tileClick(\'' + it.id + '\')">'
     + '<img src="' + it.src + '" alt="' + esc(it.name) + '" style="width:100%;max-width:64px;height:64px;object-fit:cover;border-radius:6px;display:block;margin:0 auto;pointer-events:none;">'
     + '<div style="font-size:11px;color:#333;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(it.name) + '</div>'
-    + '<button type="button" title="收藏" style="position:absolute;top:0;right:0;border:0;background:rgba(255,255,255,.85);color:#f5a623;font-size:12px;line-height:1;padding:3px 4px;border-radius:0 8px 0 6px;cursor:pointer;" onclick="event.stopPropagation();window.GroupAU.favoriteSticker(\'' + it.id + '\')">★</button>'
+    + '<button type="button" title="收藏" style="position:absolute;top:0;right:0;border:0;background:rgba(255,255,255,.85);color:#f5a623;font-size:12px;line-height:1;padding:3px 4px;border-radius:0 8px 0 6px;cursor:pointer;" onclick="event.stopPropagation();window.GroupAU.favoriteSticker(\'' + it.id + '\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" fill="currentColor" stroke="none"/></svg></button>'
     + '</div>';
 };
 var packSectionHTML = function () {
   var packs = STICKER_PACK_REGISTRY;
   var h = '<div id="au-sticker-section" style="margin-top:10px;border-top:1px solid #eee;padding-top:8px;">';
-  h += '<div style="font-size:12px;color:#888;margin-bottom:6px;">🐶 表情包 · 点一张就发出（大图），长按收藏到“我的收藏”</div>';
+  h += '<div style="font-size:12px;color:#888;margin-bottom:6px;">表情包 · 点一张就发出（大图），长按收藏到“我的收藏”</div>';
   packs.forEach(function (p) {
     var on = isEnabled(p.id);
     h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">' + esc(p.name) + '</span>'
@@ -16406,7 +16406,7 @@ var postMomentWithSticker = function (id, text) {
   if (!store) return null;
   if (!Array.isArray(store.moments)) store.moments = [];
   var mid = 'mom_au_' + Date.now();
-  store.moments.unshift({ id: mid, author: (store.accountMeta && store.accountMeta.nickname) || '我', avatar: (store.accountMeta && store.accountMeta.avatar) || '', content: (text && String(text).trim()) ? String(text).trim() : ('🐶 ' + item.name), text: (text && String(text).trim()) ? String(text).trim() : ('🐶 ' + item.name), img: item.src, images: [item.src], time: '刚刚', timestamp: Date.now(), likes: [], comments: [] });
+  store.moments.unshift({ id: mid, author: (store.accountMeta && store.accountMeta.nickname) || '我', avatar: (store.accountMeta && store.accountMeta.avatar) || '', content: (text && String(text).trim()) ? String(text).trim() : ('' + item.name), text: (text && String(text).trim()) ? String(text).trim() : ('' + item.name), img: item.src, images: [item.src], time: '刚刚', timestamp: Date.now(), likes: [], comments: [] });
   _persistAndRender(store);
   try { if (window.WeChatAppEngine && WeChatAppEngine.renderMomentsFeedSandbox) WeChatAppEngine.renderMomentsFeedSandbox(); } catch (e) {}
   try { if (window.WeChatAppEngine && WeChatAppEngine.triggerToast) WeChatAppEngine.triggerToast('已发到朋友圈'); } catch (e) {}
@@ -16886,15 +16886,15 @@ const catRename = (name) => {
   return catSave(cat);
 };
 const SHOP = [
-  { id: 'hat', slot: 'head', name: '小黄帽', ico: '🧢', price: 30 },
-  { id: 'glasses', slot: 'eye', name: '圆眼镜', ico: '👓', price: 25 },
-  { id: 'scarf', slot: 'neck', name: '红围巾', ico: '🧣', price: 20 },
-  { id: 'toy', slot: 'hand', name: '逗猫棒', ico: '🎣', price: 15 },
-  { id: 'starbg', slot: 'bg', name: '星空背景', ico: '🌌', price: 40 },
-  { id: 'bed', slot: 'bed', name: '暖猫窝', ico: '🛏️', price: 35 },
-  { id: 'tiger', slot: 'skin', name: '虎纹皮肤', ico: '🐯', price: 50 },
-  { id: 'crown', slot: 'head', name: '皇冠', ico: '👑', price: 0, gift: 'Lv.6 里程碑礼物' },
-  { id: 'halo', slot: 'head', name: '光环', ico: '😇', price: 0, gift: 'Lv.8 里程碑礼物' }
+  { id: 'hat', slot: 'head', name: '小黄帽', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13.5a7 7 0 0 1 14 0v1H5Z"/><path d="M19 13.5h3a1 1 0 0 1 0 2.5h-3"/></svg>', price: 30 },
+  { id: 'glasses', slot: 'eye', name: '圆眼镜', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="14" r="3.5"/><circle cx="17" cy="14" r="3.5"/><path d="M10.5 14h3M3.5 13 2 10.5M20.5 13 22 10.5"/></svg>', price: 25 },
+  { id: 'scarf', slot: 'neck', name: '红围巾', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v8l-1.5 10h-3L9 11Z"/><path d="M9 7h6"/></svg>', price: 20 },
+  { id: 'toy', slot: 'hand', name: '逗猫棒', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16.4" rx="5.5" ry="4.2"/><ellipse cx="5.8" cy="9.2" rx="1.8" ry="2.5"/><ellipse cx="10.1" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="14.4" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="18.6" cy="9.2" rx="1.8" ry="2.5"/></svg>', price: 15 },
+  { id: 'starbg', slot: 'bg', name: '星空背景', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg>', price: 40 },
+  { id: 'bed', slot: 'bed', name: '暖猫窝', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6.5M4 13.5h16V18M4 18v1.5m16-1.5v1.5"/><path d="M4 13.5v-2a2 2 0 0 1 2-2h6a3.5 3.5 0 0 1 3.5 3.5"/></svg>', price: 35 },
+  { id: 'tiger', slot: 'skin', name: '虎纹皮肤', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>', price: 50 },
+  { id: 'crown', slot: 'head', name: '皇冠', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 4.5 4 4.5-7 4.5 7L21 8l-2 11H5Z"/><path d="M5.5 21h13"/></svg>', price: 0, gift: 'Lv.6 里程碑礼物' },
+  { id: 'halo', slot: 'head', name: '光环', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg>', price: 0, gift: 'Lv.8 里程碑礼物' }
 ];
 const shopById = (id) => SHOP.find((x) => x.id === id) || null;
 const setPrice = (cat) => {
@@ -17436,9 +17436,9 @@ const widgetHTML = (item) => {
     const s = _read(FOCUS_STATE_KEY, null);
     const st = focusStats(Date.now());
     if (s && s.active && Date.now() < (s.until || 0)) {
-      return '<div class="gw-w-focus" data-gw-tap="focus"><div class="gw-w-focus-time">' + fmtMS(s.until - Date.now()) + '</div><div class="gw-w-focus-label">🍅 ' + esc(PHASE_LABEL[s.phase || 'focus'] || '专注') + '进行中</div></div>';
+      return '<div class="gw-w-focus" data-gw-tap="focus"><div class="gw-w-focus-time">' + fmtMS(s.until - Date.now()) + '</div><div class="gw-w-focus-label"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg> ' + esc(PHASE_LABEL[s.phase || 'focus'] || '专注') + '进行中</div></div>';
     }
-    return '<div class="gw-w-focus" data-gw-tap="focus"><div class="gw-w-focus-time">🍅</div><div class="gw-w-focus-label">开始专注 · 今日 ' + st.todayMinutes + ' 分钟</div></div>';
+    return '<div class="gw-w-focus" data-gw-tap="focus"><div class="gw-w-focus-time"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg></div><div class="gw-w-focus-label">开始专注 · 今日 ' + st.todayMinutes + ' 分钟</div></div>';
   }
   if (item.kind === 'weather') {
     const w = _read(WEATHER_KEY, null);
@@ -17448,7 +17448,7 @@ const widgetHTML = (item) => {
     return '<div class="gw-w-weather" data-gw-tap="weather"><div class="gw-w-weather-temp">—°</div><div class="gw-w-weather-cond">天气未接入 · ' + dateStr + '</div></div>';
   }
   if (item.kind === 'shortcuts') {
-    return '<div class="gw-w-short" data-gw-tap="shortcuts"><button class="gw-w-short-btn" data-gw-app="wechat">💬 微信</button><button class="gw-w-short-btn" data-gw-app="cike">✨ 此刻</button><button class="gw-w-short-btn" data-gw-app="novel">📖 阅读</button></div>';
+    return '<div class="gw-w-short" data-gw-tap="shortcuts"><button class="gw-w-short-btn" data-gw-app="wechat">微信</button><button class="gw-w-short-btn" data-gw-app="cike">此刻</button><button class="gw-w-short-btn" data-gw-app="novel">阅读</button></div>';
   }
   /* GROUP-WIDGET（第 5/7 项）: home 与英雄卡移入目录的三项，内容由 GroupWIDGET 块按本机真实数据渲染。 */
   if (item.kind === 'popuphouse') {
@@ -17824,8 +17824,8 @@ const buildPetLayer = () => {
   if (!document.getElementById('gw-desk')) {
     const desk = document.createElement('div');
     desk.id = 'gw-desk';
-    desk.innerHTML = '<div class="gw-monitor"><div class="gw-mon-screen"><div class="gw-mon-status">● 在学习</div><div class="gw-mon-act">working</div></div><div class="gw-mon-stand"></div></div>' +
-      '<div class="gw-desk-row"><span>🌱</span><div class="gw-desk-clock"><span class="gw-desk-time">--:--</span><span class="gw-desk-date"></span></div><span>☕</span><span class="gw-desk-lunch" style="display:none">🍱</span></div>' +
+    desk.innerHTML = '<div class="gw-monitor"><div class="gw-mon-screen"><div class="gw-mon-status"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg> 在学习</div><div class="gw-mon-act">working</div></div><div class="gw-mon-stand"></div></div>' +
+      '<div class="gw-desk-row"><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19C5 9 12 4 20 4c0 8-5 15-15 15Z"/><path d="M5 19c3-6 7-9 11-11"/></svg></span><div class="gw-desk-clock"><span class="gw-desk-time">--:--</span><span class="gw-desk-date"></span></div><span><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/></svg></span><span class="gw-desk-lunch" style="display:none"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0Z"/><path d="M9 8c0-2 1-2 1-4m4 4c0-2 1-2 1-4"/></svg></span></div>' +
       '<div class="gw-desk-top"></div>';
     layer.appendChild(desk);
   }
@@ -17929,7 +17929,7 @@ const updatePetMonitor = () => {
   }
   const act = charActivity(Date.now());
   const stEl = document.querySelector('#gw-desk .gw-mon-status');
-  if (stEl) stEl.textContent = '● ' + act.label;
+  if (stEl) stEl.textContent = '' + act.label;
   const actEl = document.querySelector('#gw-desk .gw-mon-act');
   if (actEl) actEl.textContent = act.status;
   const lunchEl = document.querySelector('#gw-desk .gw-desk-lunch');
@@ -18114,7 +18114,7 @@ const showWidgetMenu = (wid, x, y) => {
   const cat = WIDGET_CATALOG.find((c) => c.kind === it.kind);
   const menu = document.createElement('div');
   menu.className = 'gw-widget-menu';
-  menu.innerHTML = '<button data-gw-wm="front">◀ 移到前面</button><button data-gw-wm="back">移到后面 ▶</button>' +
+  menu.innerHTML = '<button data-gw-wm="front"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6v12L8 12Z" fill="currentColor" stroke="none"/></svg> 移到前面</button><button data-gw-wm="back">移到后面 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6v12l6.5-6Z" fill="currentColor" stroke="none"/></svg></button>' +
     '<button data-gw-wm="size">尺寸：' + esc(it.size || 'M') + '（点一下换）</button>' +
     /* GROUP-WIDGET（第 5 项）: home 专属菜单项。 */ (it.kind === 'popuphouse' ? '<button data-gw-wm="ph-change">换立绘</button><button data-gw-wm="ph-remove">移除立绘</button>' : '') +
     '<button data-gw-wm="settings">进「桌面与外观」设置</button>' +
@@ -18498,21 +18498,21 @@ const renderPomo = () => {
   const dur = pomoDurations();
   const cat = catLoad();
   const catState = catStateOf();
-  const tabs = [['timer', '⏱ 计时'], ['tasks', '✅ 任务'], ['cat', '🐱 桌宠市场'], ['shop', '🛍 商店']];
+  const tabs = [['timer', '计时'], ['tasks', '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 任务'], ['cat', '桌宠市场'], ['shop', '商店']];
   let h = '<div class="gw-seg" style="margin-bottom:6px">' + tabs.map((t) => '<button data-gw-ptab="' + t[0] + '" class="' + (_pomoTab === t[0] ? 'on' : '') + '">' + t[1] + '</button>').join('') + '</div>';
   if (_pomoTab === 'timer') {
     const total = active ? (s.minutes * 60000) : (dur[pomo.phase || 'focus'] * 60000);
     const remaining = active ? pomoRemaining(s.until, Date.now()) : (paused ? (pomo.session.remainingMs || 0) : total);
     const phase = active ? (s.phase || 'focus') : (pomo.phase || 'focus');
     const round = active ? (s.round || 1) : (pomo.round || 1);
-    const dots = [1, 2, 3, 4].map((i) => i <= round && phase === 'focus' ? '🍅' : (i < round ? '✅' : '⚪')).join('');
+    const dots = [1, 2, 3, 4].map((i) => '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + (i <= round && phase === 'focus' ? '#e2574c' : (i < round ? '#34c759' : 'transparent')) + ';border:1.5px solid ' + (i <= round && phase === 'focus' ? '#e2574c' : (i < round ? '#34c759' : '#ccc')) + ';"></span>').join('');
     h += '<div class="gw-pomo-ring"><div class="gw-pomo-time" id="gw-pomo-time">' + fmtMS(remaining) + '</div>' +
       '<div class="gw-pomo-phase">' + esc(PHASE_LABEL[phase] || '专注') + (active ? '进行中' : paused ? ' · 已暂停' : ' · 待开始') + ' · 第 ' + round + ' / 4 轮</div>' +
       '<div class="gw-pomo-rounds">' + dots + '</div></div>';
     h += '<div class="gw-pomo-btns">';
-    if (active) h += '<button data-gw-pomo="pause">⏸ 暂停</button><button data-gw-pomo="stop" class="ghost">提前结束</button>';
-    else if (paused) h += '<button data-gw-pomo="resume">▶ 继续</button><button data-gw-pomo="stop" class="ghost">提前结束</button>';
-    else h += '<button data-gw-pomo="start">▶ 开始' + esc(PHASE_LABEL[phase] || '专注') + ' ' + dur[phase] + ' 分钟</button>';
+    if (active) h += '<button data-gw-pomo="pause"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/></svg> 暂停</button><button data-gw-pomo="stop" class="ghost">提前结束</button>';
+    else if (paused) h += '<button data-gw-pomo="resume"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 继续</button><button data-gw-pomo="stop" class="ghost">提前结束</button>';
+    else h += '<button data-gw-pomo="start"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 开始' + esc(PHASE_LABEL[phase] || '专注') + ' ' + dur[phase] + ' 分钟</button>';
     h += '<button data-gw-pomo="skip" class="ghost">跳过这段</button></div>';
     h += '<div class="gw-pomo-card"><div class="muted">时长（分钟）</div>' +
       '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">' +
@@ -18520,19 +18520,19 @@ const renderPomo = () => {
       '<label style="font-size:13px">短休息 <input class="gw-input" style="width:64px" type="number" min="1" max="30" value="' + dur.short + '" data-gw-dur="short"></label>' +
       '<label style="font-size:13px">长休息 <input class="gw-input" style="width:64px" type="number" min="1" max="60" value="' + dur.long + '" data-gw-dur="long"></label></div>' +
       '<div class="muted" style="margin-top:6px">4 轮一组，第 4 轮专注后是长休息。计时锚定结束时间戳，切后台、锁屏也不会跑偏。</div></div>';
-    h += '<div class="gw-pomo-card"><div style="display:flex;justify-content:space-between;align-items:center"><span>🎯 今日目标</span><span class="' + (st.goalReached ? 'gw-goal-glow' : '') + '" style="border-radius:8px;padding:2px 8px">🎯 ' + st.todaySessions + '/' + st.goal + (st.goalReached ? ' · 达成 ✨' : '') + '</span></div>' +
+    h += '<div class="gw-pomo-card"><div style="display:flex;justify-content:space-between;align-items:center"><span>今日目标</span><span class="' + (st.goalReached ? 'gw-goal-glow' : '') + '" style="border-radius:8px;padding:2px 8px">' + st.todaySessions + '/' + st.goal + (st.goalReached ? ' · 达成' : '') + '</span></div>' +
       '<div style="display:flex;gap:8px;margin-top:8px;align-items:center"><label style="font-size:13px">每日目标轮数（1–20）<input class="gw-input" style="width:64px" type="number" min="1" max="20" value="' + st.goal + '" data-gw-goal="1"></label>' +
       '<span class="muted">连续 ' + st.streak + ' 天 · 今日 ' + st.todayMinutes + ' 分钟 · 累计 ' + st.total + ' 分钟</span></div>' +
       '<div class="gw-week">' + st.week.map((d) => '<div class="gw-week-col"><div class="gw-week-bar" style="height:' + Math.max(2, Math.min(44, Math.round((d.minutes / Math.max(1, Math.max.apply(null, st.week.map((x) => x.minutes)) || 1)) * 44))) + 'px"></div>' + esc(d.label) + '<br>' + d.minutes + '′</div>').join('') + '</div></div>';
     h += '<div class="gw-pomo-card"><div class="muted">环境音（WebAudio 合成，非录音文件）</div><div class="gw-seg" style="margin-top:8px">' +
-      [['off', '关闭'], ['waves', '🌊 海浪'], ['rain', '🌧 雨声'], ['forest', '🌲 森林'], ['lofi', '🎧 Lo-fi'], ['jazz', '🎷 爵士']].map((a) => '<button data-gw-amb="' + a[0] + '" class="' + ((pomo.ambient || 'off') === a[0] ? 'on' : '') + '">' + a[1] + '</button>').join('') + '</div></div>';
+      [['off', '关闭'], ['waves', '海浪'], ['rain', '雨声'], ['forest', '森林'], ['lofi', 'Lo-fi'], ['jazz', '爵士']].map((a) => '<button data-gw-amb="' + a[0] + '" class="' + ((pomo.ambient || 'off') === a[0] ? 'on' : '') + '">' + a[1] + '</button>').join('') + '</div></div>';
     h += '<div class="gw-pomo-card"><div class="muted">' + esc(charName()) + '：' + (active ? '专注中途不打扰，我在旁边安静陪你。' : '开始时我会给你加油，结束时我来庆祝。') + ' ' + esc(charCatComment(cat) || '') + '</div></div>';
   }
   if (_pomoTab === 'tasks') {
     const t = taskLoad();
     h += '<div class="gw-pomo-card"><div style="display:flex;gap:8px"><input id="gw-task-input" class="gw-input" placeholder="加一个任务…" maxlength="60"><button data-gw-pomo="task-add" style="border:0;background:#3a1e14;color:#ffe9c9;border-radius:8px;padding:9px 14px;font-size:13px">添加</button></div>' +
-      '<div class="muted" style="margin-top:6px">📌 置顶一个作当前任务，专注结束自动标记完成。</div></div>';
-    h += '<div class="gw-pomo-card">' + (t.tasks.length ? t.tasks.map((it) => '<div class="gw-task-row' + (it.done ? ' done' : '') + (it.pinned ? ' pinned' : '') + '"><div class="t">' + (it.pinned ? '📌 ' : '') + esc(it.title) + '</div>' +
+      '<div class="muted" style="margin-top:6px">置顶一个作当前任务，专注结束自动标记完成。</div></div>';
+    h += '<div class="gw-pomo-card">' + (t.tasks.length ? t.tasks.map((it) => '<div class="gw-task-row' + (it.done ? ' done' : '') + (it.pinned ? ' pinned' : '') + '"><div class="t">' + (it.pinned ? '' : '') + esc(it.title) + '</div>' +
       '<button data-gw-task-pin="' + esc(it.id) + '">' + (it.pinned ? '取消置顶' : '置顶') + '</button>' +
       '<button data-gw-task-toggle="' + esc(it.id) + '">' + (it.done ? '恢复' : '完成') + '</button>' +
       '<button data-gw-task-del="' + esc(it.id) + '">删除</button></div>').join('') : '<div class="muted">还没有任务。</div>') + '</div>';
@@ -18549,11 +18549,11 @@ const renderPomo = () => {
         '<div class="gw-pomo-card" style="text-align:center"><canvas id="gw-nest-canvas" class="gw-nest-canvas" width="13" height="13" aria-label="橘猫"></canvas>' +
         '<div style="font-size:20px;font-weight:700;margin-top:8px">' + esc(cat.name || '阿橘') + '</div>' +
         '<div class="muted" style="margin-top:2px">' + esc(nestGreet) + '</div>' +
-        '<div class="muted" style="margin-top:2px">' + esc(catState.label) + ' · Lv.' + (cat.level || 1) + ' · 🪙 ' + (cat.coins || 0) + (accIco ? ' · ' + esc(accIco) : '') + '</div>' +
+        '<div class="muted" style="margin-top:2px">' + esc(catState.label) + ' · Lv.' + (cat.level || 1) + ' · 金币 ' + (cat.coins || 0) + (accIco ? ' · ' + accIco : '') + '</div>' +
         '<div class="muted">经验 ' + (cat.xp || 0) + ' / ' + xpNeeded(cat.level || 1) + ' · 专注每分钟赚 3 金币</div></div>';
       h += '<div class="gw-pomo-card">' + barHTML('饱腹', cat.satiety, '#E8A04C') + barHTML('心情', cat.mood, '#E87A9B') + barHTML('亲密度', cat.bond, '#D98A9E') +
         '<div class="muted">属性低于 25 变琥珀色、低于 10 变红闪烁；饥饿（&lt;25）或疲惫（&lt;20）时心情掉得更快；精力满自动醒来。亲密度靠摸摸和玩耍涨，会随时间慢慢下降。</div>' +
-        '<div class="gw-nest-btns"><button data-gw-pomo="pat">🤲 摸摸</button><button data-gw-pomo="feed">🍗 喂食 · 10🪙</button><button data-gw-pomo="play">🧶 玩耍 · 8🪙</button><button data-gw-pomo="market">🛍 桌宠市场</button></div>' +
+        '<div class="gw-nest-btns"><button data-gw-pomo="pat">摸摸</button><button data-gw-pomo="feed">喂食 · 10 金币</button><button data-gw-pomo="play">玩耍 · 8 金币</button><button data-gw-pomo="market">桌宠市场</button></div>' +
         '<div style="display:flex;gap:8px;margin-top:8px"><input id="gw-cat-name" class="gw-input" value="' + esc(cat.name || '') + '" maxlength="20" placeholder="给猫改名（最多 20 字）"><button data-gw-pomo="rename" style="border:0;background:#3a1e14;color:#ffe9c9;border-radius:8px;padding:9px 14px;font-size:13px">改名</button></div>' +
         '<div class="muted" style="margin-top:8px">' + esc(charName()) + '：' + esc(charCatComment(cat) || '猫今天状态不错。') + '</div></div>';
       h += '<div class="gw-pomo-card"><div class="muted">桌宠市场是本机桌宠：状态只存在这台手机里，饱腹、心情和亲密度会随时间慢慢下降，记得回来看看它。</div></div>';
@@ -18564,11 +18564,11 @@ const renderPomo = () => {
       h += '<div class="gw-pomo-card">还没有猫，先领养。</div>';
     } else {
       const owned = cat.owned || [];
-      h += '<div class="gw-pomo-card"><div style="display:flex;justify-content:space-between"><span>🪙 金币：' + (cat.coins || 0) + '</span><span>Lv.' + (cat.level || 1) + ' · 经验 ' + (cat.xp || 0) + '/' + xpNeeded(cat.level || 1) + '</span></div>' +
-        '<div class="muted" style="margin-top:4px">里程碑礼物：Lv.6 👑 皇冠、Lv.8 😇 光环，升级自动送。</div></div>';
+      h += '<div class="gw-pomo-card"><div style="display:flex;justify-content:space-between"><span>金币：' + (cat.coins || 0) + '</span><span>Lv.' + (cat.level || 1) + ' · 经验 ' + (cat.xp || 0) + '/' + xpNeeded(cat.level || 1) + '</span></div>' +
+        '<div class="muted" style="margin-top:4px">里程碑礼物：Lv.6 皇冠、Lv.8 光环，升级自动送。</div></div>';
       h += '<div class="gw-pomo-card"><div style="font-weight:700;margin-bottom:8px">商店</div><div class="gw-shop-grid">' +
-        SHOP.filter((x) => x.price > 0).map((x) => '<div class="gw-shop-item"><div style="font-size:22px">' + x.ico + '</div><div>' + esc(x.name) + '</div><div class="muted">' + x.price + '🪙</div><button data-gw-buy="' + x.id + '" ' + (owned.includes(x.id) ? 'disabled>已拥有' : ((cat.coins || 0) < x.price ? 'disabled>金币不足' : '>购买')) + '</button></div>').join('') +
-        '<div class="gw-shop-item"><div style="font-size:22px">🎁</div><div>全套套装</div><div class="muted">' + setPrice(cat) + '🪙（八折，只对未拥有道具收费）</div><button data-gw-buy="set" ' + (setPrice(cat) <= 0 || (cat.coins || 0) < setPrice(cat) ? 'disabled>买不了' : '>购买套装') + '</button></div>' +
+        SHOP.filter((x) => x.price > 0).map((x) => '<div class="gw-shop-item"><div style="font-size:22px">' + x.ico + '</div><div>' + esc(x.name) + '</div><div class="muted">' + x.price + ' 金币</div><button data-gw-buy="' + x.id + '" ' + (owned.includes(x.id) ? 'disabled>已拥有' : ((cat.coins || 0) < x.price ? 'disabled>金币不足' : '>购买')) + '</button></div>').join('') +
+        '<div class="gw-shop-item"><div style="font-size:22px"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M2.5 6h19v3h-19Zm9.5 0v15m0-15c-5 0-6-4-3-4s3 4 3 4Zm0 0c5 0 6-4 3-4s-3 4-3 4Z"/></svg></div><div>全套套装</div><div class="muted">' + setPrice(cat) + ' 金币（八折，只对未拥有道具收费）</div><button data-gw-buy="set" ' + (setPrice(cat) <= 0 || (cat.coins || 0) < setPrice(cat) ? 'disabled>买不了' : '>购买套装') + '</button></div>' +
         '</div></div>';
       const slots = [['head', '头部'], ['eye', '眼部'], ['neck', '颈部'], ['hand', '手持']];
       h += '<div class="gw-pomo-card"><div style="font-weight:700;margin-bottom:8px">衣柜（四个槽位可同时穿戴，再点取下）</div>' +
@@ -18592,7 +18592,7 @@ const buildPomodoroOverlay = () => {
   ov.id = 'gw-pomo-overlay';
   ov.className = 'gw-pomo';
   ov.style.display = 'none';
-  ov.innerHTML = '<div class="gw-pomo-head"><span>🍅 番茄专注</span><span class="sp"></span><button data-gw-pomo="fullscreen">⛶ 全屏</button><button data-gw-pomo="close">✕</button></div><div class="gw-pomo-body" id="gw-pomo-body"></div>';
+  ov.innerHTML = '<div class="gw-pomo-head"><span>番茄专注</span><span class="sp"></span><button data-gw-pomo="fullscreen"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v5m11-5h5v5M9 20H4v-5m11 5h5v-5"/></svg> 全屏</button><button data-gw-pomo="close"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="gw-pomo-body" id="gw-pomo-body"></div>';
   document.body.appendChild(ov);
   ov.addEventListener('click', (e) => {
     const tab = e.target.closest('[data-gw-ptab]');
@@ -18911,12 +18911,12 @@ const coinsSyncFromFocus = () => {
 // ── 1. 装修方案预览：先出方案（摆哪/长什么样/材料+金币），确认才摆放扣费 ──
 const DECOR_KEY = 'otome_decor_v1';
 const DECOR_CATALOG = [
-  { id: 'sofa2', name: '软软的双人沙发', ico: '🛋️', room: '客厅', cost: 30, materials: [{ name: '布料', qty: 2 }, { name: '木材', qty: 1 }] },
-  { id: 'lamp2', name: '落地灯', ico: '💡', room: '卧室', cost: 12, materials: [{ name: '灯泡', qty: 1 }, { name: '木材', qty: 1 }] },
-  { id: 'plant', name: '阳台绿植', ico: '🪴', room: '阳台', cost: 8, materials: [{ name: '花盆', qty: 1 }, { name: '种子', qty: 1 }] },
-  { id: 'bookshelf', name: '小书架', ico: '📚', room: '客厅', cost: 25, materials: [{ name: '木材', qty: 3 }, { name: '书', qty: 2 }] },
-  { id: 'rug', name: '暖绒地毯', ico: '🧶', room: '卧室', cost: 15, materials: [{ name: '布料', qty: 2 }] },
-  { id: 'catbed', name: '猫窝', ico: '🐱', room: '阳台', cost: 10, materials: [{ name: '布料', qty: 1 }, { name: '棉花', qty: 1 }] }
+  { id: 'sofa2', name: '软软的双人沙发', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11V7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5V11"/><path d="M3.5 13a2 2 0 0 1 4 0v1h9v-1a2 2 0 0 1 4 0v2.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V13Z"/><path d="M7 19.5v1.5m10-1.5v1.5"/></svg>', room: '客厅', cost: 30, materials: [{ name: '布料', qty: 2 }, { name: '木材', qty: 1 }] },
+  { id: 'lamp2', name: '落地灯', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16c0-2-3-3.2-3-7a7 7 0 0 1 14 0c0 3.8-3 5-3 7Zm1 2h6m-5 3h4"/></svg>', room: '卧室', cost: 12, materials: [{ name: '灯泡', qty: 1 }, { name: '木材', qty: 1 }] },
+  { id: 'plant', name: '阳台绿植', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19C5 9 12 4 20 4c0 8-5 15-15 15Z"/><path d="M5 19c3-6 7-9 11-11"/></svg>', room: '阳台', cost: 8, materials: [{ name: '花盆', qty: 1 }, { name: '种子', qty: 1 }] },
+  { id: 'bookshelf', name: '小书架', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg>', room: '客厅', cost: 25, materials: [{ name: '木材', qty: 3 }, { name: '书', qty: 2 }] },
+  { id: 'rug', name: '暖绒地毯', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M4.5 9.5c4 1.5 8 4.5 11 8M5 15c3-2 7-3 10-2.5M9 4.5c2 4 2 9 1 14"/></svg>', room: '卧室', cost: 15, materials: [{ name: '布料', qty: 2 }] },
+  { id: 'catbed', name: '猫窝', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>', room: '阳台', cost: 10, materials: [{ name: '布料', qty: 1 }, { name: '棉花', qty: 1 }] }
 ];
 const decorLoad = () => { const d = _read(DECOR_KEY, null); return (d && typeof d === 'object') ? Object.assign({ placed: [] }, d) : { placed: [] }; };
 const decorPlan = (furnId) => {
@@ -18941,12 +18941,12 @@ const decorPanelHTML = () => {
   const d = decorLoad();
   const bal = coinsBalance();
   let h = '<div class="ot-muted">装修要先出方案：摆在哪、长什么样、要哪些材料、多少金币，都先给你看清楚，点「确认摆放」才扣金币。金币就是猫的零花钱（otome_coins_v1），和番茄专注、游戏奖励同一本账。</div>'
-    + '<div class="ot-muted" style="margin-top:6px;">💰 当前金币：<b>' + bal + '</b>（专注 1 分钟 = 3 金币，见奖励折算）</div>';
+    + '<div class="ot-muted" style="margin-top:6px;">当前金币：<b>' + bal + '</b>（专注 1 分钟 = 3 金币，见奖励折算）</div>';
   DECOR_CATALOG.forEach((item) => {
     const placed = d.placed.some((p) => p.id === item.id);
-    h += '<div class="ot-card" style="margin:8px 0 0;"><div style="font-size:14px;">' + item.ico + ' ' + esc(item.name) + ' · ' + esc(item.room) + (placed ? ' · ✅ 已摆放' : '') + '</div>'
+    h += '<div class="ot-card" style="margin:8px 0 0;"><div style="font-size:14px;">' + item.ico + ' ' + esc(item.name) + ' · ' + esc(item.room) + (placed ? ' · <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 已摆放' : '') + '</div>'
       + '<div class="ot-muted">方案：放在' + esc(item.room) + ' · 材料：' + item.materials.map((m) => esc(m.name) + '×' + m.qty).join('、') + ' · ' + item.cost + ' 金币</div>'
-      + (placed ? '' : '<div style="margin-top:6px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeDecorAct(\'plan\',\'' + item.id + '\')">👀 看方案</button></div>')
+      + (placed ? '' : '<div style="margin-top:6px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeDecorAct(\'plan\',\'' + item.id + '\')">看方案</button></div>')
       + '</div>';
   });
   h += '<div id="ot-decor-plan" style="margin-top:10px;"></div>';
@@ -18956,12 +18956,12 @@ const decorPanelHTML = () => {
 // ── 2. 任务制：外出/探险/家务都是一段段有步骤的小任务，可暂停/叫停 ──
 const TASK_KEY = 'otome_tasks_v1';
 const TASK_DEFS = [
-  { id: 'outing-park', kind: 'outing', name: '去公园散步', ico: '🌳', rewardCoins: 6, rewardAff: 2, steps: ['换鞋出门', '走到公园门口', '湖边坐一会儿', '牵手慢慢走回家'] },
-  { id: 'outing-market', kind: 'outing', name: '一起去买菜', ico: '🧺', rewardCoins: 5, rewardAff: 1, steps: ['列一张买菜单', '去菜市场挑菜', '提着菜回家'] },
-  { id: 'explore-ruin', kind: 'explore', name: '危楼探险', ico: '🏚️', rewardCoins: 10, rewardAff: 2, probRuleId: 'ruin-collapse', probStep: 1, steps: ['走到危楼门口', '小心推开门进去', '上楼看看旧房间', '安全撤出来'] },
-  { id: 'explore-night', kind: 'explore', name: '夜里去河边', ico: '🌙', rewardCoins: 8, rewardAff: 2, steps: ['带上手电出门', '沿着河边走', '坐在石阶上看星星', '披星戴月回家'] },
-  { id: 'chore-cook', kind: 'chore', name: '一起做晚饭', ico: '🍳', rewardCoins: 6, rewardAff: 2, steps: ['洗菜切菜', '开火炒菜', '摆盘上桌', '一起收拾碗筷'] },
-  { id: 'chore-clean', kind: 'chore', name: '大扫除', ico: '🧹', rewardCoins: 4, rewardAff: 1, steps: ['收拾客厅', '擦窗户', '拖地收尾'] }
+  { id: 'outing-park', kind: 'outing', name: '去公园散步', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 7 12h3l-4 6h12l-4-6h3Z"/><path d="M12 18v3.5"/></svg>', rewardCoins: 6, rewardAff: 2, steps: ['换鞋出门', '走到公园门口', '湖边坐一会儿', '牵手慢慢走回家'] },
+  { id: 'outing-market', kind: 'outing', name: '一起去买菜', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h14l-1.5 9.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5Z"/><path d="M8.5 10 12 3l3.5 7M10 13.5v4m4-4v4"/></svg>', rewardCoins: 5, rewardAff: 1, steps: ['列一张买菜单', '去菜市场挑菜', '提着菜回家'] },
+  { id: 'explore-ruin', kind: 'explore', name: '危楼探险', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-7 9 7v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20Z"/><path d="M9.5 21v-8h5v8"/></svg>', rewardCoins: 10, rewardAff: 2, probRuleId: 'ruin-collapse', probStep: 1, steps: ['走到危楼门口', '小心推开门进去', '上楼看看旧房间', '安全撤出来'] },
+  { id: 'explore-night', kind: 'explore', name: '夜里去河边', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg>', rewardCoins: 8, rewardAff: 2, steps: ['带上手电出门', '沿着河边走', '坐在石阶上看星星', '披星戴月回家'] },
+  { id: 'chore-cook', kind: 'chore', name: '一起做晚饭', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="12" rx="1.5"/><circle cx="9" cy="14.5" r="2"/><circle cx="15" cy="14.5" r="2"/><path d="M8 5.5h.01M12 5.5h.01M16 5.5h.01"/></svg>', rewardCoins: 6, rewardAff: 2, steps: ['洗菜切菜', '开火炒菜', '摆盘上桌', '一起收拾碗筷'] },
+  { id: 'chore-clean', kind: 'chore', name: '大扫除', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m18.5 3.5-9 10M9.5 13.5 4 20l6.5-1M9.5 13.5l-4.5 2M9.5 13.5 7 18"/></svg>', rewardCoins: 4, rewardAff: 1, steps: ['收拾客厅', '擦窗户', '拖地收尾'] }
 ];
 const taskDef = (id) => TASK_DEFS.find((t) => t.id === id) || null;
 const taskLoad = () => { const d = _read(TASK_KEY, null); return (d && typeof d === 'object') ? Object.assign({ current: null, history: [] }, d) : { current: null, history: [] }; };
@@ -18997,7 +18997,7 @@ const taskAdvance = () => {
     return { cur: null, done: true, msg: '完成了「' + def.name + '」！金币 +' + def.rewardCoins + '，好感 +' + def.rewardAff + '。', effect: effect };
   }
   taskSave(d);
-  return { cur: cur, done: false, msg: '第 ' + cur.step + '/' + cur.steps.length + ' 步：' + cur.steps[cur.step - 1] + ' ✓', effect: effect };
+  return { cur: cur, done: false, msg: '第 ' + cur.step + '/' + cur.steps.length + ' 步：' + cur.steps[cur.step - 1] + ' <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>', effect: effect };
 };
 const taskPause = () => { const d = taskLoad(); if (!d.current) return null; d.current.status = 'paused'; taskSave(d); return d.current; };
 const taskResume = () => { const d = taskLoad(); if (!d.current) return null; d.current.status = 'doing'; taskSave(d); return d.current; };
@@ -19024,12 +19024,12 @@ const taskPanelHTML = () => {
   const cur = d.current;
   let h = '<div class="ot-muted">外出、探险、做家务都是一段段小任务：每段有步骤列表，做完一步再走下一步；随时能暂停（进度保留）或叫停（按进度结算）。</div>';
   if (cur) {
-    h += '<div class="ot-card" style="margin-top:10px;"><div style="font-weight:700;">' + esc(cur.name) + ' · ' + (cur.status === 'paused' ? '⏸ 已暂停' : '▶ 进行中') + '</div>'
-      + '<div style="margin-top:6px;font-size:13px;line-height:2;">' + cur.steps.map((s, i) => (i < (cur.step || 0) ? '✅ ' : (i === (cur.step || 0) && cur.status === 'doing' ? '👉 ' : '· ')) + esc(s)).join('<br>') + '</div>'
+    h += '<div class="ot-card" style="margin-top:10px;"><div style="font-weight:700;">' + esc(cur.name) + ' · ' + (cur.status === 'paused' ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/></svg> 已暂停' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 进行中') + '</div>'
+      + '<div style="margin-top:6px;font-size:13px;line-height:2;">' + cur.steps.map((s, i) => (i < (cur.step || 0) ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> ' : (i === (cur.step || 0) && cur.status === 'doing' ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6v12l6.5-6Z" fill="currentColor" stroke="none"/></svg> ' : '· ')) + esc(s)).join('<br>') + '</div>'
       + '<div class="ot-muted">进度 ' + (cur.step || 0) + '/' + cur.steps.length + ' 步</div>'
       + '<div style="display:flex;gap:8px;margin-top:8px;">'
-      + (cur.status === 'doing' ? '<button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'next\')">下一步 ▶</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'pause\')">⏸ 暂停</button>' : '<button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'resume\')">▶ 继续</button>')
-      + '<button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'abort\')">■ 叫停结算</button></div></div>';
+      + (cur.status === 'doing' ? '<button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'next\')">下一步 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6v12l6.5-6Z" fill="currentColor" stroke="none"/></svg></button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'pause\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none"/></svg> 暂停</button>' : '<button class="ot-btn" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'resume\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg> 继续</button>')
+      + '<button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeTaskAct(\'abort\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor" stroke="none"/></svg> 叫停结算</button></div></div>';
   } else {
     h += '<div style="font-weight:700;margin:12px 0 6px;">选一段任务开始</div>';
     TASK_DEFS.forEach((t) => {
@@ -19137,7 +19137,7 @@ const firstClickSafe = (cells, firstIdx) => {
 const skillRowHTML = () => {
   const sk = skillLoad();
   const opt = (seatId, cur) => SKILL_LEVELS.map((lv) => '<option value="' + lv + '"' + (cur === lv ? ' selected' : '') + '>' + lv + ' · ' + esc(SKILL_LABELS[lv]) + '</option>').join('');
-  return '<div style="font-weight:700;margin:14px 0 6px;">🃏 斗地主棋力（三档可切）</div>'
+  return '<div style="font-weight:700;margin:14px 0 6px;">斗地主棋力（三档可切）</div>'
     + '<div class="ot-muted">他的棋力 <select id="ot-skill-char" onchange="WeChatAppEngine.otomeSkillAct(\'char\',this.value)" style="padding:6px;border:1px solid #ddd;border-radius:8px;">' + opt('char', sk.char) + '</select></div>'
     + '<div class="ot-muted" style="margin-top:6px;">阿九的棋力 <select id="ot-skill-ajiu" onchange="WeChatAppEngine.otomeSkillAct(\'ajiu\',this.value)" style="padding:6px;border:1px solid #ddd;border-radius:8px;">' + opt('ajiu', sk.ajiu) + '</select></div>'
     + '<div class="ot-muted" style="margin-top:6px;">minimax 档是本地一层前瞻启发式，不是全树搜索，也不是真模型。新手保护：扫雷类游戏首点必安全（当前文件里还没有扫雷，这个保护做成通用辅助等以后用）。</div>';
@@ -19184,9 +19184,9 @@ const wordCharDemo = (words) => {
 const wordSectionHTML = () => {
   const words = wordCurrent() || wordDraw();
   const d = wordLoad();
-  let h = '<div style="font-weight:700;margin:14px 0 6px;">✍️ 填词挑战</div><div class="ot-muted">随机给你 5 个词，你或他必须用上它们编一段对话/剧情。用上至少 ' + WORD_NEED + ' 个就达标，好感 +' + WORD_AFF + '（写 otome_affection_v1）。</div>'
+  let h = '<div style="font-weight:700;margin:14px 0 6px;">填词挑战</div><div class="ot-muted">随机给你 5 个词，你或他必须用上它们编一段对话/剧情。用上至少 ' + WORD_NEED + ' 个就达标，好感 +' + WORD_AFF + '（写 otome_affection_v1）。</div>'
     + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' + words.map((w) => '<span style="background:#fff;border:1px solid #f0e6dc;border-radius:9px;padding:6px 10px;font-size:13px;">' + esc(w) + '</span>').join('') + '</div>'
-    + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeWordAct(\'draw\')">🎲 换 5 个词</button><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeWordAct(\'demo\')">💬 看他示范编一段</button></div>'
+    + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeWordAct(\'draw\')">换 5 个词</button><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeWordAct(\'demo\')">看他示范编一段</button></div>'
     + '<div style="margin-top:8px;"><textarea id="ot-word-input" placeholder="在这里编一段话，尽量用上上面的词……" style="width:100%;min-height:64px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:13px;box-sizing:border-box;"></textarea></div>'
     + '<div style="margin-top:6px;"><button class="ot-btn" style="width:100%;" onclick="WeChatAppEngine.otomeWordAct(\'submit\')">提交这段话</button></div>'
     + '<div id="ot-word-result" class="ot-muted" style="margin-top:6px;"></div>'
@@ -19237,8 +19237,8 @@ const voteEnding = (scriptId, endingLabel) => {
 const voteSectionHTML = () => {
   const d = voteLoad();
   const round = d.rounds[0] || null;
-  let h = '<div style="font-weight:700;margin:14px 0 6px;">🗳️ 投票计分</div><div class="ot-muted">你和他轮流出题/表演，然后互相打分（1–5 分），总分 10 分；满分 9 分以上亮“满分之夜”。剧本多个结局也可以投票，票数计入成就。</div>';
-  h += '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeVoteAct(\'start\')">🎤 开一轮表演投票</button></div>';
+  let h = '<div style="font-weight:700;margin:14px 0 6px;">投票计分</div><div class="ot-muted">你和他轮流出题/表演，然后互相打分（1–5 分），总分 10 分；满分 9 分以上亮“满分之夜”。剧本多个结局也可以投票，票数计入成就。</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeVoteAct(\'start\')">开一轮表演投票</button></div>';
   if (round) {
     h += '<div class="ot-card" style="margin-top:8px;"><div style="font-size:14px;">本轮：' + esc(round.topic) + (round.total !== null ? ' · 总分 <b>' + round.total + '/10</b>' : ' · 等打分') + '</div>'
       + '<div style="display:flex;gap:8px;margin-top:8px;"><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeVoteAct(\'score-me\')">我给他打 5 分</button><button class="ot-btn ot-btn-ghost" style="flex:1;" onclick="WeChatAppEngine.otomeVoteAct(\'score-char\')">他给我打 5 分</button></div>'
@@ -19248,7 +19248,7 @@ const voteSectionHTML = () => {
   if (ends.length) {
     h += '<div style="font-weight:700;margin:10px 0 4px;">剧本结局投票（已保存的剧本记忆）</div>';
     ends.slice(0, 3).forEach((e) => {
-      h += '<div class="ot-card" style="margin:6px 0 0;display:flex;gap:8px;align-items:center;"><div style="flex:1;font-size:13px;">🎞 ' + esc(e.scriptTitle || e.title || '') + ' · ' + esc(e.ending || '') + '</div><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeVoteAct(\'ending\',\'' + esc(e.scriptId || e.id || '') + '\',\'' + esc(e.ending || '') + '\')">❤️ 投一票</button></div>';
+      h += '<div class="ot-card" style="margin:6px 0 0;display:flex;gap:8px;align-items:center;"><div style="flex:1;font-size:13px;">' + esc(e.scriptTitle || e.title || '') + ' · ' + esc(e.ending || '') + '</div><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.otomeVoteAct(\'ending\',\'' + esc(e.scriptId || e.id || '') + '\',\'' + esc(e.ending || '') + '\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg> 投一票</button></div>';
     });
   } else {
     h += '<div class="ot-muted" style="margin-top:8px;">还没有保存过的剧本结局——去「剧本」app 演一卷、保存记忆后，就能回来给结局投票。</div>';
@@ -19363,14 +19363,14 @@ const convertDelta = (name) => {
 const rewardsHTML = () => {
   const d = rewardsLoad();
   const src = readSources();
-  let h = '<div style="font-weight:700;margin:14px 0 6px;">🏅 奖励折算 · 徽章墙</div>'
+  let h = '<div style="font-weight:700;margin:14px 0 6px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="5"/><path d="M9 10.5 6.5 3.5h4L12 7l1.5-3.5h4L15 10.5"/></svg> 奖励折算 · 徽章墙</div>'
     + '<div class="ot-muted">钓鱼 1 条 = 2 金币 + 1 经验；专注 1 分钟 = 3 金币、每 10 分钟 + 1 经验；阅读 1% = 1 金币，读完一本 + 5 好感。都折进同一本账（otome_rewards_v1），金币进猫的零花钱。</div>'
     + '<div class="ot-muted" style="margin-top:6px;">当前来源：钓到 ' + src.fishCaught + ' 条 · 专注 ' + src.focusMin + ' 分钟 · 阅读最高 ' + src.readPct + '%</div>'
     + '<div class="ot-muted">已折算：' + (d.totalCoins || 0) + ' 金币 · ' + (d.totalExp || 0) + ' 经验 · ' + (d.totalAff || 0) + ' 好感</div>'
-    + '<div style="margin-top:6px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeRewardAct(\'convert\')">💰 折算新增的奖励</button></div>'
+    + '<div style="margin-top:6px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeRewardAct(\'convert\')">折算新增的奖励</button></div>'
     + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' + BADGES.map((b) => {
       const got = !!d.badges[b.id];
-      return '<span style="background:' + (got ? '#fff7e0' : '#f5f5f5') + ';border:1px solid ' + (got ? '#e8b64c' : '#eee') + ';border-radius:9px;padding:6px 10px;font-size:12px;' + (got ? '' : 'opacity:.45;') + '">' + (got ? '🏅 ' : '🔒 ') + esc(b.name) + '</span>';
+      return '<span style="background:' + (got ? '#fff7e0' : '#f5f5f5') + ';border:1px solid ' + (got ? '#e8b64c' : '#eee') + ';border-radius:9px;padding:6px 10px;font-size:12px;' + (got ? '' : 'opacity:.45;') + '">' + (got ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="15" r="5"/><path d="M9 10.5 6.5 3.5h4L12 7l1.5-3.5h4L15 10.5"/></svg> ' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></svg> ') + esc(b.name) + '</span>';
     }).join('') + '</div>'
     + '<div class="ot-muted" style="margin-top:6px;">徽章条件：钓鱼 10 条 / 专注 100 分钟 / 读完一本书 / 填词达标 3 次 / 完成一次投票 / 装修满 3 件。</div>';
   return h;
@@ -19441,7 +19441,7 @@ saveAff(name, rec); return rec;
 const _blankHome = () => ({ pet: null, visitedRooms: [], furnFirst: {}, lastRoom: 'living'});
 const loadHome = () => { const d = _read(HOME_KEY); return (d && typeof d === 'object')? Object.assign(_blankHome(), d): _blankHome();};
 const saveHome = (h) => _write(HOME_KEY, h);
-const PET_KINDS = { cat: { ico: '🐱', name: '猫'}, dog: { ico: '🐶', name: '狗'}, rabbit: { ico: '🐰', name: '兔子'}};
+const PET_KINDS = { cat: { ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>', name: '猫'}, dog: { ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9 3.8 5.5c-.3-1 1-1.7 1.8-1l3.2 2.3a10 10 0 0 1 6.4 0l3.2-2.3c.8-.7 2.1 0 1.8 1L19 9a7.5 7.5 0 0 1 1 3.8c0 4.6-3.3 7.4-8 7.4s-8-2.8-8-7.4A7.5 7.5 0 0 1 5 9Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.3 1 2.7 1 4 0"/></svg>', name: '狗'}, rabbit: { ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="8.5" cy="7.5" rx="2.2" ry="5"/><ellipse cx="15.5" cy="7.5" rx="2.2" ry="5"/><circle cx="12" cy="15.5" r="5.5"/><path d="M10 15.5h.1m3.8 0h.1"/></svg>', name: '兔子'}};
 const adoptPet = (kind, name) => {
 const h = loadHome();
 h.pet = { kind, name: (name || PET_KINDS[kind].name), satiety: 70, mood: 60, pats: 0, feeds: 0, adoptedAt: Date.now(), lastTick: Date.now()};
@@ -19468,14 +19468,14 @@ saveHome(h); return h.pet;
 };
 // —— 赠礼 ——
 const GIFTS = [
-{ id: 'coffee', ico: '☕', name: '手冲咖啡', desc: '他最喜欢的提神方式', delta: 8, fav: true, line: '……你怎么知道我今天正想喝这个？', expr: 'happy'},
-{ id: 'book', ico: '📖', name: '旧书店淘来的书', desc: '扉页上还有上一任主人的批注', delta: 8, fav: true, line: '这本我找了好久……你居然淘到了。', expr: 'happy'},
-{ id: 'musicbox', ico: '🎵', name: '音乐盒', desc: '打开会响起很轻的八音盒旋律', delta: 9, fav: true, line: '这个旋律……我小时候听过。谢谢你。', expr: 'shy'},
-{ id: 'dessert', ico: '🍰', name: '草莓大福', desc: '甜到心里去的点心', delta: 7, fav: false, line: '甜点啊……好吧，看在你面子上吃一个。', expr: 'happy'},
-{ id: 'flowers', ico: '💐', name: '向日葵花束', desc: '站在花店门口挑了很久的一束', delta: 6, fav: false, line: '花……挺好看的。插起来吧，放在阳台。', expr: 'shy'},
-{ id: 'scarf', ico: '🧣', name: '手织围巾', desc: '针脚有点歪，但是很暖', delta: 5, fav: false, line: '你织的？……嗯，戴着还挺暖和。', expr: 'shy'},
-{ id: 'cocoa', ico: '🍫', name: '热可可', desc: '冷天里的一杯暖意', delta: 4, fav: false, line: '谢谢，正好有点冷。', expr: 'normal'},
-{ id: 'postcard', ico: '💌', name: '明信片', desc: '写了一句很短的话', delta: 3, fav: false, line: '嗯，我收下了。会好好留着的。', expr: 'normal'}
+{ id: 'coffee', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/></svg>', name: '手冲咖啡', desc: '他最喜欢的提神方式', delta: 8, fav: true, line: '……你怎么知道我今天正想喝这个？', expr: 'happy'},
+{ id: 'book', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg>', name: '旧书店淘来的书', desc: '扉页上还有上一任主人的批注', delta: 8, fav: true, line: '这本我找了好久……你居然淘到了。', expr: 'happy'},
+{ id: 'musicbox', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5Z"/></svg>', name: '音乐盒', desc: '打开会响起很轻的八音盒旋律', delta: 9, fav: true, line: '这个旋律……我小时候听过。谢谢你。', expr: 'shy'},
+{ id: 'dessert', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M5 20v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6M12 12V9"/><path d="M12 6.5h.01M9 15.5h6"/></svg>', name: '草莓大福', desc: '甜到心里去的点心', delta: 7, fav: false, line: '甜点啊……好吧，看在你面子上吃一个。', expr: 'happy'},
+{ id: 'flowers', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c-4.5-1-5.3-4.2-3.2-5.3 1.5-.8 3.1.4 3.2 3.3.1-2.9 1.7-4.1 3.2-3.3 2.1 1.1 1.3 4.3-3.2 5.3 4.5-1 6.2 1.8 4.3 3.5-1.3 1.2-3.2.4-4.3-2.4 1.1 2.8.2 4.6-1.6 4.4-2.4-.2-3-3.4 1.6-6.2-4.6 2.8-7.1.7-5.8-1.5 1-1.6 3-.9 5.8 1.5Z"/><circle cx="12" cy="12" r="2"/></svg>', name: '向日葵花束', desc: '站在花店门口挑了很久的一束', delta: 6, fav: false, line: '花……挺好看的。插起来吧，放在阳台。', expr: 'shy'},
+{ id: 'scarf', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v8l-1.5 10h-3L9 11Z"/><path d="M9 7h6"/></svg>', name: '手织围巾', desc: '针脚有点歪，但是很暖', delta: 5, fav: false, line: '你织的？……嗯，戴着还挺暖和。', expr: 'shy'},
+{ id: 'cocoa', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/></svg>', name: '热可可', desc: '冷天里的一杯暖意', delta: 4, fav: false, line: '谢谢，正好有点冷。', expr: 'normal'},
+{ id: 'postcard', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>', name: '明信片', desc: '写了一句很短的话', delta: 3, fav: false, line: '嗯，我收下了。会好好留着的。', expr: 'normal'}
 ];
 const giftById = (id) => GIFTS.find(g => g.id === id) || null;
 // 送礼：同一件礼物同一天只加满额一次，重复送只 +1
@@ -19627,10 +19627,10 @@ return out;
 };
 // —— 外出探险：地点与事件（事件奖励只拿一次） ——
 const EXPLORE_LOCS = [
-{ id: 'cafe', ico: '☕', name: '街角咖啡馆', sub: '窗边的位置', sample: false},
-{ id: 'park', ico: '🌳', name: '公园', sub: '傍晚的长椅', sample: false},
-{ id: 'bookstore', ico: '📚', name: '旧书店', sub: '角落里的旧杂志', sample: false},
-{ id: 'station', ico: '🚉', name: '车站前广场', sub: '末班车之前', sample: false}
+{ id: 'cafe', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/></svg>', name: '街角咖啡馆', sub: '窗边的位置', sample: false},
+{ id: 'park', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 7 12h3l-4 6h12l-4-6h3Z"/><path d="M12 18v3.5"/></svg>', name: '公园', sub: '傍晚的长椅', sample: false},
+{ id: 'bookstore', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg>', name: '旧书店', sub: '角落里的旧杂志', sample: false},
+{ id: 'station', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>', name: '车站前广场', sub: '末班车之前', sample: false}
 ];
 const EXPLORE_EVENTS = {
 cafe: [
@@ -21171,7 +21171,7 @@ AppManager.register('novel', (() => {
                            <span style="font-size:13px;font-weight:800;color:#5c826f;">沉浸态阅读舱</span>
                            <span style="font-size:11px;color:#8fa89b;cursor:pointer;" onclick="document.getElementById('novel-book-file-input').click()">导入本地文件 (.txt / .md / .epub)</span>
                        </div>
-                       <div style="margin:0 0 12px;"><button type="button" id="bq-typeset-entry" onclick="window.GroupBQ && window.GroupBQ.open()" style="width:100%;height:40px;border-radius:20px;border:1px solid #a8d8b9;background:#eaf6ee;color:#143024;font-weight:800;font-size:13px;cursor:pointer;">✎ 文字排版器 · 写自己的排版文档</button></div>
+                       <div style="margin:0 0 12px;"><button type="button" id="bq-typeset-entry" onclick="window.GroupBQ && window.GroupBQ.open()" style="width:100%;height:40px;border-radius:20px;border:1px solid #a8d8b9;background:#eaf6ee;color:#143024;font-weight:800;font-size:13px;cursor:pointer;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> 文字排版器 · 写自己的排版文档</button></div>
                        <div id="novel-shelf-list-box"></div>
                    </div>
                </div>
@@ -21189,16 +21189,16 @@ AppManager.register('novel', (() => {
                    <button class="ipb-hbtn" id="novel-reader-cover-btn" type="button" title="换封面" style="flex:none;width:30px;height:40px;border-radius:6px;border:1px solid #e5e0d8;padding:0;overflow:hidden;background:#5b7fa6;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">封</button>
                     <span id="novel-reader-title" style="font-weight:800;color:var(--ipb-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34%;">书籍标题</span>
                    <span style="display:flex;gap:6px;align-items:center;">
-                       <button class="ipb-hbtn" id="novel-reader-toc-btn" type="button" title="目录">☰</button>
-                       <button class="ipb-hbtn" id="novel-reader-annot-btn" type="button" title="本章批注">✎</button>
-                       <button class="ipb-hbtn" id="novel-reader-coread-btn" type="button" title="共读">📖</button>
-                       <button class="ipb-hbtn" id="novel-reader-daynight" type="button" title="日间 / 夜间">☾</button>
+                       <button class="ipb-hbtn" id="novel-reader-toc-btn" type="button" title="目录"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                       <button class="ipb-hbtn" id="novel-reader-annot-btn" type="button" title="本章批注"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+                       <button class="ipb-hbtn" id="novel-reader-coread-btn" type="button" title="共读"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg></button>
+                       <button class="ipb-hbtn" id="novel-reader-daynight" type="button" title="日间 / 夜间"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg></button>
                        <button class="ipb-hbtn" id="novel-reader-theme-btn" type="button" title="主题与版式">Aa</button>
                    </span>
                </div>
                <div class="ipb-panel" id="novel-reader-theme-panel">
                    <div class="ipb-panel-row"><span class="ipb-panel-label">主题 · 8 套</span><div class="ipb-swatches" id="novel-reader-swatches"></div></div>
-                   <div class="ipb-panel-row"><span class="ipb-panel-label">日夜</span><div class="ipb-seg"><button type="button" class="ipb-mode-daynight" data-daynight="day">☀ 日间</button><button type="button" class="ipb-mode-daynight" data-daynight="night">☾ 夜间</button></div></div>
+                   <div class="ipb-panel-row"><span class="ipb-panel-label">日夜</span><div class="ipb-seg"><button type="button" class="ipb-mode-daynight" data-daynight="day">日间</button><button type="button" class="ipb-mode-daynight" data-daynight="night">夜间</button></div></div>
                    <div class="ipb-panel-row"><span class="ipb-panel-label">翻页</span><div class="ipb-seg"><button type="button" class="ipb-pagemode" data-pagemode="page">左右翻页</button><button type="button" class="ipb-pagemode" data-pagemode="scroll">上下滑动</button><button type="button" class="ipb-pagemode" data-pagemode="real">真实翻页</button></div></div>
                    <div class="ipb-panel-row"><span class="ipb-panel-label">背景</span><div class="ipb-seg"><button type="button" class="ipb-bgmode" data-bgmode="white">纯白</button><button type="button" class="ipb-bgmode" data-bgmode="paper">仿真书页</button><button type="button" class="ipb-bgmode" data-bgmode="black">纯黑</button><button type="button" class="ipb-bgmode" data-bgmode="custom">自传图片</button></div></div>
                    <div class="ipb-panel-row"><span class="ipb-panel-label">自传背景</span><button type="button" class="ipb-mini-btn" id="novel-reader-bg-upload">上传图片当背景</button><button type="button" class="ipb-mini-btn" id="novel-reader-bg-clear">清除自传图</button></div>
@@ -21212,17 +21212,17 @@ AppManager.register('novel', (() => {
                    <span class="ipb-pageinfo" id="novel-reader-pageinfo"></span>
                    <button class="ipb-navbtn" id="novel-reader-next" type="button">›</button>
                </div>
-               <button class="ipb-selbtn" id="novel-reader-selbtn" type="button">✎ 划线批注</button>
+               <button class="ipb-selbtn" id="novel-reader-selbtn" type="button">划线批注</button>
                <div class="ipb-drawer ipb-toc" id="novel-reader-toc">
-                   <div class="ipb-drawer-head"><span>目录</span><span class="ipb-drawer-close" data-close-drawer="toc">✕</span></div>
+                   <div class="ipb-drawer-head"><span>目录</span><span class="ipb-drawer-close" data-close-drawer="toc"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span></div>
                    <div class="ipb-drawer-body" id="novel-reader-toc-body"></div>
                </div>
                <div class="ipb-drawer ipb-annots" id="novel-reader-annots">
-                   <div class="ipb-drawer-head"><span id="novel-reader-annots-title">本章批注</span><span class="ipb-drawer-close" data-close-drawer="annots">✕</span></div>
+                   <div class="ipb-drawer-head"><span id="novel-reader-annots-title">本章批注</span><span class="ipb-drawer-close" data-close-drawer="annots"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span></div>
                    <div class="ipb-drawer-body" id="novel-reader-annots-body"></div>
                </div>
                <div class="ipb-drawer ipb-coread" id="novel-reader-coread">
-                   <div class="ipb-drawer-head"><span>共读 · 和 char 一起读</span><span class="ipb-drawer-close" data-close-drawer="coread">✕</span></div>
+                   <div class="ipb-drawer-head"><span>共读 · 和 char 一起读</span><span class="ipb-drawer-close" data-close-drawer="coread"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span></div>
                    <div class="ipb-drawer-body" id="novel-reader-coread-body"></div>
                </div>
                <div class="ipb-composer" id="novel-reader-annot-modal">
@@ -21231,8 +21231,8 @@ AppManager.register('novel', (() => {
                        <textarea id="novel-reader-annot-text" placeholder="写下你的想法…（选中文字已划线）" rows="3"></textarea>
                        <div class="ipb-composer-actions">
                            <button type="button" class="ipb-mini-btn" id="novel-reader-annot-cancel">取消</button>
-                           <button type="button" class="ipb-mini-btn" id="novel-reader-word-save">📝 收藏生词</button>
-                           <button type="button" class="ipb-mini-btn" id="novel-reader-quote-save">✂ 存摘抄</button>
+                           <button type="button" class="ipb-mini-btn" id="novel-reader-word-save">收藏生词</button>
+                           <button type="button" class="ipb-mini-btn" id="novel-reader-quote-save">存摘抄</button>
                            <button type="button" class="ipb-mini-btn ipb-primary" id="novel-reader-annot-save">保存批注</button>
                        </div>
                        <div class="ipb-panel-hint">保存后 AI 共读伙伴会用设置页的 API 回应一句；未配置 API 时会如实提示，不假装回应。</div>
@@ -21528,7 +21528,7 @@ AppManager.register('novel', (() => {
            contentDom.innerHTML = `
                <div style="padding:20px 20px 10px;border-bottom:1px solid #eee;font-weight:bold;color:#143024;display:flex;justify-content:space-between;">
                    <span>在读篇目详情</span>
-                   <span style="cursor:pointer;color:#888;" id="novel-modal-close-btn">✕</span>
+                   <span style="cursor:pointer;color:#888;" id="novel-modal-close-btn"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
                </div>
                <div style="padding:20px;text-align:center;">
                    <div style="font-size:18px;font-weight:800;color:#143024;">${book.title}</div>
@@ -21739,7 +21739,7 @@ AppManager.register('novel', (() => {
            readerDom.classList.toggle('ipb-mode-scroll', t.pageMode === 'scroll');
            readerDom.classList.toggle('ipb-mode-real', t.pageMode === 'real');
            const dnBtn = appWin.querySelector('#novel-reader-daynight');
-           if (dnBtn) dnBtn.textContent = t.mode === 'night' ? '☀' : '☾';
+           if (dnBtn) dnBtn.textContent = t.mode === 'night' ? '日' : '夜';
            readerDom.querySelectorAll('.ipb-swatch').forEach(el => el.classList.toggle('on', el.getAttribute('data-theme') === def.id));
            readerDom.querySelectorAll('.ipb-mode-daynight').forEach(el => el.classList.toggle('on', el.getAttribute('data-daynight') === t.mode));
            readerDom.querySelectorAll('.ipb-pagemode').forEach(el => el.classList.toggle('on', el.getAttribute('data-pagemode') === t.pageMode));
@@ -22037,7 +22037,7 @@ AppManager.register('novel', (() => {
            const ch = r.chapters[r.chapterIdx];
            if (titleDom) titleDom.textContent = '本章批注 · ' + (ch ? ch.title : '');
            const list = (Controller._readerAnnotsLoad()[r.bookId + '::' + r.chapterIdx]) || [];
-           if (!list.length) { body.innerHTML = '<div class="ipb-hint">本章还没有批注。选中一段文字，点「✎ 划线批注」，写下你的想法。</div>'; return; }
+           if (!list.length) { body.innerHTML = '<div class="ipb-hint">本章还没有批注。选中一段文字，点「划线批注」，写下你的想法。</div>'; return; }
            body.innerHTML = list.map(a => {
                let aiHtml = '';
                var aiText = (a.replies && a.replies[0] && a.replies[0].text) || a.aiReply;
@@ -22045,7 +22045,7 @@ AppManager.register('novel', (() => {
                else if (a.aiError === 'NO_API') aiHtml = '<div class="ipb-bubble-ai ipb-bubble-dim">未配置 API，AI 回应暂不可用（去设置页填写 API Key 后，新批注会收到 AI 回应）。</div>';
                else if (a.aiError) aiHtml = '<div class="ipb-bubble-ai ipb-bubble-dim">' + escHtml(a.aiError) + '</div>';
                else aiHtml = '<div class="ipb-bubble-ai ipb-bubble-dim">AI 回应生成中…</div>';
-               if (a.author === 'char') return '<div class="ipb-ann-item"><div class="ipb-ann-quote">“' + escHtml(a.quote) + '”</div><div class="ipb-bubble-ai">💬 char：' + escHtml(a.note) + '</div>' + '<div class="ipb-ann-meta"><span>char 的共读批注 · ' + new Date(a.createdAt).toLocaleString() + '</span><span class="ipb-ann-del" data-ann-del="' + a.id + '">删除</span></div></div>';
+               if (a.author === 'char') return '<div class="ipb-ann-item"><div class="ipb-ann-quote">“' + escHtml(a.quote) + '”</div><div class="ipb-bubble-ai">char：' + escHtml(a.note) + '</div>' + '<div class="ipb-ann-meta"><span>char 的共读批注 · ' + new Date(a.createdAt).toLocaleString() + '</span><span class="ipb-ann-del" data-ann-del="' + a.id + '">删除</span></div></div>';
                return '<div class="ipb-ann-item"><div class="ipb-ann-quote">“' + escHtml(a.quote) + '”</div><div class="ipb-bubble-user">' + escHtml(a.note) + '</div>' + aiHtml + '<div class="ipb-ann-meta"><span>' + new Date(a.createdAt).toLocaleString() + '</span><span class="ipb-ann-del" data-ann-del="' + a.id + '">删除</span></div></div>';
            }).join('');
        },
@@ -22272,9 +22272,9 @@ AppManager.register('novel', (() => {
                 + '<div class="ipb-drawer-sec">阅读时长</div>'
                 + '<div class="gm-coread-row"><span>这本书你累计读了 ' + mins + ' 分钟</span></div>'
                 + '<div class="ipb-drawer-sec">生词本（' + words.length + '）</div>'
-                + (words.length ? words.map(w => '<div class="gm-coread-item"><span>' + escHtml(w.text) + '</span><span class="gm-coread-del" data-coread-del-word="' + w.id + '">删除</span></div>').join('') : '<div class="ipb-hint">还没有生词。选中一段文字，点「📝 收藏生词」。</div>')
+                + (words.length ? words.map(w => '<div class="gm-coread-item"><span>' + escHtml(w.text) + '</span><span class="gm-coread-del" data-coread-del-word="' + w.id + '">删除</span></div>').join('') : '<div class="ipb-hint">还没有生词。选中一段文字，点「收藏生词」。</div>')
                 + '<div class="ipb-drawer-sec">摘抄本（' + quotes.length + '）</div>'
-                + (quotes.length ? quotes.map(q => '<div class="gm-coread-item"><span>“' + escHtml(q.text) + '”</span><span class="gm-coread-del" data-coread-del-quote="' + q.id + '">删除</span></div>').join('') : '<div class="ipb-hint">还没有摘抄。选中一句喜欢的话，点「✂ 存摘抄」。</div>');
+                + (quotes.length ? quotes.map(q => '<div class="gm-coread-item"><span>“' + escHtml(q.text) + '”</span><span class="gm-coread-del" data-coread-del-quote="' + q.id + '">删除</span></div>').join('') : '<div class="ipb-hint">还没有摘抄。选中一句喜欢的话，点「存摘抄」。</div>');
         },
        _coreadCatchUp: (appWin) => {
            const r = Controller._reader;
@@ -23051,7 +23051,7 @@ AppManager.register('forum', (() => {
                 </div>
                 ${toLine}
                 <div class="fm-reply-content ${isLong?'folded':''}" data-long="${isLong}">${fmEsc(r.content)}</div>
-                ${isLong ? '<div class="fm-reply-unfold">展开全部 ▾</div>' : ''}
+                ${isLong ? '<div class="fm-reply-unfold">展开全部</div>' : ''}
                 ${actions}
             </div>`;
         };
@@ -23076,16 +23076,16 @@ AppManager.register('forum', (() => {
                 <div class="fm-d-content">${fmEsc(post.body)}</div>
                 <div class="fm-d-toolbar">
                     <div class="fm-d-toolbtn owner ${ownerOnly?'on':''}" data-owner-toggle="1">
-                        ${ownerOnly ? '✓ ' : ''}只看楼主
+                        ${ownerOnly ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> ' : ''}只看楼主
                     </div>
                     <div class="fm-d-toolbtn fav ${isFav?'on':''}" data-fav="${fmEsc(post.id)}">
-                        ${isFav ? '★ 已收藏' : '☆ 收藏'}
+                        ${isFav ? '已收藏' : '收藏'}
                     </div>
                 </div>
                 ${floorJump}
                 <div class="fm-d-replyhead">${ownerOnly ? '楼主回复' : '全部回复'}（${replies.length}）</div>
                 ${replyHtml}
-                ${replyTo ? `<div class="fm-replyto-chip"><span>回复 @${fmEsc(replyTo.author)} · ${fmEsc(replyTo.floor)}楼</span><b data-fm-replyto-cancel="1">✕ 取消</b></div>` : ''}
+                ${replyTo ? `<div class="fm-replyto-chip"><span>回复 @${fmEsc(replyTo.author)} · ${fmEsc(replyTo.floor)}楼</span><b data-fm-replyto-cancel="1"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg> 取消</b></div>` : ''}
                 <div class="fm-reply-box" style="display:flex;gap:8px;margin-top:14px;">
                     <input type="text" id="fm-reply-input" placeholder="${replyTo ? '回复 @' + fmEsc(replyTo.author) + '…' : '写下你的回复…'}" maxlength="300" style="flex:1;border:1px solid #e5e5ea;border-radius:16px;padding:9px 12px;font-size:13px;outline:none;">
                     <button id="fm-reply-submit" style="border:none;background:#1e2748;color:#fff;border-radius:16px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;">回复</button>
@@ -23285,10 +23285,10 @@ AppManager.register('forum', (() => {
                 const content = u.previousElementSibling;
                 if (content.classList.contains('folded')) {
                     content.classList.remove('folded');
-                    u.textContent = '收起 ▴';
+                    u.textContent = '收起';
                 } else {
                     content.classList.add('folded');
-                    u.textContent = '展开全部 ▾';
+                    u.textContent = '展开全部';
                 }
             });
         });
@@ -23310,7 +23310,7 @@ AppManager.register('forum', (() => {
                     </div>
                     <div class="fm-tabs">
                         ${BOARDS.map((b,i) => `<div class="fm-tab ${i===0?'on':''}" data-board="${b}">${b}</div>`).join('')}
-                        <div class="fm-tab" data-board="FAV">★ 我的收藏</div>
+                        <div class="fm-tab" data-board="FAV">我的收藏</div>
                     </div>
                 </div>
                 <div class="fm-list">${renderList()}</div>
@@ -23368,7 +23368,7 @@ AppManager.register('cike', (() => {
             const album = getAlbum();
             album.unshift({ role: curRole, time: new Date().toLocaleString('zh-CN'), text: String(text).trim() });
             setAlbum(album);
-            alert('已存入信件箱 ✦');
+            alert('已存入信件箱');
         } catch(e){}
     };
 
@@ -23380,7 +23380,7 @@ AppManager.register('cike', (() => {
             const welcomeLetter = {
                 role: '小手机的作者',
                 time: new Date().toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g,'-'),
-                text: `亲爱的你：\n\n欢迎来到小手机的世界。\n\n这是一个属于你和你心里那个人的小小宇宙——你可以在这里聊天、记录、相遇、相约，写下今天的心情，也可以收下角色寄给你的来信。\n\n希望它能陪你度过那些不太想一个人待着的夜晚，也希望它能成为你卸下盔甲、安心做自己的一个角落。\n\n请记得：\n· 这个小手机是为你一个人准备的，请不要把它二传给别人。每一段亲密都值得独自珍藏。\n· 如果遇到 bug 或者你想要的功能，欢迎告诉我，我会认真听。\n· 不要因为它太像真的就忘了——好好吃饭、好好睡觉、好好生活，才是最重要的事。\n\n愿你在这里玩得开心，也愿你心里那个人，永远在你需要的时候回信。\n\n抱抱你 ✦`,
+                text: `亲爱的你：\n\n欢迎来到小手机的世界。\n\n这是一个属于你和你心里那个人的小小宇宙——你可以在这里聊天、记录、相遇、相约，写下今天的心情，也可以收下角色寄给你的来信。\n\n希望它能陪你度过那些不太想一个人待着的夜晚，也希望它能成为你卸下盔甲、安心做自己的一个角落。\n\n请记得：\n· 这个小手机是为你一个人准备的，请不要把它二传给别人。每一段亲密都值得独自珍藏。\n· 如果遇到 bug 或者你想要的功能，欢迎告诉我，我会认真听。\n· 不要因为它太像真的就忘了——好好吃饭、好好睡觉、好好生活，才是最重要的事。\n\n愿你在这里玩得开心，也愿你心里那个人，永远在你需要的时候回信。\n\n抱抱你`,
                 isWelcome: true,
                 special: true
             };
@@ -24479,10 +24479,12 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
             box-shadow:0 2px 8px rgba(0,0,0,0.2);
         }
         .ck-diary-theme-swatch:active { transform:scale(0.92); }
+        .ck-diary-theme-swatch.active { box-shadow: inset 0 0 0 100px rgba(0,0,0,0.3); }
         .ck-diary-theme-swatch.active::after {
-            content:'✓'; position:absolute; inset:0;
-            display:flex; align-items:center; justify-content:center;
-            font-size:18px; background:rgba(0,0,0,0.3);
+            content:''; position:absolute; left:50%; top:50%;
+            width:8px; height:14px; margin:-9px 0 0 -4px;
+            border-right:3px solid #fff; border-bottom:3px solid #fff;
+            transform:rotate(45deg);
         }
         /* 颜色选择 */
         .ck-diary-color-row {
@@ -27685,9 +27687,12 @@ AppManager.register('TarotDivine', (() => {
        background: linear-gradient(135deg, #fffdf8 0%, #dce2f1 100%);
      }
      .tarot-card-back-pattern::before {
-       content: '✡';
-       font-size: 24px;
-       color: var(--app-muted);
+       content: '';
+       width: 24px; height: 24px;
+       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1l1.9 6.1L18 9l-6.1 1.9L10 17l-1.9-6.1L2 9l6.1-1.9z' fill='%235c6884'/%3E%3C/svg%3E");
+       background-repeat: no-repeat;
+       background-position: center;
+       background-size: 24px 24px;
      }
      .tarot-card-back-pattern::after {
        content: 'TAROT';
@@ -28105,7 +28110,7 @@ AppManager.register('TarotDivine', (() => {
    });
  }
  // A25 牌背程序化绘制：图案 + 金色渐变 + 中央低透明度符号
- function tarotAxBackHTML() { return '<div class="tarot-ax-back"><span class="tarot-ax-back-star">✦</span><span class="tarot-ax-back-word">TAROT</span></div>'; }
+ function tarotAxBackHTML() { return '<div class="tarot-ax-back"><span class="tarot-ax-back-star"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" fill="currentColor" stroke="none"/></svg></span><span class="tarot-ax-back-word">TAROT</span></div>'; }
  const TAROT_AX_ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
  function tarotAxRoman(card) { if (!card || card.type !== '大阿卡纳') return ''; return TAROT_AX_ROMAN[(card.id || 1) - 1] || ''; }
 
@@ -28772,7 +28777,7 @@ AppManager.register('TarotDivine', (() => {
 
        const nightBtn = document.createElement('button');
        nightBtn.className = 'tarot-btn';
-       nightBtn.innerText = '🌙 塔罗之夜';
+       nightBtn.innerText = '塔罗之夜';
        nightBtn.onclick = () => {
         ensureTarotConsent(() => {
           try { if (window.GroupN && window.GroupN.tarotNightMark) window.GroupN.tarotNightMark(Date.now()); } catch(e){}
@@ -28818,7 +28823,7 @@ AppManager.register('TarotDivine', (() => {
      const createSubHeader = (stepIdx) => {
        const h = document.createElement('div');
        h.className = 'tarot-sub-header';
-       h.innerHTML = `<div class="tarot-back-icon">✕</div><div class="tarot-step-indicator"></div><div style="width:24px"></div>`;
+       h.innerHTML = `<div class="tarot-back-icon"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></div><div class="tarot-step-indicator"></div><div style="width:24px"></div>`;
        h.querySelector('.tarot-back-icon').onclick = () => { state.currentStep = 'main'; updateView(); };
        const indicator = h.querySelector('.tarot-step-indicator');
        for(let i=0; i<5; i++) {
@@ -29648,7 +29653,7 @@ wrapper.appendChild(screen);
        const overlay = document.createElement('div');
        overlay.className = 'tarot-ax-modal-overlay';
        overlay.innerHTML = '<div class="tarot-ax-modal">'
-         + '<div class="tarot-ax-modal-close">✕</div>'
+         + '<div class="tarot-ax-modal-close"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></div>'
          + '<h3>' + card.name + (rev ? '（逆位）' : '') + '</h3>'
          + '<p class="tarot-ax-modal-sub">' + (opts.title || '') + ' ' + card.type + (d.element ? ' · ' + d.element + '元素' : '') + (d.planet ? ' · ' + d.planet : '') + '</p>'
          + '<div class="tarot-ax-modal-face">' + tarotAxFaceHTML(card, rev) + '</div>'
@@ -30264,11 +30269,11 @@ AppManager.register('nobeidanci', (() => {
                            <span>已掌握: <strong>${masteredInPool}</strong> 词</span>
                            <span>剩余攻坚: <strong>${remaining}</strong> 词</span>
                        </div>
-                       <button class="nb-btn-base" style="background:#1e2748;height:46px;font-size:14px;" id="nb-execute-learn-btn">立即进入沉浸背单词 →</button>
+                       <button class="nb-btn-base" style="background:#1e2748;height:46px;font-size:14px;" id="nb-execute-learn-btn">立即进入沉浸背单词 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
                    </div>
                </div>
                <div style="text-align:center;margin-top:20px;">
-                   <span style="font-size:13px;color:#a9b3cc;cursor:pointer;font-weight:bold;" id="nb-back-hall-btn">← 退回大厅书架矩阵</span>
+                   <span style="font-size:13px;color:#a9b3cc;cursor:pointer;font-weight:bold;" id="nb-back-hall-btn"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg> 退回大厅书架矩阵</span>
                </div>
            `;
            Controller.updateConsoleLog("BOOK DETAIL READY", appWin);
@@ -30293,7 +30298,7 @@ AppManager.register('nobeidanci', (() => {
                            <span style="font-size:18px;color:#46536f;">⋮</span>
                        </div>
                        <div class="nb-word-phonetic-box">
-                           <span class="nb-sound-pill">英 🔊</span>
+                           <span class="nb-sound-pill">英</span>
                            <span class="nb-phonetic-text">${wordObj.phonetic}</span>
                        </div>
                        <div class="nb-hint-tip">先回想词义再选择，想不起来「看答案」</div>
@@ -30314,7 +30319,7 @@ AppManager.register('nobeidanci', (() => {
                        <div class="nb-ans-def-line">${wordObj.zh}</div>
                        
                        <div class="nb-memory-card">
-                           <div style="position:absolute;bottom:6px;right:10px;font-size:12px;color:#bfc8e0;">📑</div>
+                           <div style="position:absolute;bottom:6px;right:10px;font-size:12px;color:#bfc8e0;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4V20H6Z"/><path d="M14 3.5v4h4M9 12h6m-6 3h6"/></svg></div>
                            <div class="nb-memory-text">${Controller.parseMarkdown(wordObj.memoryContext)}</div>
                            <div style="font-size:10px;color:#a9b3cc;margin-top:8px;text-align:right;">内置例句 · 静态短文</div>
                        </div>
@@ -30376,8 +30381,8 @@ AppManager.register('nobeidanci', (() => {
                    <div class="nb-vc-header">
                        <span class="nb-vc-tag">词库 · 入门 5 词</span>
                        <div class="nb-vc-tools">
-                           <div class="nb-vc-tool-btn" id="nb-tool-heart">🤍</div>
-                           <div class="nb-vc-tool-btn" id="nb-tool-hint" title="提示释义前两字">💡</div>
+                           <div class="nb-vc-tool-btn" id="nb-tool-heart"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg></div>
+                           <div class="nb-vc-tool-btn" id="nb-tool-hint" title="提示释义前两字"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16c0-2-3-3.2-3-7a7 7 0 0 1 14 0c0 3.8-3 5-3 7Zm1 2h6m-5 3h4"/></svg></div>
                        </div>
                    </div>
 
@@ -30415,7 +30420,7 @@ AppManager.register('nobeidanci', (() => {
            const bcCard = learnWrap.querySelector('#nb-bc-card');
            const heartBtn = learnWrap.querySelector('#nb-tool-heart');
 
-           if (heartBtn) heartBtn.onclick = () => { heartBtn.innerText = '❤️'; };
+           if (heartBtn) heartBtn.onclick = () => { heartBtn.innerHTML = '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg>'; };
            const showBack = () => { if (bcCard) bcCard.style.display = 'block'; const d = learnWrap.querySelector('.nb-bc-def'); if (d) d.innerText = wordObj.zh; if (revealBtn) revealBtn.style.display = 'none'; };
            // 💡 提示：只露出释义前两字，不直接揭晓全文（修复前只弹一句“同步就绪”）
            const hintBtn = learnWrap.querySelector('#nb-tool-hint');
@@ -30441,9 +30446,9 @@ AppManager.register('nobeidanci', (() => {
            spaceWrap.innerHTML = `
                <div class="nb-spell-screen">
                    <div class="nb-spell-top-capsule">
-                       <div class="nb-cap-btn" id="nb-spell-clear-btn">⌫</div>
+                       <div class="nb-cap-btn" id="nb-spell-clear-btn"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h11a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 20 19H9l-6.5-7Z"/><path d="m12 10 4 4m0-4-4 4"/></svg></div>
                        <div class="nb-cap-confirm" id="nb-spell-confirm-btn">确认</div>
-                       <div class="nb-cap-btn" id="nb-spell-hint-btn" title="提示首字母">💡</div>
+                       <div class="nb-cap-btn" id="nb-spell-hint-btn" title="提示首字母"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16c0-2-3-3.2-3-7a7 7 0 0 1 14 0c0 3.8-3 5-3 7Zm1 2h6m-5 3h4"/></svg></div>
                    </div>
 
                    <div class="nb-spell-center-zone">
@@ -30477,11 +30482,11 @@ AppManager.register('nobeidanci', (() => {
            const hintDom = appWin.querySelector('.nb-spell-zh-hint');
            if (!inp || !hintDom || !Store.spellTarget) return;
            if (inp.value.trim().toLowerCase() === Store.spellTarget.en.toLowerCase()) {
-               hintDom.style.color = '#38a169'; hintDom.innerText = '✔ 拼写校验完美通过！';
+               hintDom.style.color = '#38a169'; hintDom.innerText = '拼写校验完美通过！';
                Store.stats.myWords += 1; Controller.updateConsoleLog("SPELL CORRECT", appWin);
                setTimeout(() => Controller.renderSpellScreen(appWin), 700);
            } else {
-               hintDom.style.color = '#e53e3e'; hintDom.innerText = `✘ 正确拼写为: ${Store.spellTarget.en}`; Controller.updateConsoleLog("SPELL ERROR", appWin);
+               hintDom.style.color = '#e53e3e'; hintDom.innerText = `正确拼写为: ${Store.spellTarget.en}`; Controller.updateConsoleLog("SPELL ERROR", appWin);
                setTimeout(() => { hintDom.style.color = '#46536f'; hintDom.innerText = `vt. ${Store.spellTarget.zh.split('；')[0]}`; }, 1600);
            }
        },
@@ -30602,7 +30607,7 @@ AppManager.register('nobeidanci', (() => {
    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    return {
        name: '不背单词',
-       icon: '📇',
+       icon: '词',
        
        init: () => { console.log('[不背单词] 终极防压缩同步中枢运作成功'); },
 
@@ -30699,7 +30704,7 @@ AppManager.register('nobeidanci', (() => {
 
                <div class="nb-sub-view" id="nb-view-bookshelf">
                    <div class="nb-sub-nav">
-                       <div class="nb-back-btn" data-action-target="close-bookshelf">← 退回主控舱</div>
+                       <div class="nb-back-btn" data-action-target="close-bookshelf"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg> 退回主控舱</div>
                        <div class="nb-sub-title"></div>
                        <div class="nb-sub-action" data-action-target="import-book">+ 外部挂载</div>
                    </div>
@@ -30708,7 +30713,7 @@ AppManager.register('nobeidanci', (() => {
 
                <div class="nb-sub-view" id="nb-view-learn">
                    <div class="nb-sub-nav">
-                       <div class="nb-back-btn" data-action-target="close-learn">← 结束攻坚</div>
+                       <div class="nb-back-btn" data-action-target="close-learn"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg> 结束攻坚</div>
                        <div class="nb-sub-title"></div>
                        <div class="nb-sub-action"></div>
                    </div>
@@ -30717,7 +30722,7 @@ AppManager.register('nobeidanci', (() => {
 
                <div class="nb-sub-view" id="nb-view-spell">
                    <div class="nb-sub-nav">
-                       <div class="nb-back-btn" data-action-target="close-spell">← 退出拼写</div>
+                       <div class="nb-back-btn" data-action-target="close-spell"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg> 退出拼写</div>
                        <div class="nb-sub-title" style="font-weight:900;">resemble</div>
                        <div class="nb-sub-action" data-action-target="skip-spell" style="color:#46536f;">跳过</div>
                    </div>
@@ -30726,7 +30731,7 @@ AppManager.register('nobeidanci', (() => {
 
                <div class="nb-sub-view" id="nb-view-exam">
                    <div class="nb-sub-nav">
-                       <div class="nb-back-btn" data-action-target="close-exam">← 逃离考场</div>
+                       <div class="nb-back-btn" data-action-target="close-exam"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg> 逃离考场</div>
                        <div class="nb-sub-title">AI学习渗透考场</div>
                        <div class="nb-sub-action" data-action-target="regen-exam" style="color:#e53e3e;cursor:pointer;">换一题</div>
                    </div>
@@ -30745,7 +30750,7 @@ AppManager.register('nobeidanci', (() => {
 
                <div class="nb-sub-view" id="nb-view-partner">
                    <div class="nb-sub-nav">
-                       <div class="nb-back-btn" data-action-target="close-partner">← 脱离连线</div>
+                       <div class="nb-back-btn" data-action-target="close-partner"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m6-6-6 6 6 6"/></svg> 脱离连线</div>
                        <div class="nb-sub-title">桌宠联动伴学舱</div>
                        <div class="nb-sub-action" data-action-target="resync-partner" style="color:#38a169;cursor:pointer;">重新同步</div>
                    </div>
@@ -30986,7 +30991,7 @@ const FloatBall = (() => {
                 ${models.map(m => `
                     <div data-fbm="${m}" style="padding:14px 18px;font-size:15px;border-bottom:0.5px solid #f0f0f0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
                         <span>${m}</span>
-                        ${m===curModel?'<span style="color:#34C759;font-weight:700;">✓</span>':''}
+                        ${m===curModel?'<span style="color:#34C759;font-weight:700;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg></span>':''}
                     </div>`).join('')}
             </div>
             <div data-fbm="__cancel" style="padding:14px;text-align:center;color:#888;font-size:15px;cursor:pointer;border-top:0.5px solid #eee;">取消</div>
@@ -31432,7 +31437,7 @@ const GlobalAPI = (() => {
         config.memoryCount = _mmRaw === '' ? 20 : parseInt(_mmRaw, 10);
         save();
         syncToWeChat();
-        showStatus('ok', _any ? '✓ 已保存，全局生效' : '✓ 已清空，回到模板模式');
+        showStatus('ok', _any ? '已保存，全局生效' : '已清空，回到模板模式');
         setTimeout(() => modalEl.classList.remove('show'), 700);
     };
 
@@ -31462,7 +31467,7 @@ const GlobalAPI = (() => {
                     if (list.length) {
                         const all = [...new Set([...list, ...POPULAR_MODELS])];
                         g('ga-model').innerHTML = all.map(m=>`<option value="${m}">${m}</option>`).join('');
-                        showStatus('ok', '✓ 拉取成功，共 '+list.length+' 个模型');
+                        showStatus('ok', '拉取成功，共 '+list.length+' 个模型');
                     } else {
                         refreshModelSelect();
                         showStatus('err', '未获取到模型，已列出热门模型');
@@ -31485,7 +31490,7 @@ const GlobalAPI = (() => {
             });
             pSave();
             fillForm();
-            showStatus('ok', '✓ 预设已保存');
+            showStatus('ok', '预设已保存');
         };
         // 选择预设
         g('ga-preset').onchange = (e) => {
@@ -32295,7 +32300,7 @@ function keypadHTML(digits) {
   var cells = digits.slice(0, 9).concat(['', digits[9], 'del']);
   return cells.map(function (c) {
     if (c === '') return '<span class="ao-key ao-key-empty"></span>';
-    if (c === 'del') return '<button type="button" class="ao-key" data-ao-key="del">⌫</button>';
+    if (c === 'del') return '<button type="button" class="ao-key" data-ao-key="del"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h11a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 20 19H9l-6.5-7Z"/><path d="m12 10 4 4m0-4-4 4"/></svg></button>';
     return '<button type="button" class="ao-key" data-ao-key="' + c + '">' + c + (SUBS[c] ? '<small>' + SUBS[c] + '</small>' : '') + '</button>';
   }).join('');
 }
@@ -33654,7 +33659,7 @@ const SystemCenter = (() => {
         forum:'#ff9500', moments:'#07c160', schedule:'#ff3b30', habits:'#5b8c5a'
     };
     const APP_GLYPH = {
-        wechat:'💬', sms:'✉', weibo:'微', forum:'坛', moments:'圈', schedule:'📅', habits:'🌱'
+        wechat:'<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg>', sms:'<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>', weibo:'微', forum:'坛', moments:'圈', schedule:'<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 10h17M8 3v4m8-4v4"/></svg>', habits:'<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19C5 9 12 4 20 4c0 8-5 15-15 15Z"/><path d="M5 19c3-6 7-9 11-11"/></svg>'
     };
 
     // 渲染通知列表（按时间倒序 + 软件分组）
@@ -34464,7 +34469,7 @@ const SystemReset = (() => {
         );
         if (!ok) return;
         wipe();
-        alert('已重置 ✓ 即将刷新');
+        alert('已重置 即将刷新');
         setTimeout(() => { location.reload(); }, 300);
     };
 
@@ -35160,7 +35165,7 @@ const IconInteract = (() => {
             if (w.querySelector('.is-badge')) return;
             const b = document.createElement('div');
             b.className = 'is-badge';
-            b.textContent = '✕';
+            b.textContent = '\u00d7';
             w.appendChild(b);
         });
     };

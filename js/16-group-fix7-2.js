@@ -31,7 +31,7 @@ var PET_KEY = 'pet_state_ab_v1';
 var FOCUS_KEY = 'focus_plan_ab_v1';
 var MOODS = ['Content', 'Focused', 'Hyper', 'Sleepy', 'Curious', 'Stretching', 'Celebrating', 'Napping'];
 var MOOD_CN = { Content: '自在', Focused: '专注中', Hyper: '兴奋', Sleepy: '犯困', Curious: '好奇', Stretching: '拉伸中', Celebrating: '庆祝中', Napping: '睡觉中' };
-var MOOD_EMOJI = { Content: '😌', Focused: '🍅', Hyper: '🤩', Sleepy: '🥱', Curious: '👀', Stretching: '🙆', Celebrating: '🎉', Napping: '😴' };
+var MOOD_EMOJI = { Content: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg>', Focused: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg>', Hyper: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg>', Sleepy: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg>', Curious: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/><circle cx="8" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none"/></svg>', Stretching: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/></svg>', Celebrating: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg>', Napping: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg>' };
 var PERSISTENT = ['idle', 'sit', 'sun', 'sleep', 'walk'];
 var ONESHOT_MS = { wave: 1200, jump: 900, grab: 1500, throw: 1200, celebrate: 1200, stretch: 2000, think: 1500, point: 1200, shake: 800 };
 var SEMANTIC = {
@@ -431,7 +431,7 @@ function pokeFlash() {
   noteActivity();
   try {
     var b = document.createElement('span');
-    b.className = 'gm-ab-burst'; b.textContent = '✦';
+    b.className = 'gm-ab-burst'; b.innerHTML = '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg>';
     el.appendChild(b);
     setTimeout(function () { try { b.remove(); } catch (e) {} }, 950);
   } catch (e) {}
@@ -481,7 +481,7 @@ function ensureBubbleExtras() {
   var st = loadPet();
   if (!btns.querySelector('#gm-ab-jump')) {
     var j = document.createElement('button');
-    j.type = 'button'; j.id = 'gm-ab-jump'; j.textContent = '去看看 →';
+    j.type = 'button'; j.id = 'gm-ab-jump'; j.textContent = '去看看';
     btns.appendChild(j);
   }
   if (!btns.querySelector('#gm-ab-mode')) {
@@ -697,9 +697,9 @@ function endBreak(nowMs) {
 function catState(nowMs) {
   var bs = breakState(nowMs);
   var mood = moodNow();
-  if (bs.active) return { state: 'sleeping', kind: bs.kind, text: '😴 黑猫正在睡觉（' + (bs.kind === 'long' ? '长休' : '短休') + '）· ' + (MOOD_CN[mood] || mood) };
-  if (isFocusing()) return { state: 'focused', text: '🐱 黑猫陪你专注中 · ' + (MOOD_CN[mood] || mood) };
-  return { state: 'awake', text: '🐱 黑猫醒着 · ' + (MOOD_CN[mood] || mood) };
+  if (bs.active) return { state: 'sleeping', kind: bs.kind, text: '黑猫正在睡觉（' + (bs.kind === 'long' ? '长休' : '短休') + '）· ' + (MOOD_CN[mood] || mood) };
+  if (isFocusing()) return { state: 'focused', text: '黑猫陪你专注中 · ' + (MOOD_CN[mood] || mood) };
+  return { state: 'awake', text: '黑猫醒着 · ' + (MOOD_CN[mood] || mood) };
 }
 function setFocusBg(dataUrl) {
   if (typeof dataUrl !== 'string' || dataUrl.indexOf('data:image/') !== 0) return { ok: false, reason: 'not-image' };
@@ -786,19 +786,19 @@ function focusPanelHTML() {
   }).join('') || '<div style="color:var(--st-ink-40,rgba(30,39,72,.4));">还没有专注记录，完成一次专注后会出现在这里。</div>';
   var rs = reserveStatus();
   var goalHtml = rs.goal
-    ? ('目标「' + esc(rs.goal.name) + '」：已预留 ' + rs.reserved + ' / ' + rs.goal.target + ' 金币' + (rs.reached ? ' · ✅ 已攒够，可以买了！' : ''))
+    ? ('目标「' + esc(rs.goal.name) + '」：已预留 ' + rs.reserved + ' / ' + rs.goal.target + ' 金币' + (rs.reached ? ' · ' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>' + ' 已攒够，可以买了！' : ''))
     : '还没有预留目标（比如攒 100 金币买猫窝）';
   var bgStyle = fp.bg ? ' style="background-image:url(' + esc(fp.bg) + ');"' : '';
   return '<div class="ab-focus-sec" id="ab-focus-sec"' + bgStyle + '>'
-    + '<div class="ab-focus-title">🍅 番茄猫进阶 · 今日计划</div>'
+    + '<div class="ab-focus-title"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg> 番茄猫进阶 · 今日计划</div>'
     + '<div class="ab-focus-mood">心情：' + (MOOD_EMOJI[st.mood] || '') + ' ' + (MOOD_CN[st.mood] || st.mood) + '（' + st.mood + '）· 与桌宠同一份状态<br>' + esc(cs.text) + '</div>'
     + '<div style="display:flex;gap:12px;align-items:center;">'
     + '<svg class="ab-ring" viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="26" fill="none" stroke="#dce2f1" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#e07856" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 32 32)"/><text x="32" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#1e2748">' + done + '/' + planned + '</text></svg>'
     + '<div style="flex:1;font-size:13px;line-height:1.8;color:var(--st-ink,#1e2748);">今日计划 ' + done + ' / ' + planned + ' 轮 '
     + '<button type="button" onclick="window.GroupAB.focusPlanDelta(-1)">−</button><button type="button" onclick="window.GroupAB.focusPlanDelta(1)">＋</button><br>'
-    + '今日完成场次：' + (fp.dailyCount || 0) + ' 场（午夜自动清零）<br>金币：' + (fp.coins || 0) + ' 🪙（专注 3 金币/分钟）</div></div>'
+    + '今日完成场次：' + (fp.dailyCount || 0) + ' 场（午夜自动清零）<br>金币：' + (fp.coins || 0) + ' <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg>（专注 3 金币/分钟）</div></div>'
     + '<div style="font-size:13px;margin-top:6px;color:var(--st-ink,#1e2748);">休息：' + (bs.active
-      ? ('😴 ' + (bs.kind === 'long' ? '长休' : '短休') + '中，剩约 ' + bs.leftMin + ' 分钟 <button type="button" onclick="window.GroupAB.focusEndBreak()">结束休息</button>')
+      ? ('<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg> ' + (bs.kind === 'long' ? '长休' : '短休') + '中，剩约 ' + bs.leftMin + ' 分钟 <button type="button" onclick="window.GroupAB.focusEndBreak()">结束休息</button>')
       : ('<button type="button" onclick="window.GroupAB.focusStartBreak(\'short\')">短休 5 分钟</button><button type="button" onclick="window.GroupAB.focusStartBreak(\'long\')">长休 15 分钟</button>')) + '</div>'
     + '<div style="font-size:13px;margin-top:6px;color:var(--st-ink,#1e2748);">背景：' + (fp.bg ? '已上传自定义背景 <button type="button" onclick="window.GroupAB.focusClearBg()">清除</button>' : '未上传')
     + ' <label class="ab-chip-btn" style="display:inline-block;">上传背景图<input type="file" accept="image/*" style="display:none" onchange="window.GroupAB._onBgFile(this)"></label></div>'

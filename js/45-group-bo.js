@@ -238,7 +238,7 @@ var replyToFile = function (store, curSess, rec) {
 
 /* ── 消息卡片 ── */
 var fileCardHTML = function (m) {
-  var icon = m.kind === 'image' ? '🖼️' : m.kind === 'audio' ? '🎵' : m.kind === 'text' ? '📄' : '📁';
+  var icon = m.kind === 'image' ? '<svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="5.5" cy="6.5" r="1.3" fill="currentColor"/><path d="M2.5 12l3.5-3.5 2.5 2.5 2-2 3 3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>' : m.kind === 'audio' ? '<svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path d="M6 12.5V3.5l6.5-1v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="12.5" r="2" fill="currentColor"/><circle cx="10.5" cy="11.5" r="2" fill="currentColor"/></svg>' : m.kind === 'text' ? '<svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6.5 6h3M6.5 8.5h3M6.5 11h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' : '<svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path d="M1.5 4.5a1 1 0 0 1 1-1h3l1.5 2h6.5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   return '<div class="wx-file-card" onclick="WeChatAppEngine.openWxFile(\'' + String(m.id).replace(/'/g, '') + '\')">'
     + '<div class="wx-file-ico">' + icon + '</div>'
     + '<div class="wx-file-meta"><div class="wx-file-name">' + esc(m.name || '文件') + '</div>'

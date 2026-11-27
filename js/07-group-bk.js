@@ -17,6 +17,35 @@ var store = {
     set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 var pad2 = function (n) { return String(n).padStart(2, '0'); };
+/* B批禁emoji：UI 图标改用内联 SVG（currentColor，随文字颜色走；与 js/64 运行时替换器同源画法） */
+var IC07 = {
+  star: ['f', '<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>'],
+  starO: ['s', '<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>'],
+  heart: ['f', '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>'],
+  heartO: ['s', '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>'],
+  check: ['s', '<path d="M4.5 12.5l5 5 10-11"/>'],
+  checkSq: ['s', '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.5l2.5 2.5 5-6"/>'],
+  sq: ['s', '<rect x="4" y="4" width="16" height="16" rx="3"/>'],
+  play: ['f', '<path d="M8 5v14l11-7z"/>'],
+  stop: ['f', '<rect x="6" y="6" width="12" height="12" rx="1.5"/>'],
+  rec: ['f', '<circle cx="12" cy="12" r="6"/>'],
+  phone: ['s', '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>'],
+  camera: ['s', '<path d="M4 8h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2z"/><circle cx="12" cy="13" r="3.2"/>'],
+  face: ['s', '<circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/>'],
+  person: ['s', '<circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/>'],
+  clock: ['s', '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>'],
+  grid: ['s', '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'],
+  radio: ['s', '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>'],
+  mute: ['s', '<path d="M11 5L6.5 9H3v6h3.5L11 19z"/><path d="M16 9l5 6m0-6l-5 6"/>'],
+  vol: ['s', '<path d="M11 5L6.5 9H3v6h3.5L11 19z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12"/>'],
+  backspace: ['s', '<path d="M21 5H8l-5 7 5 7h13a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M12 9.5l5 5m0-5l-5 5"/>'],
+  moon: ['s', '<path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4z"/>'],
+  sun: ['s', '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v3m0 13v3m9.5-9.5h-3m-13 0h-3m16.2-6.7l-2.1 2.1M6.4 17.6l-2.1 2.1m15.2 0l-2.1-2.1M6.4 6.4L4.3 4.3"/>'],
+  music: ['s', '<path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5z"/>'],
+  film: ['s', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>'],
+  up: ['s', '<path d="M12 19V5m0 0l-6 6m6-6l6 6"/>']
+};
+var icSvg = function (n, sz) { var e = IC07[n]; if (!e) return ''; var s = sz || 14; if (e[0] === 'f') return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true" focusable="false" style="vertical-align:-2px;flex:none;" fill="currentColor" stroke="none">' + e[1] + '</svg>'; return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true" focusable="false" style="vertical-align:-2px;flex:none;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + e[1] + '</svg>'; };
 var fmtDT = function (ts) { try { var d = new Date(ts); return (d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); } catch (e) { return ''; } };
 var fmtDur = function (sec) { sec = Math.max(0, Math.round(sec || 0)); if (sec < 60) return sec + '秒'; return Math.floor(sec / 60) + '分' + pad2(sec % 60) + '秒'; };
 var todayStr = function () { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
@@ -239,12 +268,12 @@ GD._gdApp = gdApp;
         if (q) items = items.filter(function (x) { return (x.content || '').includes(q); });
         var html = '<div style="display:flex;gap:8px;"><input class="gd-input" id="gd-memo-q" placeholder="搜索备忘录…" value="' + esc(q) + '" style="flex:1;">'
             + '<button class="gd-btn" data-act="new">＋ 新建</button>'
-            + '<button class="gd-btn-ghost" data-act="voice-memo">🎙 语音备忘</button></div>';
+            + '<button class="gd-btn-ghost" data-act="voice-memo">语音备忘</button></div>';
         if (editingId !== null) {
             var ed = load().find(function (x) { return x.id === editingId; });
             var content = ed ? ed.content : '';
             html += '<div class="gd-card" style="margin-top:12px;"><textarea class="gd-input" id="gd-memo-text" rows="10" placeholder="写点什么……" style="line-height:1.8;">' + esc(content) + '</textarea>'
-                + (window.GroupAM ? window.GroupAM.memoStyleRow(ed) : '') + '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;"><span id="gd-memo-autosave" style="flex:1;font-size:12px;color:#8a8580;">✓ 已自动保存</span>'
+                + (window.GroupAM ? window.GroupAM.memoStyleRow(ed) : '') + '<div style="display:flex;gap:8px;margin-top:10px;align-items:center;"><span id="gd-memo-autosave" style="flex:1;font-size:12px;color:#8a8580;">已自动保存</span>'
                 + (ed ? '<button class="gd-btn-danger" data-act="del">删除</button>' : '')
                 + '<button class="gd-btn-ghost" data-act="back">返回列表</button></div></div>';
             return html;
@@ -294,7 +323,7 @@ GD._gdApp = gdApp;
                     var _it = _items.find(function (x) { return x.id === _rid; });
                     if (_it) { _it.content = _txt; _it.updatedAt = Date.now(); save(_items); }
                 }
-                var _st2 = win.querySelector('#gd-memo-autosave'); if (_st2) _st2.textContent = '✓ 已自动保存 ' + fmtDT(Date.now());
+                var _st2 = win.querySelector('#gd-memo-autosave'); if (_st2) _st2.textContent = '已自动保存 ' + fmtDT(Date.now());
             }, 600);
         });
         win.querySelectorAll('[data-act]').forEach(function (btn) {
@@ -366,11 +395,11 @@ GD._gdApp = gdApp;
     var renderBody = function () {
         var html = '';
         var tabbar = '<div class="bh-tabbar">'
-            + '<div class="bh-tab' + (tab === 'favorites' ? ' on' : '') + '" data-tab="favorites"><span class="bh-tab-ic">★</span>个人收藏</div>'
-            + '<div class="bh-tab' + (tab === 'recents' ? ' on' : '') + '" data-tab="recents"><span class="bh-tab-ic">◷</span>最近通话</div>'
-            + '<div class="bh-tab' + (tab === 'contacts' ? ' on' : '') + '" data-tab="contacts"><span class="bh-tab-ic">👤</span>通讯录</div>'
-            + '<div class="bh-tab' + (tab === 'keypad' ? ' on' : '') + '" data-tab="keypad"><span class="bh-tab-ic">▦</span>拨号键盘</div>'
-            + '<div class="bh-tab' + (tab === 'voicemail' ? ' on' : '') + '" data-tab="voicemail"><span class="bh-tab-ic">◉</span>语音留言</div></div>';
+            + '<div class="bh-tab' + (tab === 'favorites' ? ' on' : '') + '" data-tab="favorites"><span class="bh-tab-ic">' + icSvg('star',16) + '</span>个人收藏</div>'
+            + '<div class="bh-tab' + (tab === 'recents' ? ' on' : '') + '" data-tab="recents"><span class="bh-tab-ic">' + icSvg('clock',16) + '</span>最近通话</div>'
+            + '<div class="bh-tab' + (tab === 'contacts' ? ' on' : '') + '" data-tab="contacts"><span class="bh-tab-ic">' + icSvg('person',16) + '</span>通讯录</div>'
+            + '<div class="bh-tab' + (tab === 'keypad' ? ' on' : '') + '" data-tab="keypad"><span class="bh-tab-ic">' + icSvg('grid',16) + '</span>拨号键盘</div>'
+            + '<div class="bh-tab' + (tab === 'voicemail' ? ' on' : '') + '" data-tab="voicemail"><span class="bh-tab-ic">' + icSvg('radio',16) + '</span>语音留言</div></div>';
         if (callState) {
             html += '<div class="bh-incall">'
                 + '<div class="bh-incall-av">' + esc((callState.name || '?')[0]) + '</div>'
@@ -380,32 +409,32 @@ GD._gdApp = gdApp;
                 + '<div class="bh-call-note" id="bh-call-note">' + (bhMuted ? '已静音' : (bhSpeaker ? '免提已开' : '')) + '</div>'
                 + (bhInKeypad ? '<div class="bh-inkeypad-display" id="bh-inkeypad-display">' + (bhInCallDial ? '已拨：' + esc(bhInCallDial) : '拨号键盘') + '</div><div class="bh-mini-keys">' + [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']].map(function (k) { return '<div class="bh-mini-key" data-key2="' + k[0] + '">' + k[0] + '</div>'; }).join('') + '</div>' : '')
                 + '<div class="bh-grid">'
-                + '<button type="button" class="bh-grid-btn' + (bhMuted ? ' on' : '') + '" data-act="bh-mute"><span class="bh-grid-ic">🔇</span>静音</button>'
-                + '<button type="button" class="bh-grid-btn' + (bhSpeaker ? ' on' : '') + '" data-act="bh-speaker"><span class="bh-grid-ic">🔊</span>免提</button>'
-                + '<button type="button" class="bh-grid-btn' + (bhInKeypad ? ' on' : '') + '" data-act="bh-inkeypad"><span class="bh-grid-ic">▦</span>拨号键盘</button>'
+                + '<button type="button" class="bh-grid-btn' + (bhMuted ? ' on' : '') + '" data-act="bh-mute"><span class="bh-grid-ic">' + icSvg('mute',16) + '</span>静音</button>'
+                + '<button type="button" class="bh-grid-btn' + (bhSpeaker ? ' on' : '') + '" data-act="bh-speaker"><span class="bh-grid-ic">' + icSvg('vol',16) + '</span>免提</button>'
+                + '<button type="button" class="bh-grid-btn' + (bhInKeypad ? ' on' : '') + '" data-act="bh-inkeypad"><span class="bh-grid-ic">' + icSvg('grid',16) + '</span>拨号键盘</button>'
                 + '</div>'
-                + '<button class="bh-end" data-act="hangup" aria-label="结束通话"><span class="bh-end-ic">☎</span></button></div>';
+                + '<button class="bh-end" data-act="hangup" aria-label="结束通话"><span class="bh-end-ic">' + icSvg('phone',18) + '</span></button></div>';
             return html;
         }
         if (tab === 'favorites') {
             var favNames = (window.GroupBH && window.GroupBH.listFavorites) ? window.GroupBH.listFavorites() : [];
             var favList = allContacts().filter(function (c) { return favNames.indexOf(c.name) !== -1; });
-            if (!favList.length) { html += '<div class="gd-empty">还没有个人收藏<br><span style="font-size:12px;">去通讯录点 ☆ 收藏一个人，这里会置顶显示。</span></div>'; }
+            if (!favList.length) { html += '<div class="gd-empty">还没有个人收藏<br><span style="font-size:12px;">去通讯录点星标收藏一个人，这里会置顶显示。</span></div>'; }
             favList.forEach(function (c) {
                 html += '<div class="gd-card gd-row" data-act="call-contact" data-name="' + esc(c.name) + '" data-num="' + esc(c.number || c.name) + '">'
                     + '<div class="gd-av">' + (c.avatarImg ? '<img src="' + esc(c.avatarImg) + '">' : esc(c.avatar)) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + esc(c.name) + '</div>'
                     + '<div style="font-size:12px;color:#5f6b7a;">个人收藏 · ' + esc(c.manual ? '手动添加' : (c.preview || '微信联系人')) + '</div></div>'
-                    + '<span style="font-size:20px;color:#FF9500;">★</span></div>';
+                    + '<span style="font-size:20px;color:#FF9500;">' + icSvg('star',18) + '</span></div>';
             });
         } else if (tab === 'keypad') {
             var keys = [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']];
             html += '<div style="text-align:center;font-size:30px;font-weight:300;letter-spacing:3px;min-height:40px;margin-top:18px;">' + esc(dial || ' ') + '</div>'
                 + '<div class="gd-keypad">' + keys.map(function (k) { return '<div class="gd-key" data-key="' + k[0] + '">' + k[0] + (k[1] ? '<small>' + k[1] + '</small>' : '') + '</div>'; }).join('') + '</div>'
-                + '<div class="bh-dial-actions"><button class="bh-call-btn" data-act="call" aria-label="拨打">☎</button>'
-                + '<button class="bh-del-btn" data-act="backspace" aria-label="删除">⌫</button></div>'
-                + '<div style="text-align:center;margin-top:18px;"><button class="gd-btn-ghost" data-act="emergency">🚨 紧急呼叫演练（模拟）</button></div>'
-                + '<div style="text-align:center;margin-top:12px;"><button class="gd-btn-ghost" data-act="bh-ringtone" style="font-size:13px;">🔔 电话铃声设置</button></div>';
+                + '<div class="bh-dial-actions"><button class="bh-call-btn" data-act="call" aria-label="拨打">' + icSvg('phone',20) + '</button>'
+                + '<button class="bh-del-btn" data-act="backspace" aria-label="删除">' + icSvg('backspace',20) + '</button></div>'
+                + '<div style="text-align:center;margin-top:18px;"><button class="gd-btn-ghost" data-act="emergency">紧急呼叫演练（模拟）</button></div>'
+                + '<div style="text-align:center;margin-top:12px;"><button class="gd-btn-ghost" data-act="bh-ringtone" style="font-size:13px;">电话铃声设置</button></div>';
         } else if (tab === 'contacts') {
             var list = allContacts();
             html += '<div style="display:flex;gap:8px;"><input class="gd-input" id="gd-man-name" placeholder="手动添加联系人姓名" style="flex:1;"><input class="gd-input" id="gd-man-num" placeholder="号码" style="width:120px;"><button class="gd-btn" data-act="add-contact">添加</button></div>';
@@ -415,19 +444,19 @@ GD._gdApp = gdApp;
                     + '<div class="gd-av">' + (c.avatarImg ? '<img src="' + esc(c.avatarImg) + '">' : esc(c.avatar)) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + esc(c.name) + '</div>'
                     + '<div style="font-size:12px;color:#5f6b7a;">' + esc(c.manual ? '手动添加' : (c.preview || '微信联系人')) + '</div></div>'
-                    + '<span style="font-size:20px;color:#FF9500;cursor:pointer;" data-act="fav-toggle" data-name="' + esc(c.name) + '">' + ((window.GroupBH && window.GroupBH.isFavorite(c.name)) ? '★' : '☆') + '</span><span style="font-size:20px;color:#34a853;">📞</span></div>';
+                    + '<span style="font-size:20px;color:#FF9500;cursor:pointer;" data-act="fav-toggle" data-name="' + esc(c.name) + '">' + ((window.GroupBH && window.GroupBH.isFavorite(c.name)) ? icSvg('star',18) : icSvg('starO',18)) + '</span><span style="font-size:20px;color:#34a853;">' + icSvg('phone',18) + '</span></div>';
             });
         } else if (tab === 'voicemail') {
             var vms = (window.GroupBH && window.GroupBH.listVoicemail) ? window.GroupBH.listVoicemail() : [];
             html += '<div class="gd-label" style="margin-top:6px;">语音留言</div>';
-            html += '<button class="gd-btn-ghost" data-act="vm-record" style="width:100%;">' + ((window.GroupBH && window.GroupBH.isRecording && window.GroupBH.isRecording()) ? '■ 停止并保存' : '● 录一段留言') + '</button>';
+            html += '<button class="gd-btn-ghost" data-act="vm-record" style="width:100%;">' + ((window.GroupBH && window.GroupBH.isRecording && window.GroupBH.isRecording()) ? icSvg('stop',12) + ' 停止并保存' : icSvg('rec',12) + ' 录一段留言') + '</button>';
             html += '<div class="gd-note">来电未接时，对方没有留下语音，这里只会显示“未接来电 · 未留语音”。你也可以录一段自己的留言，存在本机，可播放、可删除。</div>';
             if (!vms.length) { html += '<div class="gd-empty">还没有语音留言<br><span style="font-size:12px;">点上面录一段，或等一通未接来电。</span></div>'; }
             vms.forEach(function (v) {
                 html += '<div class="gd-card gd-row"><div class="gd-av">' + esc((v.from || '?')[0]) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + esc(v.from) + '</div>'
                     + '<div style="font-size:12px;color:#5f6b7a;">' + esc(v.label) + ' · ' + fmtDT(v.time) + (v.dur ? ' · ' + esc(v.dur) : '') + '</div></div>'
-                    + (v.audio ? '<button class="gd-btn-ghost" data-act="vm-play" data-id="' + esc(v.id) + '" style="padding:8px 12px;font-size:13px;">▶ 播放</button>' : '')
+                    + (v.audio ? '<button class="gd-btn-ghost" data-act="vm-play" data-id="' + esc(v.id) + '" style="padding:8px 12px;font-size:13px;">' + icSvg('play',12) + ' 播放</button>' : '')
                     + (v.kind === 'rec' ? '<button class="gd-btn-ghost" data-act="vm-del" data-id="' + esc(v.id) + '" style="padding:8px 12px;font-size:13px;">删除</button>' : '') + '</div>';
             });
             html += '<div class="gd-note">录音存在本机（phone_voicemail_v1），随整屋备份走；单个录音超过 2MB 不保存。</div>';
@@ -437,11 +466,11 @@ GD._gdApp = gdApp;
             logs.forEach(function (l) {
                 html += '<div class="gd-card gd-row" data-act="redial" data-name="' + esc(l.name) + '" data-num="' + esc(l.number) + '"><div class="gd-av">' + esc((l.name || '?')[0]) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;' + (l.type === 'missed' ? 'color:#FF3B30;' : '') + '">' + esc(l.name) + '</div>'
-                    + '<div style="font-size:12px;color:' + (l.type === 'missed' ? '#FF3B30' : '#5f6b7a') + ';">' + (l.type === 'incoming' ? '↙ 接入' : (l.type === 'missed' ? '↙ 未接来电' : '↗ 拨出')) + ' · ' + fmtDT(l.time) + (l.duration ? ' · ' + esc(l.duration) : '') + '</div>' + (l.summary ? '<div style="font-size:12px;color:#5f6b7a;margin-top:2px;">' + esc(l.summary) + '</div>' : '') + '</div>'
+                    + '<div style="font-size:12px;color:' + (l.type === 'missed' ? '#FF3B30' : '#5f6b7a') + ';">' + (l.type === 'incoming' ? '接入' : (l.type === 'missed' ? '未接来电' : '拨出')) + ' · ' + fmtDT(l.time) + (l.duration ? ' · ' + esc(l.duration) : '') + '</div>' + (l.summary ? '<div style="font-size:12px;color:#5f6b7a;margin-top:2px;">' + esc(l.summary) + '</div>' : '') + '</div>'
                     + '<button class="gd-btn-ghost" data-act="sms-recents" data-name="' + esc(l.name) + '" data-num="' + esc(l.number) + '" style="padding:8px 12px;font-size:13px;">短信</button><button class="gd-btn-ghost" data-act="redial" data-name="' + esc(l.name) + '" data-num="' + esc(l.number) + '" style="padding:8px 12px;font-size:13px;">回拨</button></div>';
             });
             if (logs.length) html += '<button class="gd-btn-ghost" data-act="clear-log" style="width:100%;">清空通话记录</button>';
-            html += '<button class="gd-btn-ghost" data-act="ao-test-call" style="width:100%;margin-top:8px;">📞 让 TA 打来（模拟来电）</button>';
+            html += '<button class="gd-btn-ghost" data-act="ao-test-call" style="width:100%;margin-top:8px;">让 TA 打来（模拟来电）</button>';
         }
         return html + tabbar;
     };
@@ -566,7 +595,7 @@ GD._gdApp = gdApp;
             if (!th.messages.length) streamHtml = '<div class="gd-empty">还没有短信<br><span style="font-size:12px;">在下面输入第一条消息吧，只存在本机。</span></div>';
             var drawerHtml = '';
             if (smsDrawerOpen) {
-                drawerHtml = '<div class="ba-sms-drawer"><button data-act="camera">📷 相机</button><button data-act="photo">🖼️ 照片</button><button data-act="drawer-emoji">😀 表情包</button><button data-act="loc">📍 位置</button></div>'
+                drawerHtml = '<div class="ba-sms-drawer"><button data-act="camera">相机</button><button data-act="photo">照片</button><button data-act="drawer-emoji">' + icSvg('face',14) + ' 表情包</button><button data-act="loc">位置</button></div>'
                     + (smsEmojiOpen ? '<div class="ba-sms-emoji">' + ['😀','😂','🥰','😭','😡','👍','❤️','🎉','😴','🤔'].map(function (e) { return '<button data-act="emoji-pick" data-emoji="' + e + '">' + e + '</button>'; }).join('') + '</div>' : '');
             }
             var ovHtml = '';
@@ -579,7 +608,7 @@ GD._gdApp = gdApp;
                 + '<div id="gd-sms-stream" class="ba-sms-stream">' + streamHtml + '</div>'
                 + (smsToast ? '<div class="ba-sms-toast">' + esc(smsToast) + '</div>' : '')
                 + drawerHtml
-                + '<div class="ba-sms-inputbar"><button class="ba-sms-plus" data-act="plus" aria-label="更多">＋</button><button class="ba-sms-cam" data-act="photo" aria-label="照片">📷</button><textarea class="ba-sms-input" id="gd-sms-input" rows="1" placeholder="iMessage">' + esc(smsDraft) + '</textarea><button class="ba-sms-send" data-act="send" disabled aria-label="发送">↑</button></div>'
+                + '<div class="ba-sms-inputbar"><button class="ba-sms-plus" data-act="plus" aria-label="更多">＋</button><button class="ba-sms-cam" data-act="photo" aria-label="照片">' + icSvg('camera',16) + '</button><textarea class="ba-sms-input" id="gd-sms-input" rows="1" placeholder="iMessage">' + esc(smsDraft) + '</textarea><button class="ba-sms-send" data-act="send" disabled aria-label="发送">' + icSvg('up',14) + '</button></div>'
                 + '<input type="file" id="ba-sms-file" accept="image/*" hidden><input type="file" id="ba-sms-file-cam" accept="image/*" capture="environment" hidden>'
                 + ovHtml;
             return html;
@@ -773,7 +802,7 @@ GD._gdApp = gdApp;
         var favs = loadFavs();
         var html = '<div style="display:flex;gap:8px;align-items:center;"><span style="font-size:13px;color:#6d6862;">共 ' + photos.length + ' 张 · 均来自本机已有内容</span>'
             + '<button class="gd-btn-ghost" data-act="add" style="margin-left:auto;">＋ 添加照片</button>'
-            + '<button class="gd-btn-ghost" data-act="add-photo">📷 拍照</button></div>'
+            + '<button class="gd-btn-ghost" data-act="add-photo">拍照</button></div>'
             + '<input type="file" id="gd-album-file" accept="image/*" style="display:none;">';
         if (!photos.length) {
             html += '<div class="gd-empty">相册还是空的<br><span style="font-size:12px;">这里会汇总：当前壁纸、微信头像、朋友圈图片、聊天图片。<br>现在微信里还没有图片，也可以点「添加照片」从本机选一张。</span></div>';
@@ -781,7 +810,7 @@ GD._gdApp = gdApp;
         }
         html += '<div class="gd-grid" style="margin-top:12px;">' + photos.map(function (p, i) {
             var fav = favs.indexOf(p.src) !== -1;
-            return '<div class="gd-tile" data-act="open" data-i="' + i + '"><img src="' + esc(p.src) + '" loading="lazy"><div class="gd-tile-cap">' + (fav ? '♥ ' : '') + esc(p.label) + ' · ' + esc(p.title) + '</div></div>';
+            return '<div class="gd-tile" data-act="open" data-i="' + i + '"><img src="' + esc(p.src) + '" loading="lazy"><div class="gd-tile-cap">' + (fav ? icSvg('heart',12) + ' ' : '') + esc(p.label) + ' · ' + esc(p.title) + '</div></div>';
         }).join('') + '</div>';
         if (lightbox >= 0 && photos[lightbox]) {
             var p = photos[lightbox]; var fav2 = favs.indexOf(p.src) !== -1;
@@ -790,7 +819,7 @@ GD._gdApp = gdApp;
                 + '<div style="color:#fff;font-size:14px;margin-top:14px;text-align:center;">' + esc(p.title) + ' · ' + esc(p.label) + '（' + (lightbox + 1) + ' / ' + photos.length + '）</div>'
                 + '<div style="display:flex;gap:10px;margin-top:16px;">'
                 + '<button class="gd-btn-ghost" data-act="prev" style="background:rgba(255,255,255,.14);color:#fff;border-color:transparent;">‹ 上一张</button>'
-                + '<button class="gd-btn-ghost" data-act="fav" style="background:rgba(255,255,255,.14);color:#fff;border-color:transparent;">' + (fav2 ? '♥ 已收藏' : '♡ 收藏') + '</button>'
+                + '<button class="gd-btn-ghost" data-act="fav" style="background:rgba(255,255,255,.14);color:#fff;border-color:transparent;">' + (fav2 ? icSvg('heart',12) + ' 已收藏' : icSvg('heartO',12) + ' 收藏') + '</button>'
                 + '<button class="gd-btn-ghost" data-act="next" style="background:rgba(255,255,255,.14);color:#fff;border-color:transparent;">下一张 ›</button>'
                 + '<button class="gd-btn-ghost" data-act="close" style="background:rgba(255,255,255,.14);color:#fff;border-color:transparent;">关闭</button>'
                 + '</div><div style="color:rgba(255,255,255,.55);font-size:11px;margin-top:10px;">左右滑动也可切换</div></div>';
@@ -910,16 +939,16 @@ GD._gdApp = gdApp;
             feelNote = '按时段的通用提示，非实测体感';
         }
         var html = '<div class="gd-card" style="text-align:center;padding:22px 16px;">'
-            + '<div style="font-size:52px;line-height:1;">' + (isNight ? '🌙' : '☀️') + '</div>'
+            + '<div style="font-size:52px;line-height:1;">' + (isNight ? icSvg('moon',48) : icSvg('sun',48)) + '</div>'
             + '<div style="font-size:40px;font-weight:300;margin-top:8px;letter-spacing:2px;">' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div>'
             + '<div style="font-size:14px;color:#6d6862;margin-top:4px;">' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + WEEK_CN[now.getDay()] + ' · ' + p.name + '</div>'
             + '<div style="font-size:15px;font-weight:600;margin-top:12px;">' + feel + '</div>'
             + '<div style="font-size:13px;color:#5f6b7a;margin-top:4px;line-height:1.7;">' + tip + '</div>'
             + '<div style="font-size:11px;color:#5f6b7a;margin-top:6px;">' + feelNote + '</div></div>'
             + '<div class="gd-card"><div style="font-size:14px;font-weight:600;">今天的手机</div>'
-            + '<div style="font-size:13px;color:#6d6862;line-height:2;margin-top:6px;">📅 今日待办日程：' + todayCount + ' 项<br>📝 备忘录：' + memoCount + ' 条<br>🕐 本机时间 ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds()) + '（每分钟自动更新）</div></div>'
+            + '<div style="font-size:13px;color:#6d6862;line-height:2;margin-top:6px;">今日待办日程：' + todayCount + ' 项<br>备忘录：' + memoCount + ' 条<br>本机时间 ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds()) + '（每分钟自动更新）</div></div>'
             + '<div id="af-weather-live"></div>'
-            + '<button class="gd-btn" data-act="refresh" style="width:100%;">↻ 刷新（重新读取实测温度）</button>';
+            + '<button class="gd-btn" data-act="refresh" style="width:100%;">刷新（重新读取实测温度）</button>';
         return html;
     };
     var app; var timer = null;
@@ -970,8 +999,8 @@ GD._gdApp = gdApp;
                 + '<div style="font-size:11px;color:#b5b0aa;">' + fmtDT(p.time) + (p.from ? ' · 来自' + esc(p.from) : '') + '</div></div></div>'
                 + '<div style="font-size:14px;line-height:1.8;margin-top:10px;">' + esc(p.text) + '</div>'
                 + '<div style="display:flex;gap:16px;margin-top:10px;font-size:13px;color:#8a8580;">'
-                + '<span data-act="like" data-id="' + p.id + '" style="cursor:pointer;">' + (p.liked ? '♥ ' : '♡ ') + (p.likes || 0) + ' 点赞</span>'
-                + '<span data-act="comment" data-id="' + p.id + '" style="cursor:pointer;">💬 ' + (p.comments || []).length + ' 评论</span>'
+                + '<span data-act="like" data-id="' + p.id + '" style="cursor:pointer;">' + (p.liked ? icSvg('heart',13) + ' ' : icSvg('heartO',13) + ' ') + (p.likes || 0) + ' 点赞</span>'
+                + '<span data-act="comment" data-id="' + p.id + '" style="cursor:pointer;">' + (p.comments || []).length + ' 评论</span>'
                 + '<span data-act="del" data-id="' + p.id + '" style="cursor:pointer;color:#c9a0a0;">删除</span></div>'
                 + (p.comments || []).map(function (c) { return '<div style="background:#faf8f6;border-radius:12px;padding:8px 10px;margin-top:8px;font-size:13px;line-height:1.6;"><b>' + esc(c.author) + '：</b>' + esc(c.text) + '</div>'; }).join('')
                 + (commentOpen === p.id ? '<div style="display:flex;gap:8px;margin-top:8px;"><input class="gd-input" id="gd-wb-comment" placeholder="写评论…" style="flex:1;"><button class="gd-btn" data-act="send-comment" data-id="' + p.id + '">发送</button></div>' : '')
@@ -1071,10 +1100,10 @@ GD._gdApp = gdApp;
         } else {
             html += '<div class="fix11-local-note">这些只有曲名、没有音频链接，点播放会直接告诉你播不了，不会假装在放。</div>';
             locals.forEach(function (t) {
-                html += '<div class="fix11-local-row"><div style="width:34px;height:34px;border-radius:9px;background:#fbe4e8;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🎵</div>'
+                html += '<div class="fix11-local-row"><div style="width:34px;height:34px;border-radius:9px;background:#fbe4e8;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">' + icSvg('music',16) + '</div>'
                     + '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(t.title) + '</div>'
                     + '<div style="font-size:12px;color:#9a958f;">' + esc(t.artist || '未知歌手') + ' · ' + esc(t.source) + '</div></div>'
-                    + '<button type="button" class="gd-btn" data-fix11-act="play-local" data-id="' + esc(t.id) + '" style="padding:8px 12px;font-size:13px;">▶ 播放</button></div>';
+                    + '<button type="button" class="gd-btn" data-fix11-act="play-local" data-id="' + esc(t.id) + '" style="padding:8px 12px;font-size:13px;">' + icSvg('play',12) + ' 播放</button></div>';
             });
         }
         html += '</div>';
@@ -1275,9 +1304,9 @@ GD._gdApp = gdApp;
             + '<div style="font-size:12px;color:#9a958f;margin:10px 0 4px;">心情 ' + d.mood + '%</div><div class="gd-bar"><i style="width:' + d.mood + '%;background:#e78fb3;"></i></div>'
             + '<div style="font-size:12px;color:#9a958f;margin:10px 0 4px;">亲密度 ' + d.affection + '</div><div class="gd-bar"><i style="width:' + Math.min(100, d.affection) + '%;background:#9db98a;"></i></div>'
             + '</div></div>'
-            + '<div style="display:flex;gap:8px;"><button class="gd-btn" data-act="pet" style="flex:1;">🤲 摸摸</button>'
-            + '<button class="gd-btn" data-act="feed" style="flex:1;">🍗 喂食</button>'
-            + '<button class="gd-btn" data-act="play" style="flex:1;">🧶 玩耍</button></div>'
+            + '<div style="display:flex;gap:8px;"><button class="gd-btn" data-act="pet" style="flex:1;">摸摸</button>'
+            + '<button class="gd-btn" data-act="feed" style="flex:1;">喂食</button>'
+            + '<button class="gd-btn" data-act="play" style="flex:1;">玩耍</button></div>'
             + '<div class="gd-card" style="margin-top:12px;"><div class="gd-label" style="margin-top:0;">给猫改名</div>'
             + '<div style="display:flex;gap:8px;"><input class="gd-input" id="gd-cat-name" value="' + esc(d.name) + '" style="flex:1;"><button class="gd-btn-ghost" data-act="rename">改名</button></div>'
             + '<div style="font-size:12px;color:#9a958f;line-height:1.7;margin-top:10px;">桌宠市场是本机桌宠：状态只存在这台手机里，饱腹、心情和亲密度会随时间慢慢下降，记得回来看看它。</div></div>';
@@ -1495,7 +1524,7 @@ GD._gdApp = gdApp;
         var render = function () {
             var list = load();
             var html = '<div style="padding:18px 18px 40px;">'
-                + '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:22px;font-weight:700;">🚨 紧急呼叫演练（模拟）</span>'
+                + '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:22px;font-weight:700;">紧急呼叫演练（模拟）</span>'
                 + '<button id="gd-em-close" style="border:1px solid #ece7e2;background:#f4f1ee;border-radius:999px;padding:8px 14px;font-size:14px;">关闭</button></div>'
                 + '<div style="margin-top:10px;padding:10px 12px;background:#fffdf8;border:1px solid rgba(30,39,72,.28);border-radius:12px;font-size:12px;line-height:1.7;color:#1e2748;">机内模拟呼叫：这里的拨打不会接通真实电话或报警电话，仅在本机内模拟通话流程。如遇真实紧急情况，请用真机拨打 110 / 120 / 119。</div>';
             if (simCall) {
@@ -2019,42 +2048,42 @@ ensureRoundFields();
 var phase = session.roundPhase || 'dm';
 var h = '';
 if (phase === 'dm') {
-h += '<div class="sc-glass"><div class="sc-glass-tag">🎬 DM 开场 · 第' + (session.round || 1) + '轮 <span style="display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid rgba(30,39,72,.35);border-radius:999px;font-size:10px;letter-spacing:1px;color:#1e2748;background:#fffdf8;">模板 DM</span></div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeRoundDm(sc, scene, session.round || 1, getCharName())) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入 char 的行动</div></div>';
+h += '<div class="sc-glass"><div class="sc-glass-tag">DM 开场 · 第' + (session.round || 1) + '轮 <span style="display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid rgba(30,39,72,.35);border-radius:999px;font-size:10px;letter-spacing:1px;color:#1e2748;background:#fffdf8;">模板 DM</span></div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeRoundDm(sc, scene, session.round || 1, getCharName())) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入 char 的行动</div></div>';
 } else if (phase === 'char') {
-h += '<div class="sc-glass"><div class="sc-glass-tag">🎭 char 的行动</div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeCharAction(scene)) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入你的行动</div></div>';
+h += '<div class="sc-glass"><div class="sc-glass-tag">char 的行动</div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(aeCharAction(scene)) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + ' · 转轮进入你的行动</div></div>';
 } else if (phase === 'summary') {
 var last = session.roundLog[session.roundLog.length - 1];
-if (last) h += '<div class="sc-glass"><div class="sc-glass-tag">📖 回合汇总 · 第' + last.round + '轮</div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(last.summary) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + '</div></div>';
+if (last) h += '<div class="sc-glass"><div class="sc-glass-tag">回合汇总 · 第' + last.round + '轮</div><div style="font-size:13.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">' + esc(last.summary) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">' + AE_TEMPLATE_NOTE + '</div></div>';
 var re = (session.randomEvents || []).filter(function (x) { return x.round === (session.round || 1); });
-re.forEach(function (x) { h += '<div class="sc-glass" style="margin-top:10px;"><div class="sc-glass-tag">🎲 随机事件（本地预置）</div><div style="font-size:13px;line-height:1.65;color:#2b2a28;margin-top:4px;">' + esc(x.text) + '</div></div>'; });
+re.forEach(function (x) { h += '<div class="sc-glass" style="margin-top:10px;"><div class="sc-glass-tag">随机事件（本地预置）</div><div style="font-size:13px;line-height:1.65;color:#2b2a28;margin-top:4px;">' + esc(x.text) + '</div></div>'; });
 }
 var ht = null;
 (session.hiddenThreads || []).forEach(function (x) { if (x.node === session.sceneIdx) ht = x; });
-if (ht) h += '<div class="sc-glass" style="margin-top:10px;"><div class="sc-glass-tag">🔦 暗线提示（只出现一次）</div><div style="font-size:13px;line-height:1.65;color:#2b2a28;margin-top:4px;">' + esc(ht.text) + '</div></div>';
+if (ht) h += '<div class="sc-glass" style="margin-top:10px;"><div class="sc-glass-tag">暗线提示（只出现一次）</div><div style="font-size:13px;line-height:1.65;color:#2b2a28;margin-top:4px;">' + esc(ht.text) + '</div></div>';
 return h;
 };
 var aeEndingExtra = function (sc, ending) {
 if (!sc) return '<div class="sc-card"><p>剧本找不到了，复盘不可用。</p></div>';
 ensureRoundFields();
 var h = '';
-h += '<div class="sc-glass" style="margin-top:10px;"><div style="font-size:13px;font-weight:700;color:#3d2c17;margin-bottom:6px;">📜 复盘（本场）</div>';
+h += '<div class="sc-glass" style="margin-top:10px;"><div style="font-size:13px;font-weight:700;color:#3d2c17;margin-bottom:6px;">复盘（本场）</div>';
 var ht = session.hiddenThreads || [];
 var re = session.randomEvents || [];
-if (ht.length) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;">🔦 触发的暗线：</div>'; ht.forEach(function (x) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;">· 第' + (x.node + 1) + '幕：' + esc(x.text) + '</div>'; }); }
+if (ht.length) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;">触发的暗线：</div>'; ht.forEach(function (x) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;">· 第' + (x.node + 1) + '幕：' + esc(x.text) + '</div>'; }); }
 else h += '<div style="font-size:12.5px;line-height:1.7;color:#6b6560;">本场没有触发暗线。</div>';
-if (re.length) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">🎲 随机事件：</div>'; re.forEach(function (x) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;">· 第' + x.round + '轮：' + esc(x.text) + '</div>'; }); }
+if (re.length) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;margin-top:4px;">随机事件：</div>'; re.forEach(function (x) { h += '<div style="font-size:12.5px;line-height:1.7;color:#2b2a28;">· 第' + x.round + '轮：' + esc(x.text) + '</div>'; }); }
 else h += '<div style="font-size:12.5px;line-height:1.7;color:#6b6560;">本场没有随机事件。</div>';
 h += '<div style="font-size:11px;color:#8a6d3b;margin-top:4px;">暗线只在指定节点出现一次；随机事件为本地预置，按概率触发。</div></div>';
-h += '<div class="sc-card" style="margin-top:10px;"><h3>🗳 选一个最喜欢的结局</h3><p>多个结局都在下面，选一个最喜欢的，计入成就（同步记进 Z 组 otome_vote_v1；AE 镜像按每部剧本首次投票计 1 分）。</p><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">';
+h += '<div class="sc-card" style="margin-top:10px;"><h3>选一个最喜欢的结局</h3><p>多个结局都在下面，选一个最喜欢的，计入成就（同步记进 Z 组 otome_vote_v1；AE 镜像按每部剧本首次投票计 1 分）。</p><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">';
 (sc.endings || []).forEach(function (e, i) { h += '<button class="sc-btn' + (session.vote === e.label ? ' warm' : ' ghost') + '" data-act="vote-ending" data-i="' + i + '">' + esc(e.label) + '</button>'; });
 h += '</div>' + (session.vote ? '<p style="margin-top:8px;">你最喜欢的结局：' + esc(session.vote) + '（已计入成就）</p>' : '') + '</div>';
 if (sc.charGoal && sc.charGoal.goal) {
-h += '<div class="sc-card" style="margin-top:10px;"><h3>🎯 char 的小目标</h3><p>这段支线里，' + esc(getCharName()) + ' 的小目标是：' + esc(sc.charGoal.goal) + '。你来评判达成与否——达成好感 +5，未达成好感 −5。</p>';
-if (session.goalJudged) { h += '<p style="margin-top:8px;">你的评判：' + (session.goalMet ? '达成 ✓（好感 +5）' : '未达成（好感 −5）') + '。' + esc(session.goalMet ? (sc.charGoal.doneBranch || '') : (sc.charGoal.failBranch || '')) + ' 当前好感 ' + session.affection + ' / 100。</p>'; }
-else h += '<div style="display:flex;gap:8px;margin-top:10px;"><button class="sc-btn warm" data-act="goal-yes">✓ 达成了</button><button class="sc-btn ghost" data-act="goal-no">✗ 没达成</button></div>';
+h += '<div class="sc-card" style="margin-top:10px;"><h3>char 的小目标</h3><p>这段支线里，' + esc(getCharName()) + ' 的小目标是：' + esc(sc.charGoal.goal) + '。你来评判达成与否——达成好感 +5，未达成好感 −5。</p>';
+if (session.goalJudged) { h += '<p style="margin-top:8px;">你的评判：' + (session.goalMet ? '达成（好感 +5）' : '未达成（好感 −5）') + '。' + esc(session.goalMet ? (sc.charGoal.doneBranch || '') : (sc.charGoal.failBranch || '')) + ' 当前好感 ' + session.affection + ' / 100。</p>'; }
+else h += '<div style="display:flex;gap:8px;margin-top:10px;"><button class="sc-btn warm" data-act="goal-yes">达成了</button><button class="sc-btn ghost" data-act="goal-no">没达成</button></div>';
 h += '</div>';
 } else {
-h += '<div class="sc-card" style="margin-top:10px;"><h3>🎯 char 的小目标</h3><p>这本剧本没有给 char 设小目标（老剧本或自定义剧本可能没有这一项）。</p></div>';
+h += '<div class="sc-card" style="margin-top:10px;"><h3>char 的小目标</h3><p>这本剧本没有给 char 设小目标（老剧本或自定义剧本可能没有这一项）。</p></div>';
 }
 h += '<div style="font-size:11px;color:#8a6d3b;margin-top:8px;">保存记忆时：关键事实（主角、地点、结局、好感）写进归巢，其余情节折叠成摘要存在档案架里，不全塞进归巢。' + AE_TEMPLATE_NOTE + '。</div>';
 return h;
@@ -2141,7 +2170,7 @@ var persistSession = function (s) { try { localStorage.setItem(SESSION_KEY, JSON
 var charSvg = function (look, affection) {
 var hair = (look && look.hair) || '#3a2a1e'; var eye = (look && look.eye) || '#2b2b2b';
 var blush = (affection || 0) >= 50? '0.85': '0.4';
-var heart = (affection || 0) >= 60? '<text x="102" y="26" font-size="16" fill="#d96a6a">♥</text>': '';
+var heart = (affection || 0) >= 60? '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" transform="translate(92,10) scale(0.9)" fill="#d96a6a"/>': '';
 return '<svg viewBox="0 0 120 150" style="width:100%;height:100%;display:block;" aria-label="主角立绘">'
 + '<path d="M22 150 C22 122 36 108 60 108 C84 108 98 122 98 150 Z" fill="#e8c9a8"/>'
 + '<path d="M52 108 L60 122 L68 108 Z" fill="#fff7ee"/>'
@@ -2259,7 +2288,7 @@ var SC_CSS = '<style>'
  + '.oa-cast-actions button{border:1px solid #e8dfd0;background:#faf8f3;color:#68563b;border-radius:10px;padding:6px 8px;font-size:11px;white-space:nowrap;}'
  + '.oa-reel-shelf{display:flex;gap:9px;overflow-x:auto;padding:8px 1px 7px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}'
  + '.oa-reel-card{flex:0 0 82px;scroll-snap-align:center;border:1px solid rgba(30,39,72,.25);border-radius:10px;padding:5px 5px 7px;background:#fffdf8;color:#1e2748;cursor:pointer;position:relative;box-shadow:0 3px 8px rgba(30,39,72,.10);}'
- + '.oa-reel-card:before,.oa-reel-card:after{content:"●　●　●";display:block;color:#bfc8e0;font-size:6px;letter-spacing:1px;white-space:nowrap;overflow:hidden;height:8px;line-height:8px;}'
+ + '.oa-reel-card:before,.oa-reel-card:after{content:"• • •";display:block;color:#bfc8e0;font-size:6px;letter-spacing:1px;white-space:nowrap;overflow:hidden;height:8px;line-height:8px;}'
  + '.oa-reel-card.on{outline:2px solid #1e2748;outline-offset:1px;background:#dce2f1;}'
  + '.oa-reel-art{height:57px;border-radius:5px;background:linear-gradient(145deg,#d9c7a6,#8c6d4c);display:flex;align-items:flex-end;justify-content:center;color:#fff;font-size:10px;font-weight:700;text-align:center;overflow:hidden;text-shadow:0 1px 4px #000;padding:4px;box-sizing:border-box;}'
  + '.oa-reel-label{font-size:10px;line-height:1.25;text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
@@ -2303,7 +2332,7 @@ var filmStrip = function (frames, current) {
 var h = '<div class="sc-film">';
 frames.forEach(function (f, i) {
 var cls = 'sc-frame' + (i === current? ' on': '') + (i < current? ' done': '');
-h += '<div class="' + cls + '" data-act="frame" data-i="' + i + '"><span class="holes">● ● ● ●</span>' + esc(f) + '<span class="holes">● ● ● ●</span></div>';
+h += '<div class="' + cls + '" data-act="frame" data-i="' + i + '"><span class="holes">• • • •</span>' + esc(f) + '<span class="holes">• • • •</span></div>';
 });
 return h + '</div>';
 };
@@ -2384,7 +2413,7 @@ var oaFilmShelfHTML = function (list, selectedKey) {
   if (!list.length) return '<div class="oa-home-empty"><b>还没有剧本胶片</b><span>导入 TXT / EPUB，或新建一卷。导入的小说正文会自动整理成视觉小说草稿，并先让你审阅。</span></div>';
   return '<div class="oa-reel-shelf">' + list.map(function (s, i) {
     var cov = oaCoverBackground(oaWorkCoverKey(s), s.title), active = s.key === selectedKey;
-    return '<button type="button" class="oa-reel-card' + (active ? ' on' : '') + '" data-act="sel-home-work" data-key="' + esc(s.key) + '" aria-pressed="' + (active ? 'true' : 'false') + '"><span class="oa-reel-art" style="background:' + esc(cov) + '">' + esc(s.title || '未命名') + '</span><span class="oa-reel-label">' + (s.kind === 'vn' ? '◉ ' : '▣ ') + esc(s.title || '未命名') + '</span></button>';
+    return '<button type="button" class="oa-reel-card' + (active ? ' on' : '') + '" data-act="sel-home-work" data-key="' + esc(s.key) + '" aria-pressed="' + (active ? 'true' : 'false') + '"><span class="oa-reel-art" style="background:' + esc(cov) + '">' + esc(s.title || '未命名') + '</span><span class="oa-reel-label">' + (s.kind === 'vn' ? '[VN] ' : '[文] ') + esc(s.title || '未命名') + '</span></button>';
   }).join('') + '</div>';
 };
 var oaCastHTML = function () {
@@ -2415,7 +2444,7 @@ var oaVNHTML = function () {
   h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;"><button type="button" class="sc-btn warm" data-act="import-vn-open" aria-label="导入视觉小说" title="导入">＋</button><input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload></div>';
   if (!vns.length) h += '<div class="sc-card"><p>还没有视觉小说，上传一份 .txt 或 .json 剧本试试。</p></div>';
   vns.forEach(function (v) {
-    h += '<div class="sc-vnrow"><div style="flex:1;min-width:0;"><b>《' + esc(v.title) + '》</b><small style="display:block;font-size:11.5px;color:#a39a8d;margin-top:2px;">' + (v.scenes || []).length + ' 个场景 · ' + (v.source === 'structured' ? '模型整理' : (v.source === 'template' ? '模板规则整理' : (v.source === 'sks' ? 'SKS 导入' : '上传'))) + ' · ' + esc(((v.characters || []).join('、')) || '无说话人') + '</small></div><button type="button" class="sc-btn warm" data-act="vn-play" data-id="' + esc(v.id) + '">▶ 玩</button><button type="button" class="sc-btn ghost" data-act="vn-audio" data-id="' + esc(v.id) + '">♪ 音频</button><button type="button" class="sc-btn ghost" data-act="vn-del" data-id="' + esc(v.id) + '">✕</button></div>';
+    h += '<div class="sc-vnrow"><div style="flex:1;min-width:0;"><b>《' + esc(v.title) + '》</b><small style="display:block;font-size:11.5px;color:#a39a8d;margin-top:2px;">' + (v.scenes || []).length + ' 个场景 · ' + (v.source === 'structured' ? '模型整理' : (v.source === 'template' ? '模板规则整理' : (v.source === 'sks' ? 'SKS 导入' : '上传'))) + ' · ' + esc(((v.characters || []).join('、')) || '无说话人') + '</small></div><button type="button" class="sc-btn warm" data-act="vn-play" data-id="' + esc(v.id) + '">' + icSvg('play',12) + ' 玩</button><button type="button" class="sc-btn ghost" data-act="vn-audio" data-id="' + esc(v.id) + '">音频</button><button type="button" class="sc-btn ghost" data-act="vn-del" data-id="' + esc(v.id) + '">删除</button></div>';
   });
   h += '<button type="button" class="sc-btn ghost" data-act="tab" data-v="reels">‹ 返回胶片架</button>';
   return h;
@@ -2483,9 +2512,6 @@ var oaBuild3D = function (host) {
   return true;
 };
 
-var coverEmoji = function (id) {
-return '🎞'; // [AJ] 内置剧本已清空，封面统一用胶片图标
-};
 var pushLog = function (line) { if (session && line) session.log.push({ who: line.who, text: line.text});};
 var startPlay = function (script) {
 session = { scriptId: script.id, title: script.title, sceneIdx: 0, lineIdx: 0, affection: 20, log: [], moments: [], startedAt: Date.now(), ended: null, showingReply: null, exitConfirm: false, round: 1, roundPhase: 'dm', roundLog: [], hiddenThreads: [], randomEvents: [], goalMet: null, goalJudged: false, vote: null, youAction: null, deckDraw: null, playId: uid() };
@@ -2555,7 +2581,7 @@ logEvent('script_end', getCharName(), '演完《' + sc.title + '》：' + ending
 recordPlay({ id: session.playId || uid(), scriptId: sc.id, scriptTitle: sc.title, date: todayStr2(), startedAt: session.startedAt || Date.now(), endedAt: Date.now(), finished: !!finished, choices: (session.log || []).filter(function (l) { return l.who === 'you'; }).map(function (l) { return l.text; }), hiddenThreads: session.hiddenThreads || [], randomEvents: session.randomEvents || [], ending: ending.label, affection: session.affection, goalMet: session.goalMet, goalJudged: !!session.goalJudged, vote: session.vote || null, rounds: (session.roundLog || []).length, roundLog: session.roundLog || [] });
 logEvent('script_save', getCharName(), '保存记忆《' + sc.title + ' · ' + ending.label + '》：关键事实进归巢，其余折叠为档案摘要', { kind: 'save', scriptId: sc.id, memoryId: mem.id });
 clearSession(); session = null; view = 'archive';
-notice = '已归档 ✓ 关键事实（主角、地点、结局、好感）写进了归巢的「关系记忆」；其余情节折叠成摘要，存在档案架里；这场游玩也记进了「游玩记录」。';
+notice = '已归档，关键事实（主角、地点、结局、好感）写进了归巢的「关系记忆」；其余情节折叠成摘要，存在档案架里；这场游玩也记进了「游玩记录」。';
 };
 var discardCurrent = function () {
 clearSession(); session = null; view = 'reels';
@@ -2634,7 +2660,7 @@ var whoLabel =!cur? '旁白': (cur.who === 'char'? charName: (cur.who === 'you'?
 var _oaSpriteSrc = oaPortraitData(oaSelCharId(oaRealChars()));
 var stageInner = '<div class="sc-stage" style="background:' + (SCENE_BG[scene.bg] || SCENE_BG.cafe) + ';">'
 + '<div class="sc-scene-tag">' + esc(scene.title) + ' · 第' + (session.round || 1) + '轮 · ' + (AE_PHASE_NAMES[phase] || '') + '</div>'
-+ '<div class="sc-aff">♥ 好感 ' + session.affection + '</div>'
++ '<div class="sc-aff">好感 ' + session.affection + '</div>'
 + '<div class="sc-standee">' + (_oaSpriteSrc ? '<img class="oa-character-sprite" src="' + esc(_oaSpriteSrc) + '" alt="' + esc(charName) + '立绘">' : charSvg(look, session.affection)) + '</div>'
 + '<div class="sc-dialog"><div class="sc-who">' + esc(whoLabel) + (phase === 'dm' ? ' <span style="display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid rgba(30,39,72,.35);border-radius:999px;font-size:10px;letter-spacing:1px;color:#1e2748;background:#fffdf8;">模板 DM</span>' : '') + '</div>'
 + '<p class="sc-line">' + (cur? esc(cur.text): (atEnd && scene.choice? esc(scene.choice.prompt): '（本幕结束，转动转轮到下一幕）')) + '</p></div></div>';
@@ -2660,7 +2686,7 @@ h += '<div class="sc-controls"><button class="sc-wheel" data-act="next" title="�
  + '<div class="sc-ctl-note">' + _phNote + '<br>好感实时显示在屏幕右上角</div>'
  + '<button class="sc-btn ghost" data-act="exit-play">退出放映</button></div>';
 }
-h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn ghost" data-act="deck-draw" data-kind="question">🎲 抽个怪问题</button><button class="sc-btn ghost" data-act="deck-draw" data-kind="scene">🃏 抽张场景卡</button></div>';
+h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn ghost" data-act="deck-draw" data-kind="question">抽个怪问题</button><button class="sc-btn ghost" data-act="deck-draw" data-kind="scene">抽张场景卡</button></div>';
 if (session.deckDraw) h += '<div class="sc-glass" style="margin-top:10px;"><div style="font-size:13px;line-height:1.65;color:#2b2a28;">' + esc(session.deckDraw.text) + '</div><div style="font-size:11px;color:#8a6d3b;margin-top:4px;">预置题库，非 AI 生成 · 抽到什么就聊什么，不强制演进剧情</div></div>';
 return h;
 }
@@ -2668,13 +2694,13 @@ if (view === 'ending' && session) {
 var sc2 = findScript(session.scriptId);
 var ending = session.ended || (sc2? computeEnding(sc2, session.affection): { label: '结局', text: ''});
 var endInner = '<div class="sc-stage" style="background:' + SCENE_BG.dusk + ';">'
-+ '<div class="sc-screen-title"><div class="sc-cover-emoji">🎞</div><h2>' + esc(ending.label) + '</h2>'
-+ '<p>' + esc(ending.text || '') + '</p><p style="margin-top:10px;">♥ 好感 ' + session.affection + ' / 100 · ' + esc(session.title || '') + '</p></div></div>';
++ '<div class="sc-screen-title"><div class="sc-cover-emoji">' + icSvg('film',20) + '</div><h2>' + esc(ending.label) + '</h2>'
++ '<p>' + esc(ending.text || '') + '</p><p style="margin-top:10px;">好感 ' + session.affection + ' / 100 · ' + esc(session.title || '') + '</p></div></div>';
 h += machineTop(endInner);
 h += '<div class="sc-card"><h3>这卷胶片放完了</h3><p>选「保存记忆」，这段支线就归档进记忆：关键事实写进归巢的「关系记忆」，其余情节折叠成摘要存在档案架里，档案架上也会多一盒胶片。选「放弃记忆」，胶片直接作废，不留任何记录。</p>'
  + aeEndingExtra(sc2, ending)
-+ '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn warm" data-act="save-memory">📥 保存记忆</button>'
-+ '<button class="sc-btn danger" data-act="discard-memory">🗑 放弃记忆</button></div></div>';
++ '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn warm" data-act="save-memory">保存记忆</button>'
++ '<button class="sc-btn danger" data-act="discard-memory">放弃记忆</button></div></div>';
 return h;
 }
 if (view !== 'reels') h += tabsHtml();
@@ -2688,9 +2714,9 @@ h += '<button class="sc-btn" data-act="new-custom" style="width:100%;margin-bott
 h += '<div class="sc-notice">自定义剧本存在本机（标题 / 背景设定 / 场景 / 台词 / 选项 / 结局），改剧本不用碰代码。</div>';
 if (!customs.length) h += '<div class="sc-card"><p>还没有自定义剧本。点上面「新建」，写一卷属于你自己的胶片。</p></div>';
 customs.forEach(function (c) {
-h += '<div class="sc-card"><h3>🎞 ' + esc(c.title) + '</h3><p>' + esc(c.desc || c.setting || '') + '</p>'
+h += '<div class="sc-card"><h3>' + esc(c.title) + '</h3><p>' + esc(c.desc || c.setting || '') + '</p>'
 + '<div class="meta">' + c.scenes.length + ' 幕 · ' + (c.endings || []).length + ' 个结局</div>'
-+ '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn warm" data-act="play-custom" data-id="' + esc(c.id) + '">▶ 放映</button>'
++ '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn warm" data-act="play-custom" data-id="' + esc(c.id) + '">' + icSvg('play',12) + ' 放映</button>'
 + '<button class="sc-btn ghost" data-act="edit-custom" data-id="' + esc(c.id) + '">编辑</button>'
 + '<button class="sc-btn danger" data-act="del-custom" data-id="' + esc(c.id) + '">删除</button></div></div>';
 });
@@ -2727,23 +2753,23 @@ var _plays = aeSearchPlays(loadPlays(), playSearch);
 var _ach = loadAch();
 var _zTxt = '';
 try { if (typeof window !== 'undefined' && window.GroupZ && window.GroupZ.voteLoad) { var _zd = window.GroupZ.voteLoad(); var _za = (_zd.achievements || []).map(function (a) { return a.label; }).join('、'); _zTxt = ' · Z 组投票 ' + ((_zd.endingVotes || []).length) + ' 票' + (_za ? '（徽章：' + _za + '）' : '') + '，成就口径以 Z 组 otome_vote_v1 为准'; } } catch (e) {}
-h += '<div class="sc-card"><h3>🏆 成就（剧本）</h3><p>演完 ' + (_ach.counts.plays || 0) + ' 场 · 投票 ' + (_ach.counts.votes || 0) + ' 部剧本（AE 镜像，每部首次投票计 1 分） · 小目标达成 ' + (_ach.counts.goalsMet || 0) + ' 次 · 发现暗线 ' + (_ach.counts.hiddenFound || 0) + ' 条' + _zTxt + '。</p></div>';
+h += '<div class="sc-card"><h3>成就（剧本）</h3><p>演完 ' + (_ach.counts.plays || 0) + ' 场 · 投票 ' + (_ach.counts.votes || 0) + ' 部剧本（AE 镜像，每部首次投票计 1 分） · 小目标达成 ' + (_ach.counts.goalsMet || 0) + ' 次 · 发现暗线 ' + (_ach.counts.hiddenFound || 0) + ' 条' + _zTxt + '。</p></div>';
 h += '<div class="sc-field"><label>搜索游玩记录（剧本名 / 结局 / 选择 / 暗线 / 随机事件）</label><input id="sc-plays-q" value="' + esc(playSearch) + '" placeholder="例如：雨夜咖啡馆 / 好结局 / 金鱼"></div>';
-h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"><button class="sc-btn" data-act="plays-search">🔍 搜索</button><button class="sc-btn ghost" data-act="plays-export">⬇ 导出 JSONL</button></div>';
+h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"><button class="sc-btn" data-act="plays-search">搜索</button><button class="sc-btn ghost" data-act="plays-export">导出 JSONL</button></div>';
 if (!_plays.length) h += '<div class="sc-card"><p>' + (playSearch ? '没有找到包含「' + esc(playSearch) + '」的游玩记录。' : '还没有游玩记录。演完一卷胶片并选「保存记忆」，记录就会出现在这里。') + '</p></div>';
 _plays.forEach(function (p) {
-h += '<div class="sc-can" data-act="open-play" data-id="' + esc(p.id) + '"><div class="t">🎞 ' + esc(p.scriptTitle) + ' · ' + esc(p.ending || '') + '</div><div class="m">' + esc(p.date || '') + ' · 好感 ' + (p.affection == null ? '—' : p.affection) + ' / 100 · ' + (p.rounds || 0) + ' 轮' + (p.finished ? '' : ' · 未演完') + '<br>' + esc((p.choices || []).slice(0, 2).join(' / ') || '没有留下选择记录') + '</div></div>';
+h += '<div class="sc-can" data-act="open-play" data-id="' + esc(p.id) + '"><div class="t">' + esc(p.scriptTitle) + ' · ' + esc(p.ending || '') + '</div><div class="m">' + esc(p.date || '') + ' · 好感 ' + (p.affection == null ? '—' : p.affection) + ' / 100 · ' + (p.rounds || 0) + ' 轮' + (p.finished ? '' : ' · 未演完') + '<br>' + esc((p.choices || []).slice(0, 2).join(' / ') || '没有留下选择记录') + '</div></div>';
 });
 return h;
 }
 if (view === 'playDetail' && detailPlayId) {
 var _pl = null; loadPlays().forEach(function (p) { if (p.id === detailPlayId) _pl = p; });
 if (!_pl) { view = 'plays'; return renderBody(); }
-h += '<div class="sc-card"><h3>🎞 ' + esc(_pl.scriptTitle) + ' · ' + esc(_pl.ending || '') + '</h3><p>' + esc(_pl.date || '') + ' · 好感 ' + (_pl.affection == null ? '—' : _pl.affection) + ' / 100 · ' + (_pl.rounds || 0) + ' 轮' + (_pl.finished ? ' · 已演完' : ' · 未演完') + '</p>';
-if (_pl.vote) h += '<p>🗳 最喜欢的结局：' + esc(_pl.vote) + '（已计入成就）</p>';
-if (_pl.goalJudged) h += '<p>🎯 小目标评判：' + (_pl.goalMet ? '达成 ✓' : '未达成') + '</p>';
+h += '<div class="sc-card"><h3>' + esc(_pl.scriptTitle) + ' · ' + esc(_pl.ending || '') + '</h3><p>' + esc(_pl.date || '') + ' · 好感 ' + (_pl.affection == null ? '—' : _pl.affection) + ' / 100 · ' + (_pl.rounds || 0) + ' 轮' + (_pl.finished ? ' · 已演完' : ' · 未演完') + '</p>';
+if (_pl.vote) h += '<p>最喜欢的结局：' + esc(_pl.vote) + '（已计入成就）</p>';
+if (_pl.goalJudged) h += '<p>小目标评判：' + (_pl.goalMet ? '达成' : '未达成') + '</p>';
 h += '<div style="margin-top:8px;"><div style="font-size:12px;font-weight:700;color:#8a6d3b;">你的选择</div>' + ((_pl.choices || []).length ? _pl.choices.map(function (c) { return '<p>· ' + esc(c) + '</p>'; }).join('') : '<p>没有留下选择记录。</p>') + '</div>';
-h += '<div style="margin-top:8px;"><div style="font-size:12px;font-weight:700;color:#8a6d3b;">暗线与随机事件（复盘）</div>' + ((_pl.hiddenThreads || []).map(function (x) { return '<p>🔦 第' + (x.node + 1) + '幕：' + esc(x.text) + '</p>'; }).join('') || '<p>本场没有触发暗线。</p>') + ((_pl.randomEvents || []).map(function (x) { return '<p>🎲 第' + x.round + '轮：' + esc(x.text) + '</p>'; }).join('') || '<p>本场没有随机事件。</p>') + '</div>';
+h += '<div style="margin-top:8px;"><div style="font-size:12px;font-weight:700;color:#8a6d3b;">暗线与随机事件（复盘）</div>' + ((_pl.hiddenThreads || []).map(function (x) { return '<p>第' + (x.node + 1) + '幕：' + esc(x.text) + '</p>'; }).join('') || '<p>本场没有触发暗线。</p>') + ((_pl.randomEvents || []).map(function (x) { return '<p>第' + x.round + '轮：' + esc(x.text) + '</p>'; }).join('') || '<p>本场没有随机事件。</p>') + '</div>';
 if ((_pl.roundLog || []).length) { h += '<div style="margin-top:8px;"><div style="font-size:12px;font-weight:700;color:#8a6d3b;">回合叙述</div>' + _pl.roundLog.map(function (r) { return '<p>第' + r.round + '轮 · ' + esc(r.sceneTitle || '') + '：' + esc(r.summary || '') + '</p>'; }).join('') + '</div>'; }
 h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn ghost" data-act="tab" data-v="plays">返回游玩记录</button><button class="sc-btn danger" data-act="del-play" data-id="' + esc(_pl.id) + '">删除这场记录</button></div></div>';
 return h;
@@ -2757,7 +2783,7 @@ if (!ref &&!mem) { view = 'archive'; return renderBody();}
 h += '<div class="sc-card"><h3>' + esc((mem && mem.title) || (ref && ('' + ref.scriptTitle + ' · ' + ref.ending)) || '已保存的记忆') + '</h3>'
 + '<p style="white-space:pre-wrap;">' + esc((mem && mem.content) || (ref && ref.summary) || '') + '</p>'
 + '<div class="meta">' + (ref? esc(ref.date) + ' · 好感 ' + ref.affection + ' / 100': '') + (mem? '': '（归巢里找不到这条全文，可能已在归巢里删掉）') + '</div>'
- + ((ref && ref.archiveSummary) ? '<div class="sc-glass" style="margin-top:10px;"><div style="font-size:12px;font-weight:700;color:#8a6d3b;margin-bottom:4px;">📜 折叠摘要（只存在剧本档案里，不进归巢）</div><p style="white-space:pre-wrap;">' + esc(ref.archiveSummary) + '</p></div>' : '')
+ + ((ref && ref.archiveSummary) ? '<div class="sc-glass" style="margin-top:10px;"><div style="font-size:12px;font-weight:700;color:#8a6d3b;margin-bottom:4px;">折叠摘要（只存在剧本档案里，不进归巢）</div><p style="white-space:pre-wrap;">' + esc(ref.archiveSummary) + '</p></div>' : '')
  + ((ref && ref.keyFacts && ref.keyFacts.length) ? '<div style="font-size:12px;color:#8a6d3b;margin-top:8px;">关键事实：' + esc(ref.keyFacts.join('；')) + '</div>' : '')
 + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button class="sc-btn ghost" data-act="tab" data-v="archive">返回档案架</button>'
 + '<button class="sc-btn danger" data-act="del-saved" data-id="' + esc(detailId) + '">删除这条记忆</button></div></div>';
@@ -2766,7 +2792,7 @@ return h;
 h += '<div class="sc-notice">档案架就是记忆库：每一盒胶片，都是演完后你选择「保存记忆」的那段支线。点一盒看全文；删除时，归巢里对应的那条记忆也会一起删掉，只删这一条。</div>';
 if (!refs.length) h += '<div class="sc-card"><p>档案架还是空的。去放映一卷胶片，演完选「保存记忆」，它就会出现在这里。</p></div>';
 refs.forEach(function (r) {
-h += '<div class="sc-can" data-act="open-saved" data-id="' + esc(r.id) + '"><div class="t">🎞 ' + esc(r.scriptTitle) + ' · ' + esc(r.ending) + '</div>'
+h += '<div class="sc-can" data-act="open-saved" data-id="' + esc(r.id) + '"><div class="t">' + esc(r.scriptTitle) + ' · ' + esc(r.ending) + '</div>'
 + '<div class="m">' + esc(r.date) + ' · 好感 ' + r.affection + ' / 100<br>' + esc(r.summary || '') + '</div></div>';
 });
 return h;
@@ -2790,12 +2816,12 @@ var coverInner = selected
 h += machineTop(coverInner, 'oa-home-machine');
 h += '<div class="oa-home-caption"><span>胶片架</span><span>' + (selected ? (selected.kind === 'vn' ? '视觉小说' : '互动剧本') + ' · ' + (works.indexOf(selected) + 1) + ' / ' + works.length : '导入或新建你的第一卷') + '</span></div>';
 h += oaFilmShelfHTML(works, homeWorkSel);
-h += '<div class="oa-home-actions"><button class="sc-btn warm" data-act="play-home-sel"' + (selected ? '' : ' disabled') + '>▶ 开始放映</button>'
+h += '<div class="oa-home-actions"><button class="sc-btn warm" data-act="play-home-sel"' + (selected ? '' : ' disabled') + '>' + icSvg('play',12) + ' 开始放映</button>'
 + '<button class="sc-btn ghost" data-act="import-vn-open" aria-label="导入" title="导入">＋</button></div>';
 h += '<input type="file" accept=".sks,.txt,.json,.epub" style="display:none" data-oa-vn-upload>';
 h += '<input type="file" accept="image/png" style="display:none" data-oa-portrait-input>';
 h += '<div class="oa-home-modes"><button class="sc-btn warm" data-act="mode-wenyou">文游</button><button class="sc-btn ghost" data-act="mode-vn">视觉小说</button></div>';
-if (!works.length) h += '<button class="sc-btn ghost" data-act="new-custom" style="width:100%;margin-top:8px;">✎ 新建自定义互动剧本</button>';
+if (!works.length) h += '<button class="sc-btn ghost" data-act="new-custom" style="width:100%;margin-top:8px;">新建自定义互动剧本</button>';
 if (session &&!session.ended) {
 h += '<div class="sc-card"><h3>放映进行中</h3><p>《' + esc(session.title) + '》第 ' + (session.sceneIdx + 1) + ' 幕 · 好感 ' + session.affection + '</p>'
 + '<div style="display:flex;gap:8px;margin-top:10px;"><button class="sc-btn warm" data-act="resume-play">继续放映</button>'
@@ -3289,11 +3315,11 @@ function widgetData(refDate) {
 function renderWidgetHTML(kind, refDate) {
     var w = widgetData(refDate);
     if (kind === 'todos') {
-        var items = w.todos.map(function (t) { return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid #f0edea;">○ ' + esc(t.text) + '</div>'; }).join('');
+        var items = w.todos.map(function (t) { return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid #f0edea;">• ' + esc(t.text) + '</div>'; }).join('');
         return '<div class="sys-widget" data-hb-widget="todos"><div style="font-size:13px;font-weight:600;">今日待办 · ' + w.todos.length + ' 件待做</div>'
             + (items || '<div style="font-size:13px;color:#a8a29c;padding:6px 0;">今天没有待办，享受空闲吧。</div>') + '</div>';
     }
-    var rows = w.habitsToday.map(function (h) { return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid #f0edea;">' + (h.done ? '✓ ' : '○ ') + esc(h.emoji + ' ' + h.name) + ' · ' + h.streak + ' 天</div>'; }).join('');
+    var rows = w.habitsToday.map(function (h) { return '<div style="font-size:13px;padding:5px 0;border-bottom:1px solid #f0edea;">' + (h.done ? icSvg('check',12) + ' ' : '• ') + esc(h.emoji + ' ' + h.name) + ' · ' + h.streak + ' 天</div>'; }).join('');
     return '<div class="sys-widget" data-hb-widget="habits"><div style="font-size:13px;font-weight:600;">习惯打卡 · 今日 ' + w.todayPct + '%</div>'
         + (rows || '<div style="font-size:13px;color:#a8a29c;padding:6px 0;">今天没有计划中的习惯。</div>') + '</div>';
 }
@@ -3344,7 +3370,7 @@ function renderToday(d) {
             + '<div class="gd-row"><div style="font-size:26px;">' + esc(h.emoji) + '</div>'
             + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;" data-hb-act="detail-open" data-id="' + h.id + '">' + esc(h.name) + ' <span style="font-size:11px;color:#a8a29c;font-weight:400;">' + esc(h.category) + ' · ' + esc(freqLabel(h)) + '</span></div>'
             + '<div style="font-size:12px;color:#9a958f;margin-top:3px;">连续 ' + sk + ' 天 · ' + esc(ins.text) + '</div></div>'
-            + '<button class="gd-btn-ghost" data-hb-act="toggle" data-id="' + h.id + '" data-date="' + today + '" style="min-width:52px;' + (done ? 'background:#5b8c5a;color:#fff;border-color:#5b8c5a;' : '') + '" ' + (planned ? '' : 'disabled') + '>' + (done ? '✓ 已打卡' : (planned ? '打卡' : '非计划日')) + '</button>'
+            + '<button class="gd-btn-ghost" data-hb-act="toggle" data-id="' + h.id + '" data-date="' + today + '" style="min-width:52px;' + (done ? 'background:#5b8c5a;color:#fff;border-color:#5b8c5a;' : '') + '" ' + (planned ? '' : 'disabled') + '>' + (done ? '已打卡' : (planned ? '打卡' : '非计划日')) + '</button>'
             + '<button class="gd-btn-ghost" data-hb-act="archive" data-id="' + h.id + '" style="padding:7px 9px;font-size:12px;">归档</button>'
             + '</div><div style="font-size:11px;color:#b5b0aa;margin-top:6px;">长按拖动可调整顺序 · 点名字看详情、曲线与编辑</div></div>';
     });
@@ -3364,13 +3390,13 @@ function renderTodos(d) {
     html += '<div class="gd-card"><div style="display:flex;gap:8px;"><input class="gd-input" id="hb-todo-input" placeholder="写一件待办，回车或点添加…" style="flex:1;"><button class="gd-btn" data-hb-act="todo-add">添加</button></div>';
     if (!d.todos.length) html += '<div style="font-size:13px;color:#a8a29c;padding:10px 2px 2px;">还没有待办。</div>';
     d.todos.forEach(function (t) {
-        html += '<div class="gd-row" style="padding:8px 2px;border-bottom:1px solid #f6f1ec;"><span data-hb-act="todo-toggle" data-id="' + t.id + '" style="cursor:pointer;font-size:16px;">' + (t.done ? '☑' : '☐') + '</span>'
+        html += '<div class="gd-row" style="padding:8px 2px;border-bottom:1px solid #f6f1ec;"><span data-hb-act="todo-toggle" data-id="' + t.id + '" style="cursor:pointer;font-size:16px;">' + (t.done ? icSvg('checkSq',16) : icSvg('sq',16)) + '</span>'
             + '<span style="flex:1;font-size:14px;' + (t.done ? 'text-decoration:line-through;color:#a8a29c;' : '') + '">' + esc(t.text) + '</span>'
             + '<span data-hb-act="todo-del" data-id="' + t.id + '" style="cursor:pointer;color:#c9c2bb;">×</span></div>';
     });
     html += '<div class="gd-label">速记 · 输入后自动保存，不用点按钮</div>'
         + '<textarea class="gd-input" id="hb-qn" rows="3" placeholder="随手记一句……" style="line-height:1.7;">' + esc(d.quickNote) + '</textarea>'
-        + '<div id="hb-qn-status" style="font-size:12px;color:#8a8580;margin-top:5px;">✓ 已自动保存</div></div>';
+        + '<div id="hb-qn-status" style="font-size:12px;color:#8a8580;margin-top:5px;">已自动保存</div></div>';
     return html;
 }
 function renderHeatmap(d, refDate) {
@@ -3403,7 +3429,7 @@ function renderWeek(d) {
             var done = isChecked(d, h.id, ds);
             if (done) weekDone++;
             var bg = done ? '#5b8c5a' : (planned ? '#f4f1ee' : '#faf8f6');
-            var ch = done ? '✓' : (planned ? '' : '·');
+            var ch = done ? icSvg('check',12) : (planned ? '' : '·');
             var col = done ? '#fff' : '#b5b0aa';
             return '<div data-hb-act="week-cell" data-id="' + h.id + '" data-date="' + ds + '" title="' + ds + ' ' + WEEK_CN[dow(ds)] + (planned ? (done ? ' · 已打卡' : ' · 计划日，未打卡') : ' · 非计划日') + '" style="flex:1;aspect-ratio:1;border-radius:8px;background:' + bg + ';color:' + col + ';display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">' + ch + '</div>';
         }).join('');
@@ -3438,7 +3464,7 @@ function renderMonth(d) {
     var selDate = ui.monthSel || today;
     var doneList = activeHabits(d).filter(function (h) { return isChecked(d, h.id, selDate); });
     html += '<div class="gd-card"><div style="font-size:14px;font-weight:600;">' + selDate + ' ' + WEEK_CN[dow(selDate)] + '</div>'
-        + (doneList.length ? doneList.map(function (h) { return '<div style="font-size:14px;padding:6px 0;">✓ ' + esc(h.emoji + ' ' + h.name) + '</div>'; }).join('') : '<div style="font-size:13px;color:#a8a29c;padding:8px 0;">这天没有打卡记录。</div>') + '</div>';
+        + (doneList.length ? doneList.map(function (h) { return '<div style="font-size:14px;padding:6px 0;">' + esc(h.emoji + ' ' + h.name) + '</div>'; }).join('') : '<div style="font-size:13px;color:#a8a29c;padding:8px 0;">这天没有打卡记录。</div>') + '</div>';
     return html;
 }
 
@@ -3629,7 +3655,7 @@ function bind(win, app) {
         if (ui.qnTimer) clearTimeout(ui.qnTimer);
         ui.qnTimer = setTimeout(function () {
             setQuickNote(txt);
-            var st2 = win.querySelector('#hb-qn-status'); if (st2) st2.textContent = '✓ 已自动保存 ' + fmtDT(Date.now());
+            var st2 = win.querySelector('#hb-qn-status'); if (st2) st2.textContent = '已自动保存 ' + fmtDT(Date.now());
         }, 600);
     });
     var todoInp = win.querySelector('#hb-todo-input');

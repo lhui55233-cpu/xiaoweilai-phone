@@ -519,14 +519,14 @@ bkWbLine() +
 '<div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">时间事实：' + esc(f.timeFact || '') + '<br>好感度（只读）：' + (f.affectionReadOnly == null? '—': f.affectionReadOnly) + '<br>待提建议：' + esc(f.pendingSuggestion || '无') + '</div>' +
 '<div style="margin-top:8px;">' + recHtml + '</div></div>' +
 '<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">立场门控</div>' + stHtml + '</div>' +
-(a.decision? '<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">本轮决策</div><div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(a.decision.rule || '') + ' → ' + esc(a.decision.action || '') + '：' + esc(a.decision.reason || '') + '</div></div>': '') +
+(a.decision? '<div class="st-group" style="margin:0 16px 12px;padding:12px 16px;"><div style="font-weight:600;font-size:17px;margin-bottom:8px;">本轮决策</div><div style="font-size:13px;line-height:1.5;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(a.decision.rule || '') + ' ' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>' + ' ' + esc(a.decision.action || '') + '：' + esc(a.decision.reason || '') + '</div></div>': '') +
 '</div>';
 }
 if (act === 'subjectStance') {
 var items = getStance().items.slice().reverse();
 var rows = items.length? items.map(function (g) {
 var btn = g.status === '已修复'
-? '<span style="color:var(--st-ink,#1e2748);">✓ 已修复</span>'
+? '<span style="color:var(--st-ink,#1e2748);">' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>' + ' 已修复</span>'
 : '<button data-subj-repair="' + esc(g.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;">已用行动补偿</button>';
 var hist = (g.history || []).map(function (h) { return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(new Date(h.ts).toLocaleString()) + ' ' + esc(h.note || ('实际代价：' + (h.cost || ''))) + '</div>';}).join('');
 return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" style="display:block;padding:12px 16px;">' +
@@ -534,7 +534,7 @@ return '<div class="st-group" style="margin-bottom:12px;"><div class="st-row" st
 '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:8px;">严重度 ' + g.severity + ' · ' + esc(g.status) + ' · ' + esc(new Date(g.createdTs).toLocaleString()) + '</div>' + hist +
 '<div style="margin-top:8px;text-align:right;">' + btn + '</div></div></div>';
 }).join(''): '<div class="st-group"><div class="st-row" style="padding:12px 16px;">账本是空的。她可以连着几轮生气，但空话哄不好——道歉没有实际代价就不变状态，有实际代价的道歉/行动才推进修复。</div></div>';
-return subHeadS('立场账本', '不满与修复状态存在独立账本里，状态转移用确定性规则：空话道歉不修复，有实际代价才推进（未处理 → 已道歉 → 已修复）。', 'subjectStance') +
+return subHeadS('立场账本', '不满与修复状态存在独立账本里，状态转移用确定性规则：空话道歉不修复，有实际代价才推进（未处理 ' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>' + ' 已道歉 ' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>' + ' 已修复）。', 'subjectStance') +
 '<div class="st-group" style="margin:0 16px 12px;"><div class="st-row" style="padding:12px 16px;gap:8px;">' +
 '<input id="subj-griev-input" type="text" placeholder="手动记一条不满，如：昨天失约了" style="flex:1;border:1px solid var(--st-silver,#bfc8e0);border-radius:var(--st-radius-md,8px);outline:none;font-size:17px;height:40px;box-sizing:border-box;padding:8px 12px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);min-width:0;">' +
 '<button id="subj-griev-add" style="border:0;background:var(--st-ink,#1e2748);color:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;flex-shrink:0;">记下</button>' +
@@ -544,7 +544,7 @@ if (act === 'subjectSuggestions') {
 var list = listSuggestions();
 var rows2 = list.map(function (sg) {
 var btns = sg.status === 'approved'
-? '<span style="color:var(--st-ink,#1e2748);">✓ 已批准</span>'
+? '<span style="color:var(--st-ink,#1e2748);">' + '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>' + ' 已批准</span>'
 : sg.status === 'rejected'
 ? '<span style="color:var(--st-ink-60,rgba(30,39,72,.6));">已拒绝，不再提</span>'
 : '<button data-sug-approve="' + esc(sg.id) + '" style="border:1px solid var(--st-ink,#1e2748);color:var(--st-ink,#1e2748);background:var(--st-paper,#fffdf8);border-radius:var(--st-radius-md,8px);padding:8px 12px;font-size:17px;margin-right:8px;">批准</button>' +

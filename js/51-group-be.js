@@ -224,7 +224,7 @@ function lockHtml(prefs, name, risk, bub, batt) {
     + '<div class="be-flip-risk">被发现风险：<b class="' + riskCls + '">' + esc(risk.level) + ' · 约 ' + Math.round(risk.probability * 100) + '%</b><br>' + risk.reasons.map(function (x) { return esc(x); }).join('；')
     + '<div class="be-flip-risk-note">概率按翻盖机自己的规则估算（在家高 / 出门低 / 深夜低），不是模拟人生的实测数字。</div></div>'
     + '<div class="be-flip-keys"><button type="button" data-be-key="back">戻る</button><button type="button" data-be-key="menu">MENU</button><button type="button" data-be-key="ok">決定</button></div>'
-    + '<button type="button" class="be-flip-gear" data-be-key="settings">⚙ 外观设置 · 长按外壳也可以打开</button>'
+    + '<button type="button" class="be-flip-gear" data-be-key="settings"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><circle cx="8" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></g></svg> 外观设置 · 长按外壳也可以打开</button>'
     + '</div>';
 }
 

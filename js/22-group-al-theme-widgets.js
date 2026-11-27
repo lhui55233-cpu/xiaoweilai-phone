@@ -543,7 +543,7 @@ function a11yPass() {
 function initStars() {
   $$('.al-stars[data-rating]').forEach(function (el) {
     var r = Math.max(0, Math.min(5, parseInt(el.getAttribute('data-rating') || '0', 10) || 0));
-    el.textContent = '★'.repeat(r) + '☆'.repeat(5 - r);
+    el.innerHTML = Array(r + 1).join('<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M8 1.2l1.9 4.2 4.6.5-3.4 3.1.9 4.5L8 11.3l-4 2.2.9-4.5L1.5 5.9l4.6-.5z" fill="currentColor"/></svg>') + Array(6 - r).join('<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M8 1.2l1.9 4.2 4.6.5-3.4 3.1.9 4.5L8 11.3l-4 2.2.9-4.5L1.5 5.9l4.6-.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>');
     el.setAttribute('aria-label', '好感度 ' + r + ' 星，仅显示，不可改');
     el.setAttribute('title', '好感度由互动决定，这里只作显示');
   });
@@ -564,7 +564,7 @@ function injectThemeControls() {
       + '<span>壁纸线条 </span><select id="al-wall" aria-label="壁纸线条">'
       + '<option value="none">纯白</option><option value="waves">波浪</option><option value="mountains">山</option><option value="forest">森林</option><option value="desert">沙漠</option></select><br/>'
       + '<label><input id="al-round-font" type="checkbox" /> 圆体界面字体（只改界面字体）</label> '
-      + '<button type="button" class="al-theme-toggle" id="al-theme-toggle" aria-label="切换浅色深色跟随系统"><span class="al-ico al-ico-sun">☀</span><span class="al-ico al-ico-moon">☾</span><span id="al-theme-mode-label"></span></button>'
+      + '<button type="button" class="al-theme-toggle" id="al-theme-toggle" aria-label="切换浅色深色跟随系统"><span class="al-ico al-ico-sun"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><circle cx="8" cy="8" r="3" fill="currentColor"/><g stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3 3l1.3 1.3M11.7 11.7L13 13M13 3l-1.3 1.3M4.3 11.7L3 13"/></g></svg></span><span class="al-ico al-ico-moon"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M13.2 9.6A5.6 5.6 0 1 1 6.4 2.8a4.5 4.5 0 0 0 6.8 6.8z" fill="currentColor"/></svg></span><span id="al-theme-mode-label"></span></button>'
       + '<div style="font-size:12px;color:#8a857e;line-height:1.6;">深色为归巢深色（opt-in，白底默认不变）；壁纸线条仅在未设其他壁纸时出现；圆体默认关闭。</div>';
     sel.parentNode.insertBefore(div, sel.nextSibling);
     var vSel = $('#al-variant');

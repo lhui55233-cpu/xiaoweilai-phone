@@ -251,20 +251,20 @@ function render() {
     themeList.innerHTML = themes.map(function (t) {
       var v = t.vars || {};
       var sw = ['--wx-bg-page', '--wx-accent', '--wx-bg-self', '--wx-bg-friend'].map(function (k) { return '<span style="background:' + esc(v[k] || '#cccccc') + '"></span>'; }).join('');
-      return '<div class="wx-bc-card' + (t.id === cur ? ' wx-bc-active' : '') + '" data-wx-bc-theme="' + esc(t.id) + '" onclick="window.WxBeautifier.applyTheme(' + JSON.stringify(t.id) + ')"><div class="wx-bc-card-name">' + esc(t.name) + (t.id === cur ? ' ✓' : '') + '</div><div class="wx-bc-card-desc">' + esc(t.desc || '') + ' · ' + esc(t.scope || '微信全部页面') + '</div><div class="wx-bc-swatches">' + sw + '</div></div>';
+      return '<div class="wx-bc-card' + (t.id === cur ? ' wx-bc-active' : '') + '" data-wx-bc-theme="' + esc(t.id) + '" onclick="window.WxBeautifier.applyTheme(' + JSON.stringify(t.id) + ')"><div class="wx-bc-card-name">' + esc(t.name) + (t.id === cur ? ' <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') + '</div><div class="wx-bc-card-desc">' + esc(t.desc || '') + ' · ' + esc(t.scope || '微信全部页面') + '</div><div class="wx-bc-swatches">' + sw + '</div></div>';
     }).join('');
   }
   var bubbleList = document.getElementById('wx-bc-bubble-list');
   if (bubbleList) {
     bubbleList.innerHTML = BUBBLES.map(function (b) {
-      return '<div class="wx-bc-card' + (b.id === curB ? ' wx-bc-active' : '') + '" data-wx-bc-bubble="' + esc(b.id) + '" onclick="window.WxBeautifier.applyBubble(' + JSON.stringify(b.id) + ')"><div class="wx-bc-card-name">' + esc(b.name) + (b.id === curB ? ' ✓' : '') + '</div><div class="wx-bc-card-desc">圆角 ' + b.radius + 'px · ' + (b.tail ? '有尾巴' : '无尾巴') + '</div><div class="wx-bc-swatches"><span style="background:' + esc(b.selfBg) + '"></span><span style="background:' + esc(b.friendBg) + '"></span></div></div>';
+      return '<div class="wx-bc-card' + (b.id === curB ? ' wx-bc-active' : '') + '" data-wx-bc-bubble="' + esc(b.id) + '" onclick="window.WxBeautifier.applyBubble(' + JSON.stringify(b.id) + ')"><div class="wx-bc-card-name">' + esc(b.name) + (b.id === curB ? ' <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') + '</div><div class="wx-bc-card-desc">圆角 ' + b.radius + 'px · ' + (b.tail ? '有尾巴' : '无尾巴') + '</div><div class="wx-bc-swatches"><span style="background:' + esc(b.selfBg) + '"></span><span style="background:' + esc(b.friendBg) + '"></span></div></div>';
     }).join('');
   }
   var customList = document.getElementById('wx-bc-custom-list');
   if (customList) {
     var cs = loadCustoms();
     customList.innerHTML = cs.map(function (c) {
-      return '<div class="wx-bc-custom-item"><span style="flex:1;">' + esc(c.name) + (('custom:' + c.id) === cur ? ' ✓ 当前' : '') + '</span><button type="button" onclick="window.WxBeautifier.applyTheme(' + JSON.stringify('custom:' + c.id) + ')">应用</button><button type="button" onclick="window.WxBeautifier.exportCustomToBox(' + JSON.stringify(c.id) + ')">导出</button><button type="button" onclick="window.WxBeautifier.deleteCustom(' + JSON.stringify(c.id) + ')">删除</button></div>';
+      return '<div class="wx-bc-custom-item"><span style="flex:1;">' + esc(c.name) + (('custom:' + c.id) === cur ? ' <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 当前' : '') + '</span><button type="button" onclick="window.WxBeautifier.applyTheme(' + JSON.stringify('custom:' + c.id) + ')">应用</button><button type="button" onclick="window.WxBeautifier.exportCustomToBox(' + JSON.stringify(c.id) + ')">导出</button><button type="button" onclick="window.WxBeautifier.deleteCustom(' + JSON.stringify(c.id) + ')">删除</button></div>';
     }).join('');
   }
   var p = getPrefs();

@@ -94,6 +94,9 @@ function pcSwoop(el, dx, dy) {
   }
   return true;
 }
+/* D 批禁 emoji：星标/微光改线稿 SVG；拼贴页去掉别针图标，只留文字。 */
+var AY2_SPARK_SVG = '<svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" style="vertical-align:-1px" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8Z"/></svg>';
+function ay2FavStar(on) { return '<svg viewBox="0 0 24 24" width="13" height="13" style="vertical-align:-2px" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" fill="' + (on ? '#f5b90a' : 'none') + '" stroke="#b08d3e" stroke-width="1.4" stroke-linejoin="round"/></svg>'; }
 function toggleCollage() {
   var g = pcGrid(); if (!g) return false;
   var ov = document.getElementById('aw-overlay'); if (!ov) return false;
@@ -101,7 +104,7 @@ function toggleCollage() {
   if (old) {
     old.parentNode.removeChild(old);
     g.style.display = '';
-    var b1 = ov.querySelector('[data-ay2-pc="collage"]'); if (b1) b1.textContent = '🧷 拼贴页';
+    var b1 = ov.querySelector('[data-ay2-pc="collage"]'); if (b1) b1.textContent = '拼贴页';
     return false;
   }
   var AW = window.AWGroup || {};
@@ -118,7 +121,7 @@ function toggleCollage() {
       + (svg || '<div style="background:#f0e8da;height:90px"></div>')
       + '<div class="ay2-polaroid-cap">' + esc(p.caption || '') + '</div>'
       + '<div class="ay2-polaroid-meta">' + esc(p.place || '') + ' · ' + esc(p.time || '') + '<br>' + esc(p.event || '') + '</div>'
-      + '<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center"><span class="ay2-stamp">' + fmtStamp(new Date()) + '</span><span style="font-size:11px;color:#b08d3e">✦ 点按有微光</span></div>'
+      + '<div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center"><span class="ay2-stamp">' + fmtStamp(new Date()) + '</span><span style="font-size:11px;color:#b08d3e">' + AY2_SPARK_SVG + ' 点按有微光</span></div>'
       + '</div>';
   }).join('');
   box.addEventListener('click', function (ev) {
@@ -172,7 +175,7 @@ function enhancePostcards() {
     ctl.className = 'ay2-pc-ctl';
     ctl.innerHTML = '<button type="button" class="ay2-btn ghost" data-ay2-pc="prev">‹ 上一张</button>'
       + '<button type="button" class="ay2-btn" data-ay2-pc="next">下一张 ›</button>'
-      + '<button type="button" class="ay2-btn ghost" data-ay2-pc="collage">🧷 拼贴页</button>';
+      + '<button type="button" class="ay2-btn ghost" data-ay2-pc="collage">拼贴页</button>';
     ctl.addEventListener('click', function (ev) {
       var b = ev.target && ev.target.closest ? ev.target.closest('[data-ay2-pc]') : null;
       if (!b) return;
@@ -230,7 +233,7 @@ function expandArticle(rowEl) {
     + '<h2>' + esc(art.title) + '</h2>'
     + '<div class="ay2-expand-meta">日期 ' + esc(art.date) + ' · 版面 ' + esc(art.section) + ' · 相关人物 ' + esc(art.people || '—') + ' · 字数 ' + String(art.body || '').length + ' · 阅读 ' + (art.views || 0) + ' 次</div>'
     + '<div class="ay2-expand-body">' + esc(art.body || '') + '</div>'
-    + '<div style="margin-top:10px"><button type="button" class="ay2-btn ghost" data-ay2-fav="' + esc(art.id) + '">' + ((AW.isNewsFav && AW.isNewsFav(art.id)) ? '★ 已收藏' : '☆ 收藏') + '</button></div>'
+    + '<div style="margin-top:10px"><button type="button" class="ay2-btn ghost" data-ay2-fav="' + esc(art.id) + '">' + ay2FavStar(!!(AW.isNewsFav && AW.isNewsFav(art.id))) + ((AW.isNewsFav && AW.isNewsFav(art.id)) ? ' 已收藏' : ' 收藏') + '</button></div>'
     + '<div style="margin-top:10px;font-size:12px;color:#a08a7a">评论 ' + (AW.listArticleComments ? AW.listArticleComments(art.id).length : 0) + ' 条 · 在报纸文章页写评论</div>'
     + '</div>';
   host.appendChild(ov);
@@ -241,7 +244,7 @@ function expandArticle(rowEl) {
   ov.querySelector('.ay2-expand-close').addEventListener('click', function () { closeExpand(false); });
   var favBtn = ov.querySelector('[data-ay2-fav]');
   if (favBtn) favBtn.addEventListener('click', function () {
-    try { var on = AW.toggleNewsFav ? AW.toggleNewsFav(art.id) : false; favBtn.textContent = on ? '★ 已收藏' : '☆ 收藏'; } catch (e) {}
+    try { var on = AW.toggleNewsFav ? AW.toggleNewsFav(art.id) : false; favBtn.innerHTML = ay2FavStar(on) + (on ? ' 已收藏' : ' 收藏'); } catch (e) {}
   });
   return ov;
 }

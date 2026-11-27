@@ -9,6 +9,8 @@
 // ══════════════════════════════════════════════════════════════════════
 (function () {
 'use strict';
+/* D 批禁 emoji：聊天小图标改线稿 SVG（与 js/64-ui-vector-icons 的线稿风格一致，内联自带，不依赖加载顺序）。 */
+var GY_CHAT_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M20 12a8 8 0 1 0-14.9 4L4 20l4.2-1.1A8 8 0 0 0 20 12Z"/></svg>';
 var DAY_KEY = 'cike_char_day_v1';
 var GOAL_KEY = 'char_goals_v1';
 var PLAY_KEY = 'otome_play_v1';
@@ -158,7 +160,7 @@ function ddzChatHtml() {
   var lines = chat.length ? chat.map(function (m) {
     return '<div>' + (m.who === 'me' ? '你：' : _esc(_charName()) + '：') + _esc(m.text) + (m.who === 'char' && m.via === 'template' ? ' <span class="gy-muted">模板回复 · 未接模型</span>' : '') + '</div>';
   }).join('') : '<div class="gy-muted">桌边聊天 · 还没人说话，先打个招呼吧。</div>';
-  return '<div class="groupy-ddz-chat" id="groupy-ddz-chat"><div style="font-weight:700;">💬 桌边聊天 <span class="gy-muted">独立通道 · 只聊天，不改牌局 · 模板回复 · 未接模型</span></div>'
+  return '<div class="groupy-ddz-chat" id="groupy-ddz-chat"><div style="font-weight:700;">' + GY_CHAT_SVG + ' 桌边聊天 <span class="gy-muted">独立通道 · 只聊天，不改牌局 · 模板回复 · 未接模型</span></div>'
     + '<div class="gy-lines">' + lines + '</div>'
     + '<div style="display:flex;gap:6px;"><input id="groupy-ddz-input" placeholder="边打边聊…" style="flex:1;border:1px solid #e8d5c0;border-radius:10px;padding:6px 8px;font-size:12px;">'
     + '<button type="button" onclick="window.GroupY && window.GroupY.ddzSendChatFromInput()">发送</button></div></div>';
@@ -213,7 +215,7 @@ function reactToEvent(type, detail) {
   try {
     var chip = document.getElementById('groupy-reaction');
     if (!chip) { chip = document.createElement('div'); chip.id = 'groupy-reaction'; document.body.appendChild(chip); }
-    chip.innerHTML = '<span class="gy-emo">💬</span><span>' + _esc(text) + '</span>';
+    chip.innerHTML = '<span class="gy-emo">' + GY_CHAT_SVG + '</span><span>' + _esc(text) + '</span>';
     chip.classList.add('gy-show');
     if (chip._gyTimer) clearTimeout(chip._gyTimer);
     chip._gyTimer = setTimeout(function () { try { chip.classList.remove('gy-show'); } catch (e) {} }, 2600);

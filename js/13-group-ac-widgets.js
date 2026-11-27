@@ -17,12 +17,12 @@ const ACWidgets = (() => {
   const WEATHER_KEY = 'phone_weather_v1';   /* 若别的组已写入天气才读，没有不造假 */
   const HABIT_KEYS = ['habit_checkins_v1', 'habits_v1', 'phone_habit_v1']; /* AD 组未合入：按 habitId:date 扁平映射探测，找不到为 0 */
   const CATALOG = [
-    { id: 'heatmap', ico: '🗓️', name: '专注热力图', desc: '最近 28 天专注与习惯强度，一眼看到坚持。' },
-    { id: 'focus', ico: '🍅', name: '番茄统计', desc: '今天专注了多久、累计多久，打开就看到。' },
-    { id: 'pet', ico: '🐱', name: '宠物状态', desc: '家里那只小动物的饱腹、心情和摸头次数。' },
-    { id: 'game', ico: '🎮', name: '游戏最高分', desc: '斗地主积分和钓鱼的最大收获。' },
-    { id: 'read', ico: '📖', name: '共读统计', desc: '和他一起读了多少分钟、读了几本书。' },
-    { id: 'quote', ico: '💬', name: '今日一句话', desc: '每天一句，点一下换一句。' }
+    { id: 'heatmap', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8.5 3v4M15.5 3v4"/></svg>', name: '专注热力图', desc: '最近 28 天专注与习惯强度，一眼看到坚持。' },
+    { id: 'focus', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg>', name: '番茄统计', desc: '今天专注了多久、累计多久，打开就看到。' },
+    { id: 'pet', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>', name: '宠物状态', desc: '家里那只小动物的饱腹、心情和摸头次数。' },
+    { id: 'game', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5.3l-1.4 4.2a2.5 2.5 0 0 1-4.2 1l-2-2h-2l-2 2a2.5 2.5 0 0 1-4.2-1l-1.4-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v4m-2-2h4m7-.5h.1m2 2h.1"/></svg>', name: '游戏最高分', desc: '斗地主积分和钓鱼的最大收获。' },
+    { id: 'read', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg>', name: '共读统计', desc: '和他一起读了多少分钟、读了几本书。' },
+    { id: 'quote', ico: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6Z"/><path d="M8 9h8M8 12.5h5"/></svg>', name: '今日一句话', desc: '每天一句，点一下换一句。' }
   ];
   const QUOTE_KEYS = { quotes: 'read_quotes_v1', diary: 'cike_cache_v1', memories: 'guichao.memories.v1' };
   const firstSentence = (t) => {
@@ -230,7 +230,7 @@ const ACWidgets = (() => {
     if (p.id === 'pet') {
       const pet = src.pet;
       if (!pet) return '<div>还没有领养宠物，去乙游 3D 家领养一只吧。</div>';
-      const ico = pet.kind === 'dog' ? '🐶' : pet.kind === 'rabbit' ? '🐰' : '🐱';
+      const ico = pet.kind === 'dog' ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9 3.8 5.5c-.3-1 1-1.7 1.8-1l3.2 2.3a10 10 0 0 1 6.4 0l3.2-2.3c.8-.7 2.1 0 1.8 1L19 9a7.5 7.5 0 0 1 1 3.8c0 4.6-3.3 7.4-8 7.4s-8-2.8-8-7.4A7.5 7.5 0 0 1 5 9Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.3 1 2.7 1 4 0"/></svg>' : pet.kind === 'rabbit' ? '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 3.5c-1.2 2.3-1.2 5 0 7.2M14.8 3.5c1.2 2.3 1.2 5 0 7.2"/><circle cx="12" cy="14.5" r="7"/><path d="M9.3 14h.1M14.7 14h.1M10.4 17c1 .9 2.2.9 3.2 0"/></svg>' : '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>';
       return '<div>' + ico + ' <b>' + esc(pet.name || '小动物') + '</b> · 饱腹 ' + (pet.satiety == null ? '—' : pet.satiety) + ' · 心情 ' + (pet.mood == null ? '—' : pet.mood) + '</div>'
         + (p.showDetail ? '<div class="ac-w-foot">摸了 ' + (Number(pet.pats) || 0) + ' 次 · 喂了 ' + (Number(pet.feeds) || 0) + ' 次</div>' : '');
     }
@@ -258,7 +258,7 @@ const ACWidgets = (() => {
       const title = (p.title && p.title.trim()) ? p.title.trim() : cat.name;
       const accent = p.color ? ' style="border-top: 3px solid ' + esc(p.color) + ';"' : '';
       html += '<div class="ac-widget ac-size-' + p.size + (moving ? ' ac-moving' : '') + '" data-ac-uid="' + esc(p.uid) + '" data-ac-id="' + esc(p.id) + '"' + accent + '>'
-        + '<button type="button" class="ac-w-pencil" data-ac-edit="' + esc(p.uid) + '" title="就地编辑">✎</button>'
+        + '<button type="button" class="ac-w-pencil" data-ac-edit="' + esc(p.uid) + '" title="就地编辑"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>'
         + '<div class="ac-w-title">' + esc(title) + '</div>'
         + '<div class="ac-w-body">' + bodyFor(p, src) + '</div>';
       if (editingUid === p.uid) {
@@ -272,12 +272,12 @@ const ACWidgets = (() => {
       }
       if (moving) {
         html += '<div class="ac-w-move">'
-          + '<button type="button" data-ac-move="' + esc(p.uid) + ':-1">← 左移</button>'
-          + '<button type="button" data-ac-move="' + esc(p.uid) + ':1">右移 →</button>'
+          + '<button type="button" data-ac-move="' + esc(p.uid) + ':-1"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg> 左移</button>'
+          + '<button type="button" data-ac-move="' + esc(p.uid) + ':1">右移 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg></button>'
           + ['S', 'M', 'L'].map((s) => '<button type="button" data-ac-size="' + esc(p.uid) + ':' + s + '"' + (p.size === s ? ' class="ac-on"' : '') + '>' + s + '</button>').join('')
           + '<button type="button" data-ac-remove="' + esc(p.uid) + '">移除</button>'
           + '<button type="button" data-ac-done-move="1">完成</button></div>'
-          + '<div class="ac-w-resize" data-ac-resize="' + esc(p.uid) + '" title="拖动改大小">⤢</div>';
+          + '<div class="ac-w-resize" data-ac-resize="' + esc(p.uid) + '" title="拖动改大小"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6"/></svg></div>';
       }
       html += '</div>';
     });
@@ -294,10 +294,10 @@ const ACWidgets = (() => {
     const weatherRaw = readJSON(WEATHER_KEY, null);
     const weatherText = (weatherRaw && (weatherRaw.text || weatherRaw.desc || weatherRaw.city)) ? String(weatherRaw.text || weatherRaw.desc || weatherRaw.city) : '点开查看';
     let html = '';
-    if (state.dock.weather) html += '<div class="ac-dock-cell" data-ac-dock-cell="weather" data-ac-open-app="weather"><div class="ac-dock-k">天气</div><div class="ac-dock-v">☀️ ' + esc(weatherText) + '</div></div>';
+    if (state.dock.weather) html += '<div class="ac-dock-cell" data-ac-dock-cell="weather" data-ac-open-app="weather"><div class="ac-dock-k">天气</div><div class="ac-dock-v"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v3m0 13v3m9.5-9.5h-3m-13 0h-3m16.2-6.7-2.1 2.1M6.4 17.6l-2.1 2.1m15.2 0-2.1-2.1M6.4 6.4 4.3 4.3"/></svg> ' + esc(weatherText) + '</div></div>';
     if (state.dock.time) html += '<div class="ac-dock-cell" data-ac-dock-cell="time"><div class="ac-dock-k">' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + days[now.getDay()] + '</div><div class="ac-dock-v">' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div></div>';
     if (state.dock.quote) { const qi = quoteOfDayInfo(); html += '<div class="ac-dock-cell" data-ac-dock-cell="quote" data-ac-next-quote="1"><div class="ac-dock-k">今日一句话</div><div class="ac-dock-v">' + esc(qi.text ? '“' + qi.text + '”' : '还没有一句话，写一句吧') + '</div></div>'; }
-    if (state.dock.music) html += '<div class="ac-dock-cell" data-ac-dock-cell="music" data-ac-open-app="music"><div class="ac-dock-k">音乐</div><div class="ac-dock-v">🎵 一起听</div></div>';
+    if (state.dock.music) html += '<div class="ac-dock-cell" data-ac-dock-cell="music" data-ac-open-app="music"><div class="ac-dock-k">音乐</div><div class="ac-dock-v"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5Z"/></svg> 一起听</div></div>';
     bar.innerHTML = html;
   };
   const launchApp = (id) => { try { if (window.AppManager && window.AppManager.launch) { window.AppManager.launch(id); return true; } } catch (e) {} return false; };
@@ -318,7 +318,7 @@ const ACWidgets = (() => {
     });
     ov.innerHTML = '<div class="ac-store-card">'
       + '<div class="ac-store-title">小组件商店</div>'
-      + '<div class="ac-store-sub">每个组件一张卡片，点尺寸放到桌面；桌面上长按组件可移动、改大小；点右上角 ✎ 就地编辑。</div>' + (window.GroupAM ? window.GroupAM.configTableHtml() : '')
+      + '<div class="ac-store-sub">每个组件一张卡片，点尺寸放到桌面；桌面上长按组件可移动、改大小；点右上角 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> 就地编辑。</div>' + (window.GroupAM ? window.GroupAM.configTableHtml() : '')
       + '<div class="ac-store-grid">' + cards + '</div>'
       + '<div class="ac-store-sec">主题色 · HSL 色轮</div>'
       + '<div class="ac-wheel" id="ac-wheel" title="点色轮选色相"><div class="ac-wheel-dot" id="ac-wheel-dot"></div></div>'

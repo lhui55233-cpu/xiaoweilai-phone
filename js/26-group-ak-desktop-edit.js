@@ -68,7 +68,7 @@ const AKDesktop = (() => {
         return '<div class="sys-app-icon-wrapper" data-target-app="' + esc(id) + '">'
           + '<div class="sys-app-icon" id="sys-icon-dyn-' + esc(id) + '">' + inner + '</div>'
           + '<div class="sys-app-name">' + esc(name) + '</div>'
-          + '<div class="is-badge">✕</div></div>';
+          + '<div class="is-badge"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></div></div>';
       }).join('');
     });
     markSystemBadges();
@@ -141,7 +141,7 @@ const AKDesktop = (() => {
     const nm = (id) => { try { return IS ? IS.getName(id) : id; } catch (e) { return id; } };
     let h = '<div class="ak-note">桌面上 ' + placed.length + ' 个图标 · 已移除 ' + rem.length + ' 个 · 系统应用（电话 / 短信 / 相册 / 设置）不可移除，只能移动。</div>';
     if (!rem.length) {
-      h += '<div class="ak-note">没有已移除的图标。长按桌面图标进入编辑态，点角标 ✕ 即可从桌面移除，app 本身保留，随时能在这里加回来。</div>';
+      h += '<div class="ak-note">没有已移除的图标。长按桌面图标进入编辑态，点角标上的关闭按钮即可从桌面移除，app 本身保留，随时能在这里加回来。</div>';
     } else {
       h += rem.map((id) => '<div class="ak-row"><div class="ak-row-t">' + esc(nm(id)) + '</div><button type="button" class="ak-btn" data-ak-restore="' + esc(id) + '">加回桌面</button></div>').join('');
       h += '<div class="ak-row"><div class="ak-row-t">全部已移除的图标</div><button type="button" class="ak-btn" data-ak-restore="__all">全部加回</button></div>';

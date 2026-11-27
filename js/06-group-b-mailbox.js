@@ -119,7 +119,7 @@ function openLetterbox(anchor){
             '<div class="gB-envelope gB-envelope-mid" aria-hidden="true"></div>' +
             '<div class="gB-envelope gB-envelope-front">' +
               '<span class="gB-envelope-flap" aria-hidden="true"></span>' +
-              '<span class="gB-envelope-mark" aria-hidden="true">✦</span>' +
+              '<span class="gB-envelope-mark" aria-hidden="true"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></span>' +
               '<span class="gB-envelope-label">来信档案</span>' +
               '<span class="gB-envelope-copy">' +
                 '<span class="gB-letter-top"><span class="gB-letter-from">'+esc(L.role)+(L.isWelcome?'<span class="gB-badge">欢迎信</span>':'')+'</span>' +
@@ -145,14 +145,14 @@ function openLetterbox(anchor){
       '<div class="gB-stage-wrap"><div class="gB-stage" id="gB-stage">' +
         '<div class="gB-env-back"></div>' +
         '<div class="gB-letter" id="gB-letter">' +
-          '<div class="gB-panel gB-panel-top" id="gB-p-top"><div class="gB-face">'+esc(slices[0])+'</div><div class="gB-face gB-face-back">✦</div></div>' +
+          '<div class="gB-panel gB-panel-top" id="gB-p-top"><div class="gB-face">'+esc(slices[0])+'</div><div class="gB-face gB-face-back"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></div></div>' +
           '<div class="gB-panel gB-panel-mid"><div class="gB-face">'+esc(slices[1])+'</div></div>' +
-          '<div class="gB-panel gB-panel-bottom" id="gB-p-bot"><div class="gB-face">'+esc(slices[2])+'</div><div class="gB-face gB-face-back">✦</div></div>' +
+          '<div class="gB-panel gB-panel-bottom" id="gB-p-bot"><div class="gB-face">'+esc(slices[2])+'</div><div class="gB-face gB-face-back"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></div></div>' +
         '</div>' +
         '<div class="gB-env-front" id="gB-front"></div>' +
         '<div class="gB-env-bottom"></div>' +
-        '<div class="gB-strip" id="gB-strip"><div class="gB-strip-attached">✂ 沿此撕开</div></div>' +
-        '<div class="gB-strip-arm" id="gB-arm">✂</div>' +
+        '<div class="gB-strip" id="gB-strip"><div class="gB-strip-attached"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8.3 8.8 20 19M8.3 15.2 20 5"/></svg> 沿此撕开</div></div>' +
+        '<div class="gB-strip-arm" id="gB-arm"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8.3 8.8 20 19M8.3 15.2 20 5"/></svg></div>' +
         '<div class="gB-strip-curl" id="gB-curl"></div>' +
         '<div class="gB-strip-hit" id="gB-hit"></div>' +
       '</div>' +
@@ -294,7 +294,7 @@ function mountAll(){
     if(lC && !lC.querySelector('[data-gb-entry="letterbox"]')){
       var letters = getLetters();
       lC.innerHTML = '<div class="wx-cell-group" data-gb-entry="letterbox" style="margin-top:10px;"><div class="wx-cell" role="button" tabindex="0">' +
-        '<div class="wx-cell-left"><div class="wx-cell-icon" style="background:#c9a06f;">✉️</div><span>信箱</span></div>' +
+        '<div class="wx-cell-left"><div class="wx-cell-icon" style="background:#c9a06f;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div><span>信箱</span></div>' +
         '<div class="wx-cell-right"><span class="gB-count">'+(letters.length ? letters.length+' 封' : '暂无')+'</span><span class="wx-cell-arrow">›</span></div></div></div>';
       lC.querySelector('.wx-cell').addEventListener('click', function(){ openLetterbox(lC); });
     }

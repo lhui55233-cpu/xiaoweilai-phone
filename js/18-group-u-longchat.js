@@ -557,6 +557,11 @@ function renderStoryFooter() {
     '<div class="wxu-story-sub">从 ' + (o.firstDate || '—') + ' 的第一条消息算起 · 本地统计，不上传</div>';
   box.appendChild(div);
 }
+/* D 批禁 emoji：置顶图钉/齿轮/微光/关闭改线稿 SVG。 */
+var WXU_X_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+var WXU_PIN_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+var WXU_GEAR_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9m4 0h3M4 12h3m4 0h9M4 17h11m4 0h1"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="12" r="2.2"/><circle cx="18" cy="17" r="2.2"/></svg>';
+var WXU_SPARK_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-1px" aria-hidden="true"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8Z"/></svg>';
 function renderPinStrip() {
   var stream = $('wx-msg-stream-container');
   if (!stream) return;
@@ -572,7 +577,7 @@ function renderPinStrip() {
   var div = document.createElement('div');
   div.id = 'wxu-pin-strip';
   div.className = 'wxu-pin-strip';
-  div.innerHTML = '<span>📌 置顶：' + esc(msgText(m).slice(0, 40)) + '</span><span class="wxu-pin-x" onclick="WxLongChat.unpinMessage()">✕</span>';
+  div.innerHTML = '<span>' + WXU_PIN_SVG + ' 置顶：' + esc(msgText(m).slice(0, 40)) + '</span><span class="wxu-pin-x" onclick="WxLongChat.unpinMessage()">' + WXU_X_SVG + '</span>';
   stream.insertBefore(div, stream.firstChild);
 }
 function markCompressedRows() {
@@ -615,7 +620,7 @@ function injectChatButtons() {
     var b = document.createElement('div');
     b.id = 'wxu-settings-btn';
     b.className = 'wxu-set-gear';
-    b.textContent = '⚙';
+    b.innerHTML = WXU_GEAR_SVG;
     b.title = '聊天设置';
     b.setAttribute('onclick', 'WxLongChat.openSettings()');
     more.parentNode.insertBefore(b, more);
@@ -625,7 +630,7 @@ function injectChatButtons() {
     var vb = document.createElement('div');
     vb.id = 'wxu-variant-btn';
     vb.className = 'wxu-variant-trigger';
-    vb.textContent = '✦ 变体';
+    vb.innerHTML = WXU_SPARK_SVG + ' 变体';
     vb.setAttribute('onclick', 'WxLongChat.onVariantButton()');
     inputBar.appendChild(vb);
   }
@@ -634,7 +639,7 @@ function injectChatButtons() {
     vbar.id = 'wxu-variant-bar';
     vbar.className = 'wxu-variant-bar';
     vbar.style.display = 'none';
-    vbar.innerHTML = '<button onclick="WxLongChat.prevVariant()">‹</button><span id="wxu-variant-count">1/1</span><button onclick="WxLongChat.nextVariant()">›</button><span id="wxu-variant-text" class="wxu-variant-text"></span><button onclick="WxLongChat.regenCurrent()">换一批</button><button onclick="WxLongChat.sendCurrentVariantUI()">发送这条</button><button onclick="WxLongChat.hideVariantBar()">✕</button>';
+    vbar.innerHTML = '<button onclick="WxLongChat.prevVariant()">‹</button><span id="wxu-variant-count">1/1</span><button onclick="WxLongChat.nextVariant()">›</button><span id="wxu-variant-text" class="wxu-variant-text"></span><button onclick="WxLongChat.regenCurrent()">换一批</button><button onclick="WxLongChat.sendCurrentVariantUI()">发送这条</button><button onclick="WxLongChat.hideVariantBar()">' + WXU_X_SVG + '</button>';
     if (inputBar) detail.insertBefore(vbar, inputBar);
   }
   if (!$('wxu-settings-overlay')) {
@@ -686,7 +691,7 @@ function openSettings() {
   var sum = sid ? getSummary(sid) : null;
   var undo = sid ? getUndoRecord(sid) : null;
   var digs = latestDigests(3);
-  ov.innerHTML = '<div class="wxu-set-head"><span>聊天设置 · ' + (s ? esc(s.name) : '') + '</span><button onclick="WxLongChat.closeSettings()">✕</button></div>' +
+  ov.innerHTML = '<div class="wxu-set-head"><span>聊天设置 · ' + (s ? esc(s.name) : '') + '</span><button onclick="WxLongChat.closeSettings()">' + WXU_X_SVG + '</button></div>' +
     '<div class="wxu-set-card"><div class="wxu-set-title">对话摘要</div>' +
     '<div class="wxu-set-note">模板生成摘要，非模型生成。压缩只做摘要与事实提取，不删屏幕上的消息。</div>' +
     '<textarea id="wxu-sum-text" class="wxu-sum-text">' + esc(sum ? sum.text : '') + '</textarea>' +

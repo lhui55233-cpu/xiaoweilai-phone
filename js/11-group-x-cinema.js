@@ -37,6 +37,39 @@ function esc(s) { return String(s == null? '': s).replace(/&/g, '&amp;').replace
 function uid(p) { return (p || 'cx') + '_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1e6).toString(36);}
 function pad2(n) { return String(n).padStart(2, '0');}
 function fmtClock(sec) { sec = Math.max(0, Math.round(sec || 0)); return pad2(Math.floor(sec / 60)) + ':' + pad2(sec % 60);}
+/* B批禁emoji：影院场景图标 / 反应浮标改用内联 SVG（1em，随字号走） */
+var CXI = (function () {
+  var P = {
+    play: ['f', '<path d="M8 5v14l11-7z"/>'],
+    pause: ['f', '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'],
+    cat: ['s', '<path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/>'],
+    face: ['s', '<circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/>'],
+    heart: ['f', '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>'],
+    popcorn: ['s', '<path d="M6 10h12l-1.2 10H7.2z"/><circle cx="9" cy="7.5" r="2"/><circle cx="13" cy="6.5" r="2"/><circle cx="16.5" cy="8.5" r="1.6"/>'],
+    cola: ['s', '<path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/>'],
+    cheers: ['s', '<path d="M5 9h7v4.5a3.5 3.5 0 0 1-7 0zM12 10h7v3.5a3.5 3.5 0 0 1-7 0z"/><path d="M8.5 6.5v-2M15.5 7.5v-2"/>'],
+    sunrise: ['s', '<path d="M12 3.5V6M5.8 8.2l1.5 1.5M18.2 8.2l-1.5 1.5"/><path d="M7 16a5 5 0 0 1 10 0"/><path d="M2.5 19.5h19M2.5 16.5h19"/>'],
+    bowl: ['s', '<path d="M4 12h16c0 4.4-3.6 8-8 8s-8-3.6-8-8z"/><path d="M10.5 3.5 8.5 9M14.5 3.5 13 9"/>'],
+    walk: ['s', '<circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/>'],
+    book: ['s', '<path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/>'],
+    home: ['s', '<path d="M3.5 11 12 3.5 20.5 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>'],
+    moon: ['s', '<path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4z"/>'],
+    cup: ['s', '<path d="M4.5 8.5h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-6Zm12 1h1.5a3 3 0 0 1 0 6h-1.8M7 4.5c0 1 .8 1.3.8 2.3m3-2.3c0 1 .8 1.3.8 2.3M4 21h14"/>'],
+    sparkle: ['f', '<path d="M12 3l1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8z"/>'],
+    bed: ['s', '<path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 18h18M6 10V7h12v3"/>'],
+    rain: ['s', '<path d="M6 14.5h11a3.8 3.8 0 0 0 .2-7.6 5.8 5.8 0 0 0-11.2.8 3.4 3.4 0 0 0 0 6.8Z"/><path d="m8 17-1 3m6-3-1 3m6-3-1 3"/>'],
+    music: ['s', '<path d="M15 4v11.5a3.5 3.5 0 1 1-2-3.2V7l8-2v8.5a3.5 3.5 0 1 1-2-3.2V3.5z"/>'],
+    umbrella: ['s', '<path d="M12 2.5V4M4 13a8 8 0 0 1 16 0z"/><path d="M12 13v5.5a2 2 0 0 0 4 0"/>'],
+    rainbow: ['s', '<path d="M4 19a8 8 0 0 1 16 0M7.5 19a4.5 4.5 0 0 1 9 0M11 19a1 1 0 0 1 2 0"/>'],
+    chime: ['s', '<path d="M8 3h8M12 3v2M7 8l5-3 5 3-1.5 7h-7zM12 15v4m-2.5 0h5"/>'],
+    fish: ['s', '<path d="M3 12c3-4.5 7-6 10-6 3 0 5 2 6 4l2-2-1 4 1 4-2-2c-1 2-3 4-6 4-3 0-7-1.5-10-6z"/><circle cx="15.5" cy="11" r="0.5" fill="currentColor" stroke="none"/>'],
+    skewer: ['s', '<path d="M5 19 19 5"/><circle cx="9" cy="15" r="2.4"/><circle cx="13" cy="11" r="2.4"/><circle cx="17" cy="7" r="2.4"/>'],
+    firework: ['s', '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>']
+  };
+  var o = {};
+  Object.keys(P).forEach(function (k) { var e = P[k]; o[k] = e[0] === 'f' ? '<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" focusable="false" style="vertical-align:-0.12em;" fill="currentColor" stroke="none">' + e[1] + '</svg>' : '<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" focusable="false" style="vertical-align:-0.12em;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + e[1] + '</svg>'; });
+  return o;
+})();
 function todayStr() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());}
 function charName() {
 try { if (typeof SystemStore!== 'undefined') { var c = SystemStore.get('character'); if (c) return c;}} catch (e) {}
@@ -73,31 +106,31 @@ var SERIES = [
    全部原创台词；OWC 本身不带内置影片，无内容可复用。片是模拟放映，界面已有“本地模拟短片”诚实标注。 */
 var FILMS = [
   { id: 'cx-day-morning', series: 'day', title: 'char 的一天 · 清晨', desc: '闹钟响之前，他已经把早餐摆好了。', scenes: [
-    { t: '闹钟之前', place: '卧室 · 6:40', g: ['#f7d9a0', '#e8a56b'], ic: '🌅', dur: 25, intro: true, react: '早饭是我做的，粥没糊，值得表扬一下吧。', lines: [['旁白', '闹钟还没响，厨房已经有动静了。'], ['他', '再睡五分钟……好吧，是我输了，起来吃早饭。']] },
-    { t: '早餐', place: '餐桌 · 7:05', g: ['#fdeecf', '#f5c98a'], ic: '🍚', dur: 30, react: '你吃东西的样子，比粥还暖。', lines: [['他', '粥里放了你喜欢的红枣，趁热吃。'], ['你', '你怎么知道我今天想吃这个？'], ['他', '因为每天都是今天。']] },
-    { t: '出门', place: '楼下 · 7:40', g: ['#cfe8d8', '#8fc7a8'], ic: '🚶', dur: 25, react: '今天也要好好过，晚上见。', lines: [['他', '伞在包里，天气预报说下午有雨。'], ['你', '你比天气预报准多了。']] },
-    { t: '午后', place: '街角书店 · 13:20', g: ['#dcebf7', '#a8c8e8'], ic: '📖', dur: 30, react: '这本书我替你留着，回来一起看。', lines: [['旁白', '他替你留了一本书，夹着一张写了字的书签。'], ['他', '看到第三章就停了，等你回来一起看。']] },
-    { t: '回家', place: '家门口 · 18:30', g: ['#f9c5a0', '#e88ca0'], ic: '🏠', dur: 30, outro: true, react: '你回来了。今天也辛苦啦。', lines: [['他', '回来了？鞋放这边，饭马上就好。'], ['你', '今天的夕阳很好看，可惜你没看到。'], ['他', '看到了啊——你一进门，夕阳就跟着进来了。']] }
+    { t: '闹钟之前', place: '卧室 · 6:40', g: ['#f7d9a0', '#e8a56b'], ic: 'sunrise', dur: 25, intro: true, react: '早饭是我做的，粥没糊，值得表扬一下吧。', lines: [['旁白', '闹钟还没响，厨房已经有动静了。'], ['他', '再睡五分钟……好吧，是我输了，起来吃早饭。']] },
+    { t: '早餐', place: '餐桌 · 7:05', g: ['#fdeecf', '#f5c98a'], ic: 'bowl', dur: 30, react: '你吃东西的样子，比粥还暖。', lines: [['他', '粥里放了你喜欢的红枣，趁热吃。'], ['你', '你怎么知道我今天想吃这个？'], ['他', '因为每天都是今天。']] },
+    { t: '出门', place: '楼下 · 7:40', g: ['#cfe8d8', '#8fc7a8'], ic: 'walk', dur: 25, react: '今天也要好好过，晚上见。', lines: [['他', '伞在包里，天气预报说下午有雨。'], ['你', '你比天气预报准多了。']] },
+    { t: '午后', place: '街角书店 · 13:20', g: ['#dcebf7', '#a8c8e8'], ic: 'book', dur: 30, react: '这本书我替你留着，回来一起看。', lines: [['旁白', '他替你留了一本书，夹着一张写了字的书签。'], ['他', '看到第三章就停了，等你回来一起看。']] },
+    { t: '回家', place: '家门口 · 18:30', g: ['#f9c5a0', '#e88ca0'], ic: 'home', dur: 30, outro: true, react: '你回来了。今天也辛苦啦。', lines: [['他', '回来了？鞋放这边，饭马上就好。'], ['你', '今天的夕阳很好看，可惜你没看到。'], ['他', '看到了啊——你一进门，夕阳就跟着进来了。']] }
   ] },
   { id: 'cx-day-night', series: 'day', title: 'char 的一天 · 深夜', desc: '城市睡了，他还醒着，替你留一盏灯。', scenes: [
-    { t: '加班', place: '书房 · 23:10', g: ['#3a3a5c', '#232338'], ic: '🌙', dur: 30, react: '别熬太晚，我陪你到这一页写完。', lines: [['旁白', '只剩书房一盏灯，和一杯快凉了的茶。'], ['他', '还有多少？写完这一页就睡，好不好？']] },
-    { t: '热牛奶', place: '厨房 · 23:40', g: ['#4a3a5c', '#2c2340'], ic: '🥛', dur: 25, react: '牛奶热好了，小心烫。', lines: [['他', '牛奶热好了，蜂蜜放了一点点。'], ['你', '你怎么还不睡？'], ['他', '你睡了我再睡，不然我不放心。']] },
-    { t: '阳台', place: '阳台 · 0:05', g: ['#2c3a5c', '#1a2340'], ic: '✨', dur: 30, react: '星星不多，但今晚的月亮很好看。', lines: [['他', '出来透透气，夜里的风是凉的。'], ['你', '月亮今晚真好看。'], ['他', '嗯，和你一样好看。']] },
-    { t: '晚安', place: '卧室 · 0:30', g: ['#5c4a6b', '#33283f'], ic: '💤', dur: 25, outro: true, react: '晚安。明天也是很好的一天。', lines: [['他', '灯我留着最小那档，你怕黑。'], ['你', '晚安。'], ['他', '晚安。明天也是很好的一天。']] }
+    { t: '加班', place: '书房 · 23:10', g: ['#3a3a5c', '#232338'], ic: 'moon', dur: 30, react: '别熬太晚，我陪你到这一页写完。', lines: [['旁白', '只剩书房一盏灯，和一杯快凉了的茶。'], ['他', '还有多少？写完这一页就睡，好不好？']] },
+    { t: '热牛奶', place: '厨房 · 23:40', g: ['#4a3a5c', '#2c2340'], ic: 'cup', dur: 25, react: '牛奶热好了，小心烫。', lines: [['他', '牛奶热好了，蜂蜜放了一点点。'], ['你', '你怎么还不睡？'], ['他', '你睡了我再睡，不然我不放心。']] },
+    { t: '阳台', place: '阳台 · 0:05', g: ['#2c3a5c', '#1a2340'], ic: 'sparkle', dur: 30, react: '星星不多，但今晚的月亮很好看。', lines: [['他', '出来透透气，夜里的风是凉的。'], ['你', '月亮今晚真好看。'], ['他', '嗯，和你一样好看。']] },
+    { t: '晚安', place: '卧室 · 0:30', g: ['#5c4a6b', '#33283f'], ic: 'bed', dur: 25, outro: true, react: '晚安。明天也是很好的一天。', lines: [['他', '灯我留着最小那档，你怕黑。'], ['你', '晚安。'], ['他', '晚安。明天也是很好的一天。']] }
   ] },
   { id: 'cx-rain', series: 'rain', title: '雨夜', desc: '一场雨，把两个人留在同一间咖啡馆里。', scenes: [
-    { t: '躲雨', place: '咖啡馆门口 · 20:15', g: ['#5c7a8a', '#33505f'], ic: '🌧️', dur: 30, intro: true, react: '进来躲躲雨吧，我点了两杯热的。', lines: [['旁白', '雨下得突然，整条街的人都在找屋檐。'], ['他', '进来躲躲雨吧，我点了两杯热的。']] },
-    { t: '靠窗的位置', place: '咖啡馆 · 20:30', g: ['#6b7f8a', '#42586b'], ic: '☕', dur: 35, react: '你头发上有雨，我帮你擦擦。', lines: [['他', '坐窗边吧，能看见雨。'], ['你', '你经常来这家店吗？'], ['他', '第一次。但以后可能会经常来。']] },
-    { t: '雨声', place: '咖啡馆 · 21:00', g: ['#4a5c6b', '#2c3a4a'], ic: '🎵', dur: 30, react: '雨声这么大，说话要靠近一点才听得见。', lines: [['旁白', '雨声盖住了店里的音乐，只剩下两个人的声音。'], ['他', '雨声这么大，说话要靠近一点才听得见。']] },
-    { t: '伞', place: '咖啡馆门口 · 21:40', g: ['#5c6b7a', '#333f4d'], ic: '☂️', dur: 25, react: '只有一把伞，往我这边靠靠。', lines: [['他', '雨小了，走吧。'], ['你', '只有一把伞啊。'], ['他', '嗯，所以往我这边靠靠。']] },
-    { t: '雨停了', place: '长街 · 22:05', g: ['#7a8a9a', '#4a5568'], ic: '🌈', dur: 30, outro: true, react: '雨停了，但我不想这么快说再见。', lines: [['旁白', '雨停的时候，地面亮晶晶的，像撒了一街星星。'], ['他', '雨停了。'], ['你', '嗯。'], ['他', '但我不想这么快说再见。']] }
+    { t: '躲雨', place: '咖啡馆门口 · 20:15', g: ['#5c7a8a', '#33505f'], ic: 'rain', dur: 30, intro: true, react: '进来躲躲雨吧，我点了两杯热的。', lines: [['旁白', '雨下得突然，整条街的人都在找屋檐。'], ['他', '进来躲躲雨吧，我点了两杯热的。']] },
+    { t: '靠窗的位置', place: '咖啡馆 · 20:30', g: ['#6b7f8a', '#42586b'], ic: 'cup', dur: 35, react: '你头发上有雨，我帮你擦擦。', lines: [['他', '坐窗边吧，能看见雨。'], ['你', '你经常来这家店吗？'], ['他', '第一次。但以后可能会经常来。']] },
+    { t: '雨声', place: '咖啡馆 · 21:00', g: ['#4a5c6b', '#2c3a4a'], ic: 'music', dur: 30, react: '雨声这么大，说话要靠近一点才听得见。', lines: [['旁白', '雨声盖住了店里的音乐，只剩下两个人的声音。'], ['他', '雨声这么大，说话要靠近一点才听得见。']] },
+    { t: '伞', place: '咖啡馆门口 · 21:40', g: ['#5c6b7a', '#333f4d'], ic: 'umbrella', dur: 25, react: '只有一把伞，往我这边靠靠。', lines: [['他', '雨小了，走吧。'], ['你', '只有一把伞啊。'], ['他', '嗯，所以往我这边靠靠。']] },
+    { t: '雨停了', place: '长街 · 22:05', g: ['#7a8a9a', '#4a5568'], ic: 'rainbow', dur: 30, outro: true, react: '雨停了，但我不想这么快说再见。', lines: [['旁白', '雨停的时候，地面亮晶晶的，像撒了一街星星。'], ['他', '雨停了。'], ['你', '嗯。'], ['他', '但我不想这么快说再见。']] }
   ] },
   { id: 'cx-fest', series: 'fest', title: '夏日祭', desc: '烟花、捞金鱼，和走散又重逢的夜晚。', scenes: [
-    { t: '出发', place: '家门口 · 18:00', g: ['#f9b8c4', '#e88ca0'], ic: '🎐', dur: 25, intro: true, react: '浴衣穿好了吗？祭典可不等人的。', lines: [['他', '浴衣穿好了吗？祭典可不等人的。'], ['你', '好了好了，带子帮我系一下。']] },
-    { t: '捞金鱼', place: '祭典小摊 · 19:10', g: ['#f7c98a', '#e89a6b'], ic: '🐟', dur: 30, react: '捞到了！这条归你，我养的那条归你养。', lines: [['旁白', '纸网破了三张，第四张终于捞上来一条。'], ['他', '捞到了！这条归你。'], ['你', '那你养的那条呢？'], ['他', '也归你养。']] },
-    { t: '章鱼烧', place: '小吃摊 · 19:45', g: ['#f9d976', '#e8a56b'], ic: '🍢', dur: 25, react: '烫烫烫……给你一半，不许嫌弃。', lines: [['他', '章鱼烧，刚出锅的。'], ['你', '烫！'], ['他', '给你一半，不许嫌弃。']] },
-    { t: '走散', place: '人海 · 20:20', g: ['#8a7fb8', '#5c548a'], ic: '🎇', dur: 35, react: '别怕，我在这里。手给我，别再走散了。', lines: [['旁白', '一个浪头般的人群涌过来，再回头，他不见了。'], ['你', '人呢……'], ['他', '别怕，我在这里。手给我，别再走散了。']] },
-    { t: '烟花', place: '河边 · 21:00', g: ['#6b5c9e', '#3a2a5c'], ic: '🎆', dur: 40, outro: true, react: '烟花很美，但你看烟花的时候更美。', lines: [['旁白', '第一朵烟花升起来，整条河都被照亮了。'], ['他', '烟花很美。'], ['你', '嗯。'], ['他', '但你看烟花的时候更美。']] }
+    { t: '出发', place: '家门口 · 18:00', g: ['#f9b8c4', '#e88ca0'], ic: 'chime', dur: 25, intro: true, react: '浴衣穿好了吗？祭典可不等人的。', lines: [['他', '浴衣穿好了吗？祭典可不等人的。'], ['你', '好了好了，带子帮我系一下。']] },
+    { t: '捞金鱼', place: '祭典小摊 · 19:10', g: ['#f7c98a', '#e89a6b'], ic: 'fish', dur: 30, react: '捞到了！这条归你，我养的那条归你养。', lines: [['旁白', '纸网破了三张，第四张终于捞上来一条。'], ['他', '捞到了！这条归你。'], ['你', '那你养的那条呢？'], ['他', '也归你养。']] },
+    { t: '章鱼烧', place: '小吃摊 · 19:45', g: ['#f9d976', '#e8a56b'], ic: 'skewer', dur: 25, react: '烫烫烫……给你一半，不许嫌弃。', lines: [['他', '章鱼烧，刚出锅的。'], ['你', '烫！'], ['他', '给你一半，不许嫌弃。']] },
+    { t: '走散', place: '人海 · 20:20', g: ['#8a7fb8', '#5c548a'], ic: 'firework', dur: 35, react: '别怕，我在这里。手给我，别再走散了。', lines: [['旁白', '一个浪头般的人群涌过来，再回头，他不见了。'], ['你', '人呢……'], ['他', '别怕，我在这里。手给我，别再走散了。']] },
+    { t: '烟花', place: '河边 · 21:00', g: ['#6b5c9e', '#3a2a5c'], ic: 'firework', dur: 40, outro: true, react: '烟花很美，但你看烟花的时候更美。', lines: [['旁白', '第一朵烟花升起来，整条河都被照亮了。'], ['他', '烟花很美。'], ['你', '嗯。'], ['他', '但你看烟花的时候更美。']] }
   ] }
 ];
 function filmById(id) { for (var i = 0; i < FILMS.length; i++) if (FILMS[i].id === id) return FILMS[i]; return null;}
@@ -205,7 +238,7 @@ return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>影
 + '.tk h1{font-size:20px;margin:0 0 4px}.tk.sub{font-size:12px;color:#8a8580}.tk.row{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px dashed #e5d9c3}'
 + '.tk.th{margin-top:12px;font-size:14px;line-height:1.8;background:#fdf6ec;border-radius:10px;padding:10px 12px}'
 + '.tk.ft{font-size:11px;color:#a8a29c;margin-top:12px;text-align:center}</style></head><body><div class="tk">'
-+ '<h1>🎬 ' + esc(t.title) + '</h1><div class="sub">影院 · 一起看 ｜ 本地模拟短片票根</div>'
++ '<h1>' + esc(t.title) + '</h1><div class="sub">影院 · 一起看 ｜ 本地模拟短片票根</div>'
 + '<div class="row"><span>日期</span><b>' + esc(t.date) + '</b></div>'
 + '<div class="row"><span>一起看的人</span><b>' + esc(t.withWhom) + ' 和你</b></div>'
 + '<div class="row"><span>分镜</span><b>共 ' + t.scenes + ' 幕</b></div>'
@@ -217,7 +250,7 @@ function ticketSVG(t) {
 var s = '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">'
 + '<rect width="640" height="360" rx="20" fill="#fff8ec"/>'
 + '<rect x="0" y="0" width="640" height="84" rx="20" fill="#2b2d42"/>'
-+ '<text x="28" y="52" font-size="30" fill="#ffffff" font-family="sans-serif">🎬 ' + esc(t.title) + '</text>'
++ '<g transform="translate(28,26)"><rect width="34" height="26" rx="3" fill="#ffffff"/><path d="M0 9h34M6 0l4 9M16 0l4 9M26 0l4 9" stroke="#2b2d42" stroke-width="2"/></g>' + '<text x="72" y="52" font-size="30" fill="#ffffff" font-family="sans-serif">' + esc(t.title) + '</text>'
 + '<text x="28" y="132" font-size="22" fill="#2b2a28" font-family="sans-serif">日期：' + esc(t.date) + '</text>'
 + '<text x="28" y="172" font-size="22" fill="#2b2a28" font-family="sans-serif">一起看的人：' + esc(t.withWhom) + ' 和你</text>'
 + '<text x="28" y="212" font-size="22" fill="#2b2a28" font-family="sans-serif">分镜：共 ' + t.scenes + ' 幕</text>'
@@ -367,18 +400,18 @@ function finishFilm() {
 
 /* ── 聊天 + 轻互动 ── */
 var QUICK = [
-  { k: 'haha', label: '哈哈', me: '哈哈', reply: '哈哈，你笑起来真好看。', flo: '😆' },
-  { k: 'moved', label: '感动', me: '有点感动……', reply: '我也是。这段拍得真好。', flo: '🥹' },
-  { k: 'popcorn', label: '🍿 递爆米花', me: '（递给你一桶爆米花）', reply: '谢谢，正好看到精彩的地方。', flo: '🍿' },
-  { k: 'cola', label: '🥤 递可乐', me: '（递给你一杯可乐）', reply: '冰的！你怎么知道我想喝这个。', flo: '🥤' },
-  { k: 'cheers', label: '🥂 碰杯', me: '（举起杯子碰杯）', reply: '碰杯！为这部片，也为你。', flo: '🥂' }
+  { k: 'haha', label: '哈哈', me: '哈哈', reply: '哈哈，你笑起来真好看。', flo: 'face' },
+  { k: 'moved', label: '感动', me: '有点感动……', reply: '我也是。这段拍得真好。', flo: 'heart' },
+  { k: 'popcorn', label: '递爆米花', me: '（递给你一桶爆米花）', reply: '谢谢，正好看到精彩的地方。', flo: 'popcorn' },
+  { k: 'cola', label: '递可乐', me: '（递给你一杯可乐）', reply: '冰的！你怎么知道我想喝这个。', flo: 'cola' },
+  { k: 'cheers', label: '碰杯', me: '（举起杯子碰杯）', reply: '碰杯！为这部片，也为你。', flo: 'cheers' }
 ];
 function floatEmoji(emoji) {
   try {
     var scr = document.getElementById('cx-screen');
     if (!scr) return false;
     var s = document.createElement('span');
-    s.className = 'cx-float'; s.textContent = emoji;
+    s.className = 'cx-float'; s.innerHTML = CXI[emoji] || '';
     s.style.left = (20 + Math.floor(Math.random() * 60)) + '%';
     scr.appendChild(s);
     setTimeout(function () { try { s.remove(); } catch (e) {} }, 1600);
@@ -481,15 +514,15 @@ function seatHTML() {
   var cat = petCat();
   var r = reactionFor(state.filmId, state.sceneIdx);
   var h = '<div class="cx-seat"><div class="cx-av" style="background:' + esc(lk.hair) + ';">' + esc(charName().slice(0, 1)) + '</div>'
-    + '<div class="cx-bubble">' + (r ? esc(r.text) : '一起看吧。') + '<div style="font-size:11px;color:#9a958f;margin-top:4px;">' + esc(charName()) + ' · 好感「' + (r ? r.tier : tierOf(affValue()).label) + '」' + (cat ? ' · 🐱 ' + esc(cat.name) + ' 也坐在旁边' : '') + '</div></div></div>';
-  if (cat) h += '<div class="cx-seat"><div class="cx-av" style="background:#f3c969;">🐱</div><div class="cx-bubble">「' + esc(cat.name) + '」蹲在旁边看，尾巴一下一下地晃，偶尔「喵」一声。</div></div>';
+    + '<div class="cx-bubble">' + (r ? esc(r.text) : '一起看吧。') + '<div style="font-size:11px;color:#9a958f;margin-top:4px;">' + esc(charName()) + ' · 好感「' + (r ? r.tier : tierOf(affValue()).label) + '」' + (cat ? ' · ' + CXI.cat + ' ' + esc(cat.name) + ' 也坐在旁边' : '') + '</div></div></div>';
+  if (cat) h += '<div class="cx-seat"><div class="cx-av" style="background:#f3c969;">' + CXI.cat + '</div><div class="cx-bubble">「' + esc(cat.name) + '」蹲在旁边看，尾巴一下一下地晃，偶尔「喵」一声。</div></div>';
   return h;
 }
 function renderLib() {
   var h = '<div class="cx-head"><div class="cx-title">影院 · 一起看</div><div class="cx-sub">和 ' + esc(charName()) + ' 一起看短片 · 片是手机里的模拟短片</div></div>'
-    + '<div class="cx-note">🎬 本地模拟短片，非真实影片文件：没有真实视频，只有立体书世界场景 + 对白 + 分镜卡（CSS 画的），不连网、不下载影片。</div>'
+    + '<div class="cx-note">本地模拟短片，非真实影片文件：没有真实视频，只有立体书世界场景 + 对白 + 分镜卡（CSS 画的），不连网、不下载影片。</div>'
     + (state.notice ? '<div class="cx-note">' + esc(state.notice) + '</div>' : '')
-    + '<div class="cx-note">📡 ' + esc(CinemaServer.status().label) + '</div>'
+    + '<div class="cx-note">' + esc(CinemaServer.status().label) + '</div>'
     + '<div class="cx-body">';
   SERIES.forEach(function (s) {
     if (!FILMS.some(function (f) { return f.series === s.id; })) return; // [AJ] 该系列无片时不留空标题
@@ -499,12 +532,12 @@ function renderLib() {
       var p = progressFor(f.id);
       var first = f.scenes[0];
       h += '<div class="cx-card"><div class="cx-poster" data-cx="open" data-id="' + f.id + '" style="background:linear-gradient(150deg,' + first.g[0] + ',' + first.g[1] + ');">'
-        + '<span class="ic">' + first.ic + '</span><span class="tt">' + esc(f.title) + '</span>'
+        + '<span class="ic">' + (CXI[first.ic] || '') + '</span><span class="tt">' + esc(f.title) + '</span>'
         + '<span class="pl">' + f.scenes.length + ' 幕 · 约 ' + Math.round(filmTotalSec(f) / 60) + ' 分钟 · ' + esc(f.desc) + '</span></div>'
         + '<div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;">'
         + (p ? (p.finished ? '<span class="cx-badge">已看完</span>' : '<span class="cx-badge">续看：第 ' + (p.sceneIdx + 1) + ' 幕</span>') : '')
-        + '<button class="cx-btn" data-cx="open" data-id="' + f.id + '" style="margin-left:auto;">' + (p && !p.finished ? '▶ 续看' : '▶ 开始看') + '</button>'
-        + '<button class="cx-ghost" data-cx="notes" data-id="' + f.id + '">📓 手记</button>'
+        + '<button class="cx-btn" data-cx="open" data-id="' + f.id + '" style="margin-left:auto;">' + (p && !p.finished ? CXI.play + ' 续看' : CXI.play + ' 开始看') + '</button>'
+        + '<button class="cx-ghost" data-cx="notes" data-id="' + f.id + '">手记</button>'
         + '</div></div>';
     });
   });
@@ -512,7 +545,7 @@ function renderLib() {
   var tk = tickets();
   h += '<div class="cx-sec">票根 <span>看完的场次都在这里</span></div>';
   if (!tk.length) h += '<div class="cx-empty">还没有票根<br><span style="font-size:12px;">看完一部短片，就会得到一张票根。</span></div>';
-  else h += '<button class="cx-ghost" data-cx="tickets">🎟 看全部票根（' + tk.length + ' 张）</button>';
+  else h += '<button class="cx-ghost" data-cx="tickets">看全部票根（' + tk.length + ' 张）</button>';
   h += '</div>';
   return h;
 }
@@ -526,26 +559,26 @@ function renderScreen() {
     + '<div class="cx-body">'
     + '<div class="cx-screen" id="cx-screen">'
     + '<div class="cx-art">' + sceneArtSVG(sc) + '</div>'
-    + '<span class="ic">' + sc.ic + '</span><span class="tt">' + esc(sc.t) + '</span><span class="pl">' + esc(sc.place) + '</span>'
+    + '<span class="ic">' + (CXI[sc.ic] || '') + '</span><span class="tt">' + esc(sc.t) + '</span><span class="pl">' + esc(sc.place) + '</span>'
     + '<span class="cx-screen-note">文字分镜 · 无视频</span>'
     + sc.lines.map(function (ln) { return '<div class="ln"><b>' + esc(ln[0]) + '</b> ' + esc(ln[1]) + '</div>'; }).join('')
     + '<div class="cx-prog"><i style="width:' + pct + '%;"></i></div></div>'
     + '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'
     + '<button class="cx-ghost" data-cx="prev">‹ 上一幕</button>'
-    + '<button class="cx-btn" data-cx="playpause">' + (state.playing ? '⏸ 暂停' : '▶ 开始放映（文字分镜）') + '</button>'
+    + '<button class="cx-btn" data-cx="playpause">' + (state.playing ? CXI.pause + ' 暂停' : CXI.play + ' 开始放映（文字分镜）') + '</button>'
     + '<button class="cx-ghost" data-cx="next">下一幕 ›</button>'
     + (sc.intro ? '<button class="cx-ghost" data-cx="skip-intro">跳过片头 »</button>' : '')
     + (sc.outro ? '<button class="cx-ghost" data-cx="skip-outro">跳过片尾 »</button>' : '')
     + '</div>'
     + seatHTML()
     + '<div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap;">'
-    + '<button class="cx-ghost" data-cx="danmaku">' + (settings().danmaku ? '💬 弹幕：开' : '💬 弹幕：关') + '</button>'
-    + '<button class="cx-ghost" data-cx="notes" data-id="' + film.id + '">📓 这部片的手记</button>'
+    + '<button class="cx-ghost" data-cx="danmaku">' + (settings().danmaku ? '弹幕：开' : '弹幕：关') + '</button>'
+    + '<button class="cx-ghost" data-cx="notes" data-id="' + film.id + '">这部片的手记</button>'
     + '<button class="cx-ghost" data-cx="finish">看完领票根</button>'
     + '</div>'
     + '<div class="cx-label">放映室聊天 · 点时间戳跳回那一幕</div>'
     + '<div class="cx-chat">' + (msgs.length ? msgs.slice(-30).map(function (m) {
-        var who = m.who === 'me' ? '你' : (m.who === 'cat' ? ('🐱 ' + (petCat() ? petCat().name : '猫')) : charName());
+        var who = m.who === 'me' ? '你' : (m.who === 'cat' ? (CXI.cat + ' ' + (petCat() ? petCat().name : '猫')) : charName());
         return '<div class="cx-msg ' + (m.who === 'me' ? 'me' : m.who) + '"><b style="font-size:12px;">' + esc(who) + '</b> <span class="cx-ts" data-cx="jump" data-idx="' + m.sceneIdx + '">' + fmtClock(m.filmTs) + '</span><br>' + esc(m.text) + '</div>';
       }).join('') : '<div class="cx-empty">还没人说话——发一句，或者点下面的快捷消息。</div>') + '</div>'
     + '<div style="margin-top:6px;">' + QUICK.map(function (q) { return '<button class="cx-chip" data-cx="quick" data-k="' + q.k + '">' + esc(q.label) + '</button>'; }).join('') + '</div>'
@@ -557,7 +590,7 @@ function renderNotes() {
   var film = filmById(state.filmId) || FILMS[0];
   if (!film) { state.view = 'lib'; state.notice = '这部短片已不在片库。'; return renderLib(); } // GROUP-CINEMA-OWC：修 B1，空库/旧 filmId 不再读 film.id 抛错
   var n = notesFor(film.id);
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">📓 ' + esc(film.title) + ' · 手记</div>'
+  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">' + esc(film.title) + ' · 手记</div>'
     + '<div class="cx-sub">每部片一本共享手记，跨场次保留 · 你和 ' + esc(charName()) + ' 都能写</div></div>'
     + '<div class="cx-body">'
     + '<div class="cx-label">人物关系图</div><textarea class="cx-ta" id="cx-n-relations">' + esc(n.relations) + '</textarea>'
@@ -566,12 +599,12 @@ function renderNotes() {
     + '<div class="cx-label">随记</div><textarea class="cx-ta" id="cx-n-notes">' + esc(n.notes) + '</textarea>'
     + '<div class="cx-label">char 的记录 <span style="color:#b06a2a;">（模板生成，不是真人写的）</span></div>'
     + '<div class="cx-card" style="white-space:pre-wrap;font-size:14px;line-height:1.8;">' + esc(n.charNote || '（char 还没写）') + '</div>'
-    + '<div class="cx-note" style="margin:12px 0 0;">💬 边看边聊说明：放映室里 char 的快捷回复（哈哈 / 感动 / 递爆米花 / 递可乐 / 碰杯）是预设台词，按演出流程出现，不是模型实时说的话；你自己发的消息和这本手记里的记录都是真的。</div>'
+    + '<div class="cx-note" style="margin:12px 0 0;">边看边聊说明：放映室里 char 的快捷回复（哈哈 / 感动 / 递爆米花 / 递可乐 / 碰杯）是预设台词，按演出流程出现，不是模型实时说的话；你自己发的消息和这本手记里的记录都是真的。</div>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
     + '<button class="cx-btn" data-cx="notes-save" data-id="' + film.id + '">保存手记</button>'
-    + '<button class="cx-ghost" data-cx="notes-char" data-id="' + film.id + '">✍️ 让 char 写一句</button>'
-    + '<button class="cx-ghost" data-cx="notes-export" data-id="' + film.id + '">⬇ 导出成文本 (.txt)</button>'
-    + '<button class="cx-ghost" data-cx="open" data-id="' + film.id + '">▶ 回放映室</button>'
+    + '<button class="cx-ghost" data-cx="notes-char" data-id="' + film.id + '">让 char 写一句</button>'
+    + '<button class="cx-ghost" data-cx="notes-export" data-id="' + film.id + '">导出成文本 (.txt)</button>'
+    + '<button class="cx-ghost" data-cx="open" data-id="' + film.id + '">' + CXI.play + ' 回放映室</button>'
     + '</div>'
     + (state.notice ? '<div class="cx-note" style="margin:12px 0 0;">' + esc(state.notice) + '</div>' : '')
     + '</div>';
@@ -579,18 +612,18 @@ function renderNotes() {
 }
 function renderTickets() {
   var tk = tickets();
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">🎟 票根</div>'
+  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">票根</div>'
     + '<div class="cx-sub">看完的场次 · 可以导出成 HTML 留念，或存入相册</div></div><div class="cx-body">';
   if (!tk.length) h += '<div class="cx-empty">还没有票根<br><span style="font-size:12px;">看完一部短片，就会得到一张票根。</span></div>';
   tk.forEach(function (t) {
-    h += '<div class="cx-ticket"><h3>🎬 ' + esc(t.title) + '</h3>'
+    h += '<div class="cx-ticket"><h3>' + esc(t.title) + '</h3>'
       + '<div class="row"><span>日期</span><b>' + esc(t.date) + '</b></div>'
       + '<div class="row"><span>一起看的人</span><b>' + esc(t.withWhom) + ' 和你</b></div>'
       + '<div class="row"><span>分镜</span><b>共 ' + t.scenes + ' 幕</b></div>'
       + '<div class="th">char 的一句感想：' + esc(t.thought) + '</div>'
       + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">'
-      + '<button class="cx-ghost" data-cx="ticket-html" data-id="' + t.id + '">⬇ 导出票根 HTML</button>'
-      + '<button class="cx-ghost" data-cx="ticket-album" data-id="' + t.id + '">🖼 存入相册</button>'
+      + '<button class="cx-ghost" data-cx="ticket-html" data-id="' + t.id + '">导出票根 HTML</button>'
+      + '<button class="cx-ghost" data-cx="ticket-album" data-id="' + t.id + '">存入相册</button>'
       + '</div></div>';
   });
   h += (state.notice ? '<div class="cx-note" style="margin:0;">' + esc(state.notice) + '</div>' : '') + '</div>';
@@ -599,17 +632,17 @@ function renderTickets() {
 function renderTicket() {
   var t = null; tickets().forEach(function (x) { if (x.id === state.lastTicketId) t = x; });
   if (!t) return renderTickets();
-  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">🎟 看完啦！</div>'
+  var h = '<div class="cx-head"><span class="cx-back" data-cx="lib">‹ 片库</span><div class="cx-title" style="font-size:20px;">看完啦！</div>'
     + '<div class="cx-sub">这场一起看结束了，票根留给你</div></div><div class="cx-body">'
-    + '<div class="cx-ticket"><h3>🎬 ' + esc(t.title) + '</h3>'
+    + '<div class="cx-ticket"><h3>' + esc(t.title) + '</h3>'
     + '<div class="row"><span>日期</span><b>' + esc(t.date) + '</b></div>'
     + '<div class="row"><span>一起看的人</span><b>' + esc(t.withWhom) + ' 和你</b></div>'
     + '<div class="row"><span>分镜</span><b>共 ' + t.scenes + ' 幕</b></div>'
     + '<div class="th">char 的一句感想：' + esc(t.thought) + '</div>'
     + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">'
-    + '<button class="cx-ghost" data-cx="ticket-html" data-id="' + t.id + '">⬇ 导出票根 HTML</button>'
-    + '<button class="cx-ghost" data-cx="ticket-album" data-id="' + t.id + '">🖼 存入相册</button>'
-    + '<button class="cx-ghost" data-cx="notes" data-id="' + t.filmId + '">📓 写进手记</button>'
+    + '<button class="cx-ghost" data-cx="ticket-html" data-id="' + t.id + '">导出票根 HTML</button>'
+    + '<button class="cx-ghost" data-cx="ticket-album" data-id="' + t.id + '">存入相册</button>'
+    + '<button class="cx-ghost" data-cx="notes" data-id="' + t.filmId + '">写进手记</button>'
     + '</div></div></div>';
   return h;
 }

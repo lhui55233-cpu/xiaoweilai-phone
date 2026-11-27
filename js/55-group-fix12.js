@@ -5,6 +5,10 @@
 (function () {
   var rd = function (k, def) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined) ? def : v; } catch (e) { return def; } };
   var hasKey = function (k) { try { return localStorage.getItem(k) !== null; } catch (e) { return false; } };
+  /* D 批禁 emoji：猫/爪印/关闭改线稿 SVG（猫、爪印取 js/64-ui-vector-icons 的线稿）。 */
+  var FC_X_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  var FC_CAT_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px" aria-hidden="true"><path d="M4.5 10 4 4l5 2.5a9 9 0 0 1 6 0L20 4l-.5 6a8 8 0 1 1-15 0Z"/><path d="M8.5 12h.1m6.8 0h.1M10 15.5c1.4 1.1 2.6 1.1 4 0m-4-2.4-4-1m8 0 4-1"/></svg>';
+  var FC_PAW_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px" aria-hidden="true"><ellipse cx="12" cy="16.4" rx="5.5" ry="4.2"/><ellipse cx="5.8" cy="9.2" rx="1.8" ry="2.5"/><ellipse cx="10.1" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="14.4" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="18.6" cy="9.2" rx="1.8" ry="2.5"/></svg>';
 
   // ── 世界书子页数据：全部只读；没有就是没有（null/[]），iframe 给空状态，绝不编 ──
   window.fix12CollectWbPages = function () {
@@ -246,7 +250,7 @@
     overlay = document.createElement('div');
     overlay.id = 'fix12-fatcat-overlay';
     overlay.innerHTML = '<div class="fc-head"><div><div class="fc-title">胖猫跑酷</div><div class="fc-sub">' + esc(pet.name || '猫') + ' · 和 3D 家里同一只猫</div></div>'
-      + '<button type="button" class="fc-close" data-fc="close">✕ 返回一起玩</button></div>'
+      + '<button type="button" class="fc-close" data-fc="close">' + FC_X_SVG + ' 返回一起玩</button></div>'
       + '<div class="fc-hud"><span class="fc-score">得分 0</span><span class="fc-weight">体重 0%</span><span class="fc-best">最高 ' + (v.best || 0) + '</span></div>'
       + '<div class="fc-hud"><span style="font-size:11px;color:#777777;">体重</span><span class="fc-bar"><i class="fc-fill" style="width:0%;"></i></span></div>'
       + '<canvas id="fix12-fatcat-canvas" height="260"></canvas>'
@@ -273,15 +277,15 @@
   function playSectionHTML() {
     var pet = petOf();
     var v = load();
-    var h = '<div style="font-weight:700;margin:14px 0 6px;">🐱 胖猫跑酷</div>';
+    var h = '<div style="font-weight:700;margin:14px 0 6px;">' + FC_CAT_SVG + ' 胖猫跑酷</div>';
     if (!pet || pet.kind !== 'cat') {
       h += '<div class="ot-muted">跑酷的主角就是 3D 家里那只猫。先去「养宠」领养一只猫，再回来开跑。</div>'
-        + '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeShowPanel(\'pet\')">🐾 去领养一只猫</button></div>';
+        + '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomeShowPanel(\'pet\')">' + FC_PAW_SVG + ' 去领养一只猫</button></div>';
       return h;
     }
     h += '<div class="ot-muted">' + esc(pet.name || '猫') + ' 开跑：跳过楼顶的沟，吃干粮和猫罐头。越吃越重、越重跳得越低，太重就掉下去。'
       + '最高分 ' + (v.best || 0) + ' 分' + (v.runs ? ' · 已跑 ' + v.runs + ' 局' : '') + '。</div>'
-      + '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'fatcat\')">🐱 开始跑酷</button></div>';
+      + '<div style="margin-top:8px;"><button class="ot-btn" onclick="WeChatAppEngine.otomePlay(\'fatcat\')">' + FC_CAT_SVG + ' 开始跑酷</button></div>';
     return h;
   }
   window.FatCatRun = {

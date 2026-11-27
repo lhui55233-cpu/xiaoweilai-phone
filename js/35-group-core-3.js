@@ -226,7 +226,7 @@
   function panelHTML(workId, title) {
     return '<div data-xwl-audio-root="1" data-xwl-work="' + esc(workId || '') + '">' +
       '<div style="display:flex;align-items:center;gap:8px;"><b style="flex:1;font-size:14px;">' + esc(title || '作品音频') + '</b>' +
-      '<button type="button" class="xwl-audio-btn" data-xwl-audio-close="1">✕ 关闭</button></div>' +
+      '<button type="button" class="xwl-audio-btn" data-xwl-audio-close="1"><svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> 关闭</button></div>' +
       '<div style="font-size:12px;color:#8a6a52;line-height:1.7;margin-top:4px;">传给这个作品的音频存在本机（IndexedDB），离线也能播；单文件 ≤20MB，总量 ≤200MB；只收浏览器能解码的格式。</div>' +
       '<div data-xwl-audio-workrow="1"></div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;">' +
@@ -237,7 +237,7 @@
       '</div>' +
       '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;"><span>音量</span>' +
       '<input data-xwl-audio-vol="1" type="range" min="0" max="100" value="' + Math.round(_cur.volume * 100) + '" style="flex:1;">' +
-      '<button type="button" class="xwl-audio-btn" data-xwl-audio-stop="1">■ 停止</button></div>' +
+      '<button type="button" class="xwl-audio-btn" data-xwl-audio-stop="1"><svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="currentColor"/></svg> 停止</button></div>' +
       '<div data-xwl-audio-status="1" style="font-size:12px;color:#8a6a52;margin-top:6px;line-height:1.6;"></div>' +
       '<div data-xwl-audio-list="1" style="margin-top:4px;"><div style="font-size:13px;color:#8a6a52;">音频加载中……</div></div>' +
       '</div>';
@@ -247,7 +247,7 @@
     return arr.map(function (m) {
       return '<div class="xwl-audio-row" data-xwl-audio-id="' + esc(m.id) + '"><b>' + esc(m.name) + '</b>' +
         '<span class="xwl-audio-meta">' + esc(KIND_NAMES[m.kind] || m.kind) + (m.sceneId ? ' · 场景：' + esc(m.sceneId) : ' · 整部作品') + ' · ' + esc(fmtDur(m.duration)) + ' · ' + esc(fmtMB(m.size)) + (m.decoded ? '' : ' · 未校验解码') + '</span>' +
-        '<button type="button" class="xwl-audio-btn primary" data-xwl-audio-play="' + esc(m.id) + '">▶ 播</button>' +
+        '<button type="button" class="xwl-audio-btn primary" data-xwl-audio-play="' + esc(m.id) + '"><svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg> 播</button>' +
         '<button type="button" class="xwl-audio-btn" data-xwl-audio-rename="' + esc(m.id) + '">改名</button>' +
         '<button type="button" class="xwl-audio-btn" data-xwl-audio-scene-btn="' + esc(m.id) + '">挂场景</button>' +
         '<button type="button" class="xwl-audio-btn danger" data-xwl-audio-del="' + esc(m.id) + '">删除</button></div>';

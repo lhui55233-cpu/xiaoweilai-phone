@@ -197,7 +197,7 @@ function weatherKind(d) {
   if (m >= 5 && m <= 7) return 'fireflies';
   return 'leaves';
 }
-var WEATHER_ICON = { snow: '❄', petals: '🌸', leaves: '🍂', fireflies: '✦' };
+var WEATHER_ICON = { snow: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/></svg>', petals: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c-4.5-1-5.3-4.2-3.2-5.3 1.5-.8 3.1.4 3.2 3.3.1-2.9 1.7-4.1 3.2-3.3 2.1 1.1 1.3 4.3-3.2 5.3 4.5-1 6.2 1.8 4.3 3.5-1.3 1.2-3.2.4-4.3-2.4 1.1 2.8.2 4.6-1.6 4.4-2.4-.2-3-3.4 1.6-6.2-4.6 2.8-7.1.7-5.8-1.5 1-1.6 3-.9 5.8 1.5Z"/><circle cx="12" cy="12" r="2"/></svg>', leaves: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 19C5.5 10 11 4.5 19.5 4.5c0 8.5-5.5 14-14 14.5Z"/><path d="M5.5 19c2.5-5 6-8.5 10-10.5"/></svg>', fireflies: '<svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg>' };
 function weatherEnabled() { var s = petSettings(); return !!(s.weather && s.weather.enabled); }
 function setWeather(enabled, kind) {
   var s = petSettings();
@@ -465,9 +465,9 @@ function recordFocusEnd(done, r) {
     try { showPetBubble(c, 6000); } catch (e) {}
   } else {
     if (mins >= 45) {
-      _focus.lastReward = '🐱 猫送了你一朵小花，记在专注日志里了。';
+      _focus.lastReward = '猫送了你一朵小花，记在专注日志里了。';
       out.reward = _focus.lastReward;
-      appendFocusLog('- ' + dayStrFull(new Date()) + ' · 奖励 · 长专注满 45 分钟，猫送了一朵小花 🌸');
+      appendFocusLog('- ' + dayStrFull(new Date()) + ' · 奖励 · 长专注满 45 分钟，猫送了一朵小花');
       try { celebrateMini(); } catch (e) {}
     }
     var s = focusSettings();
@@ -592,14 +592,14 @@ function focusPanelHtml() {
     return '<i title="' + w.date + ' · ' + w.minutes + ' 分钟" style="height:' + Math.max(4, Math.round(w.minutes / maxW * 40)) + 'px;"></i>';
   }).join('');
   var dark = isDarkNow() ? ' am-dark' : '';
-  var h = '<div class="am-focus' + dark + '" id="am-focus-panel"><h4>🍅 专注 · 果核表盘</h4>'
+  var h = '<div class="am-focus' + dark + '" id="am-focus-panel"><h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg> 专注 · 果核表盘</h4>'
     + '<div class="am-dial"><svg width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="#f0e2d2" stroke-width="7"/>'
     + '<circle cx="42" cy="42" r="34" fill="none" stroke="#c87a5a" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - prog)).toFixed(1) + '" transform="rotate(-90 42 42)"/>'
     + '<text x="42" y="46" text-anchor="middle" font-size="15" font-weight="700" fill="#7a4a28">' + elapsed + '′</text></svg>'
     + '<div>' + pixelHtml('cat', moodFor(Date.now())) + '</div>'
     + '<div style="flex:1;"><div id="am-focus-view" style="font-size:16px;font-weight:700;">' + esc(viewTxt) + '</div>'
     + '<div class="am-muted">圆环是真实的专注进度，猫按心情待在旁边陪你。</div>'
-    + '<div class="am-muted">🪙 金币 <span style="filter:brightness(' + bright + ');">🪙</span> ' + coins + ' 枚（otome_coins_v1，全机唯一账本，只读；怀里的金币随总数变亮）</div></div></div>'
+    + '<div class="am-muted"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg> 金币 <span style="filter:brightness(' + bright + ');"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg></span> ' + coins + ' 枚（otome_coins_v1，全机唯一账本，只读；怀里的金币随总数变亮）</div></div></div>'
     + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">'
     + '<button type="button" class="' + (s.view === 'elapsed' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'elapsed\')">已专注多久</button>'
     + '<button type="button" class="' + (s.view === 'remaining' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'remaining\')">还剩多久</button>'
@@ -608,9 +608,9 @@ function focusPanelHtml() {
     + ' <label><input type="checkbox"' + (s.miniAlways ? ' checked' : '') + ' onchange="window.GroupAM.setMiniAlways(this.checked)"> 猫常驻桌面角落小浮窗</label></div>'
     + '<div style="margin-top:8px;"><button type="button" onpointerdown="window.GroupAM.abandonDown()" onpointerup="window.GroupAM.abandonUp()" onpointerleave="window.GroupAM.abandonUp()">长按放弃（不惩罚，只如实记录）</button>'
     + ' <button type="button" onclick="window.GroupAM.exportFocusLog()">导出专注日志 .md</button>'
-    + ' <button type="button" onclick="window.GroupAM.openSettings(\'focus\')">⚙️ 宠物与专注设置</button></div>'
+    + ' <button type="button" onclick="window.GroupAM.openSettings(\'focus\')"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg> 宠物与专注设置</button></div>'
     + '<div style="margin-top:8px;"><div class="am-muted">本周专注（分钟）</div><div class="am-week">' + weekBars + '</div><div class="am-muted">' + week.map(function (w) { return w.label; }).join(' · ') + '</div></div>'
-    + '<div class="am-muted" style="margin-top:6px;">长专注满 45 分钟，猫会送一朵小花 🌸，记进日志；放弃只记 abandoned，猫会安慰一句，不扣分。</div></div>';
+    + '<div class="am-muted" style="margin-top:6px;">长专注满 45 分钟，猫会送一朵小花，记进日志；放弃只记 abandoned，猫会安慰一句，不扣分。</div></div>';
   return h;
 }
 function exportFocusLog() {
@@ -846,7 +846,7 @@ function configTableHtml() {
     (groups[m.group] = groups[m.group] || []).push(id);
   });
   var h = '<datalist id="am-city-list"><option value="上海"></option><option value="北京"></option><option value="杭州"></option><option value="成都"></option><option value="深圳"></option></datalist>';
-  h += '<div class="am-cfg" id="am-widget-cfg"><h4>⚙️ 小组件配置表（AM）</h4><div class="am-hint">每个组件一张配置表；带条件的行只在相关开关打开时出现。改完即存 groupam_widget_cfg_v1。</div>';
+  h += '<div class="am-cfg" id="am-widget-cfg"><h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg> 小组件配置表（AM）</h4><div class="am-hint">每个组件一张配置表；带条件的行只在相关开关打开时出现。改完即存 groupam_widget_cfg_v1。</div>';
   Object.keys(groups).forEach(function (g) {
     h += '<div style="font-weight:700;margin-top:8px;">' + esc(g) + '</div><table>';
     groups[g].forEach(function (id) {
@@ -860,7 +860,7 @@ function configTableHtml() {
     });
     h += '</table>';
   });
-  h += '<div style="margin-top:8px;"><button type="button" onclick="window.GroupAM.resetWidgetLayout()">↺ 一键恢复默认位置尺寸</button> <button type="button" onclick="window.GroupAM.snapGuides(true)">显示吸附参考线</button> <button type="button" onclick="window.GroupAM.snapGuides(false)">隐藏参考线</button></div>'
+  h += '<div style="margin-top:8px;"><button type="button" onclick="window.GroupAM.resetWidgetLayout()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 3.5V9h-5.5"/></svg> 一键恢复默认位置尺寸</button> <button type="button" onclick="window.GroupAM.snapGuides(true)">显示吸附参考线</button> <button type="button" onclick="window.GroupAM.snapGuides(false)">隐藏参考线</button></div>'
     + '<div class="am-hint">AK 组桌面编辑（拖拽）未合入本版文件：AM 只做参考线 + 恢复默认的 UI，不重写拖拽；AK 合入后以 AK 的拖拽为准。</div></div>';
   return h;
 }
@@ -998,7 +998,7 @@ function mountSearchPill() {
   if (!layer) return false;
   var b = document.createElement('button');
   b.type = 'button'; b.id = 'am-search-pill';
-  b.textContent = '🔍 搜索 · 计时 · 待办 · 算式';
+  b.textContent = '搜索 · 计时 · 待办 · 算式';
   b.addEventListener('click', function () { openSearchOverlay(); });
   layer.appendChild(b);
   return true;
@@ -1007,10 +1007,10 @@ function openSearchOverlay() {
   closeSearchOverlay();
   var ov = document.createElement('div');
   ov.id = 'am-search-overlay';
-  ov.innerHTML = '<div class="am-sheet"><h3>🔍 桌面搜索 · Quick Tools</h3>'
+  ov.innerHTML = '<div class="am-sheet"><h3><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m15.8 15.8 5 5"/></svg> 桌面搜索 · Quick Tools</h3>'
     + '<input type="text" id="am-search-input" placeholder="试试：计时25 / 待办 / 2+3*4 / 微信">'
     + '<div class="am-res" id="am-search-res"><div style="font-size:12px;color:#8a8580;">命令：计时（番茄）、待办（当日最多 5 条）、算式；其他文字搜应用。</div></div>'
-    + '<div style="margin-top:10px;"><button type="button" onclick="window.GroupAM.openSettings()">⚙️ 宠物与专注设置</button> <button type="button" onclick="window.GroupAM.closeSearchOverlay()">关闭</button></div>'
+    + '<div style="margin-top:10px;"><button type="button" onclick="window.GroupAM.openSettings()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg> 宠物与专注设置</button> <button type="button" onclick="window.GroupAM.closeSearchOverlay()">关闭</button></div>'
     + '<div style="font-size:11px;color:#a08a76;margin-top:8px;">AM 临时入口：AF 组桌面搜索未合入本版文件，AF 合入后以 AF 的搜索为准，本入口保留命令解析函数。</div></div>';
   document.body.appendChild(ov);
   var inp = ov.querySelector('#am-search-input');
@@ -1018,10 +1018,10 @@ function openSearchOverlay() {
   var render = function () {
     var r = quickTools(inp.value);
     var h = '';
-    if (r.type === 'timer') h = '<div class="am-res-row">🍅 ' + esc(r.label) + ' <button type="button" onclick="window.GroupAM.runQuickTool(document.getElementById(\'am-search-input\').value);window.GroupAM.closeSearchOverlay();">开始</button></div>';
-    else if (r.type === 'todos') h = r.items.length ? r.items.map(function (t) { return '<div class="am-res-row">☑️ ' + esc(t) + '</div>'; }).join('') : '<div class="am-res-row">今天没有待办，也可以什么都不做。</div>';
-    else if (r.type === 'calc') h = '<div class="am-res-row">🧮 ' + esc(r.label) + '</div>';
-    else if (r.type === 'search') h = r.hits.length ? r.hits.map(function (n) { return '<div class="am-res-row">📱 ' + esc(n) + '</div>'; }).join('') : '<div class="am-res-row">没有找到“' + esc(r.q) + '”相关的应用。</div>';
+    if (r.type === 'timer') h = '<div class="am-res-row"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg> ' + esc(r.label) + ' <button type="button" onclick="window.GroupAM.runQuickTool(document.getElementById(\'am-search-input\').value);window.GroupAM.closeSearchOverlay();">开始</button></div>';
+    else if (r.type === 'todos') h = r.items.length ? r.items.map(function (t) { return '<div class="am-res-row"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12.5 2.5 2.5 5-6"/></svg> ' + esc(t) + '</div>'; }).join('') : '<div class="am-res-row">今天没有待办，也可以什么都不做。</div>';
+    else if (r.type === 'calc') h = '<div class="am-res-row"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7.5h6M9.5 12h.01M12 12h.01M14.5 12h.01M9.5 15.5h.01M12 15.5h.01M14.5 15.5h.01"/></svg> ' + esc(r.label) + '</div>';
+    else if (r.type === 'search') h = r.hits.length ? r.hits.map(function (n) { return '<div class="am-res-row"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3.8h9.6a2 2 0 0 1 2 2v12.4a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V5.8a2 2 0 0 1 2-2Z"/><path d="M9 6.5h6m-6 10h6"/></svg> ' + esc(n) + '</div>'; }).join('') : '<div class="am-res-row">没有找到“' + esc(r.q) + '”相关的应用。</div>';
     else h = '<div style="font-size:12px;color:#8a8580;">命令：计时（番茄）、待办（当日最多 5 条）、算式；其他文字搜应用。</div>';
     res.innerHTML = h;
   };
@@ -1044,7 +1044,7 @@ function cinemaReact(kind) {
   d.className = 'am-cinema-react';
   var extra = '';
   try { if (window.GroupX && window.GroupX.reactionFor) { var rr = window.GroupX.reactionFor(); if (rr && rr.text) extra = '（他说：' + rr.text + '）'; } } catch (e) {}
-  d.textContent = '🎬 ' + r.text + (extra ? ' ' + extra : '');
+  d.textContent = r.text + (extra ? ' ' + extra : '');
   root.appendChild(d);
   setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 6000);
   Hooks.emit('cinema-react', { kind: kind, mood: r.mood });
@@ -1084,7 +1084,7 @@ function readerDeco(kind, force) {
   var d = document.createElement('div');
   d.className = 'am-reader-deco';
   var text = '';
-  if (kind === 'bookmark') { text = '🐱 猫把书签推下去，又捡回来了。'; _reader.lastBookmark = now; }
+  if (kind === 'bookmark') { text = '猫把书签推下去，又捡回来了。'; _reader.lastBookmark = now; }
   else { var w = DECO_WORDS[Math.floor(Math.random() * DECO_WORDS.length)]; text = '他叼走了「' + w + '」这个词，又轻轻放回去了。'; _reader.lastSteal = now; }
   d.textContent = text;
   host.appendChild(d);
@@ -1117,20 +1117,20 @@ function openSettings(section) {
   var tone = toneFor(new Date());
   var ov = document.createElement('div');
   ov.id = 'am-settings-modal';
-  ov.innerHTML = '<div class="am-sheet"><h3>⚙️ 宠物与专注设置（AM）</h3>'
-    + '<h4>🐾 桌宠皮肤（长按宠物也能打开这里）</h4><div>' + skinBtns + '</div>'
+  ov.innerHTML = '<div class="am-sheet"><h3><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg> 宠物与专注设置（AM）</h3>'
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16.4" rx="5.5" ry="4.2"/><ellipse cx="5.8" cy="9.2" rx="1.8" ry="2.5"/><ellipse cx="10.1" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="14.4" cy="6.7" rx="1.8" ry="2.5"/><ellipse cx="18.6" cy="9.2" rx="1.8" ry="2.5"/></svg> 桌宠皮肤（长按宠物也能打开这里）</h4><div>' + skinBtns + '</div>'
     + '<div class="am-note">皮肤注册表是 AM 自备的（AB 组未合入）；一份定义共用桌宠、番茄小浮窗的猫和这里的圆点。猫 / 狗 / QQ boy 待机动作各不相同，不只是换颜色。</div>'
-    + '<h4>🌸 宠物周围季节小天气</h4><label><input type="checkbox"' + (weatherEnabled() ? ' checked' : '') + ' onchange="window.GroupAM.setWeather(this.checked)"> 开启小天气</label> '
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c-4.5-1-5.3-4.2-3.2-5.3 1.5-.8 3.1.4 3.2 3.3.1-2.9 1.7-4.1 3.2-3.3 2.1 1.1 1.3 4.3-3.2 5.3 4.5-1 6.2 1.8 4.3 3.5-1.3 1.2-3.2.4-4.3-2.4 1.1 2.8.2 4.6-1.6 4.4-2.4-.2-3-3.4 1.6-6.2-4.6 2.8-7.1.7-5.8-1.5 1-1.6 3-.9 5.8 1.5Z"/><circle cx="12" cy="12" r="2"/></svg> 宠物周围季节小天气</h4><label><input type="checkbox"' + (weatherEnabled() ? ' checked' : '') + ' onchange="window.GroupAM.setWeather(this.checked)"> 开启小天气</label> '
     + '<select onchange="window.GroupAM.setWeather(true,this.value)">' + wkOpts + '</select>'
     + '<div class="am-note">按季节自动：冬天雪、春天花瓣、夏天萤火、秋天落叶；也可以手动选。这是宠物周围的小天气开关。</div>'
-    + '<h4>🍅 专注</h4><div>计时视角：<button type="button" class="' + (fs.view === 'elapsed' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'elapsed\')">已专注多久</button> <button type="button" class="' + (fs.view === 'remaining' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'remaining\')">还剩多久</button></div>'
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.6c-5-2.3-8.4 1.4-8.4 6.6 0 5.6 3.4 9 8.4 9s8.4-3.4 8.4-9c0-5.2-3.4-8.9-8.4-6.6Z"/><path d="M12 5.9c-.5-2.1-2-3.3-4-3.3.8 2.1 2.1 3.1 4 3.3Zm0 0c1.1-2 2.8-2.8 4.7-2.5-.8 1.9-2.3 2.7-4.7 2.5ZM12 6v2"/></svg> 专注</h4><div>计时视角：<button type="button" class="' + (fs.view === 'elapsed' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'elapsed\')">已专注多久</button> <button type="button" class="' + (fs.view === 'remaining' ? 'am-on' : '') + '" onclick="window.GroupAM.setFocusView(\'remaining\')">还剩多久</button></div>'
     + '<div style="margin-top:6px;">环境音：<select onchange="window.GroupAM.setFocusSound(this.value)"><option value="off"' + (fs.sound === 'off' ? ' selected' : '') + '>关</option><option value="lofi"' + (fs.sound === 'lofi' ? ' selected' : '') + '>lofi</option><option value="rain"' + (fs.sound === 'rain' ? ' selected' : '') + '>雨声</option><option value="forest"' + (fs.sound === 'forest' ? ' selected' : '') + '>森林</option></select> <span style="font-size:11px;color:#a08a76;">WebAudio 合成，无外部音频文件</span></div>'
     + '<div style="margin-top:6px;"><label><input type="checkbox"' + (fs.autoStart ? ' checked' : '') + ' onchange="window.GroupAM.setFocusAutoStart(this.checked)"> 完成 5 分钟后自动开始下一轮</label></div>'
     + '<div style="margin-top:6px;"><button type="button" onclick="window.GroupAM.exportFocusLog()">导出专注日志 .md</button> <button type="button" onclick="window.GroupAM.toggleMiniWindow();window.GroupAM.openSettings(\'focus\')">切换桌面小浮窗</button></div>'
-    + '<h4>🧩 小组件</h4><div>' + configTableHtml() + '</div>'
-    + '<h4>🌙 此刻基调：' + esc(tone.label) + '</h4><div class="am-note">char 现在会说：「' + esc(tone.char[0]) + '」<br>日记语气：' + esc(tone.diary) + '<br>此刻光线：' + esc(tone.light) + '</div>'
-    + '<h4>💬 说话的语气</h4><div class="am-note">' + TONE_RULES.map(function (r) { return esc(r); }).join('<br>') + '<br><br>' + esc(systemPromptTone()) + '</div>'
-    + '<h4>🔒 数据承诺（AM 暂存处；AH 组数据承诺页合入后移过去）</h4><div class="am-note">桌宠的打字 / 滚动反应只用“有输入 / 滚动”这一事件，从不读输入框内容、消息文本或书本正文；专注日志只记时长与完成 / 放弃，不记你在做什么；金币只读 otome_coins_v1，不改账本；API Key 不经过本组任何代码。</div>'
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 4v16M4 12h16"/></svg> 小组件</h4><div>' + configTableHtml() + '</div>'
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.4A8.5 8.5 0 0 1 8.6 4.5 8.7 8.7 0 1 0 19.5 15.4Z"/></svg> 此刻基调：' + esc(tone.label) + '</h4><div class="am-note">char 现在会说：「' + esc(tone.char[0]) + '」<br>日记语气：' + esc(tone.diary) + '<br>此刻光线：' + esc(tone.light) + '</div>'
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6Z"/><path d="M8 9h8M8 12.5h5"/></svg> 说话的语气</h4><div class="am-note">' + TONE_RULES.map(function (r) { return esc(r); }).join('<br>') + '<br><br>' + esc(systemPromptTone()) + '</div>'
+    + '<h4><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></svg> 数据承诺（AM 暂存处；AH 组数据承诺页合入后移过去）</h4><div class="am-note">桌宠的打字 / 滚动反应只用“有输入 / 滚动”这一事件，从不读输入框内容、消息文本或书本正文；专注日志只记时长与完成 / 放弃，不记你在做什么；金币只读 otome_coins_v1，不改账本；API Key 不经过本组任何代码。</div>'
     + '<div style="margin-top:14px;text-align:center;"><button type="button" onclick="window.GroupAM.closeSettings()">完成</button></div></div>';
   document.body.appendChild(ov);
   ov.addEventListener('click', function (e) { if (e.target === ov) closeSettings(); });

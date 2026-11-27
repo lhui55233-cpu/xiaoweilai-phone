@@ -9,6 +9,8 @@
   var MEMO_KEY = 'bg_voice_memos_v1';
   var MAX_PHOTO_PX = 1280;
   var MAX_MEMOS = 10;
+  /* D 批禁 emoji：关闭改线稿 SVG。 */
+  var BG_X_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   var CAM_DENIED_TEXT = '未获得相机权限，请在浏览器设置里允许';
   var MIC_DENIED_TEXT = '未获得麦克风权限，请在浏览器设置里允许';
   var FILE_TEXT = '当前打开方式不支持调用相机/麦克风，请用 localhost 或打包后的 APK 打开';
@@ -117,7 +119,7 @@
     var ov = document.createElement('div');
     ov.id = 'bg-cam-overlay';
     ov.innerHTML = '<div class="bg-cam-box">'
-      + '<div class="bg-cam-title"><span>' + escHtml(opts.title || '拍照') + '</span><button type="button" class="bg-cam-x" id="bg-cam-close">✕</button></div>'
+      + '<div class="bg-cam-title"><span>' + escHtml(opts.title || '拍照') + '</span><button type="button" class="bg-cam-x" id="bg-cam-close">' + BG_X_SVG + '</button></div>'
       + '<video id="bg-cam-video" autoplay playsinline muted></video>'
       + '<div class="bg-cam-why">' + escHtml(opts.why || '拍照需要使用相机，照片只存本机，不上传。') + '</div>'
       + '<div class="bg-cam-row"><button type="button" class="bg-btn" id="bg-cam-switch">切换前后摄像头</button></div>'
@@ -278,7 +280,7 @@
     openCamera({
       title: '实拍自拍 · ' + label, why: '用真相机拍一张实拍照片发进聊天（不是 char 的示意自拍），照片只存本机。',
       facing: 'user',
-      onPhoto: function (url) { sendChatImage(url, '📷 实拍 · ' + label + '（真机拍摄，不是示意自拍）'); }
+      onPhoto: function (url) { sendChatImage(url, '实拍 · ' + label + '（真机拍摄，不是示意自拍）'); }
     });
   }
 
@@ -359,12 +361,15 @@
   function saveMemos(a) { try { localStorage.setItem(MEMO_KEY, JSON.stringify(a)); } catch (e) { toast('本地空间不足，语音备忘没存上'); } }
   function openVoiceMemos() {
     closeEl('bg-memo-overlay');
+    /* D 批禁 emoji：录音圆点/停止方块改 CSS 小色块（仍是红点录音中、方块停止的意思）。 */
+    var REC_DOT = '<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#e5484d;vertical-align:0;"></span>';
+    var STOP_SQ = '<span style="display:inline-block;width:9px;height:9px;background:#1e2748;vertical-align:0;"></span>';
     var ov = document.createElement('div');
     ov.id = 'bg-memo-overlay';
-    ov.innerHTML = '<div class="bg-sheet bg-memo-sheet"><div class="bg-sheet-title"><span>语音备忘</span><button type="button" class="bg-cam-x" id="bg-memo-close">✕</button></div>'
+    ov.innerHTML = '<div class="bg-sheet bg-memo-sheet"><div class="bg-sheet-title"><span>语音备忘</span><button type="button" class="bg-cam-x" id="bg-memo-close">' + BG_X_SVG + '</button></div>'
       + '<div class="bg-sheet-body">点按才请求麦克风；录音只存本机，不上传。最多保存 ' + MAX_MEMOS + ' 条。</div>'
       + '<div id="bg-memo-list"></div>'
-      + '<div class="bg-sheet-row"><button type="button" class="bg-btn bg-btn-pri" id="bg-memo-rec">● 录一段</button><span id="bg-memo-rec-state" style="font-size:12px;color:#888;"></span></div></div>';
+      + '<div class="bg-sheet-row"><button type="button" class="bg-btn bg-btn-pri" id="bg-memo-rec">' + REC_DOT + ' 录一段</button><span id="bg-memo-rec-state" style="font-size:12px;color:#888;"></span></div></div>';
     document.body.appendChild(ov);
     ov.querySelector('#bg-memo-close').onclick = function () { closeEl('bg-memo-overlay'); };
     function renderList() {
@@ -384,10 +389,10 @@
     var recCtrl = null, recState = ov.querySelector('#bg-memo-rec-state'), recBtn = ov.querySelector('#bg-memo-rec');
     function startRec() {
       if (recCtrl) return;
-      recBtn.textContent = '■ 停止并保存';
+      recBtn.innerHTML = STOP_SQ + ' 停止并保存';
       recCtrl = recordVoice({ maxSec: 60, why: '录语音备忘需要麦克风，录音只存本机。', onRetryMic: startRec, onTick: function (s) { if (recState) recState.textContent = '录音中 ' + s + '″（最长 60″）'; } });
       recCtrl.promise.then(function (r) {
-        recCtrl = null; recBtn.textContent = '● 录一段'; if (recState) recState.textContent = '';
+        recCtrl = null; recBtn.innerHTML = REC_DOT + ' 录一段'; if (recState) recState.textContent = '';
         if (!r || !r.ok) { if (r && r.reason === 'too-short') toast('录音太短'); return; }
         var list = loadMemos();
         list.unshift({ id: 'vm_' + Date.now(), title: '语音备忘 ' + new Date().toLocaleString('zh-CN'), audioSrc: r.audioSrc, duration: r.duration, createdAt: Date.now() });

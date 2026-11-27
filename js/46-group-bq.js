@@ -5,6 +5,10 @@ var BQ_CSS_TEXT = "\n/* BQ typeset: reading-app typesetting editor, offline, no 
 (function () {
   'use strict';
   var MARK = 'GROUP-BQ';
+  /* D 批禁 emoji：文学体分隔花饰与上下移箭头改线稿 SVG。 */
+  var BQ_ORN_SVG = '<svg viewBox="0 0 120 16" width="72" height="10" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 8h44M74 8h44"/><path d="M60 2.5 65 8l-5 5.5L55 8Z"/></svg>';
+  var BQ_UP_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>';
+  var BQ_DOWN_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 10l6 6 6-6"/></svg>';
   var KEY = 'reader_typeset_v1';
   var MAX_IMG = 2 * 1024 * 1024;          /* 单图建议 2MB 以内 */
   var MAX_PNG_H = 10000;                  /* 长图单张输出高度上限（px，含缩放） */
@@ -241,7 +245,7 @@ var BQ_CSS_TEXT = "\n/* BQ typeset: reading-app typesetting editor, offline, no 
     if (b.type === 'quote') return '<blockquote style="' + st + 'border-left:3px solid #9a9aa2;padding-left:12px;font-style:italic;color:#555;margin:.8em 0;">' + esc(b.text) + '</blockquote>';
     if (b.type === 'note') return '<p style="' + st + 'color:#8a8f98;margin:.5em 0;">注：' + esc(b.text) + '</p>';
     if (b.type === 'hr') {
-      if (doc.settings.style === 'literary') return '<p style="text-align:center;color:#8a8f98;font-size:18px;margin:10px 0;">❦</p>';
+      if (doc.settings.style === 'literary') return '<p style="text-align:center;color:#8a8f98;margin:10px 0;">' + BQ_ORN_SVG + '</p>';
       return '<hr style="border:0;border-top:1px solid #c9c9cf;margin:14px 0;" />';
     }
     if (b.type === 'img') {
@@ -556,8 +560,8 @@ var BQ_CSS_TEXT = "\n/* BQ typeset: reading-app typesetting editor, offline, no 
   function blockHTML(doc, b) {
     var s = doc.settings;
     var bar = '<div class="bq-block-bar"><span class="bq-handle" title="拖动排序">⋮⋮</span><span>' + BLOCK_LABELS[b.type] + '</span>' +
-      '<button type="button" class="bq-mini-btn" onclick="window.GroupBQ.uiMove(\'' + b.id + '\',-1)">↑</button>' +
-      '<button type="button" class="bq-mini-btn" onclick="window.GroupBQ.uiMove(\'' + b.id + '\',1)">↓</button>' +
+      '<button type="button" class="bq-mini-btn" title="上移" onclick="window.GroupBQ.uiMove(\'' + b.id + '\',-1)">' + BQ_UP_SVG + '</button>' +
+      '<button type="button" class="bq-mini-btn" title="下移" onclick="window.GroupBQ.uiMove(\'' + b.id + '\',1)">' + BQ_DOWN_SVG + '</button>' +
       '<button type="button" class="bq-mini-btn" onclick="window.GroupBQ.uiDupBlock(\'' + b.id + '\')">复制</button>' +
       '<button type="button" class="bq-mini-btn" style="color:#c0392b;" onclick="window.GroupBQ.uiDelBlock(\'' + b.id + '\')">删除</button>';
     if (b.type !== 'hr' && b.type !== 'img') {
@@ -568,7 +572,7 @@ var BQ_CSS_TEXT = "\n/* BQ typeset: reading-app typesetting editor, offline, no 
     bar += '</div>';
     if (b.type === 'hr') {
       return '<div class="bq-block" draggable="true" data-bid="' + b.id + '" ondragstart="window.GroupBQ.dragStart(event,\'' + b.id + '\')" ondragover="window.GroupBQ.dragOver(event)" ondrop="window.GroupBQ.dropBlock(event,\'' + b.id + '\')">' + bar +
-        (s.style === 'literary' ? '<div class="bq-ornament">❦</div>' : '<hr class="bq-hr" />') + '</div>';
+        (s.style === 'literary' ? '<div class="bq-ornament">' + BQ_ORN_SVG + '</div>' : '<hr class="bq-hr" />') + '</div>';
     }
     if (b.type === 'img') {
       var cls = 'bq-imgwrap' + (b.float === 'left' ? ' bq-float-left' : b.float === 'right' ? ' bq-float-right' : '') + (s.direction === 'v' ? ' bq-vertical-fix' : '');

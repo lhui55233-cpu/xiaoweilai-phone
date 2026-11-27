@@ -64,7 +64,7 @@
     launcher.type = 'button';
     launcher.setAttribute('aria-controls', 'xwl-ocean-island-panel');
     launcher.setAttribute('aria-expanded', 'false');
-    launcher.innerHTML = '<span class="xwl-ocean-island__launcher-mark" aria-hidden="true">✦</span><span class="xwl-ocean-island__launcher-label sys-app-name">猫咪小岛</span>';
+    launcher.innerHTML = '<span class="xwl-ocean-island__launcher-mark" aria-hidden="true"><svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true"><path d="M10 1l1.9 6.1L18 9l-6.1 1.9L10 17l-1.9-6.1L2 9l6.1-1.9z" fill="currentColor"/></svg></span><span class="xwl-ocean-island__launcher-label sys-app-name">猫咪小岛</span>';
 
     var panel = document.createElement('section');
     panel.id = 'xwl-ocean-island-panel';

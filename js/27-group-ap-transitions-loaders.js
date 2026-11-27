@@ -452,7 +452,7 @@ function wrapModelTest() {
             } catch (e) {}
             btn.classList.remove('gc-busy');
             btn.classList.add(ok ? 'gc-ok' : 'gc-fail');
-            btn.innerHTML = '<span>' + (ok ? '✓ 连接成功' : '✗ 连接失败') + '</span>';
+            btn.innerHTML = '<span>' + (ok ? '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px"><path d="M2.5 8.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 连接成功' : '<svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" style="vertical-align:-1px"><path d="M3 3l10 10M13 3L3 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> 连接失败') + '</span>';
             setTimeout(function () {
                 btn.classList.remove('gc-status-btn', 'gc-ok', 'gc-fail');
                 try { btn.disabled = false; } catch (e) {}

@@ -18,6 +18,13 @@ var MARK = 'GROUP-AY-INTERACTIONS';
 /* ── A1 常量（像素制单制；newton 980 / physics-playground 0.4 归一制 /
    ui-demo 0.3 每帧，三处单位不同，此处只取像素制并注明）── */
 var GRAVITY = 980, DAMPING = 0.999, BOUNCE = 0.6, WALL_DAMP = 0.7;
+/* B批禁emoji：UI 图标改用内联 SVG（currentColor，随文字颜色走） */
+var AYIC = {
+  cross: ['s', '<path d="M6 6l12 12M18 6 6 18"/>'],
+  play: ['f', '<path d="M8 5v14l11-7z"/>'],
+  pause: ['f', '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>']
+};
+var ayIc = function (n, sz) { var e = AYIC[n]; if (!e) return ''; var s = sz || 14; if (e[0] === 'f') return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true" focusable="false" style="vertical-align:-2px;flex:none;" fill="currentColor" stroke="none">' + e[1] + '</svg>'; return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true" focusable="false" style="vertical-align:-2px;flex:none;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + e[1] + '</svg>'; };
 var SUBSTEPS = 8, DT_MAX = 0.033, THROW_MAX_VX = 12, THROW_MAX_VY = 14;
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -105,7 +112,7 @@ function ayToast(msg) {
   var t = document.querySelector('.ay-toast');
   if (!t) {
     t = document.createElement('div'); t.className = 'ay-toast';
-    t.innerHTML = '<span class="ay-toast-msg"></span><button type="button" aria-label="关闭">✕</button>';
+    t.innerHTML = '<span class="ay-toast-msg"></span><button type="button" aria-label="关闭">' + ayIc('cross',12) + '</button>';
     t.querySelector('button').addEventListener('click', function () { t.remove(); });
     document.body.appendChild(t);
   }
@@ -416,7 +423,7 @@ function clgElHTML(e) {
   var st = 'left:' + e.x + 'px;top:' + e.y + 'px;width:' + e.w + 'px;height:' + e.h + 'px;transform:rotate(' + e.rotation + 'deg);z-index:' + e.zIndex + ';';
   var lock = e.isLocked ? ' ay-locked' : '';
   var sel = (clg.sel === e.id) ? ' ay-selected' : '';
-  var chip = (e.isLocked && clg.sel === e.id) ? '<button type="button" class="ay-lock-chip" data-ay-act="unlock">🔓 解锁</button>' : '';
+  var chip = (e.isLocked && clg.sel === e.id) ? '<button type="button" class="ay-lock-chip" data-ay-act="unlock">解锁</button>' : '';
   if (e.type === 'note') return '<div class="ay-clg-el ay-clg-note' + lock + sel + '" data-ay-el="' + e.id + '" style="' + st + '">' + chip + '<div data-ay-text contenteditable="true">' + esc(e.text || '') + '</div></div>';
   if (e.type === 'text') return '<div class="ay-clg-el ay-clg-text' + lock + sel + '" data-ay-el="' + e.id + '" style="' + st + '">' + chip + '<div data-ay-text contenteditable="true">' + (e.html || '') + '</div></div>';
   if (e.type === 'stamp') return '<div class="ay-clg-el ay-clg-stamp' + lock + sel + '" data-ay-el="' + e.id + '" style="' + st + '">' + chip + '<span class="ay-date-stamp">' + esc(e.text || '') + '</span></div>';
@@ -525,29 +532,29 @@ function openCollage() {
     '<input class="ay-title" data-ay-act="title" value="拼贴日记" aria-label="标题">' +
     '<span class="ay-page-label" style="font-size:11px;color:#8a8a90;white-space:nowrap;"></span></div>' +
     '<div class="ay-collage-bar">' +
-    '<button type="button" data-ay-act="add-note">📝 便利贴</button>' +
-    '<button type="button" data-ay-act="add-text">🖊 文本框</button>' +
-    '<button type="button" data-ay-act="add-stamp">📅 日期戳</button>' +
-    '<button type="button" data-ay-act="add-tape">🩹 胶带</button>' +
-    '<button type="button" data-ay-act="add-photo">📷 拍立得</button>' +
-    '<button type="button" data-ay-act="add-photo-camera">📷 实拍入贴</button>' +
-    '<button type="button" data-ay-act="highlight">🖍 荧光笔</button>' +
-    '<button type="button" data-ay-act="undo">↩ 撤销</button>' +
-    '<button type="button" data-ay-act="redo">↪ 重做</button>' +
-    '<button type="button" data-ay-act="lock">🔒 锁定</button>' +
-    '<button type="button" data-ay-act="expand">🔍 展开</button>' +
-    '<button type="button" data-ay-act="del">🗑 删除</button>' +
-    '<button type="button" data-ay-act="save">💾 保存</button>' +
+    '<button type="button" data-ay-act="add-note">便利贴</button>' +
+    '<button type="button" data-ay-act="add-text">文本框</button>' +
+    '<button type="button" data-ay-act="add-stamp">日期戳</button>' +
+    '<button type="button" data-ay-act="add-tape">胶带</button>' +
+    '<button type="button" data-ay-act="add-photo">拍立得</button>' +
+    '<button type="button" data-ay-act="add-photo-camera">实拍入贴</button>' +
+    '<button type="button" data-ay-act="highlight">荧光笔</button>' +
+    '<button type="button" data-ay-act="undo">撤销</button>' +
+    '<button type="button" data-ay-act="redo">重做</button>' +
+    '<button type="button" data-ay-act="lock">锁定</button>' +
+    '<button type="button" data-ay-act="expand">展开</button>' +
+    '<button type="button" data-ay-act="del">删除</button>' +
+    '<button type="button" data-ay-act="save">保存</button>' +
     '<button type="button" data-ay-act="prev-page">‹ 上一页</button>' +
     '<button type="button" data-ay-act="next-page">下一页 ›</button>' +
     '<button type="button" data-ay-act="new-page">＋ 新页</button>' +
-    '<button type="button" data-ay-act="del-page">🗑 删页</button>' +
-    '<button type="button" data-ay-act="replay">▶ 回放</button>' +
+    '<button type="button" data-ay-act="del-page">删页</button>' +
+    '<button type="button" data-ay-act="replay">' + ayIc('play',12) + ' 回放</button>' +
     '<span class="ay-count">1 / 50</span></div>' +
     '<div class="ay-scrub-row" style="display:none;"><span>回放</span>' +
     '<input type="range" min="0" max="0" value="0" data-ay-act="scrub">' +
     '<select data-ay-act="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>' +
-    '<button type="button" data-ay-act="play">▶ 播放</button></div>' +
+    '<button type="button" data-ay-act="play">' + ayIc('play',12) + ' 播放</button></div>' +
     '<div class="ay-collage-scroll"><div class="ay-clg-canvas ay-paper-dots"></div></div>' +
     '<input type="file" accept="image/*" class="ay-photo-input" style="display:none">';
   document.body.appendChild(ov);
@@ -605,7 +612,7 @@ function clgToolbarClick(e) {
   }
   else if (act === 'del') { if (!clgDeleteSel()) ayToast('先点选一个元素'); }
   else if (act === 'expand') clgExpandSel();
-  else if (act === 'save') { if (clgSave()) ayToast('已保存 ✓'); }
+  else if (act === 'save') { if (clgSave()) ayToast('已保存'); }
   else if (act === 'prev-page') clgSwitchPage(-1);
   else if (act === 'next-page') clgSwitchPage(1);
   else if (act === 'new-page') { clg.pages.unshift(clgBlankPage()); clg.cur = 0; clg.hist = [JSON.stringify([])]; clg.hi = 0; clg.sel = null; clgSave(); clgRender(); }
@@ -627,7 +634,7 @@ function clgDeletePage(btn) {
   if (!btn.getAttribute('data-ay-armed')) {
     btn.setAttribute('data-ay-armed', '1');
     btn.textContent = '再点一次确认删除';
-    setTimeout(function () { btn.removeAttribute('data-ay-armed'); btn.textContent = '🗑 删页'; }, 3000);
+    setTimeout(function () { btn.removeAttribute('data-ay-armed'); btn.textContent = '删页'; }, 3000);
     return;
   }
   clg.pages.splice(clg.cur, 1);
@@ -647,13 +654,13 @@ function clgStopReplay() {
   if (clg.replayTimer) { clearInterval(clg.replayTimer); clg.replayTimer = null; }
   clg.replaying = false;
   var b = document.querySelector('.ay-collage-ov [data-ay-act="play"]');
-  if (b) b.textContent = '▶ 播放';
+  if (b) b.innerHTML = ayIc('play',12) + ' 播放';
 }
 function clgToggleReplay(btn) {
   if (clg.replaying) { clgStopReplay(); clgApplySnapshot(clg.hist[clg.hist.length - 1]); clg.hi = clg.hist.length - 1; return; }
   if (clg.hist.length < 2) { ayToast('还没有可回放的步骤'); return; }
   clg.replaying = true;
-  btn.textContent = '⏸ 停止';
+  btn.innerHTML = ayIc('pause',12) + ' 停止';
   var speedSel = document.querySelector('.ay-collage-ov [data-ay-act="speed"]');
   var speed = parseFloat((speedSel && speedSel.value) || '1') || 1;
   var i = 0;
@@ -689,10 +696,10 @@ function clgShowMenu(id, x, y) {
   clgCloseMenu();
   var m = document.createElement('div');
   m.className = 'ay-ctx-menu';
-  m.innerHTML = '<button type="button" data-ay-m="lock">🔒 锁定</button>' +
-    '<button type="button" data-ay-m="top">⬆ 置顶</button>' +
-    '<button type="button" data-ay-m="expand">🔍 展开查看</button>' +
-    '<button type="button" data-ay-m="del">🗑 删除</button>';
+  m.innerHTML = '<button type="button" data-ay-m="lock">锁定</button>' +
+    '<button type="button" data-ay-m="top">置顶</button>' +
+    '<button type="button" data-ay-m="expand">展开查看</button>' +
+    '<button type="button" data-ay-m="del">删除</button>';
   m.style.left = Math.min(window.innerWidth - 170, Math.max(8, x)) + 'px';
   m.style.top = Math.min(window.innerHeight - 180, Math.max(8, y)) + 'px';
   document.body.appendChild(m);
@@ -877,7 +884,7 @@ function applyDecor() {
     wrap.setAttribute('data-ay-entry', '1');
     var b = document.createElement('button');
     b.type = 'button'; b.className = 'ay-collage-entry';
-    b.textContent = '✂️ 拼贴日记页';
+    b.textContent = '拼贴日记页';
     b.style.cssText = 'margin:8px 0;padding:8px 14px;border:1px solid #ececef;background:#fff;border-radius:999px;font-size:13px;color:#25262a;cursor:pointer;';
     b.addEventListener('click', function () { openCollage(); });
     wrap.insertBefore(b, wrap.firstChild);
