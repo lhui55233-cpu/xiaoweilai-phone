@@ -124,7 +124,7 @@ return Promise.resolve({ ok: false, via: 'template', reason: '未接模型，保
 
 /* ── 报纸 UI（注入论坛.fm-root；与论坛现有发帖/回帖/收藏同一套键） ── */
 function newsOverlayHTML(page, arg, arg2) {
-var back = '<button type="button" class="aw-news-back" data-aw-news="back">‹ 返回</button>';
+var back = '<button type="button" class="aw-news-back" data-aw-news="back" aria-label="返回">‹</button>';
 if (page === 'article') {
 var art = getNewsArticle(arg, arg2); if (!art) return back + '<div class="aw-news-empty">找不到这篇文章。</div>';
 var comments = listArticleComments(art.id);
@@ -334,7 +334,7 @@ function openPastArchive(hostOv) {
   if (!ov) return false;
   var layer = document.getElementById('aw-letter-archive');
   if (!layer) { layer = document.createElement('div'); layer.id = 'aw-letter-archive'; layer.style.cssText = 'position:absolute;inset:0;background:#f7f1e5;z-index:60;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;font-family:"Songti SC","Noto Serif SC",STSong,serif;color:#2b2620;'; ov.appendChild(layer); }
-  layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-letter="back">‹ 返回信件列表</button>' + pastArchiveHTML({});
+  layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-letter="back" aria-label="返回信件列表">‹</button>' + pastArchiveHTML({});
   layer.style.display = 'block';
   layer.onclick = function (ev) {
     var b = ev.target && ev.target.closest ? ev.target.closest('[data-aw-letter]') : null;
@@ -359,7 +359,7 @@ function openPastArchive(hostOv) {
       var q = (document.getElementById('aw-la-q') || {}).value || '';
       var sender = (document.getElementById('aw-la-sender') || {}).value || '';
       var date = (document.getElementById('aw-la-date') || {}).value || '';
-      layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-letter="back">‹ 返回信件列表</button>' + pastArchiveHTML({ q: q, sender: sender, date: date, starredOnly: act === 'starred' });
+      layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-letter="back" aria-label="返回信件列表">‹</button>' + pastArchiveHTML({ q: q, sender: sender, date: date, starredOnly: act === 'starred' });
       return;
     }
   };
@@ -369,7 +369,7 @@ function openWriteLetter(hostLayer) {
   var host = hostLayer || document.querySelector('.gB-ov') || document.body;
   var layer = document.getElementById('aw-letter-write');
   if (!layer) { layer = document.createElement('div'); layer.id = 'aw-letter-write'; layer.style.cssText = 'position:absolute;inset:0;background:#f7f1e5;z-index:70;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;font-family:"Songti SC","Noto Serif SC",STSong,serif;color:#2b2620;'; host.appendChild(layer); }
-  layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-letter-write="back">‹ 返回</button>'
+  layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-letter-write="back" aria-label="返回">‹</button>'
     + '<div class="aw-news-mast"><div class="aw-news-mastname">写信</div><div class="aw-news-mastsub">米白旧纸 · 深墨衬线 · 写完存入信箱</div></div>'
     + '<div class="aw-news-article"><label style="font-size:12px;color:#8a6a52">寄件人</label><input id="aw-wl-role" type="text" value="我" style="width:100%;box-sizing:border-box;border:1px solid #d9c48a;border-radius:4px;padding:8px;margin:6px 0 10px;background:#fffdf7">'
     + '<label style="font-size:12px;color:#8a6a52">信的内容</label><textarea id="aw-wl-text" rows="10" placeholder="写给 TA 的话……" style="width:100%;box-sizing:border-box;border:1px solid #d9c48a;border-radius:4px;padding:10px;margin:6px 0;font-family:inherit;font-size:14px;line-height:1.9;background:#fffdf7"></textarea>'
@@ -527,7 +527,7 @@ var CA_CSS = [
   '.aw-ca-p2Lines{margin-top:17px;height:130px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 25px,rgba(92,101,104,.23) 26px,transparent 27px);}',
   '.aw-ca-p2Foot{position:absolute;left:27px;right:27px;bottom:26px;padding-top:11px;border-top:1px solid #aab0ae;display:flex;justify-content:space-between;align-items:center;}',
   '.aw-ca-p2Foot span{font-size:6px;letter-spacing:.14em;color:#858b8c;}',
-  '.aw-ca-return{border:0;background:transparent;color:#95474a;font-size:9px;}',
+  '.aw-ca-return{border:0;background:transparent;color:#95474a;font-size:15px;}',
   '.aw-ca-zoom{position:absolute;left:173px;top:109px;width:262px;height:283px;z-index:30;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s,visibility .45s;}',
   '.aw-ca.zoom-open .aw-ca-zoom{opacity:1;visibility:visible;pointer-events:auto;}',
   '.aw-ca-zoomPhoto{position:absolute;inset:8px 9px 22px;overflow:hidden;background:#b9bfbd;clip-path:polygon(0 0,100% 0,100% 92%,91% 100%,0 100%);}',
@@ -749,7 +749,7 @@ function archiveHTML(ch, options) {
     + '<div class="aw-ca-fp">' + CA_FINGERPRINT + '<div style="text-align:center;font-size:5px;letter-spacing:.08em;color:#858c8c">FINGERPRINT / SAMPLE 02</div></div>'
     + '<div class="aw-ca-docBottom"><div class="aw-ca-sign">REVIEWED BY / INVESTIGATION UNIT<br><em>Pending verification.</em></div><button class="aw-ca-next" type="button" data-aw-ca="next">翻阅记录 <svg viewBox="0 0 20 20" width="14" height="14"><path d="M4 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button></div>'
     + '<div class="aw-ca-stamp"><svg viewBox="0 0 92 48" aria-hidden="true"><rect x="2" y="3" width="88" height="42" fill="none" stroke="#a44b4d" stroke-width="1.7"/><rect x="7" y="8" width="78" height="32" fill="none" stroke="#a44b4d" stroke-width=".65"/><text x="46" y="25" text-anchor="middle" font-family="serif" font-size="13" font-weight="bold" letter-spacing="2" fill="#a44b4d">' + esc2(scriptScope ? (cd.status || '待补充') : (ch.status === 'pending' ? '待核查' : '已建档')) + '</text><text x="46" y="35" text-anchor="middle" font-size="5.3" letter-spacing="1.4" fill="#a44b4d">UNDER REVIEW</text></svg></div>'
-    + '<div class="aw-ca-pageTwo"><div class="aw-ca-p2Head"><b>询问笔录</b><span>CASE ' + esc2(an.file) + ' / PAGE 02</span></div><div class="aw-ca-p2Info">记录地点：' + esc2(p2.place) + '<br>记录时间：' + esc2(p2.time) + '<br>询问对象：' + esc2(ch.name) + '<br>记录状态：' + esc2(p2.status) + (scriptScope && cd.location.record ? '<br>位置核查记录：' + esc2(cd.location.record) : '') + '</div><div class="aw-ca-statement">' + esc2(p2.statement) + (scriptScope && p2.notes ? '<br>备注：' + esc2(p2.notes) : '') + '</div><div class="aw-ca-p2Lines"></div><div class="aw-ca-p2Foot"><span>INTERVIEW TRANSCRIPT / 02</span><button class="aw-ca-return" type="button" data-aw-ca="return">返回主档案</button></div></div>'
+    + '<div class="aw-ca-pageTwo"><div class="aw-ca-p2Head"><b>询问笔录</b><span>CASE ' + esc2(an.file) + ' / PAGE 02</span></div><div class="aw-ca-p2Info">记录地点：' + esc2(p2.place) + '<br>记录时间：' + esc2(p2.time) + '<br>询问对象：' + esc2(ch.name) + '<br>记录状态：' + esc2(p2.status) + (scriptScope && cd.location.record ? '<br>位置核查记录：' + esc2(cd.location.record) : '') + '</div><div class="aw-ca-statement">' + esc2(p2.statement) + (scriptScope && p2.notes ? '<br>备注：' + esc2(p2.notes) : '') + '</div><div class="aw-ca-p2Lines"></div><div class="aw-ca-p2Foot"><span>INTERVIEW TRANSCRIPT / 02</span><button class="aw-ca-return" type="button" data-aw-ca="return" aria-label="返回主档案">‹</button></div></div>'
     + '<div class="aw-ca-zoom"><div class="aw-ca-zoomPhoto">' + charPhotoHTML(ch, 'aw-ca-photoInit') + '</div><button class="aw-ca-zoomClose" type="button" data-aw-ca="zoom-close" aria-label="关闭放大观察">×</button><div class="aw-ca-zoomLabel">SUBJECT OBSERVATION / ×1.35</div></div>'
     + '</div>'
     + '<div class="aw-ca-env"><div class="aw-ca-envBack"></div><div class="aw-ca-envFront"></div><div class="aw-ca-envFlap"></div><div class="aw-ca-envTitle">案件封存袋</div><div class="aw-ca-envSub">EVIDENCE STORAGE<br>RESTRICTED ACCESS</div><div class="aw-ca-envNo">FILE / ' + esc2(an.file) + '</div><div class="aw-ca-envSeal"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="#9a494b" stroke-width="1"/><circle cx="20" cy="20" r="13" fill="none" stroke="#9a494b" stroke-width=".6" stroke-dasharray="2 2"/><text x="20" y="24" text-anchor="middle" font-size="11" fill="#9a494b" font-family="serif">封</text></svg></div></div>'
@@ -766,7 +766,7 @@ function openArchive(charId, host, options) {
   var ov = document.getElementById('aw-archive-ov');
   if (!ov) { ov = document.createElement('div'); ov.id = 'aw-archive-ov'; ov.className = 'aw-ca-ov'; }
   if (ov.parentNode !== root) root.appendChild(ov);
-  ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-ca-ov="back">‹ 返回</button><span style="font-size:13px;color:#8a6a52">人物档案 · ' + esc2(ch.name) + '</span>'
+  ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-ca-ov="back" aria-label="返回">‹</button><span style="font-size:13px;color:#8a6a52">人物档案 · ' + esc2(ch.name) + '</span>'
     + (ch.isMain ? '<span style="font-size:12px;color:#8a6a52">主角 TA 在角色设置里配</span>' : (scriptScope ? '<button type="button" data-aw-ca-ov="export" data-id="' + esc2(ch.id) + '">导出角色卡</button>' : '<button type="button" data-aw-ca-ov="edit" data-id="' + esc2(ch.id) + '">编辑</button><button type="button" data-aw-ca-ov="export" data-id="' + esc2(ch.id) + '">导出角色卡</button><button type="button" data-aw-ca-ov="delete" data-id="' + esc2(ch.id) + '">删除</button>'))
     + '</div><div class="aw-ca-wrap">' + archiveHTML(ch, scriptScope ? { scope: 'script' } : null) + '</div>'
     + (scriptScope ? '<div style="margin:8px 0"><button type="button" class="aw-news-btn ghost" data-aw-ca-ov="toggle-edit">档案补充（可选）</button></div><div style="display:none" data-aw-ca-edit-wrap>' + archiveSupplementForm(ch) + '</div>' : '');
@@ -821,7 +821,7 @@ function openCharLibrary(host) {
   if (!ov) { ov = document.createElement('div'); ov.id = 'aw-lib-ov'; ov.className = 'aw-ca-ov'; }
   if (ov.parentNode !== root) root.appendChild(ov);
   var chars = allArchiveChars();
-  ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-lib="back">‹ 返回</button><span style="font-size:13px;color:#8a6a52">角色库 · 与微信创建人物同一套数据</span><button type="button" data-aw-lib="new">＋ 创建人物</button></div>'
+  ov.innerHTML = '<div class="aw-ca-ovbar"><button type="button" data-aw-lib="back" aria-label="返回">‹</button><span style="font-size:13px;color:#8a6a52">角色库 · 与微信创建人物同一套数据</span><button type="button" data-aw-lib="new">＋ 创建人物</button></div>'
     + chars.map(function (ch) {
       return '<div class="aw-lib-row"><div><b>' + esc2(ch.name) + '</b> <span style="font-size:12px;color:#8a6a52">' + esc2(ch.isMain ? '主角 TA' : (ch.relationship || '联系人')) + (ch.status === 'pending' ? ' · 待审阅' : '') + '</span><br><span style="font-size:12px;color:#a08a7a">' + esc2(ch.occupation || '') + ' ' + esc2(ch.traits || '') + '</span></div><div><button type="button" class="aw-news-btn ghost" data-aw-lib="archive" data-id="' + esc2(ch.id) + '">' + AW_NEWS_ICO.folder + ' 档案</button></div></div>';
     }).join('')

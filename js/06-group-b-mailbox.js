@@ -157,7 +157,7 @@ function openLetterbox(anchor){
         '<div class="gB-strip-hit" id="gB-hit"></div>' +
       '</div>' +
       '<div class="gB-tear-tip" id="gB-tip">按住撕条向左拖，撕开 <b>三分之一</b> 以上就会整条撕掉</div>' +
-      '<button class="gB-btn gB-ghost" id="gB-back-list">‹ 返回信件列表</button></div>' +
+      '<button class="gB-btn gB-ghost" id="gB-back-list" aria-label="返回信件列表">‹</button></div>' +
       '<div id="gB-deck-wrap" style="display:none;"></div>';
     var stage = body.querySelector('#gB-stage');
     var front = body.querySelector('#gB-front'), strip = body.querySelector('#gB-strip');

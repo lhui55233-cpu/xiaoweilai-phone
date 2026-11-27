@@ -175,7 +175,7 @@ function openCapsuleForm() {
     layer.style.cssText = 'position:absolute;inset:0;background:#f7f1e5;z-index:75;overflow-y:auto;padding:14px 14px 40px;box-sizing:border-box;font-family:"Songti SC","Noto Serif SC",STSong,serif;color:#2b2620;';
     host.appendChild(layer);
   }
-  layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-capf="back">‹ 返回</button>'
+  layer.innerHTML = '<button type="button" class="aw-news-back" data-aw-capf="back" aria-label="返回">‹</button>'
     + '<div class="aw-news-mast"><div class="aw-news-mastname">写定时信</div><div class="aw-news-mastsub">写给未来的信 · 封存到日子才可拆封</div></div>'
     + '<label>写给谁</label><select id="aw-capf-to"><option value="me">我自己</option><option value="char">' + esc3(mainName3()) + '</option></select>'
     + '<label>打开日期（opens）</label><input id="aw-capf-date" type="date">'
@@ -871,7 +871,7 @@ var render = function () {
   var panel = '';
   if (state.panel === 'backlog') {
     panel = '<div style="position:absolute;inset:0;z-index:20;background:rgba(247,241,229,.97);overflow-y:auto;padding:16px;box-sizing:border-box">'
-      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">回望（点一句回到那里）</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">回望（点一句回到那里）</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer" aria-label="返回">‹</button></div>'
       + (state.log.length ? state.log.map(function (e, idx) { return '<button type="button" data-aw-vn="blog" data-vn-log="' + idx + '" style="display:block;width:100%;text-align:left;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px;line-height:1.7;cursor:pointer"><span style="color:#1e2748;font-size:12px">' + esc3(e.scene || '') + ' · ' + esc3(e.speaker || '旁白') + '</span><br>' + esc3(vnLangText(e, state.lang, vn.lang || 'zhs')) + '</button>'; }).join('') : '<div style="margin-top:12px;font-size:13px;color:#a08a7a">还没有读过的对白。</div>')
       + '</div>';
   } else if (state.panel === 'save' || state.panel === 'load') {
@@ -883,7 +883,7 @@ var render = function () {
       return '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;padding:10px;border:1px solid #e6dcc3;border-radius:8px;background:#fffdf7;font-size:13px"><span style="flex:1">' + '槽位 ' + n + '：' + desc + '</span><button type="button" data-aw-vn="' + (isSave ? 'slotsave' : 'slotload') + '" data-slot="' + n + '" style="padding:8px 14px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:13px;cursor:pointer">' + (isSave ? '存到这里' : (sv ? '读档' : '空')) + '</button></div>';
     }).join('');
     panel = '<div style="position:absolute;inset:0;z-index:20;background:rgba(247,241,229,.97);overflow-y:auto;padding:16px;box-sizing:border-box">'
-      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">' + (isSave ? '存档（3 个槽位）' : '读档') + '</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer">‹ 返回</button></div>'
+      + '<div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:16px">' + (isSave ? '存档（3 个槽位）' : '读档') + '</b><button type="button" data-aw-vn="panelback" style="padding:6px 12px;border:1px solid #d8cdb4;border-radius:14px;background:#fff;font-size:13px;cursor:pointer" aria-label="返回">‹</button></div>'
       + slotHtml + '</div>';
   }
   var vncaKeep = null;
@@ -924,7 +924,7 @@ ov.innerHTML = '<div style="flex:1;overflow-y:auto;padding:20px 16px 30px;backgr
 + (state.choicesMade.length? '<div style="margin-top:10px;font-size:13px;line-height:1.9">' + state.choicesMade.map(function (c) { return '· ' + esc3(c);}).join('<br>') + '</div>': '')
 + '<div style="margin-top:10px;font-size:12px;color:#8a6a52">回望里有 ' + state.log.length + ' 条记录；语言：' + VN_LANG_NAMES[state.lang] + '；好感变量 affection=' + (state.vars.affection || 0) + '。</div>'
 + '<div style="display:flex;gap:8px;margin-top:16px"><button type="button" data-aw-vn="save" style="flex:1;padding:12px;border:0;border-radius:8px;background:#1e2748;color:#fff;font-size:14px;cursor:pointer">保存成归巢记忆</button><button type="button" data-aw-vn="discard" style="flex:1;padding:12px;border:1px solid #1e2748;border-radius:8px;background:transparent;color:#7a4a28;font-size:14px;cursor:pointer">放弃，不留记录</button></div>'
-+ '<div style="margin-top:10px;text-align:center"><button type="button" data-aw-vn="close" style="border:0;background:none;color:#7a4a28;font-size:14px;cursor:pointer">‹ 回到剧本</button></div></div>';
++ '<div style="margin-top:10px;text-align:center"><button type="button" data-aw-vn="close" style="border:0;background:none;color:#7a4a28;font-size:14px;cursor:pointer" aria-label="回到剧本">‹</button></div></div>';
 };
 ov.onclick = function (ev) {
 var chBtn = ev.target && ev.target.closest? ev.target.closest('[data-aw-vn-choice]'): null;
@@ -1015,7 +1015,7 @@ vn.scenes.forEach(function (s) {
   });
 });
 var srcLabel = vn.source === 'sks' ? 'SKS 导入' : (vn.source === 'structured' ? '模型整理' : (vn.source === 'template' ? '模板规则整理' : '上传'));
-ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">‹ 返回</button>'
+ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back" aria-label="返回">‹</button>'
 + '<div class="aw-news-mast"><div class="aw-news-mastname">审阅视觉小说</div><div class="aw-news-mastsub">' + esc3(fileName || '') + ' · 解析结果先审阅，确认后才保存</div></div>'
 + '<div style="font-size:15px;line-height:1.9"><b>《' + esc3(vn.title) + '》</b><br>来源：' + srcLabel + ' · 场景 ' + sceneCount + ' 个' + (labelCount ? '（label ' + labelCount + ' 个）' : '') + ' · 对白/旁白 ' + dlgCount + ' 句 · 选项 ' + choiceCount + ' 处 · 结局 ' + endingCount + ' 个' + (result.via? '<br>整理方式：' + (result.via === 'model'? '模型整理' + (result.model? '（' + esc3(result.model) + '）': ''): '模板整理'): '') + '</div>'
 + wyVNReviewCoverHTML(vn)
@@ -1063,7 +1063,7 @@ if (!hasDialogueOrChoice && /\.(txt|epub)$/i.test(file.name)) {
 var host = document.querySelector('.gd-root[data-gd="script"]') || document.body;
 var ov = document.getElementById('aw-vn-review');
 if (!ov) { ov = document.createElement('div'); ov.id = 'aw-vn-review'; ov.style.cssText = 'position:absolute;inset:0;z-index:95;background:#fbf9f4;overflow-y:auto;padding:60px 14px 40px;box-sizing:border-box;font-family:serif;color:#2b2620;'; host.appendChild(ov);}
-ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back">‹ 返回</button><div class="aw-news-mast"><div class="aw-news-mastname">正在整理小说正文</div><div class="aw-news-mastsub">没有识别到明确对白/选项 · 整理后仍会先审阅，不会直接保存</div></div>'
+ov.innerHTML = '<button type="button" class="aw-news-back" data-aw-vnr="back" aria-label="返回">‹</button><div class="aw-news-mast"><div class="aw-news-mastname">正在整理小说正文</div><div class="aw-news-mastsub">没有识别到明确对白/选项 · 整理后仍会先审阅，不会直接保存</div></div>'
 + '<div style="font-size:14px;line-height:1.9">正在尝试把正文拆分为场景、对白、选项与结局。若已配置视觉小说模型，会优先使用模型；否则会明确标注为模板整理。</div>';
 ov.style.display = 'block';
 ov.onclick = function (ev) { var b = ev.target && ev.target.closest ? ev.target.closest('[data-aw-vnr="back"]') : null; if (b) ov.style.display = 'none'; };

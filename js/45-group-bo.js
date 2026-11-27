@@ -253,7 +253,7 @@ var ensureViewer = function () {
   v = document.createElement('div');
   v.id = 'wx-file-viewer';
   v.className = 'wx-file-viewer';
-  v.innerHTML = '<div class="wx-file-viewer-head"><button type="button" class="wx-file-viewer-back" onclick="window.GroupBO.closeViewer()">‹ 返回</button><div class="wx-file-viewer-title" id="wx-file-viewer-title"></div><div style="width:52px;flex-shrink:0;"></div></div>'
+  v.innerHTML = '<div class="wx-file-viewer-head"><button type="button" class="wx-file-viewer-back" onclick="window.GroupBO.closeViewer()" aria-label="返回">‹</button><div class="wx-file-viewer-title" id="wx-file-viewer-title"></div><div style="width:52px;flex-shrink:0;"></div></div>'
     + '<div class="wx-file-viewer-body" id="wx-file-viewer-body"></div>'
     + '<div class="wx-file-viewer-actions" id="wx-file-viewer-actions" style="display:none;"></div>';
   document.body.appendChild(v);

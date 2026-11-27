@@ -528,7 +528,7 @@ function openCollage() {
   var ov = document.createElement('div');
   ov.className = 'ay-collage-ov';
   ov.innerHTML =
-    '<div class="ay-collage-top"><button type="button" class="ay-back" data-ay-act="close">‹ 返回</button>' +
+    '<div class="ay-collage-top"><button type="button" class="ay-back" data-ay-act="close" aria-label="返回">‹</button>' +
     '<input class="ay-title" data-ay-act="title" value="拼贴日记" aria-label="标题">' +
     '<span class="ay-page-label" style="font-size:11px;color:#8a8a90;white-space:nowrap;"></span></div>' +
     '<div class="ay-collage-bar">' +
@@ -769,7 +769,7 @@ function flipExpand(sourceEl, title, bodyHTML) {
   var r = sourceEl.getBoundingClientRect();
   var ov = document.createElement('div');
   ov.className = 'ay-expand-ov';
-  ov.innerHTML = '<div class="ay-expand-card"><button type="button" class="ay-expand-close">‹ 返回</button>' +
+  ov.innerHTML = '<div class="ay-expand-card"><button type="button" class="ay-expand-close" aria-label="返回">‹</button>' +
     '<div class="ay-expand-title">' + esc(title) + '</div><div class="ay-expand-body">' + bodyHTML + '</div></div>';
   document.body.appendChild(ov);
   var card = ov.querySelector('.ay-expand-card');

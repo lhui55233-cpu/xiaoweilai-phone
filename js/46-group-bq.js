@@ -458,7 +458,7 @@ var BQ_CSS_TEXT = "\n/* BQ typeset: reading-app typesetting editor, offline, no 
     r = document.createElement('div');
     r.id = 'bq-typeset-root';
     r.innerHTML =
-      '<div class="bq-bar"><button type="button" class="bq-back" id="bq-back-btn" onclick="window.GroupBQ.back()">‹ 返回阅读</button>' +
+      '<div class="bq-bar"><button type="button" class="bq-back" id="bq-back-btn" onclick="window.GroupBQ.back()" aria-label="返回阅读">‹</button>' +
       '<span class="bq-bar-title" id="bq-bar-title">文字排版器</span>' +
       '<span class="bq-saved" id="bq-saved-label"></span></div>' +
       '<div class="bq-body" id="bq-list-view"></div>' +
@@ -483,7 +483,7 @@ var BQ_CSS_TEXT = "\n/* BQ typeset: reading-app typesetting editor, offline, no 
   function setBar(title, savedText) {
     var t = document.getElementById('bq-bar-title'); if (t) t.textContent = title;
     var b = document.getElementById('bq-back-btn');
-    if (b) b.textContent = _view === 'list' ? '‹ 返回阅读' : (_view === 'editor' ? '‹ 文档列表' : '‹ 取消导入');
+    if (b) { b.textContent = '‹'; b.setAttribute('aria-label', _view === 'list' ? '返回阅读' : (_view === 'editor' ? '文档列表' : '取消导入')); }
     var lab = document.getElementById('bq-saved-label');
     if (lab) lab.textContent = savedText || '';
   }

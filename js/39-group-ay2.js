@@ -132,7 +132,7 @@ function toggleCollage() {
   });
   g.parentNode.insertBefore(box, g.nextSibling);
   g.style.display = 'none';
-  var b2 = ov.querySelector('[data-ay2-pc="collage"]'); if (b2) b2.textContent = '‹ 返回册子';
+  var b2 = ov.querySelector('[data-ay2-pc="collage"]'); if (b2) { b2.textContent = '‹'; b2.setAttribute('aria-label', '返回册子'); }
   return true;
 }
 var pcDrag = null;
@@ -228,7 +228,7 @@ function expandArticle(rowEl) {
   var ov = document.createElement('div');
   ov.className = 'ay2-expand-ov';
   ov.innerHTML = '<div class="ay2-expand-card" style="left:' + rel.left.toFixed(1) + 'px;top:' + rel.top.toFixed(1) + 'px;width:' + rel.width.toFixed(1) + 'px">'
-    + '<button type="button" class="ay2-expand-close">‹ 返回</button>'
+    + '<button type="button" class="ay2-expand-close" aria-label="返回">‹</button>'
     + '<div style="text-align:center;border-bottom:2px solid #b08d3e;padding:10px 0 12px;margin-bottom:12px"><div style="font-size:26px;font-weight:700;letter-spacing:6px">《此刻日报》</div><div style="font-size:11px;letter-spacing:3px;color:#8a6a52;margin-top:4px">' + esc(art.date) + ' · ' + esc(art.section) + '</div></div>'
     + '<h2>' + esc(art.title) + '</h2>'
     + '<div class="ay2-expand-meta">日期 ' + esc(art.date) + ' · 版面 ' + esc(art.section) + ' · 相关人物 ' + esc(art.people || '—') + ' · 字数 ' + String(art.body || '').length + ' · 阅读 ' + (art.views || 0) + ' 次</div>'
@@ -314,7 +314,7 @@ function worldbookExpand() {
   ov.className = 'ay2-expand-ov';
   ov.style.position = 'absolute';
   ov.innerHTML = '<div class="ay2-expand-card ay2-expand-open" style="position:relative;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column">'
-    + '<button type="button" class="ay2-expand-close">‹ 返回</button>'
+    + '<button type="button" class="ay2-expand-close" aria-label="返回">‹</button>'
     + '<div class="ay2-wb-note">世界书条目在 base64 iframe 内，外层够不到条目级展开；此处为外层整体展开（iframe 整体移入详情页，关闭时移回原位，状态不丢）。</div>'
     + '<div class="ay2-wb-frame-host" style="flex:1;min-height:300px;display:flex"></div>'
     + '</div>';

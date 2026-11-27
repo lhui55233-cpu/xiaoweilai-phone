@@ -242,7 +242,8 @@
       var back = document.createElement('button');
       back.type = 'button';
       back.className = 'fb-model-option wx-model-picker-option wx-model-picker-back';
-      back.textContent = '‹ 全部供应商';
+      back.textContent = '‹';
+      back.setAttribute('aria-label', '全部供应商');
       attachNav(back, list);
       back.addEventListener('click', renderProviders);
       list.appendChild(back);

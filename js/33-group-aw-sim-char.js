@@ -725,7 +725,7 @@ function postcardGridHTML(place, dateStr) {
   }).join('') + '</div>';
 }
 function overlayHTML(page, arg) {
-  var back = '<button class="aw-ov-back" type="button" data-aw-act="back">‹ 返回</button>';
+  var back = '<button class="aw-ov-back" type="button" data-aw-act="back" aria-label="返回">‹</button>';
   if (page === 'travel') {
     return back + '<div class="aw-ov-title">旅行</div>'
       + '<div class="aw-card"><label>搜索行程</label><input id="aw-tr-q" type="text" placeholder="搜目的地 / 行动 / 事件…">'

@@ -362,7 +362,7 @@ var openThemeDetail = function (id) {
     var on = cur.id === t.id && String(cur.c2).toLowerCase() === String(c).toLowerCase();
     return '<button type="button" class="gv-cf-color' + (on ? ' gv-cf-color-on' : '') + '" style="background:' + c + '" title="' + c + '" aria-pressed="' + on + '" onclick="window.GroupV.setThemeColor(\'' + t.id + '\',\'' + c + '\');window.GroupV.openThemeDetail(\'' + t.id + '\')"></button>';
   }).join('');
-  det.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeDetail()">‹ 主题</button></div>'
+  det.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><button type="button" class="ot-btn ot-btn-ghost" onclick="window.GroupV.closeThemeDetail()" aria-label="主题">‹</button></div>'
     + '<div style="display:flex;justify-content:center;margin-top:12px;"><div class="gv-cf-cover gv-cf-cover-big"><div class="gv-cf-art" style="background:' + coverBg(t) + ';"><i class="gv-cf-sun" style="background:' + t.c1 + '"></i><i class="gv-cf-band" style="background:' + (cs[3] || t.c2) + '"></i></div></div></div>'
     + '<div style="text-align:center;font-weight:700;font-size:17px;margin-top:10px;">' + esc(t.name) + '</div>'
     + '<div class="ot-muted" style="text-align:center;">' + esc(t.desc) + '</div>'

@@ -1413,7 +1413,7 @@ function openPanel() {
   wrap.id = 'bd-panel';
   wrap.setAttribute('style', 'position:fixed;inset:0;z-index:10003;background:#fff;overflow-y:auto;');
   wrap.innerHTML = '<div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #ececef;padding:10px 12px;display:flex;align-items:center;gap:10px;z-index:1;">'
-    + '<button type="button" id="bd-panel-back" style="border:none;background:none;font-size:16px;cursor:pointer;">‹ 返回</button>'
+    + '<button type="button" id="bd-panel-back" style="border:none;background:none;font-size:16px;cursor:pointer;" aria-label="返回">‹</button>'
     + '<span style="font-weight:700;">记忆系统</span></div>'
     + '<div id="bd-panel-body">' + panelHTML() + '</div>';
   document.body.appendChild(wrap);

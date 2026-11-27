@@ -7863,7 +7863,7 @@ const styleBlock = `
            .wx-plus-drawer.wx-active { display: flex !important; }
 
           .wx-plus-drawer.wx-active { display: flex; animation: wxFadeIn 0.15s; }
-/* GROUP-BO · BO-1 文件消息卡片 + 文件查看器（查看器一个 ‹ 返回，无循环动效） */
+/* GROUP-BO · BO-1 文件消息卡片 + 文件查看器（查看器一个纯箭头返回，无循环动效） */
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:10px 12px;min-width:190px;max-width:230px;cursor:pointer;}
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-ico{width:38px;height:38px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-meta{flex:1;min-width:0;}
@@ -14985,7 +14985,7 @@ handleImgUpload: (input) => {
     const esc = OtomeF.esc;
     const cur = st.diary.cur, pages = cur.pages, pg = st.diary.page;
     const item = cur.item;
-    body.innerHTML = '<div style="padding:0 12px;"><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.openOtomeDiary()">‹ 合上放回书架</button></div>'
+    body.innerHTML = '<div style="padding:0 12px;"><button class="ot-btn ot-btn-ghost" onclick="WeChatAppEngine.openOtomeDiary()" aria-label="合上放回书架">‹</button></div>'
       + '<div class="ot-card"><div style="display:flex;justify-content:space-between;align-items:baseline;"><div style="font-weight:700;">' + esc(item.role) + ' · ' + esc(item.date) + '</div><div class="ot-muted">' + esc(item.weather || '') + '</div></div>'
       + '<div class="ot-diary-page" style="margin-top:10px;">' + esc(pages[pg] || '') + '</div>'
       + '<div class="ot-pager"><button ' + (pg === 0 ? 'disabled' : '') + ' onclick="WeChatAppEngine.otomeDiaryTurn(-1)">‹ 上一页</button><span class="ot-muted">' + (pg + 1) + ' / ' + pages.length + '</span><button ' + (pg >= pages.length - 1 ? 'disabled' : '') + ' onclick="WeChatAppEngine.otomeDiaryTurn(1)">下一页 ›</button></div></div>';
@@ -20287,7 +20287,7 @@ const diaryShelfRead = (entry, page) => {
     + '<div class="ds-open-pager"><button type="button" data-ds-prev="1"' + (pg === 0 ? ' disabled' : '') + '>‹ 上一页</button>'
     + '<span>' + (pg + 1) + ' / ' + pages.length + '</span>'
     + '<button type="button" data-ds-next="1"' + (pg >= pages.length - 1 ? ' disabled' : '') + '>下一页 ›</button></div>'
-    + '<button type="button" class="ds-close" data-ds-close="1">‹ 合上放回书架</button></div>';
+    + '<button type="button" class="ds-close" data-ds-close="1" aria-label="合上放回书架">‹</button></div>';
   return { html: html, total: pages.length, page: pg };
 };
 // 日记分页：每页约120字，优先在句号处断页
@@ -21872,7 +21872,7 @@ AppManager.register('novel', (() => {
            
            <div class="novel-reader-view" id="novel-reader-view">
                <div class="novel-reader-header">
-                   <span id="novel-reader-exit" style="cursor:pointer;font-size:15px;font-weight:bold;color:var(--ipb-muted);">‹ 返回书架</span>
+                   <span id="novel-reader-exit" style="cursor:pointer;font-size:22px;font-weight:bold;color:var(--ipb-muted);" aria-label="返回书架">‹</span>
                    <button class="ipb-hbtn" id="novel-reader-cover-btn" type="button" title="换封面" style="flex:none;width:30px;height:40px;border-radius:6px;border:1px solid #e5e0d8;padding:0;overflow:hidden;background:#5b7fa6;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">封</button>
                     <span id="novel-reader-title" style="font-weight:800;color:var(--ipb-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34%;">书籍标题</span>
                    <span style="display:flex;gap:6px;align-items:center;">

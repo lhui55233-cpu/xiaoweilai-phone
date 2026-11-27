@@ -269,7 +269,7 @@ function renderCaught(area, name, risk, res) {
     + '<div class="be-caught-text">' + esc(name || '他') + '正好回头，看见你拿着他的手机。<br>这件事已经记进了事件流。</div>'
     + '<div class="be-caught-msg">他在微信里说：「' + esc(res.msg) + '」' + (res.sent ? '' : '<br><span style="color:#a08a7a;font-size:12px;">（微信没打开，这句话没能发出去，事件已记录。）</span>') + '</div>'
     + '<div class="be-caught-aff">' + esc(affLine) + '</div>'
-    + '<button type="button" class="be-caught-back" data-be-key="caught-back">‹ 回到此刻</button>'
+    + '<button type="button" class="be-caught-back" data-be-key="caught-back" aria-label="回到此刻">‹</button>'
     + '</div>';
   var back = area.querySelector('[data-be-key="caught-back"]');
   if (back) back.addEventListener('click', function () { clickSubBack(); });
@@ -318,7 +318,7 @@ function settingsHtml(prefs) {
     return '<div>· ' + esc(fmtDate(new Date(ev.ts || Date.now()))) + ' 被抓到（风险' + esc(ev.risk || '') + '，好感 ' + ev.affBefore + ' → ' + ev.affAfter + (ev.funny ? '，他把手机递了过来' : '') + '）</div>';
   }).join('');
   return '<div class="be-settings">'
-    + '<button type="button" class="be-set-back" data-be-key="set-back">‹ 返回锁屏</button>'
+    + '<button type="button" class="be-set-back" data-be-key="set-back" aria-label="返回锁屏">‹</button>'
     + '<h3>翻盖机外观</h3>'
     + '<div class="be-mini-preview" style="background:' + esc(wallpaperCss(prefs)) + '"><span>壁纸预览</span><span style="background:' + frameById(prefs.frame).c + ';color:#fff;border-radius:10px;padding:2px 8px;">外框 · ' + esc(frameById(prefs.frame).name) + '</span></div>'
     + '<div class="be-set-sec">壁纸</div>'
