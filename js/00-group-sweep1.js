@@ -3522,10 +3522,10 @@ AppManager.register('settings', (() => {
         .st-check { -webkit-appearance:none; appearance:none; width:20px; height:20px; flex-shrink:0; margin:0; padding:0; cursor:pointer;
             background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink,#1e2748); border-radius:4px; }
         .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
-        .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; line-height:1.4; }
+        .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; min-width:0; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .st-row.danger .st-label { color:var(--st-danger,#7c2d2d); }
-        .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); }
-        .st-val { font-size:17px; color:var(--st-ink-60,rgba(30,39,72,.6)); }
+        .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); flex-shrink:0; }
+        .st-val { font-size:17px; color:var(--st-ink-60,rgba(30,39,72,.6)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:50vw; }
         .st-arrow { font-size:20px; color:var(--st-ink-40,rgba(30,39,72,.4)); font-weight:400; }
         .st-switch { width:44px; height:24px; border-radius:999px; background:var(--st-silver,#bfc8e0);
             position:relative; transition:background 180ms ease-out; flex-shrink:0; border:none; padding:0; }
@@ -3752,12 +3752,11 @@ AppManager.register('settings', (() => {
             ])}
             <div class="st-gap"></div>
             ${GROUP([
-                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题美化', {value:'壁纸、图标、聊天气泡等', act:'beauty'})
-            ], '壁纸、图标、桌面组件、聊天气泡等都在主题美化里。')}
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题美化', {act:'beauty'})
+            ])}
             <div class="st-gap"></div>
             ${GROUP([
                 ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '桌面与外观', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');var t={light:'浅色',dark:'深色',auto:'跟随系统'}[p.theme||'light']||'浅色';return t+' · '+(p.petEnabled===false?'桌宠关':'桌宠开');}catch(e){return '浅色';}})(), act:'w_desktop'}),
-                ROW(ICON('#FF6B6B', I.clock), '番茄专注 · 黑猫', {value:'计时 + 猫', act:'w_focus'})
             ], '桌面与外观：壁纸、主题、图标、桌宠、小组件都在这里，不单开 app；长按桌面空白处也能进。')}
             <div class="st-gap"></div>
             ${GROUP([
@@ -4026,7 +4025,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                 ROW(ICON('var(--st-ink,#171717)', I.widgets), '圆体字体', {value: (()=>{try{return localStorage.getItem('af_round_font_v1')==='1'?'已开启':'关闭';}catch(e){return '关闭';}})(), act:'af_roundfont'}),
                 ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
                 ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
-            ], '外观与美化：壁纸、图标、桌面组件、聊天气泡等全部在此设置。')}
+            ])}
             <div style="height:40px;"></div>
         </div>`;
     };
@@ -5243,6 +5242,83 @@ win.addEventListener('change', (e) => {
         inp.click();
     }
 
+    // ── 美化子页直接嵌在设置内打开（不再 AppManager.launch('beautify')，
+    //    否则设置窗口会被隐藏、先闪回桌面一次才出现子页）──
+    const updateBeautyBackBtn = (sub) => {
+        try {
+            const btn = sub.querySelector('#st-beautify-backbtn');
+            if (!btn) return;
+            const home = sub.querySelector('#b-page-home');
+            btn.style.display = (home && home.classList.contains('active')) ? '' : 'none';
+        } catch(e){}
+    };
+    const closeBeautyInSettings = (win) => {
+        try {
+            const w = win || (typeof AppManager !== 'undefined' && AppManager.getWin ? AppManager.getWin('settings') : null);
+            if (!w) return;
+            const sub = w.querySelector('#st-sub-beautify');
+            if (!sub) return;
+            sub.classList.remove('show');
+            dropClosedStSub(sub);
+        } catch(e){}
+    };
+    const openBeautyPageInSettings = (pageId, win) => {
+        try {
+            const cfg = (typeof AppRegistry !== 'undefined') ? AppRegistry['beautify'] : null;
+            if (!cfg || typeof cfg.render !== 'function' || typeof cfg.mount !== 'function') {
+                // 兜底：仍走原来的跨 APP 启动
+                window.__beautifyReturnTo = 'settings';
+                window.__beautifyAutoOpen = pageId;
+                AppManager.launch('beautify');
+                return;
+            }
+            // 清掉旧入口留下的跨 APP 意图，避免内嵌页里的返回误触 launch('settings')
+            window.__beautifyReturnTo = null;
+            window.__beautifyAutoOpen = null;
+            // 若 beautify APP 已有缓存窗口，先摘掉它，避免 #b-page-* 等 id 在文档里出现两份
+            // （内嵌页里 document.getElementById('b-subpage-new-wallpaper') 等会取到第一份隐藏节点）
+            // 下次再 launch('beautify') 时会重新创建窗口。
+            try {
+                if (typeof appPool !== 'undefined' && appPool['beautify']) {
+                    const oldWin = appPool['beautify'];
+                    if (oldWin && oldWin.parentNode) oldWin.parentNode.removeChild(oldWin);
+                    delete appPool['beautify'];
+                    if (typeof appState !== 'undefined') delete appState['beautify'];
+                }
+            } catch(e){}
+            let sub = win.querySelector('#st-sub-beautify');
+            if (sub) sub.remove();
+            const tmp = document.createElement('div');
+            tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + cfg.render() + '</div>';
+            sub = tmp.firstElementChild;
+            // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
+            const backBtn = document.createElement('div');
+            backBtn.className = 'sys-app-backbtn';
+            backBtn.id = 'st-beautify-backbtn';
+            backBtn.setAttribute('data-beautify-close', '1');
+            backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+            sub.appendChild(backBtn);
+            sub.addEventListener('click', (e) => {
+                if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
+            });
+            win.appendChild(sub);
+            // 挂载引擎到这个子页（winDom = sub，内部全部用 querySelector 定位）
+            try { cfg.mount(sub); } catch(e){ console.warn('[beauty-in-settings] mount failed', e); }
+            // 覆盖返回行为：子页「返回」回到美化主页（仍在设置内），不 launch('settings')
+            try {
+                if (window.BeautifyEngine) {
+                    const _origGoHome = window.BeautifyEngine.goHome;
+                    window.BeautifyEngine.goHome = () => { try { _origGoHome(); } catch(e){} updateBeautyBackBtn(sub); };
+                    const _origSwitch = window.BeautifyEngine.switchPage;
+                    window.BeautifyEngine.switchPage = (pid) => { try { _origSwitch(pid); } catch(e){} updateBeautyBackBtn(sub); };
+                }
+            } catch(e){}
+            try { if (window.BeautifyEngine && window.BeautifyEngine.switchPage) window.BeautifyEngine.switchPage(pageId); } catch(e){}
+            updateBeautyBackBtn(sub);
+            requestAnimationFrame(() => sub.classList.add('show'));
+        } catch(e){ console.warn('[beauty-in-settings]', e); }
+    };
+
     function handleAction(act, win) {
         // ── 外观与美化：直接在设置内打开对应子页 ──
         const beautySubMap = {
@@ -5255,9 +5331,8 @@ win.addEventListener('change', (e) => {
         };
         if (act === 'ac_widgets') { if (window.ACWidgets) window.ACWidgets.openStore(); return; }
         if (beautySubMap[act]) {
-            window.__beautifyReturnTo = 'settings';
-            window.__beautifyAutoOpen = beautySubMap[act];
-            AppManager.launch('beautify');
+            // 直接嵌在设置内打开，不再跨 APP 启动（会先闪回桌面）
+            openBeautyPageInSettings(beautySubMap[act], win);
             return;
         }
         if (act && act.indexOf('ah_') === 0 && window.GroupAH) { window.GroupAH.open(act.slice(3), win); return; }
@@ -5819,6 +5894,22 @@ AppManager.register('beautify', (() => {
        { id: 'rain-letters', name: '雨落碎了字里行间', url: 'wallpapers/rain-between-words.svg' }
    ];
 
+   // 壁纸预览背景：优先用用户刚选的自定义图，否则用当前系统壁纸（URL 或 WALLPAPERS），
+   // 最后用一张深色渐变兜底。原来默认是近白渐变，白色锁屏时间字完全看不见。
+   const previewWpBg = () => {
+       if (BStore.customWpUrl) return `url('${BStore.customWpUrl}')`;
+       try {
+           const cur = (typeof SystemStore !== 'undefined' && SystemStore.get) ? (SystemStore.get('wallpaper') || '') : '';
+           if (cur && typeof cur === 'string' && /^(https?:|data:|blob:|\/)/i.test(cur)) return `url('${cur}')`;
+       } catch(e){}
+       try {
+           const prefs = JSON.parse(localStorage.getItem('phone_ui_prefs_v1') || '{}');
+           const wp = WALLPAPERS.find(x => x.id === (prefs.wallpaper || ''));
+           if (wp) return wp.image ? (wp.image + ' center/cover no-repeat') : wp.css;
+       } catch(e){}
+       return 'linear-gradient(160deg,#66779a,#3a4763 55%,#232c44)';
+   };
+
    // 2. 内部高度密封的视图装配输出层
    const renderView = () => `
        <style>
@@ -6060,22 +6151,23 @@ AppManager.register('beautify', (() => {
    <div style="padding: 20px 16px;">
        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px;">
            <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-               <div style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${BStore.customWpUrl ? `url('${BStore.customWpUrl}')` : 'linear-gradient(160deg,#ffffff,#f7f3ec)'}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden;">
+               <div id="b-wp-prev-lock" style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${previewWpBg()}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden;">
+                   <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.30), rgba(0,0,0,0.08) 35%, transparent 55%); pointer-events: none;"></div>
                    <div style="position: absolute; top: 35px; width: 100%; text-align: center; color: white;">
-                       <div style="font-size: 11px; font-weight: 500; opacity: 0.9; margin-bottom: 2px;">5月16日 星期六</div>
-                       <div style="font-size: 40px; font-weight: 600; letter-spacing: 1px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,0.2); line-height: 1;">09:41</div>
+                       <div style="font-size: 11px; font-weight: 500; opacity: 0.9; margin-bottom: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.55);">5月16日 星期六</div>
+                       <div style="font-size: 40px; font-weight: 600; letter-spacing: 1px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-shadow: 0 1px 8px rgba(0,0,0,0.55), 0 0 3px rgba(0,0,0,0.4); line-height: 1;">09:41</div>
                    </div>
                </div>
                <span style="font-size: 13px; color: #3A3A3C; margin-top: 12px; font-weight: 500;">锁定屏幕</span>
            </div>
            <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-               <div style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${BStore.customWpUrl ? `url('${BStore.customWpUrl}')` : 'linear-gradient(160deg,#ffffff,#f7f3ec)'}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; padding: 24px 12px; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: min-content; gap: 8px;">
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
+               <div id="b-wp-prev-home" style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${previewWpBg()}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; padding: 24px 12px; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: min-content; gap: 8px;">
+                   <div style="width:100%; aspect-ratio:1; background:#34C759; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#007AFF; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#FF9500; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#AF52DE; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#FF2D55; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#5856D6; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
                </div>
                <span style="font-size: 13px; color: #3A3A3C; margin-top: 12px; font-weight: 500;">主屏幕</span>
            </div>
@@ -6096,8 +6188,8 @@ AppManager.register('beautify', (() => {
        </div>
    </div>
 
-   <div id="b-subpage-new-wallpaper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fbf9f4; z-index: 10; display: flex; flex-direction: column; box-sizing: border-box; overflow-y: auto; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);">
-       <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fbf9f4; position: sticky; top: 0; z-index: 11;">
+   <div id="b-subpage-new-wallpaper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 10; display: flex; flex-direction: column; box-sizing: border-box; overflow-y: auto; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);">
+       <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #ffffff; position: sticky; top: 0; z-index: 11;">
            <div style="color: var(--st-ink,#1e2748); font-size: 17px; cursor: pointer; display: flex; align-items: center;" onclick="document.getElementById('b-subpage-new-wallpaper').style.transform='translateX(100%)'">
                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: -4px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
                设置
@@ -6506,6 +6598,10 @@ AppManager.register('beautify', (() => {
                            if (ta) ta.value = localStorage.getItem('b_bubble_custom_css') || '';
                        } catch(e){}
                    }
+                   // 进入壁纸页时，用当前壁纸重算两张预览图的背景
+                   if (pageId === 'wallpaper') {
+                       try { window.BeautifyEngine.refreshWallpaperPreview(); } catch(e){}
+                   }
                },
                // 返回主页
                goHome: () => {
@@ -6524,6 +6620,17 @@ AppManager.register('beautify', (() => {
                    winDom.querySelectorAll('.b-page-view.b-sub').forEach(p => p.classList.remove('active'));
                    const home = winDom.querySelector('#b-page-home');
                    if (home) home.classList.add('active');
+               },
+
+               // 壁纸预览刷新：回到壁纸页时，用当前壁纸重算两张预览图的背景
+               refreshWallpaperPreview: () => {
+                   try {
+                       const bg = previewWpBg();
+                       ['b-wp-prev-lock', 'b-wp-prev-home'].forEach(id => {
+                           const el = winDom.querySelector('#' + id);
+                           if (el) el.style.background = bg;
+                       });
+                   } catch(e){}
                },
 
                // ── 聊天背景：刷新联系人下拉 + 预览 ──
