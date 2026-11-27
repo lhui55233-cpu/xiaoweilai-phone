@@ -173,7 +173,10 @@ var AFWeather = {
   },
   refresh: function (win, force) {
     var box = null;
-    try { box = win && win.querySelector ? win.querySelector('#af-weather-live') : document.getElementById('af-weather-live'); } catch (e) {}
+    /* [WX-LOWCARD-SYNC] 下卡按钮传进来的 win 就是 #af-weather-live 本身；
+       querySelector 不匹配自身，不认就直接 return false，三个按钮全死。
+       先认自身，再在子孙里找。 */
+    try { box = win && win.querySelector ? (win.id === 'af-weather-live' ? win : win.querySelector('#af-weather-live')) : document.getElementById('af-weather-live'); } catch (e) {}
     if (!box) return Promise.resolve(false);
     var self = this;
     var cached = this.loadCache();
@@ -199,6 +202,11 @@ var AFWeather = {
         self.saveCache(rec);
         self._fetching = false;
         self.paint(box, { kind: 'live', temp: rec.temp, code: rec.code, humidity: rec.humidity, wind: rec.wind, city: rec.city, fetchedAt: rec.fetchedAt });
+        /* [WX-LOWCARD-SYNC] 下卡按钮（保存城市 / 重新取数 / 用定位取数）直接调
+           refresh，不经过 js/07 的 bindBody；取数成功后派发事件，让 js/07 把
+           主卡体感三行同步过来。只在 live 成功时派发，失败 / 离线不派发，主卡
+           保持“暂无实测温度”，不编造数字。 */
+        try { box.dispatchEvent(new CustomEvent('af-weather-refreshed', { bubbles: true, detail: { temp: rec.temp, city: rec.city } })); } catch (e) {}
         return true;
       });
     }).catch(function () {
