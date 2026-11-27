@@ -3486,7 +3486,7 @@ AppManager.register('settings', (() => {
         (foot ? `<div class="st-foot">${foot}</div>` : '');
 
     const styleBlock = `<style>
-        .st-root, .st-sub { --st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12) }
+        .st-root, .st-sub { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12) }
         .st-root { width:100%; height:100%; background:var(--st-paper,#fffdf8); overflow-y:auto;
             font-family:"Noto Serif SC","Songti SC",serif;
             -webkit-overflow-scrolling:touch; position:relative; color:var(--st-ink,#1e2748); }
@@ -3533,11 +3533,11 @@ AppManager.register('settings', (() => {
         /* 自定义复选框（设置页）：纸底 + 1px 墨边框；:checked 时用背景图画墨色对勾（input 无伪元素） */
         .st-check { -webkit-appearance:none; appearance:none; width:20px; height:20px; flex-shrink:0; margin:0; padding:0; cursor:pointer;
             background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink,#1e2748); border-radius:4px; }
-        .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e2748' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
-        .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; line-height:1.4; }
+        .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
+        .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; min-width:0; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .st-row.danger .st-label { color:var(--st-danger,#7c2d2d); }
-        .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); }
-        .st-val { font-size:17px; color:var(--st-ink-60,rgba(30,39,72,.6)); }
+        .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); flex-shrink:0; }
+        .st-val { font-size:17px; color:var(--st-ink-60,rgba(30,39,72,.6)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:50vw; }
         .st-arrow { font-size:20px; color:var(--st-ink-40,rgba(30,39,72,.4)); font-weight:400; }
         .st-switch { width:44px; height:24px; border-radius:999px; background:var(--st-silver,#bfc8e0);
             position:relative; transition:background 180ms ease-out; flex-shrink:0; border:none; padding:0; }
@@ -3731,7 +3731,7 @@ AppManager.register('settings', (() => {
         <div class="st-root" id="st-root">
             <div class="st-statusbar"></div>
             <div class="st-home-backrow" onclick="(window.NavigationManager?NavigationManager.back():AppManager.minimize())">
-                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#1e2748" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                <svg viewBox="0 0 24 24" width="20" fill="none" stroke="#171717" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                 <span>返回桌面</span>
             </div>
             <div class="st-bigtitle">设置</div>
@@ -3751,13 +3751,11 @@ AppManager.register('settings', (() => {
             </div>
 
             ${GROUP([
-                ROW(ICON('var(--st-ink,#1e2748)', I.api), 'API 设置', {value:'微信原有配置', act:'api'}),
-                ROW(ICON('#5856D6', I.api), '接模型', {value:'全机统一配置', act:'model'}),
+                ROW(ICON('var(--st-ink,#1e2748)', I.api), 'API 设置', {value: (() => { try { if (window.PhoneModel && PhoneModel.isConfigured()) return '已接模型 · ' + PhoneModel.modelName(); return '未配置 · 模板模式'; } catch (e) { return '未配置'; } })(), act:'api'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.ball), 'API 悬浮球', {sw:'apiFloatBall'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.voice), '克隆音色设置', {act:'voice'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.full), '全屏 / 安装到桌面', {value:'点击开启', act:'fullscreen'}),
                 ROW(ICON('var(--st-danger,#7c2d2d)', I.lock), '锁屏密码', {act:'passcode'}),
-                ROW(ICON('#FF2D55', I.msg), '角色名字', {value: (window.GroupAJ ? GroupAJ.charDisplayName() : 'TA'), act:'charName'}),
  ROW(ICON('#FF2D55', I.msg), '已读不回与封窗', {value: (window.GroupBT? window.GroupBT.settingsRowValue(): '开'), act:'bt_seen'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.island), '灵动岛设置', {act:'island'}),
                 ROW(ICON('var(--st-ink-60,rgba(30,39,72,.6))', I.clock), '动效与省电', {act:'motion'}),
@@ -3766,22 +3764,11 @@ AppManager.register('settings', (() => {
             ])}
             <div class="st-gap"></div>
             ${GROUP([
-                ROW(ICON('var(--st-ink,#1e2748)', I.wallpaper), '壁纸', {act:'b_wallpaper'}),
-                ROW(ICON('#5856D6', I.iconStyle), '应用图标', {act:'b_icons'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '桌面组件', {act:'b_widgets'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '小组件商店', {act:'ac_widgets'}),
-                ROW(ICON('#07C160', I.bubble), '聊天气泡', {act:'b_bubbles'}),
-                ROW(ICON('#FF2D55', I.chatbg), '页面背景', {act:'b_chatbg'}),
-                ROW(ICON('var(--st-ink-60,rgba(30,39,72,.6))', I.layout), '布局与状态栏', {act:'b_layout'}),
-                ROW(ICON('#5856D6', I.summary), '深色主题', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');return p.theme==='gruvbox-dark'?'Gruvbox 深色':(p.theme==='guichao-dark'?'归巢深色':'归巢白（默认）');}catch(e){return '归巢白（默认）';}})(), act:'af_theme'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '圆体字体', {value: (()=>{try{return localStorage.getItem('af_round_font_v1')==='1'?'已开启':'关闭';}catch(e){return '关闭';}})(), act:'af_roundfont'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
-                ROW(ICON('var(--st-ink,#1e2748)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
-            ], '外观与美化：壁纸、图标、桌面组件、聊天气泡等全部在此设置。')}
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题美化', {act:'beauty'})
+            ])}
             <div class="st-gap"></div>
             ${GROUP([
                 ROW(ICON('var(--st-ink,#1e2748)', I.widgets), '桌面与外观', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');var t={light:'浅色',dark:'深色',auto:'跟随系统'}[p.theme||'light']||'浅色';return t+' · '+(p.petEnabled===false?'桌宠关':'桌宠开');}catch(e){return '浅色';}})(), act:'w_desktop'}),
-                ROW(ICON('#FF6B6B', I.clock), '番茄专注 · 黑猫', {value:'计时 + 猫', act:'w_focus'})
             ], '桌面与外观：壁纸、主题、图标、桌宠、小组件都在这里，不单开 app；长按桌面空白处也能进。')}
             <div class="st-gap"></div>
             ${GROUP([
@@ -3886,7 +3873,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-membackup">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">记忆备份</div>
@@ -3922,7 +3909,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-banwords">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">禁词管理</div>
@@ -3952,7 +3939,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-passcode">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">锁屏密码</div>
@@ -4003,7 +3990,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-motion">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">动效与省电</div>
@@ -4024,6 +4011,37 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         </div>`;
     };
 
+
+    // ── 主题美化汇总子页：壁纸/图标/组件/气泡等都在这里，不单开 app；
+    //    各行沿用原来在设置首页的 act 与取值，点进行为一点没变。
+    const renderBeautySub = () => {
+        return `
+        <div class="st-sub" id="st-sub-beauty">
+            <div class="st-sub-bar">
+                <div class="st-sub-back" data-back="1">
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    设置
+                </div>
+                <div class="st-sub-title">主题美化</div>
+            </div>
+            <div class="st-bigtitle" style="padding-top:4px;">主题美化</div>
+            ${GROUP([
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '壁纸', {act:'b_wallpaper'}),
+                ROW(ICON('#5856D6', I.iconStyle), '应用图标', {act:'b_icons'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面组件', {act:'b_widgets'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '小组件商店', {act:'ac_widgets'}),
+                ROW(ICON('#07C160', I.bubble), '聊天气泡', {act:'b_bubbles'}),
+                ROW(ICON('#FF2D55', I.chatbg), '页面背景', {act:'b_chatbg'}),
+                ROW(ICON('var(--st-ink-60,rgba(23,23,23,.6))', I.layout), '布局与状态栏', {act:'b_layout'}),
+                ROW(ICON('#5856D6', I.summary), '深色主题', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');return p.theme==='gruvbox-dark'?'Gruvbox 深色':(p.theme==='guichao-dark'?'归巢深色':'归巢白（默认）');}catch(e){return '归巢白（默认）';}})(), act:'af_theme'}),
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '圆体字体', {value: (()=>{try{return localStorage.getItem('af_round_font_v1')==='1'?'已开启':'关闭';}catch(e){return '关闭';}})(), act:'af_roundfont'}),
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
+                ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
+            ])}
+            <div style="height:40px;"></div>
+        </div>`;
+    };
+
     // ── 灵动岛设置子页面 ──
     const renderIslandSub = () => {
         const cur = (window.IslandManager && window.IslandManager.get()) || { width:122, height:36, top:0, radius:999, offsetX:0 };
@@ -4031,7 +4049,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         <div class="st-sub" id="st-sub-island">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">灵动岛</div>
@@ -4115,7 +4133,7 @@ let visionCfg = {};
             ? voices.map((v,i) => `
                 <div class="st-row" style="padding:14px 16px;">
                     <div style="width:40px;height:40px;border-radius:50%;background:var(--st-silver-light,#dce2f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <svg viewBox="0 0 24 24" width="18" fill="#1e2748"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4" stroke="#1e2748" stroke-width="2" fill="none"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" fill="#171717"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4" stroke="#171717" stroke-width="2" fill="none"/></svg>
                     </div>
                     <div style="flex:1;margin-left:12px;min-width:0;">
                         <div style="font-size:17px;color:var(--st-ink,#1e2748);font-weight:500;">${v.name || '未命名音色'}</div>
@@ -4138,7 +4156,7 @@ let visionCfg = {};
         <div class="st-sub" id="st-sub-voice">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">克隆音色</div>
@@ -4338,7 +4356,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
         <div class="st-sub" id="st-sub-token">
             <div class="st-sub-bar st-sub-bar-solid">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">Token 统计与分析</div>
@@ -4415,7 +4433,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
         <div class="st-sub" id="st-sub-profile">
             <div class="st-sub-bar">
                 <div class="st-sub-back" data-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     设置
                 </div>
                 <div class="st-sub-title">我的账户</div>
@@ -4429,7 +4447,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                         ${av ? `<img src="${av}">` : `<span>${firstChar}</span>`}
                     </div>
                     <div class="st-pf-cam">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#1e2748" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                             <circle cx="12" cy="13" r="4"/>
                         </svg>
@@ -5236,6 +5254,83 @@ win.addEventListener('change', (e) => {
         inp.click();
     }
 
+    // ── 美化子页直接嵌在设置内打开（不再 AppManager.launch('beautify')，
+    //    否则设置窗口会被隐藏、先闪回桌面一次才出现子页）──
+    const updateBeautyBackBtn = (sub) => {
+        try {
+            const btn = sub.querySelector('#st-beautify-backbtn');
+            if (!btn) return;
+            const home = sub.querySelector('#b-page-home');
+            btn.style.display = (home && home.classList.contains('active')) ? '' : 'none';
+        } catch(e){}
+    };
+    const closeBeautyInSettings = (win) => {
+        try {
+            const w = win || (typeof AppManager !== 'undefined' && AppManager.getWin ? AppManager.getWin('settings') : null);
+            if (!w) return;
+            const sub = w.querySelector('#st-sub-beautify');
+            if (!sub) return;
+            sub.classList.remove('show');
+            dropClosedStSub(sub);
+        } catch(e){}
+    };
+    const openBeautyPageInSettings = (pageId, win) => {
+        try {
+            const cfg = (typeof AppRegistry !== 'undefined') ? AppRegistry['beautify'] : null;
+            if (!cfg || typeof cfg.render !== 'function' || typeof cfg.mount !== 'function') {
+                // 兜底：仍走原来的跨 APP 启动
+                window.__beautifyReturnTo = 'settings';
+                window.__beautifyAutoOpen = pageId;
+                AppManager.launch('beautify');
+                return;
+            }
+            // 清掉旧入口留下的跨 APP 意图，避免内嵌页里的返回误触 launch('settings')
+            window.__beautifyReturnTo = null;
+            window.__beautifyAutoOpen = null;
+            // 若 beautify APP 已有缓存窗口，先摘掉它，避免 #b-page-* 等 id 在文档里出现两份
+            // （内嵌页里 document.getElementById('b-subpage-new-wallpaper') 等会取到第一份隐藏节点）
+            // 下次再 launch('beautify') 时会重新创建窗口。
+            try {
+                if (typeof appPool !== 'undefined' && appPool['beautify']) {
+                    const oldWin = appPool['beautify'];
+                    if (oldWin && oldWin.parentNode) oldWin.parentNode.removeChild(oldWin);
+                    delete appPool['beautify'];
+                    if (typeof appState !== 'undefined') delete appState['beautify'];
+                }
+            } catch(e){}
+            let sub = win.querySelector('#st-sub-beautify');
+            if (sub) sub.remove();
+            const tmp = document.createElement('div');
+            tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + cfg.render() + '</div>';
+            sub = tmp.firstElementChild;
+            // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
+            const backBtn = document.createElement('div');
+            backBtn.className = 'sys-app-backbtn';
+            backBtn.id = 'st-beautify-backbtn';
+            backBtn.setAttribute('data-beautify-close', '1');
+            backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+            sub.appendChild(backBtn);
+            sub.addEventListener('click', (e) => {
+                if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
+            });
+            win.appendChild(sub);
+            // 挂载引擎到这个子页（winDom = sub，内部全部用 querySelector 定位）
+            try { cfg.mount(sub); } catch(e){ console.warn('[beauty-in-settings] mount failed', e); }
+            // 覆盖返回行为：子页「返回」回到美化主页（仍在设置内），不 launch('settings')
+            try {
+                if (window.BeautifyEngine) {
+                    const _origGoHome = window.BeautifyEngine.goHome;
+                    window.BeautifyEngine.goHome = () => { try { _origGoHome(); } catch(e){} updateBeautyBackBtn(sub); };
+                    const _origSwitch = window.BeautifyEngine.switchPage;
+                    window.BeautifyEngine.switchPage = (pid) => { try { _origSwitch(pid); } catch(e){} updateBeautyBackBtn(sub); };
+                }
+            } catch(e){}
+            try { if (window.BeautifyEngine && window.BeautifyEngine.switchPage) window.BeautifyEngine.switchPage(pageId); } catch(e){}
+            updateBeautyBackBtn(sub);
+            requestAnimationFrame(() => sub.classList.add('show'));
+        } catch(e){ console.warn('[beauty-in-settings]', e); }
+    };
+
     function handleAction(act, win) {
         // ── 外观与美化：直接在设置内打开对应子页 ──
         const beautySubMap = {
@@ -5248,9 +5343,8 @@ win.addEventListener('change', (e) => {
         };
         if (act === 'ac_widgets') { if (window.ACWidgets) window.ACWidgets.openStore(); return; }
         if (beautySubMap[act]) {
-            window.__beautifyReturnTo = 'settings';
-            window.__beautifyAutoOpen = beautySubMap[act];
-            AppManager.launch('beautify');
+            // 直接嵌在设置内打开，不再跨 APP 启动（会先闪回桌面）
+            openBeautyPageInSettings(beautySubMap[act], win);
             return;
         }
         if (act && act.indexOf('ah_') === 0 && window.GroupAH) { window.GroupAH.open(act.slice(3), win); return; }
@@ -5360,18 +5454,6 @@ win.addEventListener('change', (e) => {
  case 'api':
                 if (window.GlobalAPI) GlobalAPI.open();
                 break;
-            case 'model': {
-                // [AG组] 接模型子页：每次重建，保证读到最新的配置与最近一次调用状态
-                let sub = win.querySelector('#st-sub-model');
-                if (sub) sub.remove();
-                const tmp = document.createElement('div');
-                tmp.innerHTML = window.PhoneModel ? window.PhoneModel.renderSettingsSub() : '';
-                sub = tmp.firstElementChild;
-                if (!sub) break;
-                win.appendChild(sub);
-                requestAnimationFrame(() => sub.classList.add('show'));
-                break;
-            }
             case 'lunarSuffix': {
                 const curLunar = (typeof window.XWClockLunarSuffix === 'function') ? window.XWClockLunarSuffix() : '';
                 SysDialog.prompt('', curLunar, { title: '时钟组件农历后缀', placeholder: '留空则自动按当日农历显示', maxlength: 20 }).then(nv => {
@@ -5430,16 +5512,6 @@ win.addEventListener('change', (e) => {
                 bindIslandSliders(sub);
                 break;
             }
-            case 'charName': {
-                // [AJ] 角色改名入口：未起名字时显示“TA”
-                const cur = (window.GroupAJ && GroupAJ.charDisplayName && GroupAJ.charDisplayName() !== 'TA') ? GroupAJ.charDisplayName() : '';
-                const nv = prompt('给 TA 起个名字（留空则显示“TA”）：', cur);
-                if (nv === null) break;
-                if (window.GroupAJ) GroupAJ.setCharName(nv.trim());
-                SysDialog.alert(nv && nv.trim() ? ('角色名字已设为「' + nv.trim() + '」') : '角色名字已清除，未起名字时显示“TA”');
-                try { const el = win.querySelector('[data-act="charName"] .st-val'); if (el) el.textContent = (window.GroupAJ ? GroupAJ.charDisplayName() : 'TA'); } catch(e){}
-                break;
-            }
             case 'pcChange': {
                 // [AO] 改密码走 GroupAO PIN 盘（设置与验证共用一套输入组件，设时输两次确认）
                 if (window.GroupAO) window.GroupAO.pinFlow('change', win);
@@ -5448,6 +5520,17 @@ win.addEventListener('change', (e) => {
             case 'pcTurnOff': {
                 // [AO] 开关走 GroupAO PIN 盘（有密码→验证后清除；无密码→设一个）
                 if (window.GroupAO) window.GroupAO.pinFlow('toggle', win);
+                break;
+            }
+            case 'beauty': {
+                // 主题美化汇总子页：每次打开重新渲染，行上的取值（深色主题/圆体字体/主题名）保持最新
+                let sub = win.querySelector('#st-sub-beauty');
+                if (sub) sub.remove();
+                const tmp = document.createElement('div');
+                tmp.innerHTML = renderBeautySub();
+                sub = tmp.firstElementChild;
+                win.appendChild(sub);
+                requestAnimationFrame(() => sub.classList.add('show'));
                 break;
             }
             case 'motion': {
@@ -5714,7 +5797,7 @@ win.addEventListener('change', (e) => {
             if (k === '__xwl_idb_v1' || k === '__xwl_idb_note') continue; // GROUP-STEP0: 备份块是导出时现算的，localStorage 里的旧值不带出
             if (scope==='part') {
                 if (k.includes('wechat')||k.includes('char')||k.includes('wx_')||k.includes('os_character')||k.includes('persona')||k.includes('prompts')||k.includes('token')||k.includes('voice')||k.includes('vision')||k.includes('asr')||k.includes('minimax')) data[k]=localStorage.getItem(k);
-            } else if (k === 'phone_model_key_v1' || k === 'phone_model_per_feature_v1' || k === 'phone_model_fallback_keys_v1') { /* [AG组] 接模型 key 永不导出（另见 PhoneModel.sanitizeExportData；T 组备份流程对接时同样排除此键）[BF组] 单独配置（含各功能单独 key）同样永不导出 */ }
+            } else if (k === 'phone_model_key_v1' || k === 'phone_model_per_feature_v1' || k === 'phone_model_fallback_keys_v1') { /* 旧接模型 key 与单独配置/备用 key 永不导出；统一配置 global_api_config_v1 的 key 由 PhoneModel.sanitizeExportData 摘掉字段后再导出（地址/模型名保留） */ }
             else if (k === 'phone_lock_pw_hash_v1' || k === 'phone_lock_salt_v1' || k === 'phone_lock_pw_kind_v1' || k === 'phone_lock_pw_v1' || k === 'phone_lock_passcode' || k === 'phone_lock_disabled' || k === 'phone_lock_fail_v1' || k === 'phone_lock_cool_v1' || k === 'phone_lock_attempts_v1' || k === 'phone_lock_last_verified_v1') { /* [AO] 锁屏密码哈希/盐/输错记录永不导出 */ }
             else data[k]=localStorage.getItem(k);
         }
@@ -5823,10 +5906,26 @@ AppManager.register('beautify', (() => {
        { id: 'rain-letters', name: '雨落碎了字里行间', url: 'wallpapers/rain-between-words.svg' }
    ];
 
+   // 壁纸预览背景：优先用用户刚选的自定义图，否则用当前系统壁纸（URL 或 WALLPAPERS），
+   // 最后用一张深色渐变兜底。原来默认是近白渐变，白色锁屏时间字完全看不见。
+   const previewWpBg = () => {
+       if (BStore.customWpUrl) return `url('${BStore.customWpUrl}')`;
+       try {
+           const cur = (typeof SystemStore !== 'undefined' && SystemStore.get) ? (SystemStore.get('wallpaper') || '') : '';
+           if (cur && typeof cur === 'string' && /^(https?:|data:|blob:|\/)/i.test(cur)) return `url('${cur}')`;
+       } catch(e){}
+       try {
+           const prefs = JSON.parse(localStorage.getItem('phone_ui_prefs_v1') || '{}');
+           const wp = WALLPAPERS.find(x => x.id === (prefs.wallpaper || ''));
+           if (wp) return wp.image ? (wp.image + ' center/cover no-repeat') : wp.css;
+       } catch(e){}
+       return 'linear-gradient(160deg,#66779a,#3a4763 55%,#232c44)';
+   };
+
    // 2. 内部高度密封的视图装配输出层
    const renderView = () => `
        <style>
-           .b-sandbox-core { --st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12);
+           .b-sandbox-core { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
                width: 100%; height: 100%;
                background: var(--st-paper,#fffdf8);
                color: var(--st-ink,#1e2748);
@@ -6064,22 +6163,23 @@ AppManager.register('beautify', (() => {
    <div style="padding: 20px 16px;">
        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px;">
            <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-               <div style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${BStore.customWpUrl ? `url('${BStore.customWpUrl}')` : 'linear-gradient(160deg,#ffffff,#f7f3ec)'}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden;">
+               <div id="b-wp-prev-lock" style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${previewWpBg()}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden;">
+                   <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.30), rgba(0,0,0,0.08) 35%, transparent 55%); pointer-events: none;"></div>
                    <div style="position: absolute; top: 35px; width: 100%; text-align: center; color: white;">
-                       <div style="font-size: 11px; font-weight: 500; opacity: 0.9; margin-bottom: 2px;">5月16日 星期六</div>
-                       <div style="font-size: 40px; font-weight: 600; letter-spacing: 1px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,0.2); line-height: 1;">09:41</div>
+                       <div style="font-size: 11px; font-weight: 500; opacity: 0.9; margin-bottom: 2px; text-shadow: 0 1px 6px rgba(0,0,0,0.55);">5月16日 星期六</div>
+                       <div style="font-size: 40px; font-weight: 600; letter-spacing: 1px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-shadow: 0 1px 8px rgba(0,0,0,0.55), 0 0 3px rgba(0,0,0,0.4); line-height: 1;">09:41</div>
                    </div>
                </div>
                <span style="font-size: 13px; color: #3A3A3C; margin-top: 12px; font-weight: 500;">锁定屏幕</span>
            </div>
            <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-               <div style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${BStore.customWpUrl ? `url('${BStore.customWpUrl}')` : 'linear-gradient(160deg,#ffffff,#f7f3ec)'}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; padding: 24px 12px; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: min-content; gap: 8px;">
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
-                   <div style="width:100%; aspect-ratio:1; background:rgba(255,255,255,0.85); border-radius:6px;"></div>
+               <div id="b-wp-prev-home" style="width: 145px; height: 314px; border-radius: 22px / 34px; border: 4px solid var(--st-silver-light,#dce2f1); background:${previewWpBg()}; background-size: cover; background-position: center; position: relative; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; padding: 24px 12px; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: min-content; gap: 8px;">
+                   <div style="width:100%; aspect-ratio:1; background:#34C759; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#007AFF; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#FF9500; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#AF52DE; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#FF2D55; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+                   <div style="width:100%; aspect-ratio:1; background:#5856D6; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
                </div>
                <span style="font-size: 13px; color: #3A3A3C; margin-top: 12px; font-weight: 500;">主屏幕</span>
            </div>
@@ -6100,8 +6200,8 @@ AppManager.register('beautify', (() => {
        </div>
    </div>
 
-   <div id="b-subpage-new-wallpaper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fbf9f4; z-index: 10; display: flex; flex-direction: column; box-sizing: border-box; overflow-y: auto; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);">
-       <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fbf9f4; position: sticky; top: 0; z-index: 11;">
+   <div id="b-subpage-new-wallpaper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 10; display: flex; flex-direction: column; box-sizing: border-box; overflow-y: auto; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);">
+       <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #ffffff; position: sticky; top: 0; z-index: 11;">
            <div style="color: var(--st-ink,#1e2748); font-size: 17px; cursor: pointer; display: flex; align-items: center;" onclick="document.getElementById('b-subpage-new-wallpaper').style.transform='translateX(100%)'">
                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: -4px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
                设置
@@ -6209,8 +6309,8 @@ AppManager.register('beautify', (() => {
                <div class="b-widget-shell">
                    <div class="b-widget-viewport" onclick="window.BeautifyEngine.openWidgetModal('gameboy')" style="background: #FAFAFA;">
                        <svg width="100%" height="100%" viewBox="0 0 100 100" style="position:absolute; top:4px; left:0;">
-                           <path id="b-gb-shell" d="M12 4 L88 4 C94 4 96 6 96 12 L96 82 C96 92 88 96 78 96 L22 96 C12 96 4 92 4 82 L4 12 C4 6 6 4 12 4 Z" fill="${BStore.widgets.gameboy.color}" stroke="#1e2748" stroke-width="1.5"/>
-                           <rect x="15" y="16" width="70" height="46" rx="6" fill="#3A3A3C" stroke="#1e2748" stroke-width="1.5" />
+                           <path id="b-gb-shell" d="M12 4 L88 4 C94 4 96 6 96 12 L96 82 C96 92 88 96 78 96 L22 96 C12 96 4 92 4 82 L4 12 C4 6 6 4 12 4 Z" fill="${BStore.widgets.gameboy.color}" stroke="#171717" stroke-width="1.5"/>
+                           <rect x="15" y="16" width="70" height="46" rx="6" fill="#3A3A3C" stroke="#171717" stroke-width="1.5" />
                        </svg>
                        <div style="position:absolute; top:20.5%; left:22.5%; width:55%; height:37%; border-radius:3px; overflow:hidden; z-index:5; background:#D4D9D2; display:flex; align-items:center; justify-content:center;">
                            <img id="b-preview-thumb-gameboy" src="${BStore.widgets.gameboy.img}" style="width:100%;height:100%;object-fit:cover; opacity:${BStore.widgets.gameboy.opacity/100};" />
@@ -6510,6 +6610,10 @@ AppManager.register('beautify', (() => {
                            if (ta) ta.value = localStorage.getItem('b_bubble_custom_css') || '';
                        } catch(e){}
                    }
+                   // 进入壁纸页时，用当前壁纸重算两张预览图的背景
+                   if (pageId === 'wallpaper') {
+                       try { window.BeautifyEngine.refreshWallpaperPreview(); } catch(e){}
+                   }
                },
                // 返回主页
                goHome: () => {
@@ -6528,6 +6632,17 @@ AppManager.register('beautify', (() => {
                    winDom.querySelectorAll('.b-page-view.b-sub').forEach(p => p.classList.remove('active'));
                    const home = winDom.querySelector('#b-page-home');
                    if (home) home.classList.add('active');
+               },
+
+               // 壁纸预览刷新：回到壁纸页时，用当前壁纸重算两张预览图的背景
+               refreshWallpaperPreview: () => {
+                   try {
+                       const bg = previewWpBg();
+                       ['b-wp-prev-lock', 'b-wp-prev-home'].forEach(id => {
+                           const el = winDom.querySelector('#' + id);
+                           if (el) el.style.background = bg;
+                       });
+                   } catch(e){}
                },
 
                // ── 聊天背景：刷新联系人下拉 + 预览 ──
@@ -8441,7 +8556,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-search-bar-wrap">
                       <div class="wx-search-box">
                           <svg class="wx-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
-                          <input type="text" placeholder="搜索联系人" oninput="WeChatAppEngine.filterContacts(this.value)">
+                          <input type="text" placeholder="搜索" oninput="WeChatAppEngine.filterContacts(this.value)">
                       </div>
                   </div>
                   <div id="wx-contacts-dynamic"></div>
@@ -8644,7 +8759,6 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
 
                   <div class="wx-chat-state-bar" id="wx-chat-state-bar">对方正在输入…</div>
                   <div id="wx-group-notice-bar" style="display:none;font-size:12px;color:#576b95;background:#f5f5f0;padding:6px 12px;line-height:1.5;cursor:pointer;" onclick="window.GroupBR&&window.GroupBR.openGroupProfile()">群公告</div>
-                  <div class="pm-mode-line" id="wx-pm-mode-line" style="font-size:11px;color:#8E8E93;text-align:center;padding:4px 12px 6px;background:#ededed;">模板模式</div>
                   <div class="wx-msg-stream" id="wx-msg-stream-container"></div>
                   
                   <div class="wx-at-panel" id="wx-at-panel"></div>
@@ -9222,7 +9336,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                       <div class="wx-moments-cover" onclick="WeChatAppEngine.uploadMomentsCover()">
                           <div class="wx-moments-avatar-box">
                               <span class="wx-moments-nick" id="wx-moments-wall-nick">我</span>
-                              <div class="wx-avatar-wrapper" style="width:56px;height:56px;border:2px solid #ffffff;cursor:pointer;" id="wx-moments-wall-avatar" onclick="WeChatAppEngine.uploadMomentsAvatar()"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
+                              <div class="wx-avatar-wrapper" style="width:56px;height:56px;border:2px solid #ffffff;cursor:pointer;background:#e2e2e2;" id="wx-moments-wall-avatar" onclick="WeChatAppEngine.uploadMomentsAvatar()"></div>
                           </div>
                       </div>
                       <div class="wx-moments-feed" id="wx-moments-container"></div>
@@ -9237,15 +9351,15 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               
               <div class="wx-subpage-box wx-slide-right" id="wx-view-profile-page">
-                  <div class="wx-header" style="background:#ededed;">
+                  <div class="wx-header" style="background:#ffffff;">
                       <div class="wx-header-left" onclick="NavigationManager.back()">‹</div>
                       <div class="wx-header-title"></div>
                       <div class="wx-header-right" onclick="WeChatAppEngine.openProfileMore()">•••</div>
                   </div>
-                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;">
+                  <div class="wx-scroll-view" style="padding-top:0;background:#f7f7f7;">
                       <!-- 头部：头像 + 昵称 + 微信号 -->
                       <div class="wx-prof-top">
-                          <div class="wx-prof-avatar-big" id="wx-prof-avatar" style="display:flex;align-items:center;justify-content:center;background:#bbb;"><svg viewBox="0 0 24 24" width="60%" height="60%" fill="#fff" style="opacity:0.9"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg></div>
+                          <div class="wx-prof-avatar-big" id="wx-prof-avatar" style="background:#e2e2e2;"></div>
                           <div class="wx-prof-namebox">
                               <div class="wx-prof-name-big" id="wx-prof-name">夏油杰</div>
                               <div class="wx-prof-id">微信号: <span id="wx-prof-wxid">geto_suguru</span></div>
@@ -9324,7 +9438,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-rp-curved-bg">
                       <div style="position:absolute;top:15px;left:15px;font-size:15px;color:#ffffff;cursor:pointer;" onclick="NavigationManager.back()">关闭</div>
                       <div style="font-size:16px;font-weight:500;color:#ffffff;margin-top:15px;">明细</div>
-                      <div class="wx-rp-result-avatar" style="display:flex;align-items:center;justify-content:center;background:#bbb;"><svg viewBox="0 0 24 24" width="60%" height="60%" fill="#fff" style="opacity:0.9"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg></div>
+                      <div class="wx-rp-result-avatar" style="background:#e2e2e2;"></div>
                   </div>
                   <div style="margin-top:45px;font-size:14px;color:#000000;font-weight:500;" id="wx-rp-detail-greeting">大吉大利</div>
                   <div style="margin-top:15px;color:#d93b26;display:flex;align-items:baseline;gap:4px;">
@@ -9337,7 +9451,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;position:relative;z-index:1;">
                       <div style="position:relative;width:86px;height:86px;">
                           <div class="wx-call-avatar-ring"></div>
-                          <div class="wx-avatar-wrapper" style="width:86px;height:86px;font-size:44px;border-radius:18px;background:white;box-shadow:0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10);position:relative;z-index:1;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
+                          <div class="wx-avatar-wrapper" style="width:86px;height:86px;font-size:44px;border-radius:18px;background:#e2e2e2;box-shadow:0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10);position:relative;z-index:1;"></div>
                       </div>
                       <div style="font-size:20px;font-weight:500;color:#2e3d4f;letter-spacing:.8px;">模拟通话 · 对方是 AI 角色</div>
                       <div id="wx-call-status" style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:300;color:#72b8a0;">呼叫中<span class="wx-call-dot-loader"><span></span><span></span><span></span></span></div>
@@ -9375,7 +9489,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <div class="wechat-modal-clean" id="wechat-modal-innervoice" onclick="NavigationManager.back()">
                   <div class="wechat-ticket-box" onclick="event.stopPropagation()">
                       <div style="height:90px;background-image:url('https://img.imgos.cn/cdn/20260505/dbcae39ea9cc856722ad97ab83e5e523.png');background-size:cover;background-position:center;position:relative;">
-                          <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.1m6.8 0h.1M8.5 15c1.1 1.5 2.3 2.2 3.5 2.2s2.4-.7 3.5-2.2"/></svg></div>
+                          <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;background:#e2e2e2;"></div>
                       </div>
                       <div style="padding:30px 15px 15px;text-align:left;font-size:13px;line-height:1.6;">
                           <div style="font-weight:bold;color:#07c160;" id="innervoice-mood">心绪：满载温柔控制</div>
@@ -11544,7 +11658,7 @@ exitFullscreen: (e) => {
                       WeChatAppEngine.renderUpdates();
                       setTimeout(() => { const b = document.getElementById('wx-msg-stream-container'); if (b) b.scrollTop = b.scrollHeight; }, 20);
                   } else {
-                      // ★ [AG组] 接模型优先：用户在「设置 → 接模型」配好并打开微信聊天时，用 PhoneModel 配置走同一条 executeRealAIReply / callRealAI 路径；否则走原有 GlobalAPI / 微信 apiConfigs
+                      // ★ [AG组] 模型优先：用户在「设置 → API 设置」配好并打开微信聊天时，用 PhoneModel 配置走同一条 executeRealAIReply / callRealAI 路径；否则走原有 GlobalAPI / 微信 apiConfigs
  // [S组] 行为引擎决策表：先决定动作再决定说什么；reply 才走原有回复流程
  var _sd = null;
  try { _sd = window.CharSubject? window.CharSubject.decideForMessage(userText, { charName: curSess.name}): null;} catch(e){}
@@ -17579,7 +17693,7 @@ const petStep = (st, dtMs, o) => {
 // 皮肤 overlay 说明：M 组重建 innerHTML 会清掉 overlay，本组在 tick 里补回；
 // 'cutout' 皮肤优先用 M 组已渲染的抠图 img，没有才用本组上传的图 overlay。
 const GW_CSS = '.gw-hidden{display:none!important}' +
-'#st-sub-w-desktop{--st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12)}' +
+'#st-sub-w-desktop{--st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12)}' +
 '#gw-desk{position:absolute;right:6px;bottom:106px;width:132px;z-index:4;pointer-events:auto}' + /* GROUP-FIX2: 书桌 180 -> 132px，底边抬到 dock 上方 */
 '#gw-desk .gw-desk-top{height:8px;background:#e8e0d5;border:1px solid #d8cfc2;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.12)}' +
 '#gw-desk .gw-monitor{width:60px;margin:0 auto 2px;text-align:center}' + /* GROUP-FIX2: 状态显示器随书桌缩小 */
@@ -18367,7 +18481,7 @@ const openDesktopSettings = (win) => {
     let sub = host.querySelector('#st-sub-w-desktop');
     if (!sub) {
       const tmp = document.createElement('div');
-      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌面与外观</div></div><div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
+      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop"><div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">桌面与外观</div></div><div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
       sub = tmp.firstElementChild;
       host.appendChild(sub);
       sub.addEventListener('click', (e) => {
@@ -23097,7 +23211,7 @@ AppManager.register('forum', (() => {
         return `
             <div class="fm-d-bar">
                 <div class="fm-d-back" data-detail-back="1">
-                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" fill="none" stroke="#171717" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     返回
                 </div>
                 <div class="fm-d-bartitle">帖子详情</div>
@@ -28362,7 +28476,7 @@ AppManager.register('TarotDivine', (() => {
  //   先征求同意、本机运行；提问→牌阵→抽牌→整组揭示→按需解读；陪伴方接回原文，不另抽一组牌、不自行补造解读；
  //   没有模型也能抽牌，但没有 AI 解读（老实标注）；刷新恢复已保存的牌、正逆位、揭示与原文状态，不重抽、不重请求模型。
  //   本文件是单文件手机，装不下仓库的 Node 服务/本地回环引擎：行为用自己的代码在本地实现；
- //   模型走手机现有的 PhoneModel 设置（设置 → 接模型），不另起一套，不把 key 写进任何新代码。
+ //   模型走手机现有的 PhoneModel 设置（设置 → API 设置），不另起一套，不把 key 写进任何新代码。
  const TAROT_CONSENT_KEY = 'tarot_consent_v1'; // 同意记录 {agreed:true, at}，只存本机
  const TAROT_SESSION_KEY = 'tarot_session_v1'; // 当前局完整状态（tarot_history_v1 只存已归档记录，不改它的结构）
  let _tarotSessionSeq = 0; // 会话序号计数器（新一局 +1）
@@ -29429,7 +29543,7 @@ html += '<div class="tarot-ax-reading-label">上次的解读请求被打断了</
 html += '<div class="tarot-ax-reading-label">完整解读 · ' + escAx(state.readingLabel || '本地牌义') + '</div>';
 if (state.readingText) html += '<p class="tarot-ax-reading-text">' + escAx(state.readingText) + '</p>';
 if (state.readingAiText) html += '<p class="tarot-ax-reading-text">\n' + escAx(state.readingAiText) + '</p>';
-if (state.readingState === 'failed') html += '<p class="tarot-ax-reading-note">模型调用失败，已用本地牌义；可以检查「设置 → 接模型」后再点「解读」重试。</p>';
+if (state.readingState === 'failed') html += '<p class="tarot-ax-reading-note">模型调用失败，已用本地牌义；可以检查「设置 → API 设置」后再点「解读」重试。</p>';
 }
 html += '</div>';
 } else if (state.revealedCount >= state.drawnCards.length && state.drawnCards.length) {
@@ -30289,7 +30403,7 @@ AppManager.register('nobeidanci', (() => {
                            <div style="font-size:11px;color:#46536f;margin-top:4px;font-weight:bold;">内置 5 词 · 可导入扩充</div>
                        </div>
                        <div style="width:46px;height:46px;border-radius:14px;background:#dce2f1;display:flex;align-items:center;justify-content:center;border:1px solid rgba(30,39,72,0.16);">
-                           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1e2748" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H12v18H6.5A2.5 2.5 0 0 1 4 19.5Z"></path>
                                <path d="M20 19.5v-15A2.5 2.5 0 0 0 17.5 2H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5Z"></path>
                            </svg>
@@ -31167,16 +31281,76 @@ const GlobalAPI = (() => {
 
     // 全局 API 配置（持久化，全局唯一）
     const GKEY = 'global_api_config_v1';
+    const DEFAULT_FEATURES = { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true };
+    const FEATURE_NAMES = { chat: '微信聊天', scriptDm: '剧本 DM', diary: '日记生成', monologue: '此刻内心独白', charGen: '角色/档案生成', wenYou: '文游 DM', novelVn: '视觉小说整理', proactive: '主动行为文案' };
     let config = {
         baseUrl: '', key: '', model: '',
-        temperature: 0.9, maxTokens: '', memoryCount: 20
+        temperature: 0.9, maxTokens: '', memoryCount: 20,
+        enabled: true, features: Object.assign({}, DEFAULT_FEATURES)
     };
     const load = () => {
-        try { const r = localStorage.getItem(GKEY); if (r) Object.assign(config, JSON.parse(r)); }
-        catch(e){}
+        try {
+            const r = localStorage.getItem(GKEY);
+            if (r) {
+                const parsed = JSON.parse(r);
+                if (parsed && typeof parsed === 'object') {
+                    const pf = parsed.features;
+                    Object.assign(config, parsed);
+                    config.features = (pf && typeof pf === 'object') ? Object.assign({}, DEFAULT_FEATURES, pf) : Object.assign({}, DEFAULT_FEATURES);
+                }
+            }
+        } catch (e) {}
+        if (typeof config.enabled !== 'boolean') config.enabled = true;
+        if (!config.features || typeof config.features !== 'object') config.features = Object.assign({}, DEFAULT_FEATURES);
     };
-    const save = () => { try { localStorage.setItem(GKEY, JSON.stringify(config)); } catch(e){} };
+    const save = () => { try { localStorage.setItem(GKEY, JSON.stringify(config)); } catch (e) {} };
+    // 供 PhoneModel 等模块改配置：合并后保存并同步到微信 apiConfigs
+    const setConfig = (patch) => {
+        try {
+            if (patch && typeof patch === 'object') {
+                const rest = Object.assign({}, patch);
+                // features 只合并不替换：传了部分开关就并进现有 features，没传/传 undefined 就不动
+                if (rest.features && typeof rest.features === 'object') config.features = Object.assign({}, DEFAULT_FEATURES, config.features, rest.features);
+                delete rest.features;
+                Object.assign(config, rest);
+            }
+        } catch (e) {}
+        save();
+        try { syncToWeChat(); } catch (e) {}
+        return config;
+    };
+    // 一次性迁移：旧「接模型」配置（phone_model_cfg_v1 / phone_model_key_v1）
+    // 只在全局配置还没配好时迁一次；迁完（无论迁没迁到值）都记 flag，之后不再迁，
+    // 所以用户在 API 设置里清空配置也不会被旧值“复活”。旧键留着不删、不再写入。
+    const MIGRATED_FLAG = 'phone_model_migrated_to_global_v1';
+    const migrateLegacyModelConfig = () => {
+        try {
+            if (localStorage.getItem(MIGRATED_FLAG)) return;
+            let oldCfg = null, oldKey = '';
+            try { const raw = localStorage.getItem('phone_model_cfg_v1'); if (raw) oldCfg = JSON.parse(raw) || null; } catch (e) {}
+            try { oldKey = localStorage.getItem('phone_model_key_v1') || ''; } catch (e) {}
+            const globalEmpty = !config.baseUrl && !config.model && !config.key;
+            let moved = false;
+            if (oldCfg && typeof oldCfg === 'object') {
+                if (!config.baseUrl && typeof oldCfg.baseUrl === 'string' && oldCfg.baseUrl.trim()) { config.baseUrl = oldCfg.baseUrl.trim(); moved = true; }
+                if (!config.model && typeof oldCfg.model === 'string' && oldCfg.model.trim()) { config.model = oldCfg.model.trim(); moved = true; }
+                if (globalEmpty) {
+                    if (typeof oldCfg.temperature === 'number') { config.temperature = Math.max(0, Math.min(2, oldCfg.temperature)); moved = true; }
+                    if (oldCfg.maxTokens !== undefined && oldCfg.maxTokens !== '' && oldCfg.maxTokens != null) { config.maxTokens = String(oldCfg.maxTokens); moved = true; }
+                    if (typeof oldCfg.enabled === 'boolean') { config.enabled = oldCfg.enabled; moved = true; }
+                    if (oldCfg.features && typeof oldCfg.features === 'object') {
+                        Object.keys(DEFAULT_FEATURES).forEach(function (f) { if (typeof oldCfg.features[f] === 'boolean') config.features[f] = oldCfg.features[f]; });
+                        moved = true;
+                    }
+                }
+            }
+            if (!config.key && oldKey) { config.key = oldKey; moved = true; }
+            if (moved) save();
+            try { localStorage.setItem(MIGRATED_FLAG, '1'); } catch (e) {}
+        } catch (e) {}
+    };
     load();
+    migrateLegacyModelConfig();
 
     // 预设管理（持久化）
     const PKEY = 'global_api_presets_v1';
@@ -31184,6 +31358,9 @@ const GlobalAPI = (() => {
     const pLoad = () => { try { const r=localStorage.getItem(PKEY); if(r) presets=JSON.parse(r); } catch(e){} };
     const pSave = () => { try { localStorage.setItem(PKEY, JSON.stringify(presets)); } catch(e){} };
     pLoad();
+
+    // 预设名/模型名是用户手输的，插进 HTML 前转义
+    const escHtml = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     // 热门模型列表（拉取失败时的兜底 / 也用于快速选择）
     const POPULAR_MODELS = [
@@ -31205,7 +31382,7 @@ const GlobalAPI = (() => {
         s.id = 'global-api-css';
         s.textContent = `
         /* ── GlobalAPI 全屏子页面 ── */
-        .ga-page { --st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12);
+        .ga-page { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
             position:fixed; inset:0; z-index:95000;
             background:var(--st-paper,#fffdf8);
             transform:translateX(100%);
@@ -31322,6 +31499,13 @@ const GlobalAPI = (() => {
             font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); text-align:center;
             margin-top:16px; line-height:1.5;
         }
+        /* ── 模型选择器（两级：供应商 → 型号；原生 #ga-model 仍是唯一值源）── */
+        .ga-select-wrap .wx-model-picker-field { flex:1; display:flex; min-width:0; }
+        .ga-select-wrap .wx-model-picker-field > select { position:absolute !important; width:1px !important; height:1px !important; overflow:hidden !important; clip:rect(0 0 0 0) !important; border:0 !important; }
+        .ga-page .wx-model-picker-trigger { flex:1; display:flex; align-items:center; justify-content:flex-end; gap:4px; min-width:0; background:transparent; border:none; padding:0; font-size:17px; color:var(--st-ink,#171717); font-family:inherit; cursor:pointer; text-align:right; }
+        .ga-page .wx-model-picker-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ga-page .wx-model-picker-chevron { color:var(--st-ink-40,rgba(23,23,23,.4)); flex-shrink:0; }
+        .ga-select-wrap:has(.wx-model-picker-field)::after { display:none; }
         @media (prefers-reduced-motion: reduce) { .ga-page { transition:none; } }
         `;
         document.head.appendChild(s);
@@ -31343,21 +31527,14 @@ const GlobalAPI = (() => {
 
             <div id="ga-status"></div>
 
-            <!-- 预设 -->
+            <!-- 预设：点一下名字就套用，名字就是保存时起的 -->
             <div class="ga-section-title">预设配置</div>
             <div class="ga-group">
-                <div class="ga-row">
-                    <span class="ga-row-label">选择预设</span>
-                    <div class="ga-select-wrap">
-                        <select class="ga-select" id="ga-preset">
-                            <option value="">-- 选择预设 --</option>
-                        </select>
-                    </div>
-                </div>
                 <div class="ga-row">
                     <span class="ga-row-label">保存当前为预设</span>
                     <button class="ga-inline-btn" id="ga-save-preset">保存预设</button>
                 </div>
+                <div id="ga-preset-list"></div>
             </div>
 
             <!-- 连接配置 -->
@@ -31381,6 +31558,46 @@ const GlobalAPI = (() => {
                     <button class="ga-inline-btn" id="ga-fetch">拉取</button>
                 </div>
             </div>
+
+            <!-- 模型连接：全机唯一的模型连接入口（原「接模型」已并入本页） -->
+            <div class="ga-section-title">模型连接</div>
+            <div class="ga-group">
+                <div class="ga-row">
+                    <div class="ga-row-left">
+                        <span class="ga-row-label">模型总开关</span>
+                        <span class="ga-row-label sub">关掉后全机回到模板模式</span>
+                    </div>
+                    <input type="checkbox" id="ga-pm-enabled" style="width:22px;height:22px;accent-color:#000000;">
+                </div>
+                <div class="ga-row">
+                    <div class="ga-row-left">
+                        <span class="ga-row-label">当前状态</span>
+                        <span class="ga-row-label sub" id="ga-pm-status">还没有调用记录</span>
+                    </div>
+                </div>
+                <div class="ga-row">
+                    <span class="ga-row-label">测试连接</span>
+                    <button class="ga-inline-btn" id="ga-pm-test">开始测试</button>
+                </div>
+                <div class="ga-row">
+                    <span class="ga-row-label">清除 key</span>
+                    <button class="ga-inline-btn" id="ga-pm-clear-key" style="color:#7c2d2d;">清除</button>
+                </div>
+            </div>
+
+            <!-- 按功能开关 -->
+            <div class="ga-section-title">按功能开关</div>
+            <div class="ga-group">
+                <div class="ga-row"><span class="ga-row-label">微信聊天</span><input type="checkbox" id="ga-pm-feat-chat" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">剧本 DM</span><input type="checkbox" id="ga-pm-feat-scriptDm" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">日记生成</span><input type="checkbox" id="ga-pm-feat-diary" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">此刻内心独白</span><input type="checkbox" id="ga-pm-feat-monologue" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">角色/档案生成</span><input type="checkbox" id="ga-pm-feat-charGen" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">文游 DM</span><input type="checkbox" id="ga-pm-feat-wenYou" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">视觉小说整理</span><input type="checkbox" id="ga-pm-feat-novelVn" style="width:22px;height:22px;accent-color:#000000;"></div>
+                <div class="ga-row"><span class="ga-row-label">主动行为文案</span><input type="checkbox" id="ga-pm-feat-proactive" style="width:22px;height:22px;accent-color:#000000;"></div>
+            </div>
+            <div class="ga-footer-hint">key 只存本机，不进备份与导出；小说批注仍走它自己的设置，不用这里的 key。</div>
 
             <!-- 高级参数 -->
             <div class="ga-section-title">高级参数</div>
@@ -31409,7 +31626,7 @@ const GlobalAPI = (() => {
             </div>
 
             <button class="ga-save-btn" id="ga-save-bottom">保存全部设置</button>
-            <div class="ga-footer-hint">此处为全局 API 设置，保存后微信聊天、此刻等全部功能将使用此配置。</div>
+            <div class="ga-footer-hint">此处为全局 API 设置，也是全机唯一的模型连接入口；保存后微信聊天、此刻等全部功能将使用此配置。</div>
 
         </div>`;
     };
@@ -31437,12 +31654,31 @@ const GlobalAPI = (() => {
         g('ga-memory').value = config.memoryCount ?? 20;
         // 模型下拉：当前值 + 热门模型
         refreshModelSelect(config.model);
-        // 预设下拉
-        const ps = g('ga-preset');
-        ps.innerHTML = '<option value="">-- 选择预设 --</option>' +
-            presets.map((p,i) => `<option value="${i}">${p.name}</option>`).join('');
+        // 预设列表（点选套用）
+        renderPresetList();
         g('ga-status').className = '';
         g('ga-status').textContent = '';
+        // 模型连接分区：总开关与按功能开关（与 PhoneModel 共用同一份配置）
+        try {
+            if (window.PhoneModel) {
+                const pmc = window.PhoneModel.loadCfg();
+                const pe = g('ga-pm-enabled'); if (pe) pe.checked = !!pmc.enabled;
+                (window.PhoneModel.FEATURES || []).forEach(function (f) { const fe = document.getElementById('ga-pm-feat-' + f); if (fe) fe.checked = !!(pmc.features && pmc.features[f]); });
+            }
+        } catch (e) {}
+        refreshPmStatus();
+    };
+
+    // ── 模型连接分区状态行：总开关状态 + 最近一次调用（复用 PhoneModel）──
+    const refreshPmStatus = () => {
+        const el = document.getElementById('ga-pm-status');
+        if (!el) return;
+        try {
+            if (!window.PhoneModel) { el.textContent = '模型连接未加载'; return; }
+            const label = window.PhoneModel.overallLabel ? window.PhoneModel.overallLabel() : '';
+            const last = window.PhoneModel.lastCallInfo ? window.PhoneModel.lastCallInfo() : null;
+            el.textContent = label + (last ? ' · 最近一次调用：' + new Date(last.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + last.detail : ' · 还没有调用记录');
+        } catch (e) {}
     };
 
     const refreshModelSelect = (selected) => {
@@ -31476,7 +31712,84 @@ const GlobalAPI = (() => {
         save();
         syncToWeChat();
         showStatus('ok', _any ? '已保存，全局生效' : '已清空，回到模板模式');
-        setTimeout(() => modalEl.classList.remove('show'), 700);
+        if (!_any) { setTimeout(() => modalEl.classList.remove('show'), 700); return; }
+        // 保存成功后问一句要不要存为预设：起个名字，下次点一下就能直接用
+        setTimeout(() => {
+            let want = false;
+            try { want = confirm('已保存。要把这次的配置存为预设吗？下次点一下名字就能直接用。'); } catch (e) {}
+            if (want) savePresetFromForm();
+            setTimeout(() => modalEl.classList.remove('show'), 700);
+        }, 700);
+    };
+
+    // ── 预设列表：点一行套用，行内「删除」删掉该预设 ──
+    const renderPresetList = () => {
+        const list = document.getElementById('ga-preset-list');
+        if (!list) return;
+        if (!presets.length) {
+            list.innerHTML = '<div class="ga-row"><span class="ga-row-label sub" style="font-size:15px;">还没有预设，保存后点一下名字就能直接用。</span></div>';
+            return;
+        }
+        list.innerHTML = presets.map((pr, i) => {
+            const sub = (pr.model || '未选模型') + (pr.baseUrl ? ' · ' + pr.baseUrl.replace(/^https?:\/\//, '').split('/')[0] : '');
+            return '<div class="ga-row" data-preset-idx="' + i + '" style="cursor:pointer;">'
+                + '<div class="ga-row-left"><span class="ga-row-label">' + escHtml(pr.name) + '</span>'
+                + '<span class="ga-row-label sub">' + escHtml(sub) + '</span></div>'
+                + '<button class="ga-inline-btn" data-preset-del="' + i + '" style="color:#b3261e;">删除</button></div>';
+        }).join('');
+    };
+
+    // 从当前表单读一份预设（名字由调用方给；老预设没有的新字段按表单现状补）
+    const readFormPreset = (name) => {
+        const g = (id) => document.getElementById(id);
+        const feat = {};
+        try { (window.PhoneModel && window.PhoneModel.FEATURES ? window.PhoneModel.FEATURES : []).forEach(function (f) { const fe = document.getElementById('ga-pm-feat-' + f); feat[f] = !!(fe && fe.checked); }); } catch (e) {}
+        return {
+            name: name,
+            baseUrl: g('ga-baseurl').value.trim(),
+            key: g('ga-key').value.trim(),
+            model: g('ga-model').value.trim(),
+            temperature: g('ga-temp').value.trim() === '' ? 0.9 : parseFloat(g('ga-temp').value.trim()),
+            maxTokens: g('ga-maxtok').value.trim(),
+            memoryCount: g('ga-memory').value.trim() === '' ? 20 : parseInt(g('ga-memory').value.trim(), 10),
+            enabled: !!(g('ga-pm-enabled') && g('ga-pm-enabled').checked),
+            features: feat
+        };
+    };
+
+    // 保存当前表单为具名预设（复用同一份逻辑，保存按钮和保存后询问都走这里）
+    const savePresetFromForm = () => {
+        const name = prompt('为当前配置起个预设名：', 'API预设' + (presets.length + 1));
+        if (!name) return false;
+        presets.push(readFormPreset(name.trim()));
+        pSave();
+        renderPresetList();
+        showStatus('ok', '预设已保存');
+        return true;
+    };
+
+    // 套用预设：填地址/key/模型/温度/长度/记忆条数；总开关与按功能开关走现有 change 处理立即落盘。
+    // 老预设没有的字段不动；key 被导出剥离过（空）时不清空现有的 key，留给用户自己填。
+    const applyPreset = (idx) => {
+        const pr = presets[idx];
+        if (!pr) return;
+        const g = (id) => document.getElementById(id);
+        if (pr.baseUrl) g('ga-baseurl').value = pr.baseUrl;
+        if (pr.key) g('ga-key').value = pr.key;
+        if (typeof pr.temperature === 'number' && !isNaN(pr.temperature)) g('ga-temp').value = pr.temperature;
+        if (pr.maxTokens !== undefined && pr.maxTokens !== null && pr.maxTokens !== '') g('ga-maxtok').value = pr.maxTokens;
+        if (typeof pr.memoryCount === 'number' && pr.memoryCount > 0) g('ga-memory').value = pr.memoryCount;
+        if (pr.model) refreshModelSelect(pr.model);
+        try {
+            const pe = g('ga-pm-enabled');
+            if (pe && typeof pr.enabled === 'boolean') { pe.checked = pr.enabled; pe.dispatchEvent(new Event('change')); }
+            if (pr.features && window.PhoneModel && window.PhoneModel.FEATURES) window.PhoneModel.FEATURES.forEach(function (f) {
+                const fe = document.getElementById('ga-pm-feat-' + f);
+                if (fe && typeof pr.features[f] === 'boolean') { fe.checked = pr.features[f]; fe.dispatchEvent(new Event('change')); }
+            });
+        } catch (e) {}
+        refreshPmStatus();
+        showStatus('ok', '已套用预设「' + pr.name + '」，点保存后全局生效');
     };
 
     // ── 事件绑定 ──
@@ -31516,31 +31829,42 @@ const GlobalAPI = (() => {
                     showStatus('err', '拉取失败('+err.message+')，已列出热门模型供选择');
                 });
         };
-        // 保存预设
-        g('ga-save-preset').onclick = () => {
-            const name = prompt('为当前配置起个预设名：', 'API预设' + (presets.length+1));
-            if (!name) return;
-            presets.push({
-                name: name.trim(),
-                baseUrl: g('ga-baseurl').value.trim(),
-                key: g('ga-key').value.trim(),
-                model: g('ga-model').value.trim()
+        // 模型连接：总开关 / 按功能开关（立即保存，与 PhoneModel 共用配置）
+        try {
+            const _pe = g('ga-pm-enabled');
+            if (_pe) _pe.onchange = function () { try { if (window.PhoneModel) window.PhoneModel.setEnabled(!!_pe.checked); } catch (e) {} refreshPmStatus(); };
+            if (window.PhoneModel && window.PhoneModel.FEATURES) window.PhoneModel.FEATURES.forEach(function (f) {
+                const _fe = document.getElementById('ga-pm-feat-' + f);
+                if (_fe) _fe.onchange = function () { try { window.PhoneModel.setFeature(f, !!_fe.checked); } catch (e) {} refreshPmStatus(); };
             });
-            pSave();
-            fillForm();
-            showStatus('ok', '预设已保存');
-        };
-        // 选择预设
-        g('ga-preset').onchange = (e) => {
-            const idx = e.target.value;
-            if (idx === '') return;
-            const p = presets[parseInt(idx)];
-            if (p) {
-                g('ga-baseurl').value = p.baseUrl || '';
-                g('ga-key').value = p.key || '';
-                refreshModelSelect(p.model);
+        } catch (e) {}
+        // 模型连接：测试连接（用当前表单里的地址/模型/key，不用已保存值）
+        const _pt = g('ga-pm-test');
+        if (_pt) _pt.onclick = function () { try { if (window.PhoneModel) window.PhoneModel.testFromForm(); } catch (e) {} refreshPmStatus(); };
+        // 模型连接：清除 key
+        const _pc = g('ga-pm-clear-key');
+        if (_pc) _pc.onclick = function () { try { if (window.PhoneModel) window.PhoneModel.clearKeyFromForm(); } catch (e) {} const _k = g('ga-key'); if (_k) _k.value = ''; refreshPmStatus(); };
+        // 保存预设（起名后进列表）
+        g('ga-save-preset').onclick = () => { savePresetFromForm(); };
+        // 预设列表：点一行套用，行内「删除」删掉该预设
+        const _pl = g('ga-preset-list');
+        if (_pl) _pl.addEventListener('click', (e) => {
+            const del = e.target.closest('[data-preset-del]');
+            if (del) {
+                e.stopPropagation();
+                const idx = parseInt(del.getAttribute('data-preset-del'), 10);
+                const pr = presets[idx];
+                if (!pr) return;
+                if (!confirm('确定删除预设「' + pr.name + '」吗？')) return;
+                presets.splice(idx, 1);
+                pSave();
+                renderPresetList();
+                showStatus('ok', '预设已删除');
+                return;
             }
-        };
+            const row = e.target.closest('[data-preset-idx]');
+            if (row) applyPreset(parseInt(row.getAttribute('data-preset-idx'), 10));
+        });
     };
 
     const showStatus = (type, msg) => {
@@ -31581,36 +31905,38 @@ const GlobalAPI = (() => {
         getConfig: () => config,
         // 供其它模块直接取用
         isConfigured: () => !!(config.baseUrl && config.key),
-        syncToWeChat
+        syncToWeChat,
+        setConfig: setConfig,
+        saveConfig: () => save()
     };
 })();
 window.GlobalAPI = GlobalAPI;
 // ══════════════════════════════════════════════════════════════════════
-// GROUP-AG-MODEL · 接模型（设置 → 接模型）
+// GROUP-AG-MODEL · 模型连接（已并进「设置 → API 设置」，不再单开子页）
 // 用户自己接 OpenAI 兼容模型：OpenAI / DeepSeek / OpenRouter / 本地 llama.cpp /
 // Ollama 的 OpenAI 兼容服务都走这一个口子。只复用已有的 /chat/completions 调用
 // 约定（WeChatAppEngine.callRealAI 的 URL 规范化 + Bearer 规则），不另起一套。
-// 新键只有两个：phone_model_cfg_v1（配置，不含 key）与 phone_model_key_v1（只存 key 本身）。
-// [GROUP-BF] 再加一个：phone_model_per_feature_v1（按功能分的单独配置，含各功能单独 key；只存本机，永不导出）。
+// 规范配置只有 global_api_config_v1（GlobalAPI 的键，含 key）；旧键 phone_model_cfg_v1 /
+// phone_model_key_v1 只作一次性迁移来源（见 GlobalAPI 的 migrateLegacyModelConfig），迁完不再读写。按功能单独配置与备用 key 已删。
 // 安全红线（T 组备份流程对接时同样遵守；T 组尚未合入，当前导出路径 doExport 已在本补丁里处理）：
 //   · key 只存 localStorage，永不离开手机；只在 fetch 到用户自己填的 baseUrl 时带
 //     Authorization: Bearer <key>，其他任何请求都不带；
-//   · 备份/导出一律排除 phone_model_key_v1（doExport 里经 sanitizeExportData 跳过此键，
-//     并写明“key 未导出，需重填”）；恢复备份后 key 需用户在「设置 → 接模型」里重填；
+//   · 备份/导出一律排除 key：sanitizeExportData 会先把 global_api_config_v1 里的 key 字段
+//     摘掉再导出，并写明“key 未导出，需重填”；恢复备份后 key 需用户在「设置 → API 设置」里重填；
 //   · 不把 key 写进任何日志、错误提示、备份文件；错误只报状态码/分类（网络错误 / 401 未授权 /
 //     404 未找到），绝不贴响应体原文；本模块没有任何 console 输出；
 //   · 小说批注继续走它自己的 NovelStore 配置（novel_api_key / novel_base_url），不用这里的
-//     key；微信原有的 GlobalAPI（global_api_config_v1）与微信内 apiConfigs 也原样保留——
-//     PhoneModel 配好并打开时优先于它们，未配 / 关闭时行为与原来完全一致。
+//     key；微信内 apiConfigs 原样保留——PhoneModel 配好并打开时优先于它们，未配 / 关闭时
+//     行为与原来完全一致。
 // S 组提示词检查器尚未合入：本模块的 lastCall()（最近一次调用状态）供其读取，在检查器里
-//   显示当前模式与模型名；未合入前，「接模型」页内直接显示最近一次调用状态。
+//   显示当前模式与模型名；未合入前，API 设置页的「模型连接」分区直接显示最近一次调用状态。
 // 不连真实账号：除用户自己填的 endpoint 外不连任何服务；不复制任何项目代码。
 // 费用与归属：费用按用户选的供应商账单走，手机不代付；key 是用户自己的，随时可换可清
 //   （见设置页顶部文案）。
 // ══════════════════════════════════════════════════════════════════════
 const PhoneModel = (() => {
-    const CFG_KEY = 'phone_model_cfg_v1';
-    const KEY_KEY = 'phone_model_key_v1';
+    const CFG_KEY = 'global_api_config_v1'; // 唯一规范配置键（GlobalAPI 的键）
+    const KEY_KEY = 'phone_model_key_v1'; // 旧 key 键：只作迁移来源与导出排除，不再写入
     const FEATURES = ['chat', 'scriptDm', 'diary', 'monologue', 'charGen', 'wenYou', 'novelVn', 'proactive'];
     const FEATURE_NAMES = { chat: '微信聊天', scriptDm: '剧本 DM', diary: '日记生成', monologue: '此刻内心独白', charGen: '角色/档案生成', wenYou: '文游 DM', novelVn: '视觉小说整理', proactive: '主动行为文案' };
     const DEFAULTS = { baseUrl: '', model: '', temperature: 0.9, maxTokens: 500, enabled: true, features: { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true } };
@@ -31624,41 +31950,64 @@ const PhoneModel = (() => {
     const clampTemp = (v) => { const n = parseFloat(v); if (isNaN(n)) return 0.9; return Math.max(0, Math.min(2, n)); };
     const clampTokens = (v) => { const n = parseInt(v, 10); if (isNaN(n) || n <= 0) return 500; return n; };
 
-    // 配置每次都从 localStorage 现读（不缓存），保证设置页 / 各功能读到同一份
-    const loadCfg = () => {
-        const d = { baseUrl: '', model: '', temperature: 0.9, maxTokens: 500, enabled: true, features: { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true } };
+    // 统一配置：唯一规范是 GlobalAPI 的 global_api_config_v1（地址/key/模型/温度/
+    // 最大 token/总开关/按功能开关都在里面）。旧键 phone_model_cfg_v1 与
+    // phone_model_key_v1 只在 GlobalAPI 加载时做一次性迁移，之后不再读写。
+    const readGlobalRaw = () => {
         try {
-            const raw = localStorage.getItem(CFG_KEY);
-            if (raw) {
-                const c = JSON.parse(raw) || {};
-                if (typeof c.baseUrl === 'string') d.baseUrl = c.baseUrl.trim();
-                if (typeof c.model === 'string') d.model = c.model.trim();
-                if (c.temperature !== undefined) d.temperature = clampTemp(c.temperature);
-                if (c.maxTokens !== undefined) d.maxTokens = clampTokens(c.maxTokens);
-                if (typeof c.enabled === 'boolean') d.enabled = c.enabled;
-                if (c.features) FEATURES.forEach((f) => { if (typeof c.features[f] === 'boolean') d.features[f] = c.features[f]; });
-            }
+            const raw = localStorage.getItem('global_api_config_v1');
+            if (raw) { const o = JSON.parse(raw) || {}; if (o && typeof o === 'object') return o; }
         } catch (e) {}
+        return null;
+    };
+    const loadCfg = () => {
+        const d = { baseUrl: '', model: '', temperature: 0.9, maxTokens: '', enabled: true, features: { chat: true, scriptDm: true, diary: true, monologue: true, charGen: true, wenYou: true, novelVn: true, proactive: true } };
+        let c = null;
+        try { if (window.GlobalAPI && window.GlobalAPI.getConfig) c = window.GlobalAPI.getConfig(); } catch (e) {}
+        if (!c || typeof c !== 'object') c = readGlobalRaw();
+        if (!c) return d;
+        if (typeof c.baseUrl === 'string') d.baseUrl = c.baseUrl.trim();
+        if (typeof c.model === 'string') d.model = c.model.trim();
+        if (c.temperature !== undefined) d.temperature = clampTemp(c.temperature);
+        if (c.maxTokens !== undefined && c.maxTokens !== '' && c.maxTokens != null) d.maxTokens = clampTokens(c.maxTokens);
+        if (typeof c.enabled === 'boolean') d.enabled = c.enabled;
+        if (c.features) FEATURES.forEach((f) => { if (typeof c.features[f] === 'boolean') d.features[f] = c.features[f]; });
         return d;
     };
-    const saveCfg = (cfg) => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} return cfg; };
-    const loadKey = () => { try { return localStorage.getItem(KEY_KEY) || ''; } catch (e) { return ''; } };
-    const saveKey = (k) => { try { localStorage.setItem(KEY_KEY, String(k || '')); } catch (e) {} };
-    const clearKey = () => { try { localStorage.removeItem(KEY_KEY); } catch (e) {} };
+    const saveCfg = (cfg) => {
+        // 先和当前统一配置合并：只传部分字段（如 { enabled: true }）时，其余字段保持原值，绝不清空
+        const cur = loadCfg();
+        const merged = Object.assign({}, cur, cfg || {});
+        if (cfg && cfg.features && typeof cfg.features === 'object') merged.features = Object.assign({}, cur.features, cfg.features);
+        const patch = {
+            baseUrl: merged.baseUrl || '', model: merged.model || '',
+            temperature: (merged.temperature !== undefined ? merged.temperature : 0.9),
+            maxTokens: (merged.maxTokens === undefined || merged.maxTokens === null) ? '' : merged.maxTokens,
+            enabled: !!merged.enabled, features: merged.features
+        };
+        try {
+            if (window.GlobalAPI && window.GlobalAPI.setConfig) { window.GlobalAPI.setConfig(patch); return merged; }
+        } catch (e) {}
+        try {
+            const curRaw = readGlobalRaw() || {};
+            Object.assign(curRaw, patch);
+            localStorage.setItem('global_api_config_v1', JSON.stringify(curRaw));
+        } catch (e) {}
+        return merged;
+    };
+    const loadKey = () => {
+        try { if (window.GlobalAPI && window.GlobalAPI.getConfig) { const k = window.GlobalAPI.getConfig().key; if (typeof k === 'string') return k; } } catch (e) {}
+        const raw = readGlobalRaw();
+        return (raw && typeof raw.key === 'string') ? raw.key : '';
+    };
+    const saveKey = (k) => {
+        try { if (window.GlobalAPI && window.GlobalAPI.setConfig) { window.GlobalAPI.setConfig({ key: String(k || '') }); return; } } catch (e) {}
+        try { const cur = readGlobalRaw() || {}; cur.key = String(k || ''); localStorage.setItem('global_api_config_v1', JSON.stringify(cur)); } catch (e) {}
+    };
+    const clearKey = () => { saveKey(''); };
 
-    // GROUP-BF · 单独配置：只新增 phone_model_per_feature_v1 一个键，按功能分；
-    // 每项 { source:'global'|'custom', baseUrl:'', model:'', key:'' }，空字段继承全局；
-    // key 只存本机，导出时整条删掉（见 sanitizeExportData 与 doExport），绝不进日志。
-    const PER_KEY = 'phone_model_per_feature_v1';
-    const loadPerAll = () => { try { const raw = localStorage.getItem(PER_KEY); if (raw) { const o = JSON.parse(raw) || {}; if (o && typeof o === 'object') return o; } } catch (e) {} return {}; };
-    const savePerAll = (o) => { try { localStorage.setItem(PER_KEY, JSON.stringify(o || {})); } catch (e) {} return o; };
-    const loadPerFeature = (f) => { const all = loadPerAll(); const e = (all && all[f]) || {}; return { source: e.source === 'custom' ? 'custom' : 'global', baseUrl: typeof e.baseUrl === 'string' ? e.baseUrl.trim() : '', model: typeof e.model === 'string' ? e.model.trim() : '', key: typeof e.key === 'string' ? e.key : '' }; };
-    const savePerFeature = (f, entry) => { const all = loadPerAll(); if (!entry || entry.source !== 'custom') delete all[f]; else all[f] = { source: 'custom', baseUrl: String(entry.baseUrl || '').trim(), model: String(entry.model || '').trim(), key: String(entry.key || '') }; savePerAll(all); return loadPerFeature(f); };
-    const clearPerFeature = (f) => { const all = loadPerAll(); delete all[f]; savePerAll(all); };
-    const perFeatureKeys = () => { const all = loadPerAll(); const out = []; FEATURES.forEach((f) => { const k = all[f] && all[f].key; if (k) out.push(k); }); return out; };
-    const configSourceFor = (f) => loadPerFeature(f).source;
-    // 该功能实际用的配置：单独字段优先填，未填的继承全局；温度/maxTokens 始终走全局
-    const effectiveCfgFor = (f) => { const c = loadCfg(); const p = loadPerFeature(f); const baseUrl = (p.source === 'custom' && p.baseUrl) ? p.baseUrl : c.baseUrl; const model = (p.source === 'custom' && p.model) ? p.model : c.model; const key = (p.source === 'custom' && p.key) ? p.key : loadKey(); return { baseUrl: baseUrl, model: model, key: key, temperature: c.temperature, maxTokens: c.maxTokens, source: p.source }; };
+    // 该功能实际用的配置：直接用全局统一配置（按功能单独配置已删）。
+    const effectiveCfgFor = (f) => { const c = loadCfg(); return { baseUrl: c.baseUrl, model: c.model, key: loadKey(), temperature: c.temperature, maxTokens: c.maxTokens, source: 'global' }; };
 
     // URL 规范化：沿用 callRealAI / GlobalAPI 拉取模型时的同一规则
     const normalizeBase = (u) => { let s = String(u || '').trim().replace(/\/+$/, ''); if (/\/chat\/completions$/.test(s)) s = s.replace(/\/chat\/completions$/, ''); return s; };
@@ -31707,7 +32056,7 @@ const PhoneModel = (() => {
         if (!e.baseUrl || !e.model || !e.key) return '模板模式';
         if (!c.enabled) return '模板模式（总开关已关）';
         if (!c.features[f]) return '模板模式（本功能已关）';
-        return '已接模型（' + (e.source === 'custom' ? '单独' : '全局') + ' · ' + e.model + '）';
+        return '已接模型（' + e.model + '）';
     };
     const overallLabel = () => {
         const c = loadCfg();
@@ -31734,8 +32083,9 @@ const PhoneModel = (() => {
     const apiCfgFor = (f) => {
         if (!isEnabledFor(f)) return null;
         const e = effectiveCfgFor(f);
-        return { baseUrl: e.baseUrl, key: e.key, model: e.model, temperature: e.temperature, maxTokens: e.maxTokens, source: e.source };
+        return { baseUrl: e.baseUrl, key: e.key, model: e.model, temperature: e.temperature, maxTokens: e.maxTokens, source: 'global' };
     };
+
 
     // 唯一调用口子：只向用户自己填的 baseUrl 发请求，只在这里带 Authorization
     const chatComplete = async (messages, opts) => {
@@ -31814,19 +32164,37 @@ const PhoneModel = (() => {
     };
 
     // 备份/导出净化：删掉 key 本身；值里若混进了 key 也整条删掉；all 备份写明 key 未导出
+    // 备份/导出净化：key 永不导出。global_api_config_v1 与 global_api_presets_v1
+    // 只摘掉里面的 key 字段，其余配置（地址/模型名/温度）照常导出；旧键与备用 key
+    // 整条删掉；值里若混进了 key 字符串也整条删掉；all 备份写明 key 未导出。
     const sanitizeExportData = (data, scope) => {
         const out = data || {};
-        try { delete out[KEY_KEY]; } catch (e) {}
-        try { delete out[PER_KEY]; } catch (e) {}
-        const keysToScrub = [loadKey()].concat(perFeatureKeys()).filter(Boolean);
+        try { delete out['phone_model_key_v1']; } catch (e) {}
+        try { delete out['phone_model_per_feature_v1']; } catch (e) {}
+        try { delete out['phone_model_fallback_keys_v1']; } catch (e) {}
+        const stripKeyField = (v) => {
+            if (typeof v === 'string') { try { const o = JSON.parse(v); if (o && typeof o === 'object') { delete o.key; return JSON.stringify(o); } } catch (e) {} return v; }
+            if (v && typeof v === 'object') { try { delete v.key; } catch (e) {} return v; }
+            return v;
+        };
+        const stripPresetKeys = (v) => {
+            const stripOne = (p) => { if (p && typeof p === 'object') { try { delete p.key; } catch (e) {} } return p; };
+            if (typeof v === 'string') { try { const a = JSON.parse(v); if (Array.isArray(a)) return JSON.stringify(a.map(stripOne)); } catch (e) {} return v; }
+            if (Array.isArray(v)) return v.map(stripOne);
+            return v;
+        };
+        try { if (out['global_api_config_v1'] !== undefined) out['global_api_config_v1'] = stripKeyField(out['global_api_config_v1']); } catch (e) {}
+        try { if (out['global_api_presets_v1'] !== undefined) out['global_api_presets_v1'] = stripPresetKeys(out['global_api_presets_v1']); } catch (e) {}
+        const keysToScrub = [loadKey()].filter(Boolean);
         keysToScrub.forEach(function (key) {
             Object.keys(out).forEach(function (k) {
                 try { if (typeof out[k] === 'string' && out[k].indexOf(key) !== -1) delete out[k]; } catch (e) {}
             });
         });
-        if (scope === 'all') out['__phone_model_key_note__'] = 'key 未导出，需重填（请到设置 → 接模型重新填写）';
+        if (scope === 'all') out['__phone_model_key_note__'] = 'key 未导出，需重填（请到设置 → API 设置重新填写）';
         return out;
     };
+
 
     // ── 此刻内心独白：结合最近的日记写一句独白；10 分钟内只试一次，不刷接口 ──
     const refreshMonologue = (charName, cb) => {
@@ -31881,104 +32249,31 @@ const PhoneModel = (() => {
     try { ensureCSS(); } catch (e) {}
     try { refreshChatLine(); } catch (e) {}
 
-    // GROUP-BF · 每个功能单独配模型：区块 HTML（全局设置下方）；key 输入框 password 遮罩，不带值
-    const perFeatBlock = (f) => {
-        const p = loadPerFeature(f);
-        const custom = p.source === 'custom';
-        const hasKey = !!p.key;
-        return '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;" data-pm-perfeature="' + esc(f) + '">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);">'
-            + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">' + esc(FEATURE_NAMES[f]) + '</span>'
-            + '<select id="pm-pf-source-' + f + '" onchange="window.PhoneModel.setPerFeatureSourceUI(\'' + f + '\', this.value)" style="font-size:17px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:6px 8px;background:var(--st-paper,#fffdf8);flex-shrink:0;">'
-            + '<option value="global"' + (custom ? '' : ' selected') + '>用全局设置</option>'
-            + '<option value="custom"' + (custom ? ' selected' : '') + '>单独设置</option></select></div>'
-            + '<div id="pm-pf-label-' + f + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;">当前：' + esc(modeLabel(f)) + '</div></div>'
-            + '<div id="pm-pf-fields-' + f + '" style="display:' + (custom ? 'block' : 'none') + ';padding:4px 16px 0;">'
-            + '<div style="padding:10px 0 2px;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">只填想改的项，留空继承全局；单独的 key 同样只存在本机。</div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="pm-pf-base-' + f + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空继承全局" value="' + esc(p.baseUrl) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><input id="pm-pf-key-' + f + '" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : '留空继承全局') + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:8px 0;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="pm-pf-model-' + f + '" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="留空继承全局" value="' + esc(p.model) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="display:flex;gap:6px;padding:10px 0 4px;"><button onclick="window.PhoneModel.savePerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">保存单独配置</button><button id="pm-pf-test-' + f + '" onclick="window.PhoneModel.testPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测试连接</button><button onclick="window.PhoneModel.clearPerFeatureFromForm(\'' + f + '\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:11px 0;font-size:17px;">清除单独配置</button></div>'
-            + '</div>'
-            + '<div id="pm-pf-result-' + f + '" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:0 16px 12px;line-height:1.7;white-space:pre-wrap;"></div>'
-            + '</div>';
-    };
-    const perFeatureSectionHTML = () => {
-        return '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin:4px 2px 8px;line-height:1.6;">每个功能单独配模型：选“单独设置”可只改其中一项（地址 / key / 模型名），其余继承全局；单独的 key 同样只存在本机，不进备份与导出。</div>'
-            + FEATURES.map(perFeatBlock).join('');
-    };
-
-    // ── 设置子页 ──
-    const renderSettingsSub = () => {
-        const cfg = loadCfg();
-        const hasKey = !!loadKey();
-        const last = lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录';
-        const featRow = (f) => '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);">' + esc(FEATURE_NAMES[f]) + '<input type="checkbox" id="pm-feat-' + f + '"' + (cfg.features[f] ? ' checked' : '') + ' onchange="window.PhoneModel.setFeature(\'' + f + '\', this.checked)" class="st-check"></label>';
-        return '<div class="st-sub" id="st-sub-model">'
-            + '<div class="st-sub-bar"><div class="st-sub-back" data-back="1"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="#1e2748" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>设置</div><div class="st-sub-title">接模型</div></div>'
-            + '<div style="padding:16px 16px 48px;">'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;padding:14px 16px;margin-bottom:12px;"><div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">当前模式</div><div id="pm-mode-status" style="font-size:17px;font-weight:600;margin-top:4px;">' + esc(overallLabel()) + '</div><div id="pm-last-call" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;">最近一次调用：' + esc(last) + '</div></div>'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">接口地址（base URL）</div><input id="pm-baseurl" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 https://api.deepseek.com/v1" value="' + esc(cfg.baseUrl) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);"><div style="font-size:17px;color:var(--st-ink,#1e2748);">API key</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><input id="pm-key" type="password" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="' + (hasKey ? '已保存（留空表示不改）' : 'sk-…（只存在本机）') + '" style="flex:1;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);padding:0;min-width:0;"><span onclick="var i=document.getElementById(\'pm-key\');if(i){i.type=(i.type===\'password\'?\'text\':\'password\');this.textContent=(i.type===\'password\'?\'显示\':\'隐藏\');}" style="font-size:17px;cursor:pointer;flex-shrink:0;">显示</span></div></div>'
-            + '<div style="padding:13px 16px;"><div style="font-size:17px;color:var(--st-ink,#1e2748);">模型名</div><input id="pm-model" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="例如 deepseek-chat（等你填）" value="' + esc(cfg.model) + '" style="width:100%;border:none;outline:none;font-size:17px;color:var(--st-ink,#1e2748);margin-top:6px;padding:0;"></div>'
-            + '</div>'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<div style="padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);display:flex;align-items:center;justify-content:space-between;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">温度（0–2）</span><input id="pm-temp" type="number" step="0.1" min="0" max="2" value="' + esc(cfg.temperature) + '" style="width:80px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;font-size:17px;padding:6px 8px;text-align:right;"></div>'
-            + '<div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:17px;color:var(--st-ink,#1e2748);">最大 token</span><input id="pm-maxtok" type="number" min="1" value="' + esc(cfg.maxTokens) + '" style="width:80px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;font-size:17px;padding:6px 8px;text-align:right;"></div>'
-            + '</div>'
-            + '<div style="background:var(--st-paper,#fffdf8);border-radius:10px;overflow:hidden;margin-bottom:12px;">'
-            + '<label style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:0.5px solid var(--st-silver-light,#dce2f1);font-size:17px;color:var(--st-ink,#1e2748);font-weight:600;">总开关<input type="checkbox" id="pm-enabled"' + (cfg.enabled ? ' checked' : '') + ' onchange="window.PhoneModel.setEnabled(this.checked)" class="st-check"></label>'
-            + featRow('chat') + featRow('scriptDm') + featRow('diary') + featRow('monologue') + featRow('charGen') + featRow('wenYou') + featRow('novelVn') + featRow('proactive')
-            + '</div>'
-            + perFeatureSectionHTML()
-            + '<div style="display:flex;gap:8px;"><button onclick="window.PhoneModel.saveFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">保存</button></div>'
-            + '<div style="display:flex;gap:8px;margin-top:8px;"><button id="pm-test-btn" onclick="window.PhoneModel.testFromForm()" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:13px 0;font-size:17px;">测试连接</button></div>'
-            + '<div style="display:flex;gap:6px;margin-top:8px;"><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'endpoint\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测端点</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'model\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测模型</button><button onclick="window.GroupAO && window.GroupAO.testModelSplit(\'voice\')" style="flex:1;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);border:1px solid var(--st-ink,#1e2748);border-radius:10px;padding:11px 0;font-size:17px;">测语音</button></div>'
-            + '<div id="ao-model-split" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:10px;line-height:1.9;"><div id="ao-test-endpoint">端点：未测</div><div id="ao-test-model">模型：未测</div><div id="ao-test-voice">语音：未测</div></div>'
-            + '<button onclick="window.PhoneModel.clearKeyFromForm()" style="width:100%;margin-top:8px;background:var(--st-paper,#fffdf8);color:var(--st-danger,#7c2d2d);border:1px solid var(--st-silver,#bfc8e0);border-radius:10px;padding:12px 0;font-size:17px;">清除 key</button>'
-            + '<div id="pm-test-result" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));text-align:center;margin-top:12px;line-height:1.7;white-space:pre-wrap;"></div>'
-            + '<div style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));text-align:center;margin-top:12px;line-height:1.7;">不预填任何地址、模型名与 key，等你自己填。<br>小说批注仍走它自己的设置，不用这里的 key；<br>微信原有的「API 设置」也还保留，未配这里时按原来的走。</div>'
-            + '</div></div>';
-    };
-
-    const readForm = () => {
+    // ── API 设置页（GlobalAPI）里的「模型连接」分区共用的状态/测试函数 ──
+    // 读表单：直接读 ga-* 输入框（API 设置页）；页没打开时读已保存的统一配置。
+    const readGaForm = () => {
         const v = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
         const c = loadCfg();
-        c.baseUrl = v('pm-baseurl').trim();
-        c.model = v('pm-model').trim();
-        c.temperature = clampTemp(v('pm-temp'));
-        c.maxTokens = clampTokens(v('pm-maxtok'));
-        const en = document.getElementById('pm-enabled');
-        if (en) c.enabled = !!en.checked;
-        FEATURES.forEach((f) => { const el = document.getElementById('pm-feat-' + f); if (el) c.features[f] = !!el.checked; });
-        return { cfg: c, keyInput: v('pm-key').trim() };
+        const bu = v('ga-baseurl').trim();
+        const mo = v('ga-model').trim();
+        const ky = v('ga-key').trim();
+        if (bu || mo || ky) { c.baseUrl = bu; c.model = mo; }
+        return { cfg: c, keyInput: ky };
     };
+    const lastCallText = () => lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录';
     const showResult = (text, ok) => {
+        const msg = (text === '' || text == null) ? (overallLabel() + ' · 最近一次调用：' + lastCallText()) : text;
+        const st = document.getElementById('ga-pm-status');
+        if (st) { st.textContent = msg; st.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
         const el = document.getElementById('pm-test-result');
-        if (el) { el.textContent = text; el.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
-        const st = document.getElementById('pm-mode-status');
-        if (st) st.textContent = overallLabel();
+        if (el) { el.textContent = text || ''; }
+        const ms = document.getElementById('pm-mode-status');
+        if (ms) ms.textContent = overallLabel();
         const lc = document.getElementById('pm-last-call');
-        if (lc) lc.textContent = '最近一次调用：' + (lastCall ? (new Date(lastCall.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' · ' + lastCall.detail) : '还没有调用记录');
-    };
-    const saveFromForm = () => {
-        // BL-06：温度/最大 token 填错不再静默钳制成默认值，报错不保存
-        const _rawTemp = (document.getElementById('pm-temp') || {}).value;
-        if (_rawTemp !== '' && _rawTemp != null && (isNaN(parseFloat(_rawTemp)) || parseFloat(_rawTemp) < 0 || parseFloat(_rawTemp) > 2)) { showResult('温度要是 0–2 之间的数字，现在是「' + _rawTemp + '」，没保存', false); return false; }
-        const _rawTok = (document.getElementById('pm-maxtok') || {}).value;
-        if (_rawTok !== '' && _rawTok != null && (!/^\d+$/.test(String(_rawTok).trim()) || parseInt(_rawTok, 10) < 1)) { showResult('最大 token 要是大于 0 的整数，现在是「' + _rawTok + '」，没保存', false); return false; }
-        const f = readForm();
-        if (f.cfg.baseUrl && !/^https?:\/\//i.test(f.cfg.baseUrl)) { showResult('地址要以 http:// 或 https:// 开头', false); return false; }
-        if (f.cfg.enabled && (!f.cfg.baseUrl || !f.cfg.model || !(f.keyInput || loadKey()))) { const _miss = [!f.cfg.baseUrl ? '接口地址' : null, !f.cfg.model ? '模型名' : null, !(f.keyInput || loadKey()) ? 'API key' : null].filter(Boolean).join('、'); showResult('总开关开着，但还缺：' + _miss + '。填好再保存，或先关掉总开关', false); return false; }
-        saveCfg(f.cfg);
-        if (f.keyInput) saveKey(f.keyInput);
-        showResult('已保存' + (f.keyInput ? '（key 已更新，只存在本机）' : ''), true);
-        refreshChatLine();
-        return true;
+        if (lc) lc.textContent = '最近一次调用：' + lastCallText();
     };
     const testFromForm = async () => {
-        const f = readForm();
+        const f = readGaForm();
         showResult('正在测试连接…', null);
         try {
             const r = await testConnection(f.cfg, f.keyInput || loadKey());
@@ -31986,70 +32281,15 @@ const PhoneModel = (() => {
             else showResult('连接失败：' + r.reason, false);
         } catch (e) { showResult('连接失败：' + classify(e, loadKey()), false); }
     };
-    // GROUP-BF · 单独配置表单：读本功能块内的输入；空字段继承全局；key 留空不改已存值
-    const perFormVal = (f, kind) => { const el = document.getElementById('pm-pf-' + kind + '-' + f); return el ? String(el.value || '') : ''; };
-    const refreshPerFeatureLabel = (f) => {
-        const el = document.getElementById('pm-pf-label-' + f);
-        if (el) el.textContent = '当前：' + modeLabel(f);
-    };
-    const showPerFeatureResult = (f, text, ok) => {
-        const el = document.getElementById('pm-pf-result-' + f);
-        if (el) { el.textContent = text; el.style.color = ok === true ? 'var(--st-ink,#1e2748)' : (ok === false ? 'var(--st-danger,#7c2d2d)' : 'var(--st-ink-60,rgba(30,39,72,.6))'); }
-        refreshPerFeatureLabel(f);
-    };
-    const setPerFeatureSourceUI = (f, v) => {
-        const fields = document.getElementById('pm-pf-fields-' + f);
-        if (v === 'custom') { if (fields) fields.style.display = 'block'; }
-        else { clearPerFeature(f); if (fields) fields.style.display = 'none'; showPerFeatureResult(f, '已改回全局设置', true); }
-        refreshPerFeatureLabel(f); refreshChatLine();
-    };
-    const savePerFeatureFromForm = (f) => {
-        const srcEl = document.getElementById('pm-pf-source-' + f);
-        if (!srcEl || srcEl.value !== 'custom') { clearPerFeature(f); showPerFeatureResult(f, '已改回全局设置', true); refreshChatLine(); return true; }
-        const prev = loadPerFeature(f);
-        const base = perFormVal(f, 'base').trim();
-        const model = perFormVal(f, 'model').trim();
-        const keyIn = perFormVal(f, 'key').trim();
-        if (base && !/^https?:\/\//i.test(base)) { showPerFeatureResult(f, '地址要以 http:// 或 https:// 开头', false); return false; }
-        savePerFeature(f, { source: 'custom', baseUrl: base, model: model, key: keyIn || prev.key });
-        const keyEl = document.getElementById('pm-pf-key-' + f);
-        if (keyEl) { keyEl.value = ''; keyEl.placeholder = (keyIn || prev.key) ? '已保存（留空表示不改）' : '留空继承全局'; }
-        showPerFeatureResult(f, '单独配置已保存（key 只存在本机）', true);
-        refreshChatLine();
-        return true;
-    };
-    const testPerFeatureFromForm = async (f) => {
-        const prev = loadPerFeature(f);
-        const g = loadCfg();
-        const base = perFormVal(f, 'base').trim() || prev.baseUrl || g.baseUrl;
-        const model = perFormVal(f, 'model').trim() || prev.model || g.model;
-        const key = perFormVal(f, 'key').trim() || prev.key || loadKey();
-        showPerFeatureResult(f, '正在测试连接…', null);
-        try {
-            const r = await testConnection({ baseUrl: base, model: model }, key);
-            if (r.ok) showPerFeatureResult(f, r.via === 'models' ? ('连接成功，模型列表通过' + (r.models && r.models.length ? '：' + r.models.join('、') : '')) : '连接成功，探针通过（模型列表拉取失败，但最小 chat 探针通过）', true);
-            else showPerFeatureResult(f, '连接失败：' + r.reason, false);
-        } catch (e) { showPerFeatureResult(f, '连接失败：' + classify(e, key), false); }
-    };
-    const clearPerFeatureFromForm = (f) => {
-        try { if (typeof window.confirm === 'function' && !window.confirm('确定清除「' + (FEATURE_NAMES[f] || f) + '」的单独配置吗？清除后改回全局设置。')) return; } catch (e) {}
-        clearPerFeature(f);
-        const srcEl = document.getElementById('pm-pf-source-' + f);
-        if (srcEl) srcEl.value = 'global';
-        const fields = document.getElementById('pm-pf-fields-' + f);
-        if (fields) fields.style.display = 'none';
-        ['base', 'model', 'key'].forEach(function (kind) { const el = document.getElementById('pm-pf-' + kind + '-' + f); if (el) el.value = ''; });
-        showPerFeatureResult(f, '单独配置已清除，改回全局设置', true);
-        refreshChatLine();
-    };
     const clearKeyFromForm = () => {
         try { if (typeof window.confirm === 'function' && !window.confirm('确定清除已保存的 key 吗？清除后回到模板模式，需要重新填写才能再用模型。')) return; } catch (e) {}
         clearKey();
-        const inp = document.getElementById('pm-key');
-        if (inp) { inp.value = ''; inp.placeholder = 'sk-…（只存在本机）'; }
+        const inp = document.getElementById('ga-key');
+        if (inp) inp.value = '';
         showResult('key 已清除，已回到模板模式', true);
         refreshChatLine();
     };
+
     const setEnabled = (v) => { const c = loadCfg(); c.enabled = !!v; saveCfg(c); showResult('', null); refreshChatLine(); };
     const setFeature = (f, v) => { const c = loadCfg(); if (c.features[f] !== undefined) c.features[f] = !!v; saveCfg(c); showResult('', null); refreshChatLine(); };
 
@@ -32061,13 +32301,10 @@ const PhoneModel = (() => {
         lastFallbackFor: lastFallbackFor, lastCallInfo: () => lastCall, noteFallback: noteFail,
         apiCfgFor: apiCfgFor, chatComplete: chatComplete, testConnection: testConnection,
         sanitizeExportData: sanitizeExportData, refreshMonologue: refreshMonologue, dmLineForScript: dmLineForScript,
-        refreshChatLine: refreshChatLine, renderSettingsSub: renderSettingsSub,
-        saveFromForm: saveFromForm, testFromForm: testFromForm, clearKeyFromForm: clearKeyFromForm,
+        refreshChatLine: refreshChatLine,
+        testFromForm: testFromForm, clearKeyFromForm: clearKeyFromForm,
         setEnabled: setEnabled, setFeature: setFeature,
-        PER_KEY: PER_KEY, loadPerFeature: loadPerFeature, savePerFeature: savePerFeature,
-        clearPerFeature: clearPerFeature, effectiveCfgFor: effectiveCfgFor, configSourceFor: configSourceFor,
-        setPerFeatureSourceUI: setPerFeatureSourceUI, savePerFeatureFromForm: savePerFeatureFromForm,
-        testPerFeatureFromForm: testPerFeatureFromForm, clearPerFeatureFromForm: clearPerFeatureFromForm
+        effectiveCfgFor: effectiveCfgFor
     };
 })();
 window.PhoneModel = PhoneModel;
@@ -33112,7 +33349,7 @@ function injectCSS() {
       '.ao-lock-row button{border:0;background:transparent;color:rgba(255,255,255,.85);font-size:13px;cursor:pointer;text-decoration:underline;}',
       '#ao-decoy-line{position:absolute;left:0;right:0;bottom:18%;text-align:center;color:rgba(255,255,255,.85);font-size:13px;letter-spacing:2px;z-index:2;}',
       '#sys-lockscreen-layer.ao-decoy .sys-lock-widgets,#sys-lockscreen-layer.ao-decoy #sys-signature{display:none !important;}',
-      '.ao-pinpad{--st-ink:#1e2748;--st-paper:#fffdf8;--st-paper-warm:#fbf9f4;--st-paper-cool:#eef0f5;--st-silver:#bfc8e0;--st-silver-light:#dce2f1;--st-lotus:#e8c9d0;--st-ink-60:rgba(30,39,72,.6);--st-ink-40:rgba(30,39,72,.4);--st-ink-20:rgba(30,39,72,.2);--st-ink-08:rgba(30,39,72,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(30,39,72,.12);position:fixed;inset:0;z-index:99999;background:rgba(30,39,72,.4);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
+      '.ao-pinpad{--st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);position:fixed;inset:0;z-index:99999;background:rgba(30,39,72,.4);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
       '.ao-pin-card{background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:14px;padding:22px 18px;width:100%;max-width:320px;box-sizing:border-box;text-align:center;box-shadow:var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12));}',
       '.ao-pin-title{font-size:20px;font-weight:600;color:var(--st-ink,#1e2748);}',
       '.ao-pin-sub{font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;line-height:1.5;}',
