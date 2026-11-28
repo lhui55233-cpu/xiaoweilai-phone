@@ -6554,6 +6554,7 @@ AppManager.register('beautify', (() => {
            <button class="b-btn-action" style="margin-top:14px;" onclick="window.BeautifyEngine.applyBubbleCustomCSS()">应用自定义样式</button>
        </div>
    </div>
+   </div>
 
    <div id="b-page-widgets" class="b-page-view b-sub"><div class="b-sub-bar"><div class="b-sub-bar-row"><div class="b-sub-back" onclick="window.BeautifyEngine.goHome()"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>返回</div><div class="b-sub-title">桌面组件</div></div></div><div class="b-sub-content">
        <div class="b-card-frame">
@@ -6649,6 +6650,7 @@ AppManager.register('beautify', (() => {
                点击上方组件可快速添加/移除。长按桌面组件可拖拽调整位置。
            </div>
        </div>
+   </div>
    </div>
 
    <div id="b-page-icons" class="b-page-view b-sub"><div class="b-sub-bar"><div class="b-sub-bar-row"><div class="b-sub-back" onclick="window.BeautifyEngine.goHome()"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>返回</div><div class="b-sub-title">应用图标</div></div></div><div class="b-sub-content">
@@ -19240,12 +19242,15 @@ const openDesktopSettings = (win, section) => {
     const body = sub.querySelector('#gw-desk-body');
     if (body) body.innerHTML = renderDesktopSettingsHTML();
     requestAnimationFrame(() => sub.classList.add('show'));
-    /* 深链：滚动到对应分组并闪一下标题，方便从主题美化跳进来定位。 */
+    /* 深链：只滚子页自己的滚动容器（.st-sub 自带 overflow-y:auto），不要用全局
+       scrollIntoView——它会滚动所有可滚动祖先，把 #sys-shell 横向滚走导致整个设置滑出屏幕。 */
     if (section) {
       requestAnimationFrame(() => {
         const head = sub.querySelector('#gw-sec-' + section);
         if (!head) return;
-        try { head.scrollIntoView({ block: 'start' }); } catch (e) {}
+        const bar = sub.querySelector('.st-sub-bar');
+        const barH = bar ? bar.offsetHeight : 0;
+        try { sub.scrollTop = Math.max(0, head.offsetTop - barH); } catch (e) {}
         head.style.background = '#f4f4f4'; head.style.borderRadius = '8px';
         setTimeout(() => { head.style.background = ''; head.style.borderRadius = ''; }, 1200);
       });
