@@ -873,6 +873,8 @@ function renderPetSettingsHTML() {
   var s = st.settings;
   var skin = st.skin;
   var col = effectiveColors();
+  var petOn = true;
+  try { if (window.GroupM && GroupM.pet && GroupM.pet.enabled) petOn = GroupM.pet.enabled(); } catch (e) {}
   var skinBtns = Object.keys(SKINS).map(function (id) {
     return '<button type="button" class="ab-chip-btn' + (skin.id === id ? ' ab-active' : '') + '" data-ab-skin="' + id + '">' + SKINS[id].name + '</button>';
   }).join('');
@@ -889,6 +891,7 @@ function renderPetSettingsHTML() {
     + '<div style="font-weight:600;font-size:13px;margin:12px 0 8px;">图案</div>' + patBtns
     + '<div style="margin-top:8px;"><label class="ab-chip-btn" style="display:inline-block;">上传抠图立绘<input type="file" accept="image/*" style="display:none" onchange="window.GroupAB._onCustomSkinFile(this)"></label> <span id="ab-skin-status" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (skin.customImg ? '已上传抠图立绘' : '未上传抠图立绘') + '</span></div></div>'
     + '<div class="st-group"><div class="ab-set-row"><label>行为模式</label><span id="ab-mode-label" style="flex:1;font-size:17px;">' + modeLabel(st.mode) + '</span><button type="button" class="ab-chip-btn" data-ab-mode-cycle>切换模式</button></div>'
+    + '<div class="ab-set-row"><label>桌面宠物</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">在桌面上显示宠物；关掉后从这里再打开</span><input type="checkbox" ' + (petOn ? 'checked' : '') + ' data-ab-deskpet><span class="ab-set-val">' + (petOn ? '开' : '关') + '</span></div>'
     + '<div class="ab-set-row"><label>收起宠物</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">收成角落小图标，点图标恢复；位置与皮肤会记住</span><button type="button" class="ab-chip-btn" data-ab-collapse>' + (st.collapsed ? '恢复宠物' : '收起来') + '</button></div>'
     + '<div class="ab-set-row"><label>重置</label><span style="flex:1;font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">把桌宠状态恢复默认</span><button type="button" class="ab-chip-btn" data-ab-reset>重置</button></div></div>'
     + '</div>';
@@ -904,6 +907,15 @@ function syncSettingsUI() {
     if (ml) ml.textContent = modeLabel(st.mode);
     var ss = document.getElementById('ab-skin-status');
     if (ss) ss.textContent = st.skin.customImg ? '已上传抠图立绘' : '未上传抠图立绘';
+    var dp = document.querySelector('[data-ab-deskpet]');
+    if (dp) {
+      var on = true;
+      try { if (window.GroupM && GroupM.pet && GroupM.pet.enabled) on = GroupM.pet.enabled(); } catch (e) {}
+      dp.checked = !!on;
+      var drow = dp.closest ? dp.closest('.ab-set-row') : null;
+      var dval = drow ? drow.querySelector('.ab-set-val') : null;
+      if (dval) dval.textContent = on ? '开' : '关';
+    }
   } catch (e) {}
 }
 function alertSafe(msg) { try { alert(msg); } catch (e) {} }
@@ -1021,6 +1033,14 @@ function abInit() {
   document.addEventListener('input', function (e) {
     var t = e.target;
     if (!t || !t.getAttribute) return;
+    if (t.hasAttribute && t.hasAttribute('data-ab-deskpet')) {
+      var on = !!t.checked;
+      try { if (window.GroupM && GroupM.pet && GroupM.pet.setEnabled) GroupM.pet.setEnabled(on); } catch (e) {}
+      var drow = t.closest ? t.closest('.ab-set-row') : null;
+      var dval = drow ? drow.querySelector('.ab-set-val') : null;
+      if (dval) dval.textContent = on ? '开' : '关';
+      return;
+    }
     var k = t.getAttribute('data-ab-set');
     if (k) {
       if (k === 'speed') setSettings({ speed: parseFloat(t.value) });

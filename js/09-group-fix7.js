@@ -369,7 +369,7 @@ var t = e.target;
 if (t.closest && t.closest('#gm-pet-hide-btn')) {
 try { var s = lsGet('phone_settings_v3', {}) || {}; s.deskPet = false; lsSet('phone_settings_v3', s);} catch (err) {}
 el.style.display = 'none';
-gmAlert('桌面宠物已隐藏。'); /* R3-STEP6：原提示指向的设置页「桌面宠物」开关已删，恢复入口待定——先不写假路径，见工位报告。 */
+gmAlert('桌面宠物已隐藏，去桌宠市场 → 设置里再打开。');
 return;
 }
 if (t.closest && t.closest('#gm-pet-lottery-btn')) {
