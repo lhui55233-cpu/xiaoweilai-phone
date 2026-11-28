@@ -86,12 +86,31 @@ var AFWeather = {
   CACHE_KEY: 'af_weather_cache_v1',
   WMO: { 0: '晴', 1: '大致晴', 2: '多云', 3: '阴', 45: '雾', 48: '雾凇', 51: '毛毛雨', 53: '毛毛雨', 55: '毛毛雨', 56: '冻毛毛雨', 57: '冻毛毛雨', 61: '小雨', 63: '雨', 65: '大雨', 66: '冻雨', 67: '冻雨', 71: '小雪', 73: '雪', 75: '大雪', 77: '雪粒', 80: '阵雨', 81: '阵雨', 82: '暴雨', 85: '阵雪', 86: '阵雪', 95: '雷阵雨', 96: '冰雹雷雨', 99: '冰雹雷雨' },
   _lastAttempt: 0, _lastPaintSig: '', _fetching: false,
+  /* [WX-SAVE-FEEDBACK] 保存反馈状态：_saveMsg 为 {text, err} 时 paint() 在保存按钮
+     下方画一行 #af-wx-save-note；_lastState 记最后一次画过的状态，供反馈到期
+     后重画（只重画，不重新取数）。反馈由 paint() 统一画出——refresh() 每次取数
+     都会重建下卡 innerHTML，写在 paint() 外的提示会被下一轮 paint 冲掉。 */
+  _saveMsg: null, _saveMsgTimer: null, _lastState: null,
   wmoText: function (c) { return this.WMO[c] || '未知天气'; },
   timeStr: function (ts) { var d = new Date(ts); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); },
   city: function () { return LS.get(this.CITY_KEY) || ''; },
   loadCache: function () { try { return JSON.parse(LS.get(this.CACHE_KEY) || 'null'); } catch (e) { return null; } },
   saveCache: function (rec) { LS.set(this.CACHE_KEY, JSON.stringify(rec)); },
-  _resetForTest: function () { this._lastAttempt = 0; this._lastPaintSig = ''; this._fetching = false; },
+  _resetForTest: function () { this._lastAttempt = 0; this._lastPaintSig = ''; this._fetching = false; this._saveMsg = null; this._lastState = null; if (this._saveMsgTimer) { clearTimeout(this._saveMsgTimer); this._saveMsgTimer = null; } },
+  /* [WX-SAVE-FEEDBACK] 保存反馈的唯一入口：成功只在城市真正写入后由保存按钮
+     调，失败（本机存储不可用）只报失败。提示 3 秒后自动消失，到期只用
+     _lastState 重画一次，不重新取数、不碰主卡。文案纯文字，无 emoji。 */
+  showSaveNote: function (box, text, isErr) {
+    var self = this;
+    this._saveMsg = { text: text, err: !!isErr };
+    if (this._saveMsgTimer) { clearTimeout(this._saveMsgTimer); this._saveMsgTimer = null; }
+    if (box && this._lastState) this.paint(box, this._lastState);
+    this._saveMsgTimer = setTimeout(function () {
+      self._saveMsg = null; self._saveMsgTimer = null;
+      var live = document.getElementById('af-weather-live');
+      if (live && live.isConnected && self._lastState) self.paint(live, self._lastState);
+    }, 3000);
+  },
   _coords: function () {
     var self = this;
     var cached = this.loadCache();
@@ -124,7 +143,10 @@ var AFWeather = {
   },
   paint: function (box, st) {
     if (!box) return;
-    var sig = st.kind + '|' + (st.temp == null ? '' : st.temp) + '|' + (st.code == null ? '' : st.code) + '|' + (st.fetchedAt || '') + '|' + (st.note || '');
+    this._lastState = st;
+    /* [WX-SAVE-FEEDBACK] 反馈文案进签名：只改提示、不改天气状态时也要重画，
+       否则到期清除提示那次 paint 会被“签名相同”直接跳过、提示永远挂在那。 */
+    var sig = st.kind + '|' + (st.temp == null ? '' : st.temp) + '|' + (st.code == null ? '' : st.code) + '|' + (st.fetchedAt || '') + '|' + (st.note || '') + '|save:' + (this._saveMsg ? this._saveMsg.text : '');
     if (sig === this._lastPaintSig && box.querySelector('#af-wx-city')) return;
     this._lastPaintSig = sig;
     var prevCity = '';
@@ -152,6 +174,9 @@ var AFWeather = {
       + '<div class="af-wx-src">' + src + '</div>'
       + '<div style="display:flex;gap:6px;margin-top:12px;"><input id="af-wx-city" placeholder="城市，如 上海" value="' + esc(cityVal) + '">'
       + '<button type="button" id="af-wx-save-city">保存城市</button></div>'
+      /* [WX-SAVE-FEEDBACK] 保存反馈行：紧贴保存按钮下方，只在 _saveMsg 有值时出现；
+         成功为绿字“已保存城市：<城名>”，失败为红字“保存失败：…”，3 秒后自动消失。 */
+      + (this._saveMsg ? '<div id="af-wx-save-note" role="status" style="font-size:12px;line-height:1.6;margin-top:6px;text-align:left;color:' + (this._saveMsg.err ? '#b3261e' : '#1f7a3a') + ';">' + esc(this._saveMsg.text) + '</div>' : '')
       + '<div style="display:flex;gap:6px;margin-top:8px;"><button type="button" id="af-wx-refetch" style="flex:1;">重新取数</button>'
       + '<button type="button" id="af-wx-locate" style="flex:1;">用定位取数</button></div>'
       + '<div class="af-wx-note">实时天气来自 Open-Meteo（免费、无需 key）。定位走 J2 组 LocationGateway；没网或取数失败时回退本地数据并标注来源与时间。</div>'
@@ -162,7 +187,17 @@ var AFWeather = {
       var v = (box.querySelector('#af-wx-city') || {}).value || '';
       v = v.trim();
       if (!v) { alert('请先输入城市名'); return; }
+      /* [WX-SAVE-FEEDBACK] 先验写再报喜：LS.set 内部吞异常，写失败也看不出；
+         写完立即读回比对，读回不一致就是没存上，只报失败、不取数、不报“已保存”。
+         存上了才报“已保存城市：<城名>”，再按原流程取数、同步主卡。取数本身若
+         失败（断网 / 查不到城市），来源行会另外如实写“取数失败”，不与“已保存”
+         混为一谈：城市存上了是真，天气没取到也是真。 */
       LS.set(self.CITY_KEY, v);
+      if (LS.get(self.CITY_KEY) !== v) {
+        self.showSaveNote(box, '保存失败：本机存储不可用，城市未保存', true);
+        return;
+      }
+      self.showSaveNote(box, '已保存城市：' + v, false);
       self._lastAttempt = 0; self._lastPaintSig = '';
       self.refresh(box, true);
     });
