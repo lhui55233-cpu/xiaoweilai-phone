@@ -139,7 +139,7 @@ function avFixTransferDetail(sid, mid) {
   } else if (msg.state === 'accepted') {
     if (acceptBtn) acceptBtn.style.display = 'none';
     if (returnBtn) returnBtn.style.display = 'none';
-    if (statusTxt) { setTxt(statusTxt, '已收款'); statusTxt.style.color = '#07c160'; }
+    if (statusTxt) { setTxt(statusTxt, '已收款'); statusTxt.style.color = '#34363b'; }
   } else if (incoming) {
     if (statusTxt) { setTxt(statusTxt, '待收款'); statusTxt.style.color = '#f39b13'; }
     if (peerCell) peerCell.textContent = s.accountMeta.nickname || '我';
@@ -148,7 +148,7 @@ function avFixTransferDetail(sid, mid) {
       acceptBtn.onclick = function () {
         msg.state = 'accepted';
         acceptBtn.style.display = 'none';
-        if (statusTxt) { setTxt(statusTxt, '已成功收款 ¥' + msg.amount); statusTxt.style.color = '#07c160'; }
+        if (statusTxt) { setTxt(statusTxt, '已成功收款 ¥' + msg.amount); statusTxt.style.color = '#34363b'; }
         setBalance(balance() + amt, amt);
         addTx({ id: 'tx_tf_' + Date.now(), type: '收入', title: '转账收款-' + (sess.name || ''), time: nowStr(), amount: '+' + fmt(amt), remark: msg.remark || '微信转账', category: 'transfer' });
         persist();

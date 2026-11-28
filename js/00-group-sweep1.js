@@ -384,16 +384,6 @@ const NavigationManager = (() => {
 
     // ── 优先级 4: APP 内的下拉/弹出菜单(气泡菜单、@面板、+ 抽屉等) ──
     const _closeAppFloater = () => {
-        // [AT GROUP-AT-BACK-DEDUP] 聊天页 ••• 扇形菜单（.ot-fan.ot-open，不走 .wx-active 体系）：
-        // 系统返回先收菜单，不直接关掉整个聊天页。
-        const otFan = document.querySelector('.ot-fan.ot-open');
-        if (otFan) {
-            try { if (window.WeChatAppEngine && WeChatAppEngine.toggleChatMoreMenu) WeChatAppEngine.toggleChatMoreMenu(null, true); } catch (e) {}
-            otFan.classList.remove('ot-open');
-            document.getElementById('ot-fan-scrim')?.classList.remove('ot-show');
-            document.getElementById('wx-chat-more-btn')?.classList.remove('ot-open');
-            return true;
-        }
         const floater = document.querySelector([
             '.wx-context-menu.wx-active',
             '.wechat-arc-menu.wx-active',
@@ -408,11 +398,20 @@ const NavigationManager = (() => {
 
     // ── 优先级 5: APP 内子页面 (wechat / settings / cike / forum / novel / nobeidanci / tarot / 通用) ──
     const _closeAppSubpage = () => {
+        // 5a-1. 左侧抽屉开着时先关抽屉。
+        const _side = document.getElementById('wx-side-drawer');
+        if (_side && _side.classList.contains('wx-open')) { WeChatAppEngine.toggleWxSidebar(false); return true; }
+        // 5a0. 朋友圈覆盖层（从主页/相册/小程序打开时盖在 tab 页上）：先关它，再关底下的子页。
+        // tab 模式（currentView === 'moments'）时朋友圈就是当前 tab，不由返回关闭。
+        const _momPage = document.getElementById('wx-view-moments-page');
+        if (_momPage && _momPage.classList.contains('wx-active') && AppRegistry['wechat']?.wxStore?.currentView !== 'moments') { _momPage.classList.remove('wx-active'); return true; }
         // 5a. 微信子页面(wx-subpage-box.wx-active)
         // [AT GROUP-AT-BACK-DEDUP] 同层多子页并存时按视觉顶层关：朋友圈(z3000)盖在
         // TA 主页上时，修前按 DOM 末位会关掉底下的主页、视觉上毫无变化（跳层）。
         // 取 computed z-index 最大者，ties 取 DOM 末位。
-        const wxSubs = [...document.querySelectorAll('.wx-subpage-box.wx-active')];
+        const _wxView = AppRegistry['wechat']?.wxStore?.currentView;
+        // 乙女游戏 tab 时 #wx-otome-home 是当前 tab 内容，返回不得关掉它（否则 tab 变空白）。
+        const wxSubs = [...document.querySelectorAll('.wx-subpage-box.wx-active')].filter(el => !(el.id === 'wx-otome-home' && _wxView === 'otome'));
         if (wxSubs.length) {
             let wxTop = wxSubs[0], wxTopZ = -Infinity;
             wxSubs.forEach((el) => { const z = parseInt(getComputedStyle(el).zIndex, 10); const zv = Number.isNaN(z) ? 0 : z; if (zv >= wxTopZ) { wxTopZ = zv; wxTop = el; } });
@@ -4045,7 +4044,7 @@ AppManager.register('settings', (() => {
                 ROW(ICON('var(--st-ink,#1e2748)', I.msg), '开启主动发消息', {sw:'proactiveMsg'}),
                 (typeof window !== 'undefined' && window.GroupBI ? '<div class="st-row">' + ICON('var(--st-ink,#1e2748)', I.msg) + '<span class="st-label">char 主动来电</span><div class="st-row-right"><div class="st-switch ' + (window.GroupBI.callsEnabled() ? 'on' : '') + '" data-bi-call-sw="1"><div class="st-knob"></div></div></div></div>' : ''),
                 ROW(ICON('var(--st-ink,#1e2748)', I.bell), '通知', {value:'本地通知 · 离线可用', act:'asNotif'}),
-                ROW(ICON('#07C160', I.bell), '主动消息', {act:'proactive'}),
+                ROW(ICON('#34363b', I.bell), '主动消息', {act:'proactive'}),
                 ROW(ICON('#F2A0AE', I.msg), '桌面宠物', {sw:'deskPet'}),
                 ROW(ICON('#F2A0AE', I.msg), '桌宠设置', {act:'petSettings'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.bell), '后台通知保活', {sw:'bgKeepAlive'}),
@@ -4268,7 +4267,7 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                 ROW(ICON('#5856D6', I.iconStyle), '应用图标', {act:'b_icons'}),
                 ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面组件', {act:'b_widgets'}),
                 ROW(ICON('var(--st-ink,#171717)', I.widgets), '小组件商店', {act:'ac_widgets'}),
-                ROW(ICON('#07C160', I.bubble), '聊天气泡', {act:'b_bubbles'}),
+                ROW(ICON('#34363b', I.bubble), '聊天气泡', {act:'b_bubbles'}),
                 ROW(ICON('#FF2D55', I.chatbg), '页面背景', {act:'b_chatbg'}),
                 ROW(ICON('var(--st-ink-60,rgba(23,23,23,.6))', I.layout), '布局与状态栏', {act:'b_layout'}),
                 ROW(ICON('#5856D6', I.summary), '深色主题', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');return p.theme==='gruvbox-dark'?'Gruvbox 深色':(p.theme==='guichao-dark'?'归巢深色':'归巢白（默认）');}catch(e){return '归巢白（默认）';}})(), act:'af_theme'}),
@@ -7544,12 +7543,12 @@ AppManager.register('wechat', (() => {
           opacity: 1.0, 
           bgImage: '', 
           fontSize: 14,
-          bubbleColorSelf: '#07c160', 
+          bubbleColorSelf: '#ececef', 
           bubbleColorFriend: '#ffffff', 
           bubbleRadius: 4,
           glassIntensity: 20,
           dynamicBlur: false,
-          themeColor: '#07c160',
+          themeColor: '#34363b',
           fontFamily: '-apple-system',
           iosVisualMode: true,
           androidSimMode: false,
@@ -7934,7 +7933,7 @@ const styleBlock = `
               z-index: 99980 !important;
               padding-top: var(--sys-island-safe-top, 62px);
               box-sizing: border-box;
-              background: #ededed;
+              background: #ffffff;
           }
           /* 全屏退出按钮：右上角悬浮 */
 .wx-fs-exit {
@@ -7947,21 +7946,21 @@ const styleBlock = `
           }
           .wx-app-root.wx-fullscreen .wx-fs-exit { display: flex; }
           
-          .wx-scroll-view { flex-grow: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; box-sizing: border-box; background-color: #ededed; }
+          .wx-scroll-view { flex-grow: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; box-sizing: border-box; background-color: var(--wx-bg, #f7f7f8); }
           
           /* GROUP-WECHAT · 第 22 项 §2：顶栏 116px in-flow（docx 值；原 absolute + 48px + safe-top 改为定高 116px；底边 0.5px 细化见 GROUP-WECHAT 段） */
           .wx-header {
               position: relative; top: auto; left: auto; width: 100%;
               height: 116px; min-height: 116px;
               padding: 68px 14px 10px 12px;
-              background: #ededed; border-bottom: 0.5px solid rgba(0,0,0,0.08); display: flex;
+              background: #ffffff; border-bottom: 0.5px solid rgba(0,0,0,0.08); display: flex;
               align-items: center; justify-content: space-between;
               z-index: 100; box-sizing: border-box; transition: background 0.2s; pointer-events: auto;
           }
-          .wx-header-title { font-size: 17px; font-weight: 600; color: #000000; display: flex; align-items: center; gap: 6px; letter-spacing: 0.3px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; justify-content: center; } /* [AT] 标题先缩，不挤 ••• */
-          .wx-header-left, .wx-header-right { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #000000; cursor: pointer; transition: opacity 0.15s; flex-shrink: 0; } /* [AT] */
+          .wx-header-title { font-size: 17px; font-weight: 600; color: #25262a; display: flex; align-items: center; gap: 6px; letter-spacing: 0.3px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; justify-content: center; } /* [AT] 标题先缩，不挤 ••• */
+          .wx-header-left, .wx-header-right { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #25262a; cursor: pointer; transition: opacity 0.15s; flex-shrink: 0; } /* [AT] */
           .wx-header-left:active, .wx-header-right:active { opacity: 0.5; }
-          .wx-icon-btn { width: 30px; height: 30px; border-radius: 50%; background: transparent; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #000000; flex-shrink: 0; transition: background 0.15s; }
+          .wx-icon-btn { width: 30px; height: 30px; border-radius: 50%; background: transparent; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #25262a; flex-shrink: 0; transition: background 0.15s; }
           .wx-icon-btn:active { background: #dcdcdc; }
           
           .wx-plus-drawer { position: absolute; top: 52px; right: 10px; background: #4c4c4c; border-radius: 6px; border: 1px solid transparent; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); display: none; flex-direction: column; z-index: 5000; overflow: hidden; width: 130px; }
@@ -7969,25 +7968,25 @@ const styleBlock = `
 
           .wx-plus-drawer.wx-active { display: flex; animation: wxFadeIn 0.15s; }
 /* GROUP-BO · BO-1 文件消息卡片 + 文件查看器（查看器一个纯箭头返回，无循环动效） */
-.sys-app-window[data-app-sandbox="wechat"] .wx-file-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:10px 12px;min-width:190px;max-width:230px;cursor:pointer;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-file-card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #ececef;border-radius:8px;padding:10px 12px;min-width:190px;max-width:230px;cursor:pointer;}
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-ico{width:38px;height:38px;border-radius:6px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-meta{flex:1;min-width:0;}
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-name{font-size:13px;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .sys-app-window[data-app-sandbox="wechat"] .wx-file-sub{font-size:11px;color:#999;margin-top:3px;}
-.sys-app-window[data-app-sandbox="wechat"] .wx-file-open{font-size:11px;color:#07c160;flex-shrink:0;}
-#wx-file-viewer{position:fixed;inset:0;z-index:99998;background:#ededed;display:none;flex-direction:column;}
+.sys-app-window[data-app-sandbox="wechat"] .wx-file-open{font-size:11px;color:#34363b;flex-shrink:0;}
+#wx-file-viewer{position:fixed;inset:0;z-index:99998;background:#ffffff;display:none;flex-direction:column;}
 #wx-file-viewer.on{display:flex;}
-#wx-file-viewer .wx-file-viewer-head{display:flex;align-items:center;gap:8px;padding:14px 12px 10px;background:#ededed;border-bottom:1px solid #e0e0e0;flex-shrink:0;}
+#wx-file-viewer .wx-file-viewer-head{display:flex;align-items:center;gap:8px;padding:14px 12px 10px;background:#ffffff;border-bottom:1px solid #ececef;flex-shrink:0;}
 #wx-file-viewer .wx-file-viewer-back{border:0;background:none;font-size:16px;color:#111;cursor:pointer;padding:6px 8px;flex-shrink:0;}
 #wx-file-viewer .wx-file-viewer-title{flex:1;min-width:0;text-align:center;font-size:15px;font-weight:600;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 #wx-file-viewer .wx-file-viewer-body{flex:1;overflow-y:auto;padding:14px 16px;}
-#wx-file-viewer .wx-file-text{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:#222;white-space:pre-wrap;word-break:break-all;}
+#wx-file-viewer .wx-file-text{background:#fff;border:1px solid #ececef;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;color:#222;white-space:pre-wrap;word-break:break-all;}
 #wx-file-viewer .wx-file-note{font-size:12px;color:#888;line-height:1.7;margin-top:10px;}
 #wx-file-viewer .wx-file-img{max-width:100%;border-radius:8px;display:block;margin:0 auto;cursor:pointer;}
-#wx-file-viewer .wx-file-unsupported{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:#333;}
-#wx-file-viewer .wx-file-viewer-actions{flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #e5e5e5;display:flex;flex-direction:column;gap:8px;}
+#wx-file-viewer .wx-file-unsupported{background:#fff;border:1px solid #ececef;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:#333;}
+#wx-file-viewer .wx-file-viewer-actions{flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #ececef;display:flex;flex-direction:column;gap:8px;}
 #wx-file-viewer .wx-file-save-note{font-size:12px;color:#888;line-height:1.6;}
-#wx-file-viewer .wx-file-save-confirm{border:0;background:#07c160;color:#fff;border-radius:8px;padding:11px;font-size:15px;cursor:pointer;}
+#wx-file-viewer .wx-file-save-confirm{border:0;background:#34363b;color:#fff;border-radius:8px;padding:11px;font-size:15px;cursor:pointer;}
 #wx-file-viewer .wx-file-save-cancel{border:1px solid #ddd;background:#fff;color:#333;border-radius:8px;padding:10px;font-size:14px;cursor:pointer;}
 html[data-theme="dark"] #wx-file-viewer{background:#1c1c1e;}
 html[data-theme="dark"] #wx-file-viewer .wx-file-viewer-head{background:#1c1c1e;border-bottom-color:#333;}
@@ -8001,100 +8000,100 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-drawer-item:last-child { border-bottom: none; }
           @media (hover: hover) { .wx-drawer-item:hover { background: #555555; } }
           
-          .wx-tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: calc(52px + 30px); padding-bottom: 30px; background: #f7f7f7; border-top: 1px solid #d9d9d9; display: flex; align-items: center; justify-content: space-around; /* [AT] */ z-index: 100; box-sizing: border-box; pointer-events: auto; }
+          .wx-tab-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: calc(52px + 30px); padding-bottom: 30px; background: #ffffff; border-top: 1px solid #ececef; display: flex; align-items: center; justify-content: space-around; /* [AT] */ z-index: 100; box-sizing: border-box; pointer-events: auto; }
           .wx-tab-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #777777; cursor: pointer; flex: 1; height: 100%; justify-content: center; transition: color 0.1s; }
-          .wx-tab-item.wx-active { color: var(--wx-theme-color, #07c160); }
+          .wx-tab-item.wx-active { color: var(--wx-theme-color, #34363b); }
           .wx-tab-icon { font-size: 22px; line-height: 1; }
           .wx-tab-label { font-size: 10px; font-weight: 500; }
           
           .wx-view-box { position: absolute; top: calc(48px + var(--sys-island-safe-top, 62px)); left: 0; width: 100%; height: calc(100% - 132px - var(--sys-island-safe-top, 62px)); overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column; background-color: #ffffff; /* [AT] 48 顶栏 + 84 tab 栏 */ box-sizing: border-box; -webkit-overflow-scrolling: touch; pointer-events: auto; }
           .wx-view-box.wx-active { display: flex; }
           
-          .wx-subpage-box { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #ededed; z-index: 200; display: none; flex-direction: column; box-sizing: border-box; overflow: hidden; pointer-events: auto; }
+          .wx-subpage-box { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--wx-bg, #f7f7f8); z-index: 200; display: none; flex-direction: column; box-sizing: border-box; overflow: hidden; pointer-events: auto; }
           .wx-subpage-box.wx-slide-right { transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1); }
           .wx-subpage-box.wx-slide-right.wx-active { display: flex; transform: translateX(0); }
           .wx-subpage-box.wx-slide-up { animation: wxSlideUp 0.25s cubic-bezier(0.2,0.8,0.2,1); }
           .wx-subpage-box.wx-slide-up.wx-active { display: flex; }
           @keyframes wxSlideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
           
-          .wx-session-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #ececec; cursor: pointer; position: relative; transition: background 0.15s; box-sizing: border-box; background-color: #ffffff; }
+          .wx-session-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #ececef; cursor: pointer; position: relative; transition: background 0.15s; box-sizing: border-box; background-color: #ffffff; }
           .wx-session-item:active { background: #dedede; }
-          .wx-session-item.wx-pinned { background: #f2f2f2; }
-          .wx-avatar-wrapper { position: relative; width: 48px; height: 48px; border-radius: 6px; flex-shrink: 0; background-color: #e2e2e2; display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; }
+          .wx-session-item.wx-pinned { background: #f7f7f8; }
+          .wx-avatar-wrapper { position: relative; width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; background-color: #e2e2e2; display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; }
           .wx-avatar-frame { position: absolute; width: 56px; height: 56px; background-size: contain; background-repeat: no-repeat; pointer-events: none; z-index: 2; }
           .wx-badge { position: absolute; top: -5px; right: -5px; background: #ff3b30; color: #ffffff; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; line-height: 1; border: 1px solid #ffffff; }
           .wx-session-info { margin-left: 12px; flex-grow: 1; min-width: 0; }
           .wx-session-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-          .wx-session-name { font-size: 16px; font-weight: 500; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-          .wx-session-preview { font-size: 13px; color: #b2b2b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .wx-session-name { font-size: 16px; font-weight: 500; color: #25262a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .wx-session-preview { font-size: 13px; color: #8a8b91; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
           
-          .wx-me-header { display: flex; align-items: center; padding: 35px 20px 40px; background-color: #ffffff; position: relative; border-bottom: 1px solid #e5e5e5; cursor: pointer; }
-          .wx-me-header-avatar { width: 68px; height: 68px; border-radius: 6px; background: #e2e2e2; display: flex; align-items: center; justify-content: center; font-size: 38px; flex-shrink: 0; position: relative; overflow: hidden; }
+          .wx-me-header { display: flex; align-items: center; padding: 35px 20px 40px; background-color: #ffffff; position: relative; border-bottom: 1px solid #ececef; cursor: pointer; }
+          .wx-me-header-avatar { width: 68px; height: 68px; border-radius: 50%; background: #e2e2e2; display: flex; align-items: center; justify-content: center; font-size: 38px; flex-shrink: 0; position: relative; overflow: hidden; }
           .wx-me-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
           .wx-me-info-box { margin-left: 18px; flex-grow: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-          .wx-me-nickname { font-size: 22px; font-weight: 500; color: #000000; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; line-height: 1.2; margin-bottom: 6px; }
+          .wx-me-nickname { font-size: 22px; font-weight: 500; color: #25262a; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; line-height: 1.2; margin-bottom: 6px; }
           .wx-me-meta-row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-          .wx-me-id { font-size: 13px; color: #888888; }
-          .wx-me-actions { display: flex; align-items: center; gap: 14px; color: #b2b2b2; font-size: 16px; }
+          .wx-me-id { font-size: 13px; color: #8a8b91; }
+          .wx-me-actions { display: flex; align-items: center; gap: 14px; color: #8a8b91; font-size: 16px; }
           
           .wx-status-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; background: #f0f0f0; font-size: 11px; color: #666666; cursor: pointer; margin-top: 4px; align-self: flex-start; transition: background 0.15s; }
-          .wx-status-pill:active { background: #e0e0e0; }
+          .wx-status-pill:active { background: #ececef; }
           
-          .wx-cell-group { background-color: #ffffff; margin-top: 10px; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; }
-          .wx-cell-group-title { font-size: 12px; color: #888888; padding: 12px 16px 6px; background-color: #ededed; }
+          .wx-cell-group { background-color: #ffffff; margin-top: 10px; border-top: 1px solid #ececef; border-bottom: 1px solid #ececef; display: flex; flex-direction: column; }
+          .wx-cell-group-title { font-size: 12px; color: #8a8b91; padding: 12px 16px 6px; background-color: #f7f7f8; }
           .wx-cell { display: flex; align-items: center; justify-content: space-between; padding: 15px 16px; background-color: #ffffff; position: relative; cursor: pointer; transition: background-color 0.15s ease; box-sizing: border-box; min-height: 54px; pointer-events: auto; }
-          .wx-cell:active { background-color: #ececec; }
-          .wx-cell:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 52px; right: 0; height: 1px; background-color: #e5e5e5; }
+          .wx-cell:active { background-color: #ececef; }
+          .wx-cell:not(:last-child)::after { content: ''; position: absolute; bottom: 0; left: 52px; right: 0; height: 1px; background-color: #ececef; }
           .wx-cell.wx-cell-no-icon:not(:last-child)::after { left: 16px; }
-          .wx-cell-left { display: flex; align-items: center; gap: 14px; font-size: 16px; color: #111111; }
+          .wx-cell-left { display: flex; align-items: center; gap: 14px; font-size: 16px; color: #25262a; }
           .wx-cell-icon { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-          .wx-cell-right { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #888888; }
-          .wx-cell-arrow { font-size: 18px; color: #b2b2b2; line-height: 1; font-family: monospace; transform: scaleY(1.2); }
+          .wx-cell-right { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #8a8b91; }
+          .wx-cell-arrow { font-size: 18px; color: #8a8b91; line-height: 1; font-family: monospace; transform: scaleY(1.2); }
           
-          .wx-account-dashboard { padding: 20px 16px; background: linear-gradient(to bottom, #07c160, #06a050); color: #ffffff; }
+          .wx-account-dashboard { padding: 20px 16px; background: linear-gradient(to bottom, #34363b, #25262a); color: #ffffff; }
           .wx-dashboard-title { font-size: 12px; opacity: 0.9; }
           .wx-dashboard-amount { font-size: 36px; font-weight: bold; margin: 6px 0 12px; }
           .wx-dashboard-row { display: flex; justify-content: space-between; font-size: 13px; opacity: 0.95; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; }
           
-          .wx-pure-css-chart { height: 120px; background: #ffffff; padding: 15px 20px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; justify-content: space-between; }
-          .wx-chart-title { font-size: 12px; color: #888888; margin-bottom: 10px; }
+          .wx-pure-css-chart { height: 120px; background: #ffffff; padding: 15px 20px; border-bottom: 1px solid #ececef; display: flex; flex-direction: column; justify-content: space-between; }
+          .wx-chart-title { font-size: 12px; color: #8a8b91; margin-bottom: 10px; }
           .wx-chart-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 80px; padding: 0 10px; }
           .wx-chart-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; height: 100%; justify-content: flex-end; }
-          .wx-chart-bar { width: 16px; background: rgba(7,193,96,0.6); border-radius: 2px 2px 0 0; transition: height 0.5s, background 0.2s; }
-          @media (hover: hover) { .wx-chart-bar-wrap:hover .wx-chart-bar { background: rgba(7,193,96,1); } }
-          .wx-chart-label { font-size: 9px; color: #b2b2b2; }
+          .wx-chart-bar { width: 16px; background: rgba(52,54,59,0.6); border-radius: 2px 2px 0 0; transition: height 0.5s, background 0.2s; }
+          @media (hover: hover) { .wx-chart-bar-wrap:hover .wx-chart-bar { background: rgba(52,54,59,1); } }
+          .wx-chart-label { font-size: 9px; color: #8a8b91; }
           
-          .wx-tx-item { padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+          .wx-tx-item { padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #ececef; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
           .wx-tx-left { display: flex; flex-direction: column; gap: 4px; }
-          .wx-tx-title { font-size: 15px; color: #000000; font-weight: 500; }
-          .wx-tx-time { font-size: 12px; color: #888888; }
+          .wx-tx-title { font-size: 15px; color: #25262a; font-weight: 500; }
+          .wx-tx-time { font-size: 12px; color: #8a8b91; }
           .wx-tx-right { font-size: 16px; font-weight: bold; }
           .wx-tx-right.pos { color: #ff8e00; }
-          .wx-tx-right.neg { color: #111111; }
+          .wx-tx-right.neg { color: #25262a; }
           
-          .wx-switch { width: 50px; height: 30px; border-radius: 15px; background: #dfdfdf; position: relative; transition: background 0.2s; cursor: pointer; box-sizing: border-box; border: 2px solid #dfdfdf; }
+          .wx-switch { width: 50px; height: 30px; border-radius: 15px; background: #ececef; position: relative; transition: background 0.2s; cursor: pointer; box-sizing: border-box; border: 2px solid #ececef; }
           .wx-switch::after { content: ''; position: absolute; top: 1px; left: 1px; width: 24px; height: 24px; border-radius: 50%; background: #ffffff; transition: transform 0.2s cubic-bezier(0.2,0.8,0.2,1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-          .wx-switch.wx-active { background: var(--wx-theme-color, #07c160); border-color: var(--wx-theme-color, #07c160); }
+          .wx-switch.wx-active { background: var(--wx-theme-color, #34363b); border-color: var(--wx-theme-color, #34363b); }
           .wx-switch.wx-active::after { transform: translateX(20px); }
           
-          .wx-range-slider { width: 130px; -webkit-appearance: none; background: #e0e0e0; height: 4px; border-radius: 2px; outline: none; }
+          .wx-range-slider { width: 130px; -webkit-appearance: none; background: #ececef; height: 4px; border-radius: 2px; outline: none; }
           .wx-range-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
           
-          .wx-native-input { background: transparent; border: none; outline: none; color: #000000; font-size: 15px; width: 100%; padding: 4px 0; }
-          .wx-native-input::placeholder { color: #b2b2b2; }
+          .wx-native-input { background: transparent; border: none; outline: none; color: #25262a; font-size: 15px; width: 100%; padding: 4px 0; }
+          .wx-native-input::placeholder { color: #8a8b91; }
           
-          .wx-native-btn { background: var(--wx-theme-color, #07c160); color: #ffffff; border: none; border-radius: 6px; padding: 13px 20px; font-size: 16px; font-weight: 500; width: calc(100% - 32px); margin: 20px 16px; cursor: pointer; transition: opacity 0.15s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; }
+          .wx-native-btn { background: var(--wx-theme-color, #34363b); color: #ffffff; border: none; border-radius: 6px; padding: 13px 20px; font-size: 16px; font-weight: 500; width: calc(100% - 32px); margin: 20px 16px; cursor: pointer; transition: opacity 0.15s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; }
           .wx-native-btn:active { opacity: 0.8; transform: scale(0.98); }
-          .wx-native-btn.wx-btn-danger { background: #ffffff; color: #ff3b30; border: 1px solid #e5e5e5; }
+          .wx-native-btn.wx-btn-danger { background: #ffffff; color: #ff3b30; border: 1px solid #ececef; }
           
-          .wx-api-card { padding: 15px 16px; background: #ffffff; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: background 0.15s; }
-          .wx-api-card:active { background: #ececec; }
+          .wx-api-card { padding: 15px 16px; background: #ffffff; border-bottom: 1px solid #ececef; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: background 0.15s; }
+          .wx-api-card:active { background: #ececef; }
           .wx-api-header-row { display: flex; justify-content: space-between; align-items: center; }
-          .wx-api-title { font-size: 16px; font-weight: 500; color: #000000; }
+          .wx-api-title { font-size: 16px; font-weight: 500; color: #25262a; }
           .wx-api-status-pill { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-          .wx-api-status-pill.connected { background: rgba(7,193,96,0.1); color: #07c160; }
+          .wx-api-status-pill.connected { background: rgba(52,54,59,0.1); color: #34363b; }
           .wx-api-status-pill.disconnected { background: rgba(255,59,48,0.1); color: #ff3b30; }
-          .wx-api-subtext { font-size: 12px; color: #888888; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .wx-api-subtext { font-size: 12px; color: #8a8b91; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
           /* ───── 仿 SillyTavern 风格 API 编辑页 ───── */
           .wx-api-edit-header { height: 90px; background: #DCEAD2;
@@ -8135,59 +8134,60 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               border: 1.5px solid #FFD0CD; border-radius: 12px; padding: 13px;
               font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
           
-          .wx-search-bar-wrap { padding: 10px 16px; background: #ededed; border-bottom: 1px solid #d9d9d9; position: sticky; top: 48px; z-index: 10; }
-          .wx-search-box { background: #ffffff; border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; color: #b2b2b2; font-size: 14px; }
-          .wx-search-box input { background: transparent; border: none; outline: none; color: #000000; width: 100%; font-size: 14px; }
+          .wx-search-bar-wrap { padding: 10px 16px; background: #ffffff; border-bottom: 1px solid #ececef; position: sticky; top: 48px; z-index: 10; }
+          .wx-search-box { background: #f7f7f8; border-radius: 18px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; color: #8a8b91; font-size: 14px; }
+          .wx-search-box input { background: transparent; border: none; outline: none; color: #25262a; width: 100%; font-size: 14px; }
           
-          .wx-card-item { background: #ffffff; padding: 14px 16px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
-          .wx-card-item:active { background: #ececec; }
+          .wx-card-item { background: #ffffff; padding: 14px 16px; border-bottom: 1px solid #ececef; display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
+          .wx-card-item:active { background: #ececef; }
           .wx-card-header { display: flex; justify-content: space-between; align-items: center; }
-          .wx-card-title { font-size: 15px; font-weight: 500; color: #000000; display: flex; align-items: center; gap: 6px; }
-          .wx-card-scope-tag { font-size: 10px; border-radius: 4px; padding: 1px 5px; border: 1px solid #d9d9d9; color: #888888; }
+          .wx-card-title { font-size: 15px; font-weight: 500; color: #25262a; display: flex; align-items: center; gap: 6px; }
+          .wx-card-scope-tag { font-size: 10px; border-radius: 4px; padding: 1px 5px; border: 1px solid #ececef; color: #8a8b91; }
           .wx-card-tags-row { display: flex; flex-wrap: wrap; gap: 5px; }
-          .wx-card-tag { font-size: 11px; background: #f2f2f2; color: var(--wx-theme-color, #07c160); padding: 2px 6px; border-radius: 4px; }
-          .wx-card-footer { font-size: 11px; color: #b2b2b2; display: flex; justify-content: space-between; }
+          .wx-card-tag { font-size: 11px; background: #f7f7f8; color: var(--wx-theme-color, #34363b); padding: 2px 6px; border-radius: 4px; }
+          .wx-card-footer { font-size: 11px; color: #8a8b91; display: flex; justify-content: space-between; }
           
-          .wx-chat-state-bar { height: 22px; background: #ededed; font-size: 12px; color: #999999; display: none; align-items: center; justify-content: center; position: absolute; top: calc(48px + var(--sys-island-safe-top, 62px)); left: 0; width: 100%; z-index: 90; }
+          .wx-chat-state-bar { height: 22px; background: #ffffff; font-size: 12px; color: #999999; display: none; align-items: center; justify-content: center; position: absolute; top: calc(48px + var(--sys-island-safe-top, 62px)); left: 0; width: 100%; z-index: 90; }
           .wx-chat-state-bar.wx-typing { display: flex; }
           @keyframes wxPulseTone { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
           
-          .wx-msg-stream { flex-grow: 1; overflow-y: auto; padding: 14px 12px 16px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; background-color: #ededed; background-size: cover; background-position: center; pointer-events: auto; }
+          .wx-msg-stream { flex-grow: 1; overflow-y: auto; padding: 14px 12px 16px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; background-color: var(--wx-chat-bg, #ffffff); background-size: cover; background-position: center; pointer-events: auto; }
           .wx-msg-row { display: flex; align-items: flex-start; gap: 8px; width: 100%; transition: all 0.3s ease; box-sizing: border-box; }
           .wx-msg-row.wx-self { flex-direction: row-reverse; }
           
           .wx-bubble-wrap { max-width: 68%; display: flex; flex-direction: column; gap: 3px; min-width: 0; position: relative; }
           .wx-msg-row.wx-self .wx-bubble-wrap { align-items: flex-end; }
-          .wx-sender-nick { font-size: 12px; color: #888888; padding: 0 4px; }
+          .wx-sender-nick { font-size: 13px; color: #8a8b91; padding: 0 4px; }
           
           .wx-bubble { padding: 9px 13px; font-size: var(--wx-bubble-font, 15px); line-height: 1.42; word-break: break-word; position: relative; box-shadow: none; box-sizing: border-box; }
-          /* 对方气泡：白色 + 左侧尖角 */
+          /* 对方消息：Muse 式无气泡纯文本（白底白字，无尖角；尖角由气泡预设的 data-wx-bubble-tail 控制） */
           .wx-msg-row:not(.wx-self) .wx-bubble {
-              border-radius: 4px; background-color: var(--wx-bg-friend, #ffffff); color: #000000;
-              box-shadow: none;
+              border-radius: 16px; background-color: var(--wx-bg-friend, #ffffff); color: #25262a;
+              box-shadow: none; padding: 9px 4px;
           }
+          .wx-msg-row:not(.wx-self) .wx-bubble-wrap { max-width: calc(100% - 56px); }
           .wx-msg-row:not(.wx-self) .wx-bubble::before {
               content: ''; position: absolute; left: -5px; top: 14.5px;
               width: 0; height: 0;
               border-style: solid; border-width: 5.5px 6px 5.5px 0;
               border-color: transparent var(--wx-bg-friend, #ffffff) transparent transparent;
           }
-          /* 自己气泡：微信绿 + 右侧尖角 */
+          /* 自己气泡：浅灰 16px 圆角，无尖角（尖角由气泡预设的 data-wx-bubble-tail 控制） */
           .wx-msg-row.wx-self .wx-bubble {
-              border-radius: 4px; background-color: var(--wx-bg-self, #95ec69); color: #000000;
+              border-radius: 16px; background-color: var(--wx-bg-self, #ececef); color: #25262a;
               box-shadow: none;
           }
           .wx-msg-row.wx-self .wx-bubble::before {
               content: ''; position: absolute; right: -5px; top: 14.5px;
               width: 0; height: 0;
               border-style: solid; border-width: 5.5px 0 5.5px 6px;
-              border-color: transparent transparent transparent var(--wx-bg-self, #95ec69);
+              border-color: transparent transparent transparent var(--wx-bg-self, #ececef);
           }
           
-          .wx-rich-bubble-wrap { display: flex; flex-direction: column; width: 100%; min-width: 0; border-radius: 4px; overflow: hidden; box-shadow: none; border: 1px solid #d9d9d9; background: #ffffff; }
+          .wx-rich-bubble-wrap { display: flex; flex-direction: column; width: 100%; min-width: 0; border-radius: 4px; overflow: hidden; box-shadow: none; border: 1px solid #ececef; background: #ffffff; }
           
           .wx-sys-bar { align-self: center; background: transparent; padding: 4px 12px; border-radius: 0; font-size: 12.5px; color: #999999; text-align: center; margin: 4px 0; max-width: 90%; }
-          .wx-sys-bar span { color: var(--wx-theme-color, #07c160); cursor: pointer; }
+          .wx-sys-bar span { color: var(--wx-theme-color, #34363b); cursor: pointer; }
 
           /* ── 录音浮层（按住麦克风时） ── */
           .wx-rec-overlay {
@@ -8207,15 +8207,15 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           }
           .wx-rec-mic-ring {
               width: 90px; height: 90px; border-radius: 50%;
-              background: radial-gradient(circle, #07c160 0%, #07c160 60%, rgba(7,193,96,0.4) 100%);
+              background: radial-gradient(circle, #34363b 0%, #34363b 60%, rgba(52,54,59,0.4) 100%);
               display: flex; align-items: center; justify-content: center;
-              box-shadow: 0 0 0 0 rgba(7,193,96,0.7);
+              box-shadow: 0 0 0 0 rgba(52,54,59,0.7);
               animation: wxRecPulse 1.2s ease-out infinite;
               margin-bottom: 14px;
           }
           @keyframes wxRecPulse {
-              0%   { box-shadow: 0 0 0 0 rgba(7,193,96,0.55); }
-              100% { box-shadow: 0 0 0 22px rgba(7,193,96,0.0); }
+              0%   { box-shadow: 0 0 0 0 rgba(52,54,59,0.55); }
+              100% { box-shadow: 0 0 0 22px rgba(52,54,59,0.0); }
           }
           .wx-rec-time {
               font-size: 28px; font-weight: 600; color: #fff;
@@ -8230,7 +8230,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-rec-overlay.cancel .wx-rec-tip { color: #FFB4B0; }
 
           /* 按住录音时的视觉反馈 */
-          #wx-mic-btn.wx-mic-recording { background: rgba(7,193,96,0.18); border-radius: 50%; }
+          #wx-mic-btn.wx-mic-recording { background: rgba(52,54,59,0.18); border-radius: 50%; }
           
           /* 真实音频 message bubble 增强 */
           .wx-voice-msg-real { display:flex; align-items:center; gap:8px; cursor:pointer; min-width:120px; }
@@ -8259,58 +8259,58 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-rich-card { display: flex; align-items: center; gap: 12px; padding: 12px; width: 230px; box-sizing: border-box; text-align: left; cursor: pointer; }
           .wx-rich-icon { width: 36px; height: 36px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; }
           .wx-rich-info { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-          .wx-rich-title { font-size: 14px; font-weight: 500; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-          .wx-rich-sub { font-size: 11px; color: #888888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-          .wx-card-biz { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #ffffff; border-left: 3px solid var(--wx-theme-color, #07c160); width: 230px; box-sizing: border-box; gap: 10px; text-align: left; }
+          .wx-rich-title { font-size: 14px; font-weight: 500; color: #25262a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+          .wx-rich-sub { font-size: 11px; color: #8a8b91; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+          .wx-card-biz { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #ffffff; border-left: 3px solid var(--wx-theme-color, #34363b); width: 230px; box-sizing: border-box; gap: 10px; text-align: left; }
           .wx-biz-left { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-          .wx-biz-title { font-size: 14px; font-weight: 500; color: #000000; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-          .wx-biz-sub { font-size: 11px; color: #888888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-          .wx-biz-cover { width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0; background: #f2f2f2; display: flex; align-items: center; justify-content: center; font-size: 22px; overflow: hidden; }
-          .wx-card-poll { background: #ffffff; border: 1px solid #e5e5e5; padding: 12px; width: 230px; box-sizing: border-box; text-align: left; }
-          .wx-poll-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; line-height: 1.3; color: #000000; }
-          .wx-poll-opt { background: #f7f7f7; border-radius: 4px; margin-top: 6px; overflow: hidden; position: relative; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; }
-          .wx-poll-opt-text { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; z-index: 2; color: #000000; }
-          .wx-poll-opt-votes { flex-shrink: 0; color: var(--wx-theme-color, #07c160); font-weight: 500; z-index: 2; }
-          .wx-poll-bar { position: absolute; top: 0; left: 0; height: 100%; background: rgba(7,193,96,0.15); z-index: 1; transition: width 0.3s ease; }
+          .wx-biz-title { font-size: 14px; font-weight: 500; color: #25262a; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+          .wx-biz-sub { font-size: 11px; color: #8a8b91; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .wx-biz-cover { width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0; background: #f7f7f8; display: flex; align-items: center; justify-content: center; font-size: 22px; overflow: hidden; }
+          .wx-card-poll { background: #ffffff; border: 1px solid #ececef; padding: 12px; width: 230px; box-sizing: border-box; text-align: left; }
+          .wx-poll-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; line-height: 1.3; color: #25262a; }
+          .wx-poll-opt { background: #f7f7f8; border-radius: 4px; margin-top: 6px; overflow: hidden; position: relative; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; cursor: pointer; }
+          .wx-poll-opt-text { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; z-index: 2; color: #25262a; }
+          .wx-poll-opt-votes { flex-shrink: 0; color: var(--wx-theme-color, #34363b); font-weight: 500; z-index: 2; }
+          .wx-poll-bar { position: absolute; top: 0; left: 0; height: 100%; background: rgba(52,54,59,0.15); z-index: 1; transition: width 0.3s ease; }
           
-          .wx-input-bar { position: relative; width: 100%; background: #f6f6f6; border-top: 0.5px solid #e5e5e5; padding: 9px 12px calc(18px + env(safe-area-inset-bottom) + 30px); display: flex; align-items: flex-end; gap: 10px; z-index: 150; /* [AT] 输入框与发送键抬出 Home Indicator 热区 */ box-sizing: border-box; flex-shrink: 0; }
-          .wx-textarea { flex-grow: 1; background: #ffffff; border: none; border-radius: 4px; padding: 9px 32px 9px 12px; color: #000000; font-size: 15px; line-height: 1.4; resize: none; max-height: 100px; min-height: 38px; outline: none; box-sizing: border-box; caret-color: #07c160; }
+          .wx-input-bar { position: relative; width: 100%; background: #ffffff; border-top: 0.5px solid #ececef; padding: 9px 12px calc(18px + env(safe-area-inset-bottom) + 30px); display: flex; align-items: flex-end; gap: 10px; z-index: 150; /* [AT] 输入框与发送键抬出 Home Indicator 热区 */ box-sizing: border-box; flex-shrink: 0; }
+          .wx-textarea { flex-grow: 1; background: #f7f7f8; border: none; border-radius: 20px; padding: 9px 32px 9px 12px; color: #25262a; font-size: 15px; line-height: 1.4; resize: none; max-height: 100px; min-height: 38px; outline: none; box-sizing: border-box; caret-color: #34363b; }
           .wx-textarea::placeholder { color: transparent; }
-          .wx-send-btn { background: var(--wx-theme-color, #07c160); color: #ffffff; border: none; border-radius: 4px; padding: 0; width: 48px; height: 32px; font-size: 15px; font-weight: 500; cursor: pointer; flex-shrink: 0; }
-          .wx-at-panel { position: absolute; bottom: calc(100% + 5px); left: 50px; width: 180px; background: #ffffff; border: 1px solid #d9d9d9; border-radius: 6px; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; z-index: 200; display: none; flex-direction: column; }
+          .wx-send-btn { background: var(--wx-theme-color, #34363b); color: #ffffff; border: none; border-radius: 50%; padding: 0; width: 44px; height: 44px; line-height: 44px; text-align: center; font-size: 18px; font-weight: 500; cursor: pointer; flex-shrink: 0; }
+          .wx-at-panel { position: absolute; bottom: calc(100% + 5px); left: 50px; width: 180px; background: #ffffff; border: 1px solid #ececef; border-radius: 6px; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; z-index: 200; display: none; flex-direction: column; }
           .wx-at-panel.wx-active { display: flex; animation: wxFadeIn 0.15s; }
-          .wx-at-item { padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; color: #000000; }
-          @media (hover: hover) { .wx-at-item:hover { background: #f7f7f7; } }
+          .wx-at-item { padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; color: #25262a; }
+          @media (hover: hover) { .wx-at-item:hover { background: #f7f7f8; } }
           
-          .wx-ext-panel { height: 288px; background: #f6f6f6; border-top: 0.5px solid #e5e5e5; display: none; padding: 16px 16px calc(24px + env(safe-area-inset-bottom)); overflow-y: auto; z-index: 140; box-sizing: border-box; flex-shrink: 0; }
+          .wx-ext-panel { height: 288px; background: #ffffff; border-top: 0.5px solid #ececef; display: none; padding: 16px 16px calc(24px + env(safe-area-inset-bottom)); overflow-y: auto; z-index: 140; box-sizing: border-box; flex-shrink: 0; }
           .wx-ext-panel.wx-active { display: block; animation: wxPanelSlideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
           @keyframes wxPanelSlideUp { from { height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; } to { height: 210px; padding-top: 15px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); opacity: 1; } }
           .wx-grid-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; justify-items: center; }
-          .wx-tool-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; color: #888888; font-size: 12px; }
-          .wx-tool-btn .wx-icon { width: 56px; height: 56px; border-radius: 12px; background: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #000000; border: 1px solid #e5e5e5; }
+          .wx-tool-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; color: #8a8b91; font-size: 12px; }
+          .wx-tool-btn .wx-icon { width: 56px; height: 56px; border-radius: 12px; background: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #25262a; border: 1px solid #ececef; }
           
-          .wx-sim-form-card { background: #ffffff; border: 1px solid #d9d9d9; border-radius: 6px; padding: 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; text-align: left; margin-bottom: 8px; }
-          .wx-sim-form-card span { font-size: 11px; color: #888888; font-weight: bold; }
+          .wx-sim-form-card { background: #ffffff; border: 1px solid #ececef; border-radius: 6px; padding: 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; text-align: left; margin-bottom: 8px; }
+          .wx-sim-form-card span { font-size: 11px; color: #8a8b91; font-weight: bold; }
           
           .wx-moments-cover { height: 260px; background-color: #e2e2e2; background-image: url('https://img.imgos.cn/cdn/20260505/dbcae39ea9cc856722ad97ab83e5e523.png'); background-size: cover; background-position: center; position: relative; cursor: pointer; }
           .wx-moments-avatar-box { position: absolute; right: 15px; bottom: -20px; display: flex; align-items: flex-end; gap: 12px; }
           .wx-moments-nick { font-size: 16px; font-weight: bold; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); margin-bottom: 5px; }
           .wx-moments-feed { padding: 35px 15px 20px; display: flex; flex-direction: column; gap: 20px; background: #ffffff; }
-          .wx-feed-item { display: flex; gap: 12px; border-bottom: 1px solid #e5e5e5; padding-bottom: 15px; }
-          .wx-feed-main { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden; color: #111111; }
+          .wx-feed-item { display: flex; gap: 12px; border-bottom: 1px solid #ececef; padding-bottom: 15px; }
+          .wx-feed-main { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden; color: #25262a; }
           .wx-feed-img { max-width: 180px; max-height: 180px; border-radius: 4px; object-fit: cover; margin-top: 4px; cursor: pointer; }
-          .wx-feed-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #b2b2b2; position: relative; }
-          .wx-feed-action-btn { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; color: var(--wx-theme-color, #07c160); cursor: pointer; font-weight: bold; }
+          .wx-feed-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #8a8b91; position: relative; }
+          .wx-feed-action-btn { background: #f7f7f8; padding: 2px 6px; border-radius: 4px; color: var(--wx-theme-color, #34363b); cursor: pointer; font-weight: bold; }
           .wx-feed-popover { position: absolute; right: 35px; top: -6px; background: #fffdf8; border-radius: 4px; border: 1px solid transparent; display: none; align-items: center; overflow: hidden; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); animation: wxSlideLeft 0.2s ease; }
           .wx-feed-popover.wx-active { display: flex; }
           .wx-pop-opt { padding: 8px 16px; color: #1e2748; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; }
-          @media (hover: hover) { .wx-pop-opt:hover { background: #f2f2f2; } }
-          .wx-feed-likes-comments { background: #f7f7f7; border-radius: 4px; margin-top: 8px; padding: 8px 10px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; border: 1px solid #e5e5e5; }
+          @media (hover: hover) { .wx-pop-opt:hover { background: #f7f7f8; } }
+          .wx-feed-likes-comments { background: #f7f7f8; border-radius: 4px; margin-top: 8px; padding: 8px 10px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; border: 1px solid #ececef; }
           
           .wx-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 300; display: none; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; }
           .wx-overlay.wx-active { display: flex; animation: wxFadeIn 0.2s; }
           
-          .wx-hearts-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid #e5e5e5; border-radius: 12px; padding: 25px; max-width: 280px; width: 100%; text-align: center; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); }
+          .wx-hearts-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid #ececef; border-radius: 12px; padding: 25px; max-width: 280px; width: 100%; text-align: center; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); }
           
           .wx-rp-result-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #ffffff; z-index: 500; display: none; flex-direction: column; align-items: center; box-sizing: border-box; animation: wxFadeIn 0.2s ease; }
           .wx-rp-result-page.wx-active { display: flex; }
@@ -8408,30 +8408,36 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           }
           .wx-call-btn-hangup:active { transform: scale(.90); }
           
-          .wx-context-menu { position: absolute; background: #ffffff; border: 1px solid #d9d9d9; border-radius: 6px; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); overflow: hidden; z-index: 5000; display: none; flex-direction: column; min-width: 100px; }
+          .wx-context-menu { position: absolute; left: 12px; right: 12px; bottom: 64px; top: auto; background: #ffffff; border: 1px solid #ececef; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.18); overflow: hidden; z-index: 5000; display: none; flex-direction: column; min-width: 100px; }
           .wx-context-menu.wx-active { display: flex; }
-          .wx-ctx-item { padding: 10px 15px; font-size: 13px; color: #000000; cursor: pointer; text-align: center; }
-          @media (hover: hover) { .wx-ctx-item:hover { background: #f2f2f2; } }
+          .wx-ctx-item { padding: 13px 16px; font-size: 15px; color: #25262a; cursor: pointer; text-align: left; }
+          .wx-ctx-item:not(:last-child) { border-bottom: 1px solid #ececef; }
+          @media (hover: hover) { .wx-ctx-item:hover { background: #f7f7f8; } }
+          .wx-ctx-react-tray { display: flex; gap: 8px; padding: 12px 16px 6px; border-bottom: 1px solid #ececef; }
+          .wx-ctx-react-tray button { border: 0; background: #f7f7f8; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; }
+          /* 聊天页顶栏联系人头像（Muse 的 Agent 位）：36px 圆，点头像开联系人选择器 */
+          .wx-chat-avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #e2e2e2; font-size: 18px; }
+          .wx-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
           
           .wx-profile-card { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-          .wx-prop-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #e5e5e5; padding-bottom: 8px; color: #111111; }
+          .wx-prop-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #ececef; padding-bottom: 8px; color: #25262a; }
 
           /* ───── 仿微信个人主页 ───── */
           .wx-prof-top { background: #fff; display: flex; align-items: center;
               gap: 16px; padding: 24px 18px; }
-          .wx-prof-avatar-big { width: 64px; height: 64px; border-radius: 8px;
+          .wx-prof-avatar-big { width: 64px; height: 64px; border-radius: 50%;
               background: #e2e2e2; display: flex; align-items: center;
               justify-content: center; font-size: 36px; overflow: hidden; flex-shrink: 0; }
           .wx-prof-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
           .wx-prof-namebox { flex: 1; min-width: 0; }
-          .wx-prof-name-big { font-size: 21px; font-weight: 600; color: #000;
+          .wx-prof-name-big { font-size: 21px; font-weight: 600; color: #25262a;
               margin-bottom: 6px; }
           .wx-prof-id, .wx-prof-region { font-size: 13px; color: #888;
               margin-top: 2px; }
           .wx-prof-group { background: #fff; margin-top: 10px; }
           .wx-prof-row { display: flex; justify-content: space-between;
-              align-items: center; padding: 13px 18px; font-size: 16px; color: #000;
-              border-bottom: 0.5px solid #ededed; cursor: pointer; }
+              align-items: center; padding: 13px 18px; font-size: 16px; color: #25262a;
+              border-bottom: 0.5px solid #ececef; cursor: pointer; }
           .wx-prof-row:last-child { border-bottom: none; }
           .wx-prof-row:active { background: #f5f5f5; }
           .wx-prof-arrow { font-size: 18px; color: #c7c7cc; }
@@ -8440,10 +8446,10 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           /* ───── AI 人设编辑页 ───── */
           .wx-persona-header { height:84px; background:#fff;
               display:flex; align-items:flex-end; padding:0 14px 12px;
-              border-bottom:0.5px solid #ececec; position:sticky; top:0; z-index:5; }
+              border-bottom:0.5px solid #ececef; position:sticky; top:0; z-index:5; }
           .wx-persona-back { width:40px; cursor:pointer; }
           .wx-persona-htitle { flex:1; text-align:center; font-size:18px;
-              font-weight:600; color:#000; }
+              font-weight:600; color:#25262a; }
           .wx-persona-body { padding:18px 16px 90px; overflow-y:auto;
               height:calc(100% - 84px - 70px); box-sizing:border-box; }
           .wx-pe-card { background:#F7F7F8; border-radius:14px;
@@ -8463,43 +8469,43 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-pe-gender label { display:flex; align-items:center; gap:6px;
               font-size:14px; color:#333; cursor:pointer; }
           .wx-pe-tags { display:flex; flex-wrap:wrap; gap:8px; }
-          .wx-pe-tag { background:#fff; border:1px solid #07c160;
-              color:#07c160; border-radius:14px; padding:5px 12px;
+          .wx-pe-tag { background:#fff; border:1px solid #34363b;
+              color:#34363b; border-radius:14px; padding:5px 12px;
               font-size:13px; display:flex; align-items:center; gap:5px; }
           .wx-pe-tag .x { cursor:pointer; color:#999; }
-          .wx-pe-tag-add { background:#fff; border:1px dashed #07c160;
-              color:#07c160; border-radius:14px; padding:5px 12px;
+          .wx-pe-tag-add { background:#fff; border:1px dashed #34363b;
+              color:#34363b; border-radius:14px; padding:5px 12px;
               font-size:13px; cursor:pointer; }
           .wx-persona-footer { position:absolute; bottom:0; left:0; width:100%;
               padding:12px 16px 32px; background:#fff; /* GROUP-BM BM-2：底垫 20px→32px，避开 Home 条 */
-              border-top:0.5px solid #ececec; box-sizing:border-box; }
-          .wx-persona-save { width:100%; background:#07c160; color:#fff;
+              border-top:0.5px solid #ececef; box-sizing:border-box; }
+          .wx-persona-save { width:100%; background:#34363b; color:#fff;
               border:none; border-radius:12px; padding:14px; font-size:16px;
               font-weight:600; cursor:pointer; }
           .wx-prof-actions { background: #fff; margin-top: 10px; }
           .wx-prof-action-btn { display: flex; align-items: center;
               justify-content: center; gap: 8px; padding: 14px;
               font-size: 16px; color: #576b95; cursor: pointer;
-              border-bottom: 0.5px solid #ededed; }
+              border-bottom: 0.5px solid #ececef; }
           .wx-prof-action-btn:last-child { border-bottom: none; }
           .wx-prof-action-btn:active { background: #f5f5f5; }
-          .wx-prop-val { color: var(--wx-theme-color, #07c160); font-weight: 500; }
+          .wx-prop-val { color: var(--wx-theme-color, #34363b); font-weight: 500; }
           
           .wx-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(20,20,20,0.85); color: #ffffff; padding: 12px 24px; border-radius: 6px; font-size: 14px; z-index: 9999; display: none; align-items: center; gap: 8px; transition: all 0.2s; }
           .wx-toast.wx-active { display: flex; transform: translate(-50%, -50%) scale(1); }
           
-          .wechat-arc-menu { position: absolute; top: 48px; right: 10px; width: 170px; background: rgba(240,240,240,0.95); backdrop-filter: blur(15px); border: 1px solid #d9d9d9; border-radius: 17px; padding: 10px; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); display: none; flex-direction: column; gap: 8px; z-index: 5000; }
+          .wechat-arc-menu { position: absolute; top: 48px; right: 10px; width: 170px; background: rgba(240,240,240,0.95); backdrop-filter: blur(15px); border: 1px solid #ececef; border-radius: 17px; padding: 10px; box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08), 0 12px 24px -6px oklch(0 0 0 / 0.10); display: none; flex-direction: column; gap: 8px; z-index: 5000; }
           .wechat-arc-menu.wx-active { display: flex; animation: wxFadeIn 0.15s; }
-          .wechat-arc-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #111111; font-size: 13px; font-weight: 500; }
+          .wechat-arc-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #25262a; font-size: 13px; font-weight: 500; }
           @media (hover: hover) { .wechat-arc-item:hover { background: #e2e2e2; } }
           
           .wechat-voucher-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 6000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
           .wechat-voucher-modal.wx-active { display: flex; animation: wxFadeIn 0.2s; }
-          .wechat-voucher-card { width: 100%; max-width: 290px; background: #ffffff; border-radius: 8px; padding: 20px; box-sizing: border-box; color: #111111; }
+          .wechat-voucher-card { width: 100%; max-width: 290px; background: #ffffff; border-radius: 8px; padding: 20px; box-sizing: border-box; color: #25262a; }
           
           .wechat-modal-clean { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
           .wechat-modal-clean.wx-active { display: flex; animation: wxFadeIn 0.2s; }
-          .wechat-ticket-box { width: 100%; max-width: 290px; background: #ffffff; border-radius: 12px; overflow: hidden; color: #111111; text-align: center; }
+          .wechat-ticket-box { width: 100%; max-width: 290px; background: #ffffff; border-radius: 12px; overflow: hidden; color: #25262a; text-align: center; }
           .wechat-diary-wrap { width: 100%; max-width: 320px; height: 460px; background: #fffdf8; border-radius: 6px; border: 1px solid #1e2748; padding: 25px 20px; box-sizing: border-box; color: #1e2748; overflow-y: auto; text-align: left; position: relative; }
           .wechat-offline-wrap { width: 100%; height: 100%; background: #fffdf8; padding-top: 50px; box-sizing: border-box; color: #1e2748; overflow-y: auto; }
 
@@ -8507,19 +8513,19 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-dialog-mask { position: absolute; inset: 0; background: rgba(0,0,0,0.5);
               z-index: 8000; display: none; align-items: center; justify-content: center; }
           .wx-dialog-mask.wx-active { display: flex; animation: wxFadeIn 0.15s; }
-          .wx-dialog-box { width: 280px; background: #ededed; border-radius: 14px;
+          .wx-dialog-box { width: 280px; background: #ffffff; border-radius: 14px;
               overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
-          .wx-dialog-title { font-size: 16px; font-weight: 600; color: #000;
+          .wx-dialog-title { font-size: 16px; font-weight: 600; color: #25262a;
               text-align: center; padding: 22px 20px 14px; }
           .wx-dialog-input { width: calc(100% - 40px); margin: 0 20px 20px;
-              border: none; border-bottom: 1.5px solid #07c160; background: transparent;
-              font-size: 15px; padding: 6px 2px; outline: none; color: #000;
+              border: none; border-bottom: 1.5px solid #34363b; background: transparent;
+              font-size: 15px; padding: 6px 2px; outline: none; color: #25262a;
               box-sizing: border-box; }
           .wx-dialog-btns { display: flex; border-top: 0.5px solid #d5d5d5; }
           .wx-dialog-btn { flex: 1; text-align: center; padding: 13px 0;
-              font-size: 16px; color: #000; cursor: pointer; }
-          .wx-dialog-btn:active { background: #e0e0e0; }
-          .wx-dialog-btn.primary { color: #07c160; font-weight: 600;
+              font-size: 16px; color: #25262a; cursor: pointer; }
+          .wx-dialog-btn:active { background: #ececef; }
+          .wx-dialog-btn.primary { color: #34363b; font-weight: 600;
               border-left: 0.5px solid #d5d5d5; }
 
           /* ───── 添加朋友 / 发起群聊 ───── */
@@ -8532,12 +8538,12 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-af-card { background:#fff; border-radius:8px; padding:14px;
               display:flex; align-items:center; gap:12px; margin-bottom:10px; }
           .wx-af-card-avatar { width:48px; height:48px; border-radius:6px;
-              background:#07c160; color:#fff; display:flex; align-items:center;
+              background:#34363b; color:#fff; display:flex; align-items:center;
               justify-content:center; font-size:24px; flex-shrink:0; }
           .wx-af-card-info { flex:1; }
-          .wx-af-card-name { font-size:16px; color:#000; font-weight:500; }
+          .wx-af-card-name { font-size:16px; color:#25262a; font-weight:500; }
           .wx-af-card-id { font-size:12px; color:#999; margin-top:2px; }
-          .wx-af-add-btn { background:#07c160; color:#fff; border:none;
+          .wx-af-add-btn { background:#34363b; color:#fff; border:none;
               border-radius:6px; padding:8px 16px; font-size:14px; cursor:pointer; }
           .wx-cg-name-row { background:#fff; margin:12px; border-radius:8px;
               display:flex; align-items:center; padding:13px 14px; gap:12px; }
@@ -8552,13 +8558,13 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-cg-check { width:22px; height:22px; border-radius:50%;
               border:1.5px solid #ccc; flex-shrink:0; display:flex;
               align-items:center; justify-content:center; }
-          .wx-cg-item.checked .wx-cg-check { background:#07c160; border-color:#07c160; }
+          .wx-cg-item.checked .wx-cg-check { background:#34363b; border-color:#34363b; }
           .wx-cg-item.checked .wx-cg-check::after { content:''; width:5px; height:10px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(45deg); margin-top:-2px; }
           .wx-cg-avatar { width:42px; height:42px; border-radius:6px;
               background:#ddd; display:flex; align-items:center; justify-content:center;
               font-size:22px; flex-shrink:0; overflow:hidden; }
           .wx-cg-avatar img { width:100%; height:100%; object-fit:cover; }
-          .wx-cg-name { font-size:16px; color:#000; }
+          .wx-cg-name { font-size:16px; color:#25262a; }
           
           .wc-story-box { flex: 1; background: linear-gradient(to bottom, #2C2D31, #1A1A1C); color: #E5E5E5; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; justify-content: space-between; height: calc(100% - 48px); }
           .wc-story-text { font-size: 15px; line-height: 1.9; letter-spacing: 0.5px; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); flex: 1; overflow-y: auto; text-align: justify; }
@@ -8579,17 +8585,17 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
              只覆盖 #wx-view-chat-detail（聊天室），不覆盖微信列表/通讯录/发现/我页。
              占位符（user_avatar / char_avatar / user_name / char_remark）不出现在 CSS/JS 里，
              运行时由渲染代码换真值（resolveAvatar / 会话名 / 昵称）。 */
-          #wx-view-chat-detail { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; background-color: #ededed; }
+          #wx-view-chat-detail { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; background-color: var(--wx-chat-bg, #ffffff); }
           /* §2 顶栏：116px，in-flow（原 absolute 改为 relative；消息区 padding-top 随之改为 docx 的 14px） */
-          #wx-view-chat-detail .wx-header { position: relative; top: auto; left: auto; width: 100%; height: 116px; min-height: 116px; max-height: 116px; flex-shrink: 0; box-sizing: border-box; padding: 68px 14px 10px 12px; background-color: #ededed; border-bottom: 0.5px solid rgba(0,0,0,0.08) !important; z-index: 100; }
+          #wx-view-chat-detail .wx-header { position: relative; top: auto; left: auto; width: 100%; height: 116px; min-height: 116px; max-height: 116px; flex-shrink: 0; box-sizing: border-box; padding: 68px 14px 10px 12px; background-color: #ffffff; border-bottom: 0.5px solid rgba(0,0,0,0.08) !important; z-index: 100; }
           #wx-view-chat-detail .wx-header-left { position: relative; width: 32px; height: 32px; font-size: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
           #wx-view-chat-detail .wx-header-left::after { content: ""; display: block; width: 11px; height: 11px; border-left: 1.8px solid #111111; border-bottom: 1.8px solid #111111; transform: rotate(45deg); }
-          #wx-view-chat-detail .wx-header-title { position: absolute; left: 50%; top: 71px; transform: translateX(-50%); flex: none; width: max-content; max-width: 60%; margin: 0; padding: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 5px; font-size: 16.5px; font-weight: 500; color: #111111 !important; line-height: 1.2; cursor: pointer; }
+          #wx-view-chat-detail .wx-header-title { position: absolute; left: 50%; top: 71px; transform: translateX(-50%); flex: none; width: max-content; max-width: 60%; margin: 0; padding: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 5px; font-size: 16.5px; font-weight: 500; color: #25262a !important; line-height: 1.2; cursor: pointer; }
           #wx-view-chat-detail .wx-header-title::after { content: ""; display: inline-block; width: 15px; height: 16px; margin-left: 5px; vertical-align: -2px; background: url('data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 26' fill='none' stroke='%23999999' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'><path d='M6 10.5 C6 5.5 10 2.5 14.5 3 C18.5 3.5 20.5 7 19.5 11 C18.8 13.5 16.5 14.5 15.8 17 C15.2 19.2 14 22.5 10.8 22.5 C7.8 22.5 7 19.5 7 17.5'/><path d='M14.5 8.5 C12.5 8 10.5 9.5 10.8 11.8 C11 13.5 13.2 14.2 13.2 16.5'/></svg>') center/contain no-repeat; flex-shrink: 0; }
           #wx-view-chat-detail .wx-header-title.wx-typing-title::after { display: none; }
           #wx-view-chat-detail #wx-chat-more-btn { width: 28px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; }
           #wx-view-chat-detail #wx-chat-more-btn svg { width: 22px; height: 22px; }
-          #wx-view-chat-detail .wx-avatar-wrapper { border-radius: 4px !important; }
+          #wx-view-chat-detail .wx-avatar-wrapper { border-radius: 50% !important; }
           /* §2 “对方正在输入...”：旧的独立提示条隐藏，顶栏原位换字（见 _wxTypingMirror，监听 .wx-typing 信号源） */
           #wx-view-chat-detail .wx-chat-state-bar { display: none; }
           /* §3 富文本卡片的裸容器：转账/位置/语音/亲属卡/礼物自带卡面，不套白底边框，不裁尖角 */
@@ -8644,30 +8650,30 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           #wx-view-chat-detail .gift-card { position: relative; width: 232px; height: 96px; min-height: 96px; max-height: 96px; margin: 0 8px; padding: 0 16px 14px 72px; box-sizing: border-box; border: none; border-radius: 4px; box-shadow: none; display: flex; align-items: center; overflow: visible; background-color: #0c4383; background-image: url('data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 232 96' fill='none'><defs><linearGradient id='ribbon' x1='0' y1='4' x2='0' y2='76' gradientUnits='userSpaceOnUse'><stop offset='0%' stop-color='%23dec092' stop-opacity='0'/><stop offset='22%' stop-color='%23dec092' stop-opacity='0.88'/><stop offset='78%' stop-color='%23dec092' stop-opacity='0.88'/><stop offset='100%' stop-color='%23dec092' stop-opacity='0'/></linearGradient></defs><rect width='232' height='96' rx='4' fill='%230c4383'/><g fill='white'><circle cx='18' cy='22' r='0.8' opacity='0.4'/><circle cx='62' cy='15' r='1' opacity='0.5'/><circle cx='88' cy='72' r='1.1' opacity='0.45'/><circle cx='115' cy='20' r='0.9' opacity='0.35'/><circle cx='145' cy='68' r='0.8' opacity='0.4'/><circle cx='165' cy='26' r='1.2' opacity='0.6'/><circle cx='178' cy='55' r='0.9' opacity='0.4'/><circle cx='202' cy='18' r='1' opacity='0.5'/><circle cx='215' cy='42' r='1.1' opacity='0.65'/><circle cx='196' cy='78' r='1' opacity='0.5'/><circle cx='126' cy='82' r='0.8' opacity='0.35'/><circle cx='52' cy='80' r='1' opacity='0.6'/></g><rect x='34.5' y='4' width='4' height='72' fill='url(%23ribbon)'/><path d='M36.5 39 C26 26 16 28 17 36 C18 42 28 40 36.5 39 Z' stroke='%23dec092' stroke-width='3.2' stroke-linejoin='round'/><path d='M36.5 39 C47 26 57 28 56 36 C55 42 45 40 36.5 39 Z' stroke='%23dec092' stroke-width='3.2' stroke-linejoin='round'/><path d='M35 40 L21 53 M38 40 L52 53' stroke='%23dec092' stroke-width='3.2' stroke-linecap='round'/></svg>'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
           #wx-view-chat-detail .gift-card .gift-card-text { font-size: 18px; font-weight: 600; color: #dec092; letter-spacing: 0.3px; line-height: 1.2; }
           #wx-view-chat-detail .gift-card::after { content: "礼物"; position: absolute; left: 12px; bottom: 8px; color: rgba(255,255,255,0.72); font-size: 12px; }
-          #wx-view-chat-detail .gift-card::before { content: ""; position: absolute; top: 14.5px; width: 0; height: 0; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; z-index: 10; }
+          #wx-view-chat-detail .gift-card::before { content: none; display: none; }
           #wx-view-chat-detail .wx-msg-row.wx-self .gift-card::before { right: -5px; border-left: 6px solid #0c4383; }
           #wx-view-chat-detail .wx-msg-row:not(.wx-self) .gift-card::before { left: -5px; border-right: 6px solid #0c4383; }
-          #wx-view-chat-detail .gift-card-description { background-color: #ffffff; color: #111111; border-radius: 4px; padding: 9px 13px; font-size: 14px; line-height: 1.45; margin-top: 5px; width: fit-content; max-width: 100%; box-shadow: none; }
+          #wx-view-chat-detail .gift-card-description { background-color: #ffffff; color: #25262a; border-radius: 4px; padding: 9px 13px; font-size: 14px; line-height: 1.45; margin-top: 5px; width: fit-content; max-width: 100%; box-shadow: none; }
           /* §6.5 位置卡（最终双行版：第一行 16px 地名 + 第二行 12px 浅灰详情；下方 88px 腾讯地图缩略图） */
           #wx-view-chat-detail .location-card { position: relative; width: 236px; height: 146px; min-height: 146px; max-height: 146px; margin: 0 8px; padding: 9px 12px 88px 12px; box-sizing: border-box; border: none; border-radius: 4px; box-shadow: none; overflow: visible; background-color: #ffffff; background-image: url('data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 236 88' fill='none'><defs><clipPath id='mapClip'><path d='M0 0 H236 V84 Q236 88 232 88 H4 Q0 88 0 84 Z'/></clipPath></defs><g clip-path='url(%23mapClip)'><rect width='236' height='88' fill='%23f2efe9'/><line x1='0' y1='0.5' x2='236' y2='0.5' stroke='%23ebebeb' stroke-width='1'/><path d='M12 10 C32 4 56 14 78 18 C102 22 128 16 140 28 C144 38 118 44 92 38 C64 32 24 34 12 20 Z' fill='%23c8ebb2'/><path d='M25 14 C35 12 44 22 54 27 C66 33 88 30 92 36 C82 40 56 38 42 31 C28 24 18 18 25 14 Z' fill='%23a6d8f7'/><rect x='74' y='58' width='96' height='32' fill='%23dcecf8'/><path d='M0 55 H236' stroke='%23ffffff' stroke-width='5.5'/><path d='M70 55 L66 88' stroke='%23ffffff' stroke-width='5'/><path d='M186 0 L164 88' stroke='%23ffe28c' stroke-width='9'/><path d='M186 0 L164 88' stroke='%23e8c36b' stroke-width='9.8' opacity='0.25' fill='none'/><line x1='118' y1='38' x2='118' y2='60' stroke='%2307c160' stroke-width='3.2' stroke-linecap='round'/><ellipse cx='118' cy='61' rx='3.5' ry='1.5' fill='%23000000' opacity='0.18'/><circle cx='118' cy='29' r='12' fill='%2307c160'/><circle cx='118' cy='29' r='5' fill='%23ffffff'/><rect x='174' y='69' width='56' height='15' rx='7.5' fill='%23ffffff' fill-opacity='0.88'/><circle cx='182.5' cy='76.5' r='5.5' fill='%23edf4ff'/><path d='M185 74 L183.2 77.5 L180 79 L181.8 75.5 Z' fill='%23ff5a36'/><path d='M180 79 L183.2 77.5 L181.8 75.5 Z' fill='%233385ff'/><text x='190' y='80' fill='%23555555' font-size='8.5' font-weight='500' font-family='-apple-system, PingFang SC, sans-serif'>腾讯地图</text></g></svg>'); background-size: 100% 88px; background-position: bottom center; background-repeat: no-repeat; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; cursor: pointer; }
-          #wx-view-chat-detail .location-card::before { content: ""; position: absolute; top: 14.5px; width: 0; height: 0; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; z-index: 10; }
+          #wx-view-chat-detail .location-card::before { content: none; display: none; }
           #wx-view-chat-detail .wx-msg-row.wx-self .location-card::before { right: -5px; border-left: 6px solid #ffffff; }
           #wx-view-chat-detail .wx-msg-row:not(.wx-self) .location-card::before { left: -5px; border-right: 6px solid #ffffff; }
-          #wx-view-chat-detail .location-card .location-name { display: block; font-size: 16px; font-weight: 400; color: #111111; line-height: 1.3; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          #wx-view-chat-detail .location-card .location-name { display: block; font-size: 16px; font-weight: 400; color: #25262a; line-height: 1.3; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
           #wx-view-chat-detail .location-card .location-detail { display: block; font-size: 12px; font-weight: 400; color: #999999; line-height: 1.35; width: 100%; margin: 3px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
           /* §7 语音条（40px 高、min 112px、max 190px；扇形声波 + 秒数 14.5px/500 + 转文字白块） */
-          #wx-view-chat-detail .voice-bubble { position: relative; display: flex; align-items: center; justify-content: flex-start; gap: 6px; min-width: 112px; max-width: 190px; height: 40px; padding: 8px 14px; border-radius: 4px; box-sizing: border-box; box-shadow: none; overflow: visible; cursor: pointer; }
-          #wx-view-chat-detail .wx-msg-row:not(.wx-self) .voice-bubble { background-color: #ffffff; color: #111111; }
-          #wx-view-chat-detail .wx-msg-row.wx-self .voice-bubble { background-color: #95ec69; color: #111111; flex-direction: row-reverse; }
+          #wx-view-chat-detail .voice-bubble { position: relative; display: flex; align-items: center; justify-content: flex-start; gap: 6px; min-width: 112px; max-width: 190px; height: 40px; padding: 8px 14px; border-radius: 16px; box-sizing: border-box; box-shadow: none; overflow: visible; cursor: pointer; }
+          #wx-view-chat-detail .wx-msg-row:not(.wx-self) .voice-bubble { background-color: #ffffff; color: #25262a; }
+          #wx-view-chat-detail .wx-msg-row.wx-self .voice-bubble { background-color: #ececef; color: #25262a; flex-direction: row-reverse; }
           #wx-view-chat-detail .voice-bubble .wx-voice-icon { width: 18px; height: 18px; flex-shrink: 0; background: url('data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><path d='M5 12 L8.5 8.8 A4.8 4.8 0 0 1 8.5 15.2 Z' fill='%23181818'/><path d='M12 7.2 A7.2 7.2 0 0 1 12 16.8' stroke='%23181818' stroke-width='2.3' stroke-linecap='round'/><path d='M16 4.2 A11.5 11.5 0 0 1 16 19.8' stroke='%23181818' stroke-width='2.3' stroke-linecap='round'/></svg>') center/contain no-repeat; }
           #wx-view-chat-detail .wx-msg-row.wx-self .voice-bubble .wx-voice-icon { transform: scaleX(-1); }
           #wx-view-chat-detail .voice-bubble .wx-voice-dur { font-size: 14.5px; font-weight: 500; color: #181818; }
-          #wx-view-chat-detail .voice-bubble::after { content: ""; position: absolute; top: 14.5px; width: 0; height: 0; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; }
-          #wx-view-chat-detail .wx-msg-row.wx-self .voice-bubble::after { right: -5px; border-left: 6px solid #95ec69; }
+          #wx-view-chat-detail .voice-bubble::after { content: none; display: none; }
+          #wx-view-chat-detail .wx-msg-row.wx-self .voice-bubble::after { right: -5px; border-left: 6px solid #ececef; }
           #wx-view-chat-detail .wx-msg-row:not(.wx-self) .voice-bubble::after { left: -5px; border-right: 6px solid #ffffff; }
           #wx-view-chat-detail .voice-bubble .wx-vmr-bars { display: none; align-items: center; gap: 2px; }
           #wx-view-chat-detail .voice-bubble .wx-vmr-bars.wx-playing { display: flex; }
-          #wx-view-chat-detail .voice-transcript { background-color: #ffffff; color: #111111; border-radius: 4px; padding: 9px 13px; font-size: 14.5px; line-height: 1.42; margin-top: 5px; width: fit-content; max-width: 100%; box-shadow: none; display: none; }
+          #wx-view-chat-detail .voice-transcript { background-color: #ffffff; color: #25262a; border-radius: 4px; padding: 9px 13px; font-size: 14.5px; line-height: 1.42; margin-top: 5px; width: fit-content; max-width: 100%; box-shadow: none; display: none; }
           /* §8 引用块与翻译框顺序（正文→翻译框→灰色引用框在最底）+ 系统提示纯灰字无底框 */
           #wx-view-chat-detail .wx-msg-row.wx-has-quote { margin-bottom: 58px; }
           #wx-view-chat-detail .quoted-message { position: absolute; top: calc(100% + 5px); width: max-content; min-width: 80px; max-width: 235px; height: auto; max-height: 50px; line-height: 1.38; padding: 6px 10px; box-sizing: border-box; background-color: #e1e1e1; border: none; border-radius: 4px; font-size: 12px; color: #666666; white-space: normal; word-break: break-all; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: left; z-index: 2; }
@@ -8678,10 +8684,10 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           #wx-view-chat-detail .translation-text { position: relative; background: none; background-color: transparent; color: #8a8a8a; border: none; border-radius: 0; padding: 0; font-size: 12.5px; line-height: 1.5; margin-top: 2px; width: auto; min-width: 0; max-width: 100%; box-shadow: none; cursor: pointer; word-break: break-word; }
           #wx-view-chat-detail .translation-text::after { content: none; }
           #wx-view-chat-detail .translation-text.wx-tr-pending, #wx-view-chat-detail .translation-text.wx-tr-failed, #wx-view-chat-detail .translation-text.wx-tr-noapi { color: #a8a8a8; }
-          /* §9 底部输入栏（语音圆标、纯白输入框绿光标 #07c160、“可按住 转文字”、笑脸、⊕、绿色发送键；扩展面板 288px） */
+          /* §9 底部输入栏（语音圆标、浅灰 pill 输入框炭灰光标、“可按住 转文字”、笑脸、⊕、黑圆发送键；扩展面板 288px） */
           #wx-view-chat-detail .wx-input-wrap { position: relative; flex-grow: 1; display: flex; min-width: 0; }
           #wx-view-chat-detail .wx-input-wrap .wx-textarea { flex-grow: 1; width: 100%; }
-          #wx-view-chat-detail .wx-input-wrap::before { content: "可按住 转文字"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #b2b2b2; font-size: 14px; font-weight: 500; white-space: nowrap; pointer-events: none; z-index: 2; }
+          #wx-view-chat-detail .wx-input-wrap::before { content: "可按住 转文字"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #8a8b91; font-size: 14px; font-weight: 500; white-space: nowrap; pointer-events: none; z-index: 2; }
           #wx-view-chat-detail .wx-input-wrap:not(:has(#wx-msg-input:placeholder-shown))::before { display: none; }
           #wx-view-chat-detail .wx-input-wrap:has(#wx-msg-input:focus:placeholder-shown)::before { content: ""; left: auto; right: 9px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background: url('data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23787878' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'><rect x='8.8' y='3' width='6.4' height='11.5' rx='3.2'/><path d='M5.2 11.2 v1.2 a6.8 6.8 0 0 0 13.6 0 v-1.2'/><line x1='12' y1='19.2' x2='12' y2='21.5' stroke-linecap='butt'/></svg>') center/contain no-repeat; }
           #wx-view-chat-detail .wx-input-wrap.wx-quoting::before { display: none; }
@@ -8707,15 +8713,15 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
           .wx-app-root.av-wx-night #wx-view-chat-detail .wx-msg-row:not(.wx-self) .location-card::before, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-msg-row:not(.wx-self) .location-card::before { border-right-color: #2c2c2c; }
           .wx-app-root.av-wx-night #wx-view-chat-detail .voice-transcript, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .voice-transcript, .wx-app-root.av-wx-night #wx-view-chat-detail .gift-card-description, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .gift-card-description { background-color: #2c2c2c; color: #d5d5d5; }
           .wx-app-root.av-wx-night #wx-view-chat-detail .translation-text, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .translation-text { background: none; background-color: transparent; color: #777777; }
-          .wx-app-root.av-wx-night #wx-view-chat-detail .quoted-message, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .quoted-message { background-color: #242424; color: #888888; }
-          .wx-app-root.av-wx-night #wx-view-chat-detail .quoted-message .quoted-sender, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .quoted-message .quoted-sender, .wx-app-root.av-wx-night #wx-view-chat-detail .quoted-message .quoted-text, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .quoted-message .quoted-text { color: #888888; }
+          .wx-app-root.av-wx-night #wx-view-chat-detail .quoted-message, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .quoted-message { background-color: #242424; color: #8a8b91; }
+          .wx-app-root.av-wx-night #wx-view-chat-detail .quoted-message .quoted-sender, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .quoted-message .quoted-sender, .wx-app-root.av-wx-night #wx-view-chat-detail .quoted-message .quoted-text, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .quoted-message .quoted-text { color: #8a8b91; }
           .wx-app-root.av-wx-night #wx-view-chat-detail .wx-input-bar, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-input-bar { background-color: #1e1e1e !important; border-top-color: #2c2c2c; }
           .wx-app-root.av-wx-night #wx-view-chat-detail .wx-textarea, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-textarea { background-color: #2c2c2c !important; color: #d5d5d5 !important; }
           .wx-app-root.av-wx-night #wx-view-chat-detail .wx-input-wrap::before, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-input-wrap::before { color: #666666; }
           .wx-app-root.av-wx-night #wx-view-chat-detail #wx-mic-btn, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail #wx-mic-btn, .wx-app-root.av-wx-night #wx-view-chat-detail #wx-plus-btn, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail #wx-plus-btn, .wx-app-root.av-wx-night #wx-view-chat-detail .wx-sticker-btn, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-sticker-btn { filter: invert(0.85); }
           .wx-app-root.av-wx-night #wx-view-chat-detail .wx-ext-panel, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-ext-panel { background-color: #1e1e1e !important; border-top-color: #2c2c2c; }
           .wx-app-root.av-wx-night #wx-view-chat-detail .wx-ext-panel .wx-tool-ico, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-ext-panel .wx-tool-ico { background-color: #2c2c2c !important; }
-          .wx-app-root.av-wx-night #wx-view-chat-detail .wx-ext-panel .wx-tool-lab, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-ext-panel .wx-tool-lab { color: #888888 !important; }
+          .wx-app-root.av-wx-night #wx-view-chat-detail .wx-ext-panel .wx-tool-lab, .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail .wx-ext-panel .wx-tool-lab { color: #8a8b91 !important; }
           /* ══════════ /GROUP-WECHAT · 第 22 项 ══════════ */
 
       </style>
@@ -8757,11 +8763,12 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               
               <div class="wx-context-menu" id="wx-ctx-menu">
+                  <div class="wx-ctx-react-tray"><button onclick="WeChatAppEngine.ctxReact(0)">❤️</button><button onclick="WeChatAppEngine.ctxReact(1)">😂</button><button onclick="WeChatAppEngine.ctxReact(2)">😮</button><button onclick="WeChatAppEngine.ctxReact(3)">😢</button><button onclick="WeChatAppEngine.ctxReact(4)">👍</button><button onclick="WeChatAppEngine.ctxReact(5)">🔥</button></div>
+                  <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('copy')">复制</div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('recall')">撤回消息</div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('ref')">快捷引用</div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('favorite')">加入收藏</div>
                   <div class="wx-ctx-item" data-wx-translate="1" style="display:none;" onclick="WeChatAppEngine.ctxAction('translate')">翻译</div>
-                  <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('react')">贴回应 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z" fill="currentColor" stroke="none"/></svg></div>
                   <div class="wx-ctx-item" onclick="WeChatAppEngine.ctxAction('forward')">转发</div>
                   <div class="wx-ctx-item" data-wxu="pin" onclick="WeChatAppEngine.ctxAction('wxu_pin')">置顶这条</div>
                   <div class="wx-ctx-item" data-wxu="remember" onclick="WeChatAppEngine.ctxAction('wxu_remember')">记住这条</div>
@@ -8774,12 +8781,14 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               
              <div class="wx-header" id="wx-main-header">
+    <div class="wx-icon-btn wx-menu-btn" onclick="WeChatAppEngine.toggleWxSidebar(true)" aria-label="菜单"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg></div>
     <div class="wx-header-left" id="wx-invite-btn" style="display:none;" onclick="WeChatAppEngine.inviteGroup()">⊕ 邀请</div>
-    <div class="wx-header-title" id="wx-top-title">微信</div>
+    <div class="wx-header-title" id="wx-top-title">聊天</div>
     <div class="wx-header-right" id="wx-top-actions" style="gap:12px;">
-        <div class="wx-icon-btn" onclick="WeChatAppEngine.togglePlusDrawer(event)">
+        <div class="wx-icon-btn" id="wx-top-plus-btn" onclick="WeChatAppEngine.togglePlusDrawer(event)">
             <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </div>
+        <div class="wx-icon-btn" id="wx-top-publish-btn" style="display:none;font-size:16px;width:auto;padding:0 4px;" onclick="WeChatAppEngine.publishUserMoment()">发表</div>
     </div>
 </div>
 
@@ -8801,91 +8810,10 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
               
               
-              <div class="wx-view-box" id="wx-view-contacts">
-                  <!-- 通讯录：下方搜索框为真实可输入 -->
-                  <!-- 功能入口 -->
-                  <div class="wx-session-item wx-contact-entry" onclick="WeChatAppEngine.executeDrawerAction('addFriend')" style="border-bottom:1px solid #f0f0f0;">
-                      <div class="wx-avatar-wrapper" style="background:#ff8e00;color:#fff;border-radius:8px;">
-                          <svg viewBox="0 0 24 24" width="20" height="20" stroke="#fff" stroke-width="2" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                      </div>
-                      <div class="wx-session-info"><div class="wx-session-name">新的朋友</div></div>
-                      <div style="color:#b0b0b0;font-size:16px;padding-right:4px;">›</div>
-                  </div>
-                  <div class="wx-session-item wx-contact-entry" onclick="WeChatAppEngine.executeDrawerAction('group')" style="border-bottom:1px solid #f0f0f0;">
-                      <div class="wx-avatar-wrapper" style="background:#07c160;color:#fff;border-radius:8px;">
-                          <svg viewBox="0 0 24 24" width="20" height="20" stroke="#fff" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                      </div>
-                      <div class="wx-session-info"><div class="wx-session-name">群聊</div></div>
-                      <div style="color:#b0b0b0;font-size:16px;padding-right:4px;">›</div>
-                  </div>
-                  <div class="wx-session-item wx-contact-entry" onclick="WeChatAppEngine.openTagsList()" style="border-bottom:1px solid #f0f0f0;">
-                      <div class="wx-avatar-wrapper" style="background:#8a5cf6;color:#fff;border-radius:8px;">
-                          <span style="font-size:18px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-7 7Z"/><circle cx="8" cy="8" r="1"/></svg></span>
-                      </div>
-                      <div class="wx-session-info"><div class="wx-session-name">标签</div></div>
-                      <div style="color:#b0b0b0;font-size:16px;padding-right:4px;">›</div>
-                  </div>
-                  <!-- 联系人分组（动态从 sessions 渲染） -->
-                  <div class="wx-search-bar-wrap">
-                      <div class="wx-search-box">
-                          <svg class="wx-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
-                          <input type="text" placeholder="搜索" oninput="WeChatAppEngine.filterContacts(this.value)">
-                      </div>
-                  </div>
-                  <div id="wx-contacts-dynamic"></div>
-              </div>
-              
-              <div class="wx-view-box" id="wx-view-discover">
-                  <div class="wx-cell-group" style="margin-top:15px;">
-                      <div class="wx-cell" onclick="WeChatAppEngine.openMomentsPage('全部')">
-                          <div class="wx-cell-left">
-                              <div class="wx-cell-icon" style="background:#ff9f00;color:#ffffff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.3"/><path d="M12 3v5.7M19.8 7.5l-5 2.8M19.8 16.5l-5-2.8M12 21v-5.7M4.2 16.5l5-2.8M4.2 7.5l5 2.8"/></svg></div>
-                              <span>朋友圈</span>
-                          </div>
-                          <div class="wx-cell-right">
-                              ${(() => { try { const ms = wxStore.moments || []; for (const mm of ms) { const imgs = (mm.images && mm.images.length ? mm.images : (mm.img ? [mm.img] : [])); if (imgs.length) return `<div style="width:24px;height:24px;border-radius:4px;background-image:url('${imgs[0]}');background-size:cover;background-position:center;outline:1px solid oklch(0 0 0 / 0.1);outline-offset:-1px;"></div>`; } } catch (e) {} return ''; })()}
-                              <span class="wx-cell-arrow">›</span>
-                          </div>
-                      </div>
-                  </div>
-                  <!-- B组挂载点：信箱（发现页渲染后由 setupDiscoverMounts 登记到 window.__wxDiscoverMounts） -->
-                  <div id="wx-discover-letterbox"></div>
-                  <div class="wx-cell-group">
-                      <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('scan')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#10aeff;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M4 12h16"/></svg></div><span>扫一扫</span></div>
-                          <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
-                      </div>
-                      <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('shake')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#10aeff;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 6 11c-1.2-1.2.6-3 1.8-1.8l3 3-4.4-4.5c-1.2-1.2.6-3 1.8-1.8l4.2 4.2-2.7-2.8c-1.2-1.2.6-3 1.8-1.8l3.1 3.1c1.8 1.8 3 4 2.1 6.5l-1.2 3.3-3.8-1.3C10.5 16.7 9.7 15.7 9 14z"/></svg></div><span>摇一摇</span></div>
-                          <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
-                      </div>
-                  </div>
-                  <div class="wx-cell-group">
-                      <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('look')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#ff7a45;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.7"/></svg></div><span>看一看</span></div>
-                          <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
-                      </div>
-                      <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('search')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#ff5a5a;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4 4"/></svg></div><span>搜一搜</span></div>
-                          <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
-                      </div>
-                  </div>
-                  <div class="wx-cell-group">
-                      <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('nearby')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#07c160;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0z"/><circle cx="12" cy="10" r="2.2"/></svg></div><span>附近的人</span></div>
-                          <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
-                      </div>
-                      <div class="wx-cell" onclick="WeChatAppEngine.openDiscoverRow('mini')">
-                          <div class="wx-cell-left"><div class="wx-cell-icon" style="background:#8a5cf6;color:#fff;"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6.5a3.8 3.8 0 0 1 6 0l3 4.1a3.3 3.3 0 0 1-2.7 5.2H8.7A3.3 3.3 0 0 1 6 10.6z"/><path d="M8.5 12h7M10 18h4"/></svg></div><span>小程序</span></div>
-                          <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
-                      </div>
-                  </div>
-              </div>
-              
-             <div class="wx-view-box" id="wx-view-me" style="padding-bottom: 80px; background: #ededed; overflow-y: auto; pointer-events: auto; position: relative; z-index: 1;">
+             <div class="wx-view-box" id="wx-view-me" style="padding-bottom: 80px; background: #f7f7f8; overflow-y: auto; pointer-events: auto; position: relative; z-index: 1;">
   <div class="wx-me-header" style="background: #ffffff; border-bottom: 1px solid #e5e5e5;">
       <div class="wx-me-header-avatar" onclick="window.GroupBG ? window.GroupBG.avatarSheet() : WeChatAppEngine.changeMeAvatar()" style="cursor: pointer;">
-          ${typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-avatar') ? `<img id="wx-me-avatar-img" src="${SystemStore.get('wx-user-avatar')}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">` : WeChatAppEngine._letterAvatar(typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-nickname') ? SystemStore.get('wx-user-nickname') : wxStore.accountMeta.nickname)}
+          ${typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-avatar') ? `<img id="wx-me-avatar-img" src="${SystemStore.get('wx-user-avatar')}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-nickname') ? SystemStore.get('wx-user-nickname') : wxStore.accountMeta.nickname)}
           <input type="file" id="wx-me-avatar-input" accept="image/*" style="display: none;" onchange="WeChatAppEngine.handleMeAvatarChange(event)">
       </div>
       <div class="wx-me-info-box" onclick="WeChatAppEngine.editUserNickname()" style="cursor: pointer;">
@@ -8903,7 +8831,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
   <div class="wx-cell-group" style="background: #ffffff; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5;">
       <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('walletSandbox')" style="border-bottom: 1px solid #e5e5e5;">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#07c160;"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div>
+              <div class="wx-cell-icon" style="color:#34363b;"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div>
               <span>支付</span>
           </div>
           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
@@ -8934,7 +8862,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
       </div>
       <div class="wx-cell" onclick="WeChatAppEngine.openCardPack()" style="border-bottom: 1px solid #e5e5e5;">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#07c160;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
+              <div class="wx-cell-icon" style="color:#34363b;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
               <span>卡包</span>
           </div>
           <div class="wx-cell-right"><span class="wx-cell-arrow">›</span></div>
@@ -8991,10 +8919,10 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
   <div class="wx-cell-group" style="background: #ffffff; border-top: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5;">
       <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('beautifier'); if(window.WxBeautifier) WxBeautifier.render();">
           <div class="wx-cell-left" style="color: #333333;">
-              <div class="wx-cell-icon" style="color:#07c160;">&#127912;</div>
+              <div class="wx-cell-icon" style="color:#34363b;">&#127912;</div>
               <span>美化器</span>
           </div>
-          <div class="wx-cell-right"><span id="wx-bc-me-summary" style="font-size:11px;color:#999;">微信绿 · 经典绿</span><span class="wx-cell-arrow">›</span></div>
+          <div class="wx-cell-right"><span id="wx-bc-me-summary" style="font-size:11px;color:#999;">Muse · Muse</span><span class="wx-cell-arrow">›</span></div>
       </div>
       <div class="wx-cell" onclick="WeChatAppEngine.openSubPage('accountRoot')">
           <div class="wx-cell-left" style="color: #333333;">
@@ -9015,34 +8943,53 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
   </div>
 </div>
               <div class="wx-tab-bar">
-            <div class="wx-tab-item wx-active" onclick="WeChatAppEngine.switchTab('sessions', '微信', this)">
-                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M8.5 17.5l-3 3v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8.5z"></path><path d="M16 14v1a2 2 0 0 1-2 2h-1.5l-2.5 2.5v-2.5H9"></path></svg></span><span class="wx-tab-label">微信</span>
+            <div class="wx-tab-item wx-active" onclick="WeChatAppEngine.switchTab('sessions', '聊天', this)">
+                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M8.5 17.5l-3 3v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8.5z"></path><path d="M16 14v1a2 2 0 0 1-2 2h-1.5l-2.5 2.5v-2.5H9"></path></svg></span><span class="wx-tab-label">聊天</span>
             </div>
-            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('contacts', '通讯录', this)">
-                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M15 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="8"></line><line x1="18" y1="12" x2="23" y2="12"></line><line x1="18" y1="16" x2="23" y2="16"></line></svg></span><span class="wx-tab-label">通讯录</span>
+            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('moments', '看朋友圈', this)">
+                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></span><span class="wx-tab-label">看朋友圈</span>
             </div>
-            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('discover', '发现', this)">
-                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></span><span class="wx-tab-label">发现</span>
+            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('otome', '乙女游戏', this)">
+                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a4 4 0 0 1 3.8 5.3l-1.4 4.2a2.5 2.5 0 0 1-4.2 1l-2-2h-2l-2 2a2.5 2.5 0 0 1-4.2-1l-1.4-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v4m-2-2h4m7-.5h.1m2 2h.1"/></svg></span><span class="wx-tab-label">乙女游戏</span>
             </div>
-            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('me', '我', this)">
-                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="wx-tab-label">我</span>
+            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('me', '个人主页', this)">
+                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="wx-tab-label">个人主页</span>
             </div>
         </div>
-              
-              <div class="wx-subpage-box wx-slide-right" id="wx-view-chat-detail">
-                  <div class="wx-header" style="background:#ededed;">
-                      ${wxBack("WeChatAppEngine.closeChatDetail()", {label: '返回微信'})}
-                      <div class="wx-header-title" id="wx-chat-title" onclick="WeChatAppEngine.otomeMenuGo('profile', event)">详情</div>
-                      <div class="wx-header-right" id="wx-chat-more-btn" onclick="WeChatAppEngine.toggleChatMoreMenu(event)" style="display:flex;align-items:center;" aria-haspopup="true" aria-expanded="false">
-                          <svg viewBox="0 0 24 24" width="22" height="22" fill="#111111"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+              <!-- 左侧抽屉（Muse 侧边栏）：仅 tab 页可开，聊天页内不开 -->
+              <div class="wx-side-scrim" id="wx-side-scrim" onclick="WeChatAppEngine.toggleWxSidebar(false)"></div>
+              <div class="wx-side-drawer" id="wx-side-drawer">
+                  <div class="wx-side-profile" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.switchTab('me')">
+                      <div class="wx-avatar-wrapper" id="wx-side-avatar"></div>
+                      <div style="min-width:0;flex:1;">
+                          <div class="wx-side-profile-name" id="wx-side-name">我</div>
+                          <div class="wx-side-profile-id">查看个人主页 ›</div>
                       </div>
                   </div>
-                                    <div class="ot-scrim" id="ot-fan-scrim" onclick="WeChatAppEngine.toggleChatMoreMenu(event,true)"></div>
-                  <!-- GROUP-BA · BA-3 ••• 下拉菜单：三项，复用 F 组 otomeMenuGo 入口 -->
-                  <div class="ot-fan ba-wx-menu" id="ot-fan-menu" role="menu" aria-label="聊天菜单">
-                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('profile',event)"><span class="ot-fan-ico"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.5-3.6 2.7-5.4 6.5-5.4s6 1.8 6.5 5.4"/></svg></span><span class="ot-fan-lab">TA的主页</span></button>
-                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('otome',event)"><span class="ot-fan-ico"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5.3l-1.4 4.2a2.5 2.5 0 0 1-4.2 1l-2-2h-2l-2 2a2.5 2.5 0 0 1-4.2-1l-1.4-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v4m-2-2h4m7-.5h.1m2 2h.1"/></svg></span><span class="ot-fan-lab">乙游模式</span></button>
-                      <button class="ot-fan-btn" type="button" role="menuitem" onclick="WeChatAppEngine.otomeMenuGo('diary',event)"><span class="ot-fan-ico"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.2-.9 5.9-.3 8 1.5 2.1-1.8 4.8-2.4 8-1.5v14c-3.2-.8-5.9-.2-8 1.5-2.1-1.7-4.8-2.3-8-1.5Z"/><path d="M12 7v14m-5-12h2m6 0h2"/></svg></span><span class="ot-fan-lab">日记</span></button>
+                  <div class="wx-side-list">
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openOtomeDiary()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div><span>日记</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openMoodPage()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></div><span>心绪</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openSidebarPlay()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a4 4 0 0 1 3.8 5.3l-1.4 4.2a2.5 2.5 0 0 1-4.2 1l-2-2h-2l-2 2a2.5 2.5 0 0 1-4.2-1l-1.4-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v4m-2-2h4m7-.5h.1m2 2h.1"/></svg></div><span>情侣小游戏</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openDiscoverSearch()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div><span>搜一搜</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openNearby()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div><span>附近的人</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openMiniPrograms()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span>小程序</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openFavorites()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div><span>收藏</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openMomentsPage('我的')"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div><span>相册</span></div>
+                      <div class="wx-side-row" onclick="WeChatAppEngine.toggleWxSidebar(false);WeChatAppEngine.openTagsList()"><div class="wx-cell-icon"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div><span>标签</span></div>
+                  </div>
+                  <div class="wx-side-foot" id="wx-side-foot">
+                      <!-- B组挂载点：信箱（发现页删除后迁至此处；setupDiscoverMounts 登记到 window.__wxDiscoverMounts） -->
+                      <div id="wx-discover-letterbox"></div>
+                  </div>
+              </div>
+              
+              <div class="wx-subpage-box wx-slide-right" id="wx-view-chat-detail">
+                  <div class="wx-header" style="background:#f7f7f8;">
+                      ${wxBack("WeChatAppEngine.closeChatDetail()", {label: '返回聊天'})}
+                      <div class="wx-header-title" id="wx-chat-title" onclick="WeChatAppEngine.openChatInfo()"><div class="wx-chat-avatar" id="wx-chat-avatar" onclick="event.stopPropagation();WeChatAppEngine.openChatAvatar()"></div><span id="wx-chat-title-name">详情</span></div>
+                      <div class="wx-header-right" id="wx-chat-more-btn" onclick="WeChatAppEngine.toggleChatMoreMenu(event)" style="display:flex;align-items:center;" aria-haspopup="true" aria-expanded="false">
+                          <svg viewBox="0 0 24 24" width="22" height="22" fill="#25262a"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+                      </div>
                   </div>
 
                   <div class="wx-chat-state-bar" id="wx-chat-state-bar">对方正在输入…</div>
@@ -9155,25 +9102,29 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
     </div>
 </div>
                   </div><!-- /wx-panel-tool -->
-                            <!-- F组：TA的主页（读 wxStore 会话真实字段 + 朋友圈按作者匹配 + 此刻同名手记） -->
-              <div class="wx-subpage-box ot-overlay" id="wx-otome-profile">
-                  <div class="wx-header" style="background:#ededed;">
-                      ${wxBack("WeChatAppEngine.closeOtomeOverlay('wx-otome-profile')")}
-                      <div class="wx-header-title">TA的主页</div>
-                      <div class="wx-header-right"></div>
-                  </div>
-                  <div class="wx-scroll-view ot-scroll" id="ot-profile-body"></div>
-              </div>
-              <!-- F组：日记阅读页（读此刻 ck_diary_meta_v1 + cike_cache_v1，朴素分页阅读器） -->
-              <div class="wx-subpage-box ot-overlay" id="wx-otome-diary">
-                  <div class="wx-header" style="background:#ededed;">
-                      ${wxBack("WeChatAppEngine.closeOtomeOverlay('wx-otome-diary')")}
-                      <div class="wx-header-title">日记</div>
-                      <div class="wx-header-right"></div>
-                  </div>
-                  <div class="wx-scroll-view ot-scroll" id="ot-diary-body"></div>
-              </div>
-              <!-- F组：乙游模式（竖屏全屏，占满微信窗口）—— 3D立体书之家为主场景/枢纽 -->
+
+              </div><!-- /wx-view-chat-detail -->
+
+              <!-- F组：TA的主页（读 wxStore 会话真实字段 + 朋友圈按作者匹配 + 此刻同名手记） -->
+<div class="wx-subpage-box ot-overlay" id="wx-otome-profile">
+    <div class="wx-header" style="background:#f7f7f8;">
+        ${wxBack("WeChatAppEngine.closeOtomeOverlay('wx-otome-profile')")}
+        <div class="wx-header-title">TA的主页</div>
+        <div class="wx-header-right"></div>
+    </div>
+    <div class="wx-scroll-view ot-scroll" id="ot-profile-body"></div>
+</div>
+<!-- F组：日记阅读页（读此刻 ck_diary_meta_v1 + cike_cache_v1，朴素分页阅读器） -->
+<div class="wx-subpage-box ot-overlay" id="wx-otome-diary">
+    <div class="wx-header" style="background:#f7f7f8;">
+        ${wxBack("WeChatAppEngine.closeOtomeOverlay('wx-otome-diary')")}
+        <div class="wx-header-title">日记</div>
+        <div class="wx-header-right"></div>
+    </div>
+    <div class="wx-scroll-view ot-scroll" id="ot-diary-body"></div>
+</div>
+<!-- F组：乙游模式（竖屏全屏，占满微信窗口）—— 3D立体书之家为主场景/枢纽 -->
+              <div class="wx-view-box" id="wx-view-otome">
               <div class="wx-subpage-box ot-overlay" id="wx-otome-home">
                   <div class="ot-home-top">
                       <span class="ot-back" onclick="WeChatAppEngine.closeOtomeHome()" aria-label="返回聊天">‹</span>
@@ -9217,11 +9168,48 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="ot-panel" id="ot-panel"></div>
                   <div class="ot-toast" id="ot-toast"></div>
               </div>
+              </div><!-- /wx-view-otome -->
 
-              </div><!-- /wx-view-chat-detail -->
+              <!-- 联系人选择器（单选）：聊天页头像 / 乙女游戏 tab / 日记 / 情侣小游戏 共用 -->
+              <div class="wx-subpage-box wx-slide-right" id="wx-contact-picker" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
+                      ${wxBack("WeChatAppEngine.closeContactPicker()")}
+                      <div class="wx-header-title" id="wx-picker-title">选择联系人</div>
+                      <div class="wx-header-right"></div>
+                  </div>
+                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));">
+                      <div class="wx-search-bar-wrap">
+                          <div class="wx-search-box">
+                              <svg class="wx-search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
+                              <input type="text" id="wx-picker-search" placeholder="搜索" oninput="WeChatAppEngine.filterContactPicker(this.value)">
+                          </div>
+                      </div>
+                      <div id="wx-picker-list"></div>
+                  </div>
+              </div>
+
+              <!-- 心绪页：①我的今日打卡 ②他的内心状态 -->
+              <div class="wx-subpage-box wx-slide-right" id="wx-view-mood-page" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
+                      ${wxBack("NavigationManager.back()")}
+                      <div class="wx-header-title">心绪</div>
+                      <div class="wx-header-right"></div>
+                  </div>
+                  <div class="wx-scroll-view" id="wx-mood-body" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));"></div>
+              </div>
+
+              <!-- 聊天信息页（Muse 卡片组样式）：头像+名字 / 免打扰 / 置顶 / 聊天背景 / 清空记录 -->
+              <div class="wx-subpage-box wx-slide-right" id="wx-chat-info-page" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
+                      ${wxBack("NavigationManager.back()")}
+                      <div class="wx-header-title">聊天信息</div>
+                      <div class="wx-header-right"></div>
+                  </div>
+                  <div class="wx-scroll-view" id="wx-chat-info-body" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));"></div>
+              </div>
               
-              <div class="wx-subpage-box wx-slide-right" id="wx-page-transfer-detail" style="background-color: #ededed; z-index: 5000;">
-    <div class="wx-header" style="background:#ededed;border-bottom:none;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-page-transfer-detail" style="background-color: #f7f7f8; z-index: 5000;">
+    <div class="wx-header" style="background:#f7f7f8;border-bottom:none;">
         ${wxBack("WeChatAppEngine.closeTransferDetail()", {glyph: '<span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span>'})}
         <div class="wx-header-title"></div>
         <div class="wx-header-right"></div>
@@ -9232,7 +9220,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
         </div>
         <div id="wx-td-status-txt" style="font-size:18px;font-weight:500;color:#f39b13;margin-bottom:10px;">待收款</div>
         <div id="wx-td-amount" style="font-size:36px;font-weight:600;color:#333333;margin-bottom:20px;">¥0.00</div>
-        <button id="wx-td-accept-btn" style="display:block;width:200px;padding:14px 0;background:#07c160;color:#fff;border:none;border-radius:8px;font-size:17px;font-weight:600;margin-bottom:30px;cursor:pointer;letter-spacing:1px;">确认收款</button>
+        <button id="wx-td-accept-btn" style="display:block;width:200px;padding:14px 0;background:#34363b;color:#fff;border:none;border-radius:8px;font-size:17px;font-weight:600;margin-bottom:30px;cursor:pointer;letter-spacing:1px;">确认收款</button>
         <button id="wx-td-return-btn" style="display:none;width:200px;padding:14px 0;background:#ffffff;color:#b5852b;border:1px solid #e2c57c;border-radius:8px;font-size:17px;font-weight:600;margin-bottom:30px;cursor:pointer;letter-spacing:1px;">退回转账</button>
         <div style="width:100%;background:#ffffff;border-radius:8px;padding:20px;box-shadow:0 1px 10px rgba(0,0,0,0.02);box-sizing:border-box;">
             <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:15px;">
@@ -9251,8 +9239,8 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
         </div>
     </div>
 </div>
-              <div class="wx-subpage-box wx-slide-right" id="wx-page-av-transfer" style="background-color: #ededed; z-index: 5000;">
-    <div class="wx-header" style="background:#ededed;border-bottom:none;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-page-av-transfer" style="background-color: #f7f7f8; z-index: 5000;">
+    <div class="wx-header" style="background:#f7f7f8;border-bottom:none;">
         ${wxBack("WeChatAppEngine.closeSubPage('av-transfer')", {glyph: '<span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span>'})}
         <div class="wx-header-title">转账</div>
         <div class="wx-header-right"></div>
@@ -9274,8 +9262,8 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
         <div class="av-note">从模拟钱包余额扣款，扣款与收款明细<br>可在「我 → 我的账户」账单里查看。</div>
     </div>
 </div>
-              <div class="wx-subpage-box wx-slide-right" id="wx-page-av-redpacket" style="background-color: #ededed; z-index: 5000;">
-    <div class="wx-header" style="background:#ededed;border-bottom:none;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-page-av-redpacket" style="background-color: #f7f7f8; z-index: 5000;">
+    <div class="wx-header" style="background:#f7f7f8;border-bottom:none;">
         ${wxBack("WeChatAppEngine.closeSubPage('av-redpacket')", {glyph: '<span style="font-size: 24px; margin-right: 2px; line-height: 1;">‹</span>'})}
         <div class="wx-header-title">发红包</div>
         <div class="wx-header-right"></div>
@@ -9347,7 +9335,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                       
                       <div style="padding:10px 16px;font-size:12px;color:#888888;display:flex;justify-content:space-between;">
                           <span>收支明细</span>
-                          <span style="color:var(--wx-theme-color, #07c160);cursor:pointer;" onclick="WeChatAppEngine.filterTransactionsSandbox()">筛选</span>
+                          <span style="color:var(--wx-theme-color, #34363b);cursor:pointer;" onclick="WeChatAppEngine.filterTransactionsSandbox()">筛选</span>
                       </div>
                       
                       <div id="wx-transactions-stream">
@@ -9498,7 +9486,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           <div class="wx-bc-hint">安全规则：禁止 @import、外部 url()、javascript:、expression()；选择器强制限定在微信窗口内，禁止 :root / html / body 与 * 通配；只允许安全的样式属性。校验失败会按行提示，不静默丢弃。</div>
                           <div id="wx-bc-custom-list"></div>
                       </div>
-                      <button type="button" class="wx-bc-reset" id="wx-bc-reset">恢复默认（微信绿 + 经典绿气泡）</button>
+                      <button type="button" class="wx-bc-reset" id="wx-bc-reset">恢复默认（Muse + Muse 气泡）</button>
                       <div class="wx-bc-hint">样式只作用于微信窗口，不污染整机 UI。选择随整屋备份走。</div>
                       <div style="height:24px;"></div>
                   </div>
@@ -9521,7 +9509,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           </div>
                           <div class="wx-cell wx-cell-no-icon">
                               <div class="wx-cell-left"><span>权限</span></div>
-                              <div class="wx-cell-right">${wxStore.accountMeta.vipTier ? `<span style="color:var(--wx-theme-color, #07c160);">${wxStore.accountMeta.vipTier}</span>` : '<span style="color:#999;">未设置</span>'}</div>
+                              <div class="wx-cell-right">${wxStore.accountMeta.vipTier ? `<span style="color:var(--wx-theme-color, #34363b);">${wxStore.accountMeta.vipTier}</span>` : '<span style="color:#999;">未设置</span>'}</div>
                           </div>
                       </div>
                   </div>
@@ -9541,7 +9529,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           </div>
                           <div class="wx-cell wx-cell-no-icon" onclick="WeChatAppEngine.editOsStatusParam('character')">
                               <div class="wx-cell-left"><span>核心角色</span></div>
-                              <div class="wx-cell-right">${WeChatAppEngine._osCell('character', 'color:var(--wx-theme-color, #07c160);font-weight:bold;')}<span class="wx-cell-arrow">›</span></div>
+                              <div class="wx-cell-right">${WeChatAppEngine._osCell('character', 'color:var(--wx-theme-color, #34363b);font-weight:bold;')}<span class="wx-cell-arrow">›</span></div>
                           </div>
                           <div class="wx-cell wx-cell-no-icon" onclick="WeChatAppEngine.editOsStatusParam('relationshipStage')">
                               <div class="wx-cell-left"><span>阶段深度</span></div>
@@ -9608,7 +9596,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div class="wx-api-edit-body" id="wx-api-edit-form-container"></div>
               </div>
               
-              <div class="wx-subpage-box wx-slide-up" id="wx-view-moments-page" style="z-index:3000;">
+              <div class="wx-view-box" id="wx-view-moments-page" style="z-index:3000;">
                   <div class="wx-header" style="background:transparent;border:none;">
                       ${wxBack("NavigationManager.back()", {extra: 'style="color:#ffffff;text-shadow:0 1px 2px #000000;"'})}
                       <div class="wx-header-title" style="color:#ffffff;" id="wx-moments-top-title">朋友圈</div>
@@ -9726,7 +9714,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   <div style="margin-top:15px;color:#d93b26;display:flex;align-items:baseline;gap:4px;">
                       <span id="wx-rp-result-amount" style="font-size:42px;font-weight:bold;line-height:1;">88.88</span><span style="font-size:16px;font-weight:500;">元</span>
                   </div>
-                  <div style="font-size:12px;color:var(--wx-theme-color, #07c160);margin-top:12px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 存入底盘</div>
+                  <div style="font-size:12px;color:var(--wx-theme-color, #34363b);margin-top:12px;"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg> 存入底盘</div>
               </div>
               
               <div class="wx-overlay wx-call-overlay" id="wx-call-overlay">
@@ -9774,7 +9762,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           <div class="wx-avatar-wrapper" style="width:50px;height:50px;border:2px solid #fff;position:absolute;bottom:-20px;left:20px;background:#e2e2e2;"></div>
                       </div>
                       <div style="padding:30px 15px 15px;text-align:left;font-size:13px;line-height:1.6;">
-                          <div style="font-weight:bold;color:#07c160;" id="innervoice-mood">心绪：满载温柔控制</div>
+                          <div style="font-weight:bold;color:#34363b;" id="innervoice-mood">心绪：满载温柔控制</div>
                           <div style="margin:6px 0;color:#555;" id="innervoice-action">动作：指尖微拢终端</div>
                           <div style="color:#d93b26;font-weight:bold;" id="innervoice-desire">如果可以的话……“想牢牢锁固在结界中”</div>
                       </div>
@@ -9782,7 +9770,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                           <button style="background:#111;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;" onclick="WeChatAppEngine.showHeartsVoice()">往事墙</button>
                       </div>
                   </div>
-                  <div style="margin-top:20px;background:#222;padding:10px 20px;border-radius:6px;color:#07c160;font-weight:bold;cursor:pointer;" onclick="WeChatAppEngine.copyInnerVoice()">压发按键 / 重复打印</div>
+                  <div style="margin-top:20px;background:#222;padding:10px 20px;border-radius:6px;color:#34363b;font-weight:bold;cursor:pointer;" onclick="WeChatAppEngine.copyInnerVoice()">压发按键 / 重复打印</div>
               </div>
               
               <div class="wechat-modal-clean" id="wechat-modal-diary" onclick="NavigationManager.back()">
@@ -9793,7 +9781,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               <div class="wechat-modal-clean" id="wechat-modal-offline" onclick="NavigationManager.back()">
                   <div class="wechat-offline-wrap" onclick="event.stopPropagation()">
                       <div style="font-size:16px;font-weight:bold;margin-bottom:20px;padding:0 20px;">线下剧情中心</div>
-                      <div style="background:rgba(30,39,72,0.05);padding:15px 20px;border-bottom:1px solid #dce2f1;display:flex;justify-content:space-between;cursor:pointer;" onclick="WeChatAppEngine.openStoryEngineSandbox()"><span>相遇剧本 (命运长文)</span><span style="color:#07c160;">直连 ›</span></div>
+                      <div style="background:rgba(30,39,72,0.05);padding:15px 20px;border-bottom:1px solid #dce2f1;display:flex;justify-content:space-between;cursor:pointer;" onclick="WeChatAppEngine.openStoryEngineSandbox()"><span>相遇剧本 (命运长文)</span><span style="color:#34363b;">直连 ›</span></div>
                       <button class="wx-native-btn" style="margin-top:30px;width:calc(100% - 40px);margin-left:20px;background:#333;color:#fff;" onclick="NavigationManager.back()">返回链路</button>
                   </div>
               </div>
@@ -9840,13 +9828,13 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
 
               <!-- 我的身份编辑页 -->
-              <div class="wx-subpage-box wx-slide-right" id="wx-view-my-persona" style="background:#ededed;z-index:3200;">
-                  <div class="wx-header" style="background:#ededed;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-view-my-persona" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
                       <div class="wx-header-left" onclick="NavigationManager.back()">‹</div>
                       <div class="wx-header-title">我的身份</div>
-                      <div class="wx-header-right" onclick="WeChatAppEngine.saveMyPersona()" style="color:#07c160;font-weight:600;">保存</div>
+                      <div class="wx-header-right" onclick="WeChatAppEngine.saveMyPersona()" style="color:#34363b;font-weight:600;">保存</div>
                   </div>
-                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;">
+                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#f7f7f8;">
                       <div style="font-size:13px;color:#888;padding:14px 18px 6px;">这是你的个人设定，聊天对象（AI）会读取这些信息来认识你。</div>
                       <div style="background:#fff;margin:0 0 12px;padding:14px 16px;">
                           <div style="font-size:13px;color:#999;margin-bottom:6px;">我的名字 / 称呼</div>
@@ -9865,13 +9853,13 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
 
               <!-- 添加朋友页（仿微信）-->
-              <div class="wx-subpage-box wx-slide-right" id="wx-view-add-friend" style="background:#ededed;z-index:3200;">
-                  <div class="wx-header" style="background:#ededed;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-view-add-friend" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
                       <div class="wx-header-left" onclick="NavigationManager.back()">‹</div>
                       <div class="wx-header-title">添加朋友</div>
                       <div class="wx-header-right"></div>
                   </div>
-                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;">
+                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#f7f7f8;">
                       <div class="wx-af-search">
                           <svg viewBox="0 0 24 24" width="16" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
                           <input type="text" id="wx-af-input" placeholder="微信号 / 手机号 / 角色名">
@@ -9882,22 +9870,22 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
               </div>
 
               <!-- GROUP-BR · 群资料页 -->
-              <div class="wx-subpage-box wx-slide-right" id="wx-view-group-profile" style="background:#ededed;z-index:3200;">
-                  <div class="wx-header" style="background:#ededed;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-view-group-profile" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
                       <div class="wx-header-left" onclick="NavigationManager.back()">‹</div>
                       <div class="wx-header-title">群资料</div>
                       <div class="wx-header-right"></div>
                   </div>
-                  <div class="wx-scroll-view" id="wx-gp-body" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;"></div>
+                  <div class="wx-scroll-view" id="wx-gp-body" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#f7f7f8;"></div>
               </div>
               <!-- 发起群聊页（仿微信）-->
-              <div class="wx-subpage-box wx-slide-right" id="wx-view-create-group" style="background:#ededed;z-index:3200;">
-                  <div class="wx-header" style="background:#ededed;">
+              <div class="wx-subpage-box wx-slide-right" id="wx-view-create-group" style="background:#f7f7f8;z-index:3200;">
+                  <div class="wx-header" style="background:#f7f7f8;">
                       <div class="wx-header-left" onclick="NavigationManager.back()">‹</div>
                       <div class="wx-header-title" id="wx-cg-title">发起群聊</div>
                       <div class="wx-header-right" onclick="WeChatAppEngine.confirmCreateGroup()" id="wx-cg-confirm">完成</div>
                   </div>
-                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#ededed;">
+                  <div class="wx-scroll-view" style="padding-top:calc(48px + var(--sys-island-safe-top, 62px));background:#f7f7f8;">
                       <div class="wx-cg-name-row">
                           <span>群聊名称</span>
                           <input type="text" id="wx-cg-name" placeholder="未命名群聊">
@@ -9923,7 +9911,7 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
                   tabs[0].classList.add('wx-active');
               }
               const topTitle = document.getElementById('wx-top-title');
-              if (topTitle) topTitle.innerText = '微信';
+              if (topTitle) topTitle.innerText = '聊天';
           };
           // 立即激活 + 渲染
           activateSessions();
@@ -10103,26 +10091,26 @@ window.WeChatAppEngine = {
                   let html = '';
                   if (sortedLetters.length === 1 && sortedLetters[0] === '#') {
                       // 简单一个分组：联系人
-                      html += `<div class="wx-contact-group" style="font-size:11px;color:#888888;padding:6px 15px;background:#ededed;">联系人</div>`;
+                      html += `<div class="wx-contact-group" style="font-size:11px;color:#888888;padding:6px 15px;background:#f7f7f8;">联系人</div>`;
                       friends.forEach(s => {
                           const fc = (s.name || '?').charAt(0);
                           html += `<div class="wx-session-item" onclick="WeChatAppEngine.openProfile('${s.name}')">
                               <div class="wx-avatar-wrapper">${s.avatarImg
-                                  ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">`
-                                  : `<div style="width:100%;height:100%;border-radius:6px;background:hsl(${(fc.charCodeAt(0)*37)%360},42%,62%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.5em;font-weight:600;">${fc}</div>`
+                                  ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+                                  : `<div style="width:100%;height:100%;border-radius:50%;background:hsl(${(fc.charCodeAt(0)*37)%360},42%,62%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.5em;font-weight:600;">${fc}</div>`
                               }</div>
                               <div class="wx-session-info"><div class="wx-session-name">${s.remark || s.name}</div></div>
                           </div>`;
                       });
                   } else {
                       sortedLetters.forEach(L => {
-                          html += `<div class="wx-contact-group" style="font-size:11px;color:#888888;padding:6px 15px;background:#ededed;">${L}</div>`;
+                          html += `<div class="wx-contact-group" style="font-size:11px;color:#888888;padding:6px 15px;background:#f7f7f8;">${L}</div>`;
                           groups[L].forEach(s => {
                               const fc = (s.name || '?').charAt(0);
                               html += `<div class="wx-session-item" onclick="WeChatAppEngine.openProfile('${s.name}')">
                                   <div class="wx-avatar-wrapper">${s.avatarImg
-                                      ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">`
-                                      : `<div style="width:100%;height:100%;border-radius:6px;background:hsl(${(fc.charCodeAt(0)*37)%360},42%,62%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.5em;font-weight:600;">${fc}</div>`
+                                      ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+                                      : `<div style="width:100%;height:100%;border-radius:50%;background:hsl(${(fc.charCodeAt(0)*37)%360},42%,62%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.5em;font-weight:600;">${fc}</div>`
                                   }</div>
                                   <div class="wx-session-info"><div class="wx-session-name">${s.remark || s.name}</div></div>
                               </div>`;
@@ -10146,13 +10134,13 @@ window.WeChatAppEngine = {
       root.style.color = '#111111';
       document.querySelectorAll('.wx-cell, .wx-cell-group, .wx-search-bar-wrap, .wx-api-card, .wx-card-item').forEach(el => {
           el.style.backgroundColor = '#ffffff';
-          el.style.color = '#111111';
+          el.style.color = '#25262a';
       });
       const mainHeader = document.getElementById('wx-main-header');
-      if (mainHeader) mainHeader.style.background = '#ededed';
+      if (mainHeader) mainHeader.style.background = '#ffffff';
       
       document.querySelectorAll('.wx-header-title, .wx-api-title, .wx-card-title, .wx-me-nickname, .wx-session-name').forEach(el => {
-          el.style.color = '#000000';
+          el.style.color = '#25262a';
       });
       document.querySelectorAll('.wx-me-header').forEach(el => el.style.backgroundColor = '#ffffff');
       
@@ -10168,7 +10156,7 @@ const sBox = document.getElementById('wx-sessions-container');
           } else {
           sBox.innerHTML = [...store.sessions].sort((a,b)=>((b.isPinned?1:0)-(a.isPinned?1:0))).map(s => {
               const pinnedClass = s.isPinned ? 'wx-pinned' : '';
-              const avatarContent = (s.isGroup && window.GroupBR) ? window.GroupBR.groupAvatarHTML(s) : (s.avatarImg ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">` : WeChatAppEngine._letterAvatar(s.name));
+              const avatarContent = (s.isGroup && window.GroupBR) ? window.GroupBR.groupAvatarHTML(s) : (s.avatarImg ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(s.name));
               const frameContent = s.frameImg ? `<div class="wx-avatar-frame" style="background-image:url('${s.frameImg}'); transform:translate(${s.frameOffsetX}px, ${s.frameOffsetY}px);"></div>` : '';
               const badgeContent = s.unread > 0 ? (s.isMuted ? `<div class="wx-mute-dot"></div>` : `<div class="wx-badge">${s.unread > 99 ? '99+' : s.unread}</div>`) : '';
               
@@ -10198,12 +10186,12 @@ const sBox = document.getElementById('wx-sessions-container');
           const topTitle = document.getElementById('wx-chat-title');
           if (topTitle) {
               // 聊天页标题只显示名字（单聊）/ 名字 + 人数（群聊），不再显示虚构心率
-              if (!curSess.isGroup) {
-                  topTitle.innerText = curSess.name;
-              } else {
-                  const _n = (curSess.members && curSess.members.length) || '';
-                  topTitle.innerText = _n ? curSess.name + ' (' + _n + ')' : curSess.name;
-              }
+              const _t = (!curSess.isGroup) ? curSess.name : (() => { const _n = (curSess.members && curSess.members.length) || ''; return _n ? curSess.name + ' (' + _n + ')' : curSess.name; })();
+              const _nameEl = document.getElementById('wx-chat-title-name');
+              if (_nameEl) _nameEl.textContent = _t; else topTitle.innerText = _t;
+              // Muse 的 Agent 位：顶栏联系人头像（点头像开联系人选择器）
+              const _av = document.getElementById('wx-chat-avatar');
+              if (_av) _av.innerHTML = (curSess.isGroup && window.GroupBR) ? window.GroupBR.groupAvatarHTML(curSess) : (curSess.avatarImg ? `<img src="${curSess.avatarImg}">` : WeChatAppEngine._letterAvatar(curSess.name));
           }
           
           const invBtn = document.getElementById('wx-invite-btn');
@@ -10235,13 +10223,13 @@ const sBox = document.getElementById('wx-sessions-container');
           const renderMsgs = curSess.messages.slice(-renderLimit);
           const hasOlder = curSess.messages.length > renderLimit;
           const olderHint = hasOlder
-              ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#07c160;cursor:pointer;">查看更早消息（${curSess.messages.length - renderLimit}条）</div>`
+              ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#34363b;cursor:pointer;">查看更早消息（${curSess.messages.length - renderLimit}条）</div>`
               : '';
           const _wxTranslateQueue = []; // 本轮渲染出的外语消息，DOM 落位后统一触发翻译
           streamBox.innerHTML = olderHint + renderMsgs.map(m => {
               const isSelf = m.sender === '我';
               if (m.type === 'time_gap' || m.type === 'recall') {
-                  const reedit = (m.type === 'recall' && m.original) ? ` <span style="color:#07c160;cursor:pointer;" onclick="WeChatAppEngine.reeditRecall('${m.id}')">重新编辑</span>` : '';
+                  const reedit = (m.type === 'recall' && m.original) ? ` <span style="color:#34363b;cursor:pointer;" onclick="WeChatAppEngine.reeditRecall('${m.id}')">重新编辑</span>` : '';
                   return `<div class="wx-sys-bar" data-mid="${m.id}">${m.content}${reedit}</div>`;
               }
               // [GROUP-BS] act 小卡：char 后台动作的展开卡片（无 BS 时退回一行系统字）
@@ -10290,7 +10278,7 @@ const sBox = document.getElementById('wx-sessions-container');
                       const _rcState = (m.state === 'accepted') ? 'received' : 'returned';
                       const _rcLabel = (m.state === 'accepted') ? '已收款' : '已退还';
                       const _rcAv = isSelf
-                          ? (curSess.avatarImg ? `<img src="${curSess.avatarImg}" style="width:100%;height:100%;border-radius:4px;object-fit:cover;">` : WeChatAppEngine._letterAvatar(curSess.name))
+                          ? (curSess.avatarImg ? `<img src="${curSess.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(curSess.name))
                           : WeChatAppEngine.resolveAvatar('我');
                       const _rcIco = (_rcState === 'received')
                           ? '<span class="wx-receipt-ico wx-receipt-ico-received"></span>'
@@ -10416,8 +10404,8 @@ const sBox = document.getElementById('wx-sessions-container');
               const _trHTML = WeChatAppEngine._translationRowHTML(m, _wxTranslateQueue);
               const selfClass = isSelf ? 'wx-self' : '';
               const rowExtra = (m.type === 'transfer' ? ' wx-has-transfer' : '') + (m.ref ? ' wx-has-quote' : '') + (_trHTML ? ' wx-has-translation' : '');
-              const senderAvatar = isSelf ? WeChatAppEngine.resolveAvatar('我') : (curSess.isGroup ? WeChatAppEngine.resolveAvatar(m.sender || curSess.name) : (curSess.avatarImg ? `<img src="${curSess.avatarImg}" style="width:100%;height:100%;border-radius:4px;object-fit:cover;">` : WeChatAppEngine._letterAvatar(m.sender || curSess.name)));
-              const nickBlock = (curSess.isGroup && !isSelf) ? `<div class="wx-sender-nick">${m.sender}</div>` : '';
+              const senderAvatar = isSelf ? WeChatAppEngine.resolveAvatar('我') : (curSess.isGroup ? WeChatAppEngine.resolveAvatar(m.sender || curSess.name) : (curSess.avatarImg ? `<img src="${curSess.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(m.sender || curSess.name)));
+              const nickBlock = (!isSelf) ? `<div class="wx-sender-nick">${m.sender}</div>` : '';
               return `
                   <div class="wx-msg-row ${selfClass}${rowExtra}" data-mid="${m.id}">
                       <div class="wx-avatar-wrapper" style="width:40px;height:40px;font-size:20px;cursor:pointer;" onclick="WeChatAppEngine.openProfile('${isSelf ? store.accountMeta.nickname : m.sender}')" ondblclick="WeChatAppEngine.triggerPat('${curSess.id}','${m.sender}')">
@@ -10483,14 +10471,16 @@ const sBox = document.getElementById('wx-sessions-container');
           WeChatAppEngine._wxTypingMirrorOn = true;
           new MutationObserver(() => WeChatAppEngine._wxTypingMirror()).observe(bar, { attributes: true, attributeFilter: ['class'] });
       }
+      const _nameEl = document.getElementById('wx-chat-title-name');
+      const _setTitle = (t) => { if (_nameEl) _nameEl.textContent = t; else title.innerText = t; };
       if (bar.classList.contains('wx-typing')) {
-          title.textContent = '对方正在输入...';
+          _setTitle('对方正在输入...');
           title.classList.add('wx-typing-title');
       } else {
           title.classList.remove('wx-typing-title');
           const store = AppRegistry['wechat']?.wxStore;
           const cur = store?.sessions.find(s => s.id === store?.currentChatId);
-          if (cur) title.innerText = cur.isGroup ? (cur.name + (((cur.members && cur.members.length) ? ' (' + cur.members.length + ')' : ''))) : cur.name;
+          if (cur) _setTitle(cur.isGroup ? (cur.name + (((cur.members && cur.members.length) ? ' (' + cur.members.length + ')' : ''))) : cur.name);
       }
   },
   renderBannedPoolSandbox: () => {
@@ -10580,7 +10570,7 @@ const sBox = document.getElementById('wx-sessions-container');
       let h = 0;
       for (let i = 0; i < (name||'').length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
       const bg = `hsl(${h}, 42%, 62%)`;
-      return `<div style="width:100%;height:100%;border-radius:6px;background:${bg};
+      return `<div style="width:100%;height:100%;border-radius:50%;background:${bg};
           display:flex;align-items:center;justify-content:center;color:#fff;
           font-size:0.5em;font-weight:600;">${ch}</div>`;
   },
@@ -10595,11 +10585,11 @@ const sBox = document.getElementById('wx-sessions-container');
       // 用户本人
       if (!sess && store && (nameOrId === store.accountMeta.nickname || nameOrId === '我')) {
           const userImg = (typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-avatar')) || '';
-          if (userImg) return `<img src="${userImg}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">`;
+          if (userImg) return `<img src="${userImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
           return WeChatAppEngine._letterAvatar(store.accountMeta.nickname || '我');
       }
         if (sess) {
-            if (sess.avatarImg) return `<img src="${sess.avatarImg}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">`;
+            if (sess.avatarImg) return `<img src="${sess.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
             // [K组] 只对主角 char 用同一张脸：抠图人物（otome_custom_char_v1 当前使用）优先，其次按发色瞳色画的同一张脸；其他好友仍走首字头像
             try {
                 if (typeof window.CharK !== 'undefined' && window.CharK && window.CharK.isMainChar(sess.name || nameOrId)) {
@@ -10644,14 +10634,17 @@ const sBox = document.getElementById('wx-sessions-container');
   },
   
   switchTab: (viewId, title, tabNode) => {
+      // 乙女游戏 tab 没有当前角色时不切 tab，改开联系人选择器；选定后再由选择器切过来。
+      if (viewId === 'otome' && !WeChatAppEngine._otomeCurSess()) { WeChatAppEngine.openContactPicker('otome'); return; }
       const root = document.getElementById('wx-app-root');
       const scope = root || document;
       scope.querySelectorAll('.wx-tab-item').forEach(t => t.classList.remove('wx-active'));
-      const tabOrder = { sessions: 1, contacts: 2, discover: 3, me: 4 };
+      const tabOrder = { sessions: 1, moments: 2, otome: 3, me: 4 };
       const node = tabNode || scope.querySelector('.wx-tab-item:nth-child(' + (tabOrder[viewId] || 1) + ')');
       if (node) node.classList.add('wx-active');
       scope.querySelectorAll('.wx-view-box').forEach(v => v.classList.remove('wx-active'));
-      const nextView = document.getElementById('wx-view-' + viewId);
+      // 朋友圈视图 id 沿用 wx-view-moments-page（其余 tab 均为 wx-view-<tab>）
+      const nextView = document.getElementById(viewId === 'moments' ? 'wx-view-moments-page' : 'wx-view-' + viewId);
       if (nextView) nextView.classList.add('wx-active');
       const store = AppRegistry['wechat']?.wxStore;
       if (store) store.currentView = viewId;
@@ -10660,18 +10653,82 @@ const sBox = document.getElementById('wx-sessions-container');
       const topTitle = document.getElementById('wx-top-title');
       const topActions = document.getElementById('wx-top-actions');
       const mainHeader = document.getElementById('wx-main-header');
+      const plusBtn = document.getElementById('wx-top-plus-btn');
+      const pubBtn = document.getElementById('wx-top-publish-btn');
+      const titles = { sessions: '聊天', moments: '看朋友圈', otome: '乙女游戏', me: '个人主页' };
       if (viewId === 'me') {
           if (mainHeader) mainHeader.style.display = 'none';
       } else {
           if (mainHeader) mainHeader.style.display = 'flex';
-          if (topTitle) topTitle.innerText = title || '微信';
-          if (topActions) topActions.style.display = viewId === 'sessions' ? 'flex' : 'none';
+          if (topTitle) topTitle.innerText = title || titles[viewId] || '聊天';
+          if (topActions) topActions.style.display = 'flex';
+          if (plusBtn) plusBtn.style.display = viewId === 'sessions' ? 'flex' : 'none';
+          if (pubBtn) pubBtn.style.display = viewId === 'moments' ? 'flex' : 'none';
       }
-      if (viewId === 'discover') WeChatAppEngine.setupDiscoverMounts();
+      if (viewId === 'moments') WeChatAppEngine.openMomentsPage('全部');
+      if (viewId === 'otome') WeChatAppEngine.openOtomeHome();
       WeChatAppEngine.renderUpdates();
-      if (viewId === 'discover') WeChatAppEngine.setupDiscoverMounts();
   },
   
+  // ── 左侧抽屉：仅 tab 页可开；行点按后收起再执行 ──
+  toggleWxSidebar: (open) => {
+      const d = document.getElementById('wx-side-drawer');
+      const s = document.getElementById('wx-side-scrim');
+      const show = (typeof open === 'boolean') ? open : !(d && d.classList.contains('wx-open'));
+      if (d) d.classList.toggle('wx-open', show);
+      if (s) s.classList.toggle('wx-open', show);
+      if (show) WeChatAppEngine.renderWxSidebarProfile();
+  },
+  renderWxSidebarProfile: () => {
+      const store = AppRegistry['wechat']?.wxStore;
+      let nick = '';
+      let img = '';
+      try { nick = (typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-nickname')) || ''; img = (typeof SystemStore !== 'undefined' && SystemStore.get('wx-user-avatar')) || ''; } catch (e) {}
+      if (!nick) nick = (store && store.accountMeta.nickname) || '我';
+      const av = document.getElementById('wx-side-avatar');
+      if (av) av.innerHTML = img ? `<img src="${img}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(nick);
+      const nm = document.getElementById('wx-side-name');
+      if (nm) nm.innerText = nick;
+  },
+  // 情侣小游戏：须先有角色；没有则开选择器，选定后由 pickContact 切 tab 并开面板
+  openSidebarPlay: () => {
+      if (!WeChatAppEngine._otomeCurSess()) { WeChatAppEngine.openContactPicker('play'); return; }
+      WeChatAppEngine.switchTab('otome');
+      WeChatAppEngine.otomeShowPanel('play');
+  },
+  // ── 心绪页：GroupY 今日打卡 + CharInnerLife 内心状态（原样复用，不改数据源） ──
+  openMoodPage: () => {
+      WeChatAppEngine.renderMoodPage();
+      document.getElementById('wx-view-mood-page')?.classList.add('wx-active');
+  },
+  renderMoodPage: () => {
+      const body = document.getElementById('wx-mood-body');
+      if (!body) return;
+      const MOODS = ['开心', '平静', '低落', '烦躁', '困'];
+      let todayMood = null, todayEnergy = 3, line = '';
+      try { if (window.GroupY) { todayMood = window.GroupY._todayMood(); todayEnergy = window.GroupY._todayEnergy() || 3; line = window.GroupY.moodDiaryLine() || ''; } } catch (e) {}
+      const moodBtns = MOODS.map(m => `<button type="button" class="wx-mood-btn${todayMood === m ? ' wx-on' : ''}" onclick="WeChatAppEngine.wxMoodCheckin('${m}', null)">${m}</button>`).join('');
+      const energyBtns = [1, 2, 3, 4, 5].map(n => `<button type="button" class="wx-mood-btn${todayEnergy === n ? ' wx-on' : ''}" onclick="WeChatAppEngine.wxMoodCheckin(null, ${n})">${n}</button>`).join('');
+      let inner = '';
+      try { if (window.CharInnerLife) inner = window.CharInnerLife.renderInnerHTML() || ''; } catch (e) { inner = ''; }
+      const charName = WeChatAppEngine._otomeCharName();
+      body.innerHTML =
+          `<div class="wx-info-card"><div style="font-weight:600;font-size:15px;margin-bottom:4px;">今日心绪</div>`
+          + `<div style="font-size:13px;color:#8a8b91;margin-bottom:10px;">${line ? line : '今天还没有打卡，选一个此刻的心情吧。'}</div>`
+          + `<div style="display:flex;gap:8px;flex-wrap:wrap;">${moodBtns}</div>`
+          + `<div style="font-size:13px;color:#8a8b91;margin:12px 0 6px;">精力 1–5</div>`
+          + `<div style="display:flex;gap:8px;">${energyBtns}</div></div>`
+          + `<div class="wx-info-card"><div style="font-weight:600;font-size:15px;margin-bottom:8px;">${charName}的内心</div>${inner || '<div style="font-size:13px;color:#8a8b91;">暂无内心动态。</div>'}</div>`;
+  },
+  wxMoodCheckin: (mood, energy) => {
+      try {
+          if (!window.GroupY) return;
+          const m = mood || window.GroupY._todayMood() || '平静';
+          const e = energy || window.GroupY._todayEnergy() || 3;
+          window.GroupY.moodCheckin(m, e);
+      } catch (e) {}
+      WeChatAppEngine.renderMoodPage();
+  },
   hideExtPanels: (e) => {
       if (e && (e.target.closest('.wx-input-bar') || e.target.closest('.wechat-arc-menu'))) return;
       document.getElementById('wx-panel-tool')?.classList.remove('wx-active');
@@ -11102,7 +11159,7 @@ exitFullscreen: (e) => {
       if (store) {
           store.config.fontSize = 14;
           store.config.bubbleRadius = 4;
-          store.config.themeColor = '#07c160';
+          store.config.themeColor = '#34363b';
           store.config.fontFamily = '-apple-system';
           WeChatAppEngine.renderUpdates();
           WeChatAppEngine.triggerToast('已恢复标准');
@@ -11204,7 +11261,7 @@ exitFullscreen: (e) => {
       const vBody = document.getElementById('wechat-voucher-body');
       if (item && vBody) {
           vBody.innerHTML = `
-              <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;"><span>状态</span><span style="color:#07c160;font-weight:bold;">成功 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg></span></div>
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;"><span>状态</span><span style="color:#34363b;font-weight:bold;">成功 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg></span></div>
               <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:6px;"><span>标的</span><span>${item.title}</span></div>
               <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:6px;"><span>类型</span><span>${item.type}</span></div>
               <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:6px;"><span>金额</span><span style="font-weight:bold;color:${item.amount.startsWith('+')?'#07c160':'#ff5b60'};">${item.amount} 元</span></div>
@@ -11371,7 +11428,7 @@ exitFullscreen: (e) => {
       const renderMsgs = curSess.messages.slice(-curSess._renderOffset);
       const hasOlder = curSess.messages.length > curSess._renderOffset;
       const olderHint = hasOlder
-          ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#07c160;cursor:pointer;">查看更早消息（${curSess.messages.length - curSess._renderOffset}条）</div>`
+          ? `<div id="wx-load-older" onclick="WeChatAppEngine.loadOlderMessages()" style="text-align:center;padding:10px;font-size:12px;color:#34363b;cursor:pointer;">查看更早消息（${curSess.messages.length - curSess._renderOffset}条）</div>`
           : `<div style="text-align:center;padding:10px;font-size:11px;color:#aaa;">— 已显示全部消息 —</div>`;
       const scrollTop = streamBox.scrollTop;
       const scrollHeight = streamBox.scrollHeight;
@@ -11876,7 +11933,7 @@ exitFullscreen: (e) => {
           return `
               <div class="wx-card-item" onclick="WeChatAppEngine.viewCardDetail('${c.id}', '${c.scope}')">
                   <div class="wx-card-header">
-                      <span class="wx-card-title"><span style="display:inline-block;width:8px;height:8px;background:var(--wx-theme-color,#07c160);border-radius:2px;"></span>${c.title}</span>
+                      <span class="wx-card-title"><span style="display:inline-block;width:8px;height:8px;background:var(--wx-theme-color,#34363b);border-radius:2px;"></span>${c.title}</span>
                       <span class="wx-card-scope-tag">${scopeLabel}</span>
                   </div>
                   <div class="wx-card-tags-row">
@@ -11924,7 +11981,7 @@ exitFullscreen: (e) => {
           <div>权重频次：${esc(card.freq)}</div>
           <div>标签：${(card.tags || []).map(esc).join('、')}</div>
           <div>重构于：${esc(card.lastModified)}</div>
-          <button style="margin-top:12px;width:100%;padding:10px;border:none;border-radius:8px;background:#07c160;color:#fff;font-size:14px;cursor:pointer;" onclick="document.getElementById('wx-card-detail-overlay')?.remove()">关闭</button>
+          <button style="margin-top:12px;width:100%;padding:10px;border:none;border-radius:8px;background:#34363b;color:#fff;font-size:14px;cursor:pointer;" onclick="document.getElementById('wx-card-detail-overlay')?.remove()">关闭</button>
       </div>`;
       (document.getElementById('wx-app-root') || document.body).appendChild(o);
   },
@@ -12982,9 +13039,85 @@ sysPrompt += `\n
   
   closeChatDetail: () => { WeChatAppEngine.closeOtomeAll(); document.getElementById('wx-view-chat-detail')?.classList.remove('wx-active'); WeChatAppEngine.refQuote = ''; WeChatAppEngine.refQuoteAuthor = ''; document.getElementById('wx-input-wrap')?.classList.remove('wx-quoting'); const _inp = document.getElementById('wx-msg-input'); if (_inp) _inp.placeholder = '输入内容...'; },
   
+  // ── 联系人选择器（单选）：chat=换聊天对象；otome=选乙女游戏角色；diary=选日记对象；play=选一起玩的对象 ──
+  openChatAvatar: () => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const curSess = store?.sessions.find(s => s.id === store.currentChatId);
+      if (!curSess) { WeChatAppEngine.openContactPicker('chat'); return; }
+      if (curSess.isGroup) { if (window.GroupBR) window.GroupBR.openGroupProfile(curSess.id); return; }
+      WeChatAppEngine.openContactPicker('chat');
+  },
+  openContactPicker: (mode) => {
+      const store = AppRegistry['wechat']?.wxStore;
+      if (!store) return;
+      WeChatAppEngine._pickerMode = mode || 'chat';
+      const titles = { chat: '选择联系人', otome: '选择乙女游戏角色', diary: '选择日记对象', play: '选择一起玩的对象' };
+      const t = document.getElementById('wx-picker-title');
+      if (t) t.innerText = titles[WeChatAppEngine._pickerMode] || titles.chat;
+      const inp = document.getElementById('wx-picker-search');
+      if (inp) inp.value = '';
+      WeChatAppEngine.renderContactPicker('');
+      document.getElementById('wx-contact-picker')?.classList.add('wx-active');
+  },
+  closeContactPicker: () => {
+      document.getElementById('wx-contact-picker')?.classList.remove('wx-active');
+      WeChatAppEngine._pickerMode = null;
+  },
+  filterContactPicker: (q) => { WeChatAppEngine.renderContactPicker(q || ''); },
+  renderContactPicker: (q) => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const box = document.getElementById('wx-picker-list');
+      if (!store || !box) return;
+      const mode = WeChatAppEngine._pickerMode || 'chat';
+      const kw = (q || '').trim().toLowerCase();
+      const curId = store.currentChatId;
+      const _av = (s) => (s.isGroup && window.GroupBR) ? window.GroupBR.groupAvatarHTML(s) : (s.avatarImg ? `<img src="${s.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(s.name));
+      let h = '';
+      h += `<div class="wx-session-item wx-contact-entry" onclick="WeChatAppEngine.closeContactPicker();WeChatAppEngine.executeDrawerAction('addFriend')" style="border-bottom:1px solid #f0f0f0;">
+          <div class="wx-avatar-wrapper" style="background:#ff8e00;color:#fff;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="#fff" stroke-width="2" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg></div>
+          <div class="wx-session-info"><div class="wx-session-name">新的朋友</div></div>
+          <div style="color:#b0b0b0;font-size:16px;padding-right:4px;">›</div></div>`;
+      h += `<div class="wx-session-item wx-contact-entry" onclick="WeChatAppEngine.closeContactPicker();WeChatAppEngine.executeDrawerAction('group')" style="border-bottom:1px solid #f0f0f0;">
+          <div class="wx-avatar-wrapper" style="background:#34363b;color:#fff;"><svg viewBox="0 0 24 24" width="20" height="20" stroke="#fff" stroke-width="2" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+          <div class="wx-session-info"><div class="wx-session-name">发起群聊</div></div>
+          <div style="color:#b0b0b0;font-size:16px;padding-right:4px;">›</div></div>`;
+      // otome/diary/play 只列单聊（角色须是一对一对象）；chat 全列
+      const list = (store.sessions || []).filter(s => s && s.name && (mode === 'chat' ? true : !s.isGroup));
+      const rows = list.filter(s => !kw || (s.name || '').toLowerCase().includes(kw) || ((s.remark || '').toLowerCase().includes(kw))).map(s => {
+          const cur = (mode === 'chat' && s.id === curId) ? ' <span style="font-size:12px;color:#8a8b91;font-weight:400;">当前</span>' : '';
+          return `<div class="wx-session-item" onclick="WeChatAppEngine.pickContact('${s.id}')" style="border-bottom:1px solid #f0f0f0;">
+              <div class="wx-avatar-wrapper" onclick="event.stopPropagation();WeChatAppEngine.openContactAvatar('${s.id}')">${_av(s)}</div>
+              <div class="wx-session-info"><div class="wx-session-name">${s.remark || s.name}${cur}</div><div class="wx-session-preview">${s.preview || ''}</div></div>
+          </div>`;
+      }).join('');
+      box.innerHTML = h + rows;
+  },
+  openContactAvatar: (sid) => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const s = store?.sessions.find(x => x.id === sid);
+      if (!s) return;
+      WeChatAppEngine.closeContactPicker();
+      if (s.isGroup) { if (window.GroupBR) window.GroupBR.openGroupProfile(s.id); return; }
+      WeChatAppEngine.openProfile(s.name);
+  },
+  pickContact: (sid) => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const mode = WeChatAppEngine._pickerMode || 'chat';
+      const sess = store?.sessions.find(s => s.id === sid);
+      WeChatAppEngine.closeContactPicker();
+      if (!sess) return;
+      if (mode === 'chat') { WeChatAppEngine.openChatDetail(sid); return; }
+      if (store) store.currentChatId = sid;
+      if (mode === 'otome') { WeChatAppEngine.switchTab('otome'); return; }
+      if (mode === 'diary') { WeChatAppEngine.openOtomeDiary(); return; }
+      if (mode === 'play') { WeChatAppEngine.switchTab('otome'); WeChatAppEngine.otomeShowPanel('play'); return; }
+  },
   openMomentsPage: (scopeType) => {
       const viewDom = document.getElementById('wx-view-moments-page');
       if (!viewDom) return;
+      // tab 模式（从 看朋友圈 tab 进）：隐藏页内透明顶栏，用主顶栏标题 + 发表；其余入口为覆盖层模式。
+      const _store = AppRegistry['wechat']?.wxStore;
+      viewDom.classList.toggle('wx-moments-tab', _store?.currentView === 'moments');
       viewDom.classList.add('wx-active');
       const feedDomNode = document.getElementById('wx-moments-container');
       if (feedDomNode) feedDomNode.setAttribute('data-scope', scopeType);
@@ -13029,14 +13162,14 @@ sysPrompt += `\n
       feedContainerDom.innerHTML = hits.map(m => {
           const _psMomPhotos = WeChatAppEngine.PhotoStack.photosOfMoment(m);
           const imgContent = WeChatAppEngine.PhotoStack.gridHTML(m.id, _psMomPhotos, 'moment');
-          const likesContent = m.likes.length > 0 ? `<div class="wx-feed-likes" style="color:var(--wx-theme-color, #07c160);"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg> ${m.likes.join(', ')}</div>` : '';
-          const commentsContent = m.comments.map(c => `<div><span style="color:var(--wx-theme-color, #07c160);">${c.author}:</span> <span style="color:#333333;">${c.text}</span></div>`).join('');
+          const likesContent = m.likes.length > 0 ? `<div class="wx-feed-likes" style="color:var(--wx-theme-color, #34363b);"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8c0-3.6 4.5-4.9 8.5-.8 4-4.1 8.5-2.8 8.5.8Z"/></svg> ${m.likes.join(', ')}</div>` : '';
+          const commentsContent = m.comments.map(c => `<div><span style="color:var(--wx-theme-color, #34363b);">${c.author}:</span> <span style="color:#333333;">${c.text}</span></div>`).join('');
           const interBox = (m.likes.length > 0 || m.comments.length > 0) ? `<div class="wx-feed-likes-comments">${likesContent}${commentsContent}</div>` : '';
           return `
               <div class="wx-feed-item">
-                  <div class="wx-avatar-wrapper" style="width:40px;height:40px;border-radius:4px;cursor:pointer;overflow:hidden;" onclick="WeChatAppEngine.openProfile('${m.author}')">${WeChatAppEngine.resolveAvatar(m.author)}</div>
+                  <div class="wx-avatar-wrapper" style="width:40px;height:40px;border-radius:50%;cursor:pointer;overflow:hidden;" onclick="WeChatAppEngine.openProfile('${m.author}')">${WeChatAppEngine.resolveAvatar(m.author)}</div>
                   <div class="wx-feed-main">
-                      <div style="font-weight:500;color:var(--wx-theme-color, #07c160);">${m.author}</div>
+                      <div style="font-weight:500;color:var(--wx-theme-color, #34363b);">${m.author}</div>
                       <div style="color:#000000;">${window.GroupIB ? window.GroupIB.mentionHTML(m.content) : m.content}</div>
                       ${imgContent}
                       <div class="wx-feed-footer">
@@ -13239,6 +13372,79 @@ sysPrompt += `\n
       WeChatAppEngine.triggerToast && WeChatAppEngine.triggerToast('人设已保存');
   },
   
+  // ── 聊天信息页 ──
+  openChatInfo: () => {
+      WeChatAppEngine.renderChatInfo();
+      document.getElementById('wx-chat-info-page')?.classList.add('wx-active');
+  },
+  closeChatInfo: () => {
+      document.getElementById('wx-chat-info-page')?.classList.remove('wx-active');
+  },
+  renderChatInfo: () => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const body = document.getElementById('wx-chat-info-body');
+      if (!store || !body) return;
+      const curSess = store.sessions.find(s => s.id === store.currentChatId);
+      if (!curSess) { body.innerHTML = '<div class="wx-info-card"><div class="wx-info-row">没有打开的聊天</div></div>'; return; }
+      const av = (curSess.isGroup && window.GroupBR) ? window.GroupBR.groupAvatarHTML(curSess) : (curSess.avatarImg ? `<img src="${curSess.avatarImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : WeChatAppEngine._letterAvatar(curSess.name));
+      const sub = curSess.isGroup ? ('群聊 · ' + ((curSess.members && curSess.members.length) || '') + ' 人') : '单聊';
+      const bg = curSess.chatBg || '';
+      const bgBtn = (mode, label) => `<button type="button" class="wx-mood-btn${bg === mode ? ' wx-on' : ''}" onclick="WeChatAppEngine.setChatBgForCurrent('${mode}')">${label}</button>`;
+      body.innerHTML =
+          `<div class="wx-info-card"><div class="wx-info-head"><div class="wx-avatar-wrapper">${av}</div>`
+          + `<div class="wx-info-name">${curSess.remark || curSess.name}</div><div class="wx-info-sub">${sub}</div></div></div>`
+          + `<div class="wx-info-card">`
+          + `<div class="wx-info-row" onclick="WeChatAppEngine.closeChatInfo();WeChatAppEngine.openProfileFromChat()"><span>TA的主页</span><span style="color:#8a8b91;">›</span></div>`
+          + `<div class="wx-info-row"><span>消息免打扰</span><div class="wx-switch ${curSess.isMuted ? 'wx-active' : ''}" onclick="WeChatAppEngine.toggleChatInfoMute()"></div></div>`
+          + `<div class="wx-info-row"><span>置顶聊天</span><div class="wx-switch ${curSess.isPinned ? 'wx-active' : ''}" onclick="WeChatAppEngine.toggleChatInfoPin()"></div></div>`
+          + `</div>`
+          + `<div class="wx-info-card"><div class="wx-info-row" style="cursor:default;"><span>聊天背景</span></div>`
+          + `<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px;">${bgBtn('', '默认白')}${bgBtn('galgame', '星夜')}${bgBtn('dreamcore', '梦核')}</div></div>`
+          + `<div class="wx-info-card"><div class="wx-info-row" onclick="WeChatAppEngine.clearChatHistory()"><span class="wx-info-danger">清空聊天记录</span></div></div>`
+          + `<div style="height:24px;"></div>`;
+  },
+  toggleChatInfoMute: () => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const curSess = store?.sessions.find(s => s.id === store.currentChatId);
+      if (!curSess) return;
+      WeChatAppEngine.toggleMuteSession(curSess.id);
+      WeChatAppEngine.renderChatInfo();
+  },
+  toggleChatInfoPin: () => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const curSess = store?.sessions.find(s => s.id === store.currentChatId);
+      if (!curSess) return;
+      WeChatAppEngine.togglePinSession(curSess.id);
+      WeChatAppEngine.renderChatInfo();
+  },
+  // 聊天背景：写当前会话 chatBg（内存 + phone_chatbg_v1 持久化，与美化助手同一份 map）
+  setChatBgForCurrent: (mode) => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const curSess = store?.sessions.find(s => s.id === store.currentChatId);
+      if (!curSess) return;
+      curSess.chatBg = mode || '';
+      try {
+          const map = JSON.parse(localStorage.getItem('phone_chatbg_v1') || '{}');
+          if (mode) map[curSess.id] = mode; else delete map[curSess.id];
+          localStorage.setItem('phone_chatbg_v1', JSON.stringify(map));
+      } catch (e) {}
+      if (typeof store._persist === 'function') store._persist();
+      WeChatAppEngine.renderUpdates();
+      WeChatAppEngine.renderChatInfo();
+      WeChatAppEngine.triggerToast('聊天背景已设置');
+  },
+  clearChatHistory: () => {
+      const store = AppRegistry['wechat']?.wxStore;
+      const curSess = store?.sessions.find(s => s.id === store.currentChatId);
+      if (!curSess) return;
+      if (!window.confirm('确定清空与' + (curSess.remark || curSess.name || '对方') + '的聊天记录吗？')) return;
+      curSess.messages = [];
+      curSess.preview = '';
+      curSess.lastTime = '';
+      if (typeof store._persist === 'function') store._persist();
+      WeChatAppEngine.renderUpdates();
+      WeChatAppEngine.triggerToast('聊天记录已清空');
+  },
   openProfileFromChat: () => {
       const store = AppRegistry['wechat']?.wxStore;
       const curSess = store?.sessions.find(s => s.id === store.currentChatId);
@@ -13290,7 +13496,7 @@ sysPrompt += `\n
       if (curSess?.isGroup && el.value.endsWith('@')) {
           if (atPanel) {
               const _atNames = window.GroupBR ? window.GroupBR.groupMemberNames(curSess) : ((curSess.members || curSess.groupMembers || []).slice());
-              atPanel.innerHTML = _atNames.map(m => `<div class="wx-at-item" onclick="WeChatAppEngine.selectAt('${m}')"><span style="width:22px;height:22px;border-radius:4px;background:#07c160;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">${(m || '?').charAt(0)}</span><span>${m}</span></div>`).join('');
+              atPanel.innerHTML = _atNames.map(m => `<div class="wx-at-item" onclick="WeChatAppEngine.selectAt('${m}')"><span style="width:22px;height:22px;border-radius:50%;background:#34363b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">${(m || '?').charAt(0)}</span><span>${m}</span></div>`).join('');
               atPanel.classList.add('wx-active');
           }
       } else if (atPanel) atPanel.classList.remove('wx-active');
@@ -13341,7 +13547,7 @@ sysPrompt += `\n
           } catch (err) {}
           _trItem.style.display = _showTr ? '' : 'none';
       }
-      menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px'; menu.classList.add('wx-active');
+      menu.classList.add('wx-active');
   },
   
   ctxAction: (action) => {
@@ -13381,6 +13587,9 @@ sysPrompt += `\n
           WeChatAppEngine.refQuoteAuthor = targetMsg.sender; // GROUP-WECHAT · 第 22 项 §8：引用作者用真文字
           const input = document.getElementById('wx-msg-input');
           if (input) { input.placeholder = `引用: ${WeChatAppEngine.refQuote.slice(0,10)}...`; input.focus(); document.getElementById('wx-input-wrap')?.classList.add('wx-quoting'); }
+      } else if (action === 'copy') {
+          const txt = targetMsg.type === 'text' ? (targetMsg.content || '') : (targetMsg.type === 'image' ? '[图片]' : (targetMsg.content || ('[' + targetMsg.type + ']')));
+          WeChatAppEngine.copyText(txt, () => WeChatAppEngine.triggerToast('已复制'));
       } else if (action === 'react') {
           // [GROUP-BS] 长按贴回应：打开 emoji 选择器
           if (typeof WeChatAppEngine.openReactionPicker === 'function') WeChatAppEngine.openReactionPicker(target.sid, target.mid);
@@ -13405,6 +13614,30 @@ sysPrompt += `\n
       }
   },
   
+  // 底部 sheet 顶部的快捷回应托盘：复用 js/47 的回应逻辑（按下标贴回应）
+  ctxReact: (idx) => {
+      const appObj = AppRegistry['wechat'];
+      document.getElementById('wx-ctx-menu')?.classList.remove('wx-active');
+      if (!appObj || !appObj.activeContextMsgId) return;
+      const t = appObj.activeContextMsgId;
+      if (typeof WeChatAppEngine.toggleReactionByIndex === 'function') WeChatAppEngine.toggleReactionByIndex(t.sid, t.mid, idx);
+  },
+  copyText: (txt, done) => {
+      const finish = () => { if (typeof done === 'function') done(); };
+      try {
+          if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(finish).catch(() => WeChatAppEngine.copyTextFallback(txt, finish)); return; }
+      } catch (e) {}
+      WeChatAppEngine.copyTextFallback(txt, finish);
+  },
+  copyTextFallback: (txt, done) => {
+      try {
+          const ta = document.createElement('textarea');
+          ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); ta.remove();
+      } catch (e) {}
+      if (typeof done === 'function') done();
+  },
   triggerReader: (mid) => {
       const store = AppRegistry['wechat']?.wxStore;
       const msg = store?.sessions.find(s => s.id === store.currentChatId)?.messages.find(m => m.id === mid);
@@ -13800,14 +14033,14 @@ handleImgUpload: (input) => {
       }
       if (msg.state === 'accepted') {
           if (acceptBtn) acceptBtn.style.display = 'none';
-          if (statusTxt) { statusTxt.innerText = '已收款'; statusTxt.style.color = '#07c160'; }
+          if (statusTxt) { statusTxt.innerText = '已收款'; statusTxt.style.color = '#34363b'; }
       } else {
           if (acceptBtn) {
               acceptBtn.style.display = 'block';
                   acceptBtn.onclick = function() {
                   msg.state = 'accepted';
                   this.style.display = 'none';
-                  if (statusTxt) { statusTxt.innerText = '已成功收款 ¥' + msg.amount; statusTxt.style.color = '#07c160'; }
+                  if (statusTxt) { statusTxt.innerText = '已成功收款 ¥' + msg.amount; statusTxt.style.color = '#34363b'; }
                   WeChatAppEngine.renderUpdates();
               };
 
@@ -14627,7 +14860,7 @@ handleImgUpload: (input) => {
           <div style="padding:0 14px;">${svg}</div>
           ${m.note ? `<div style="padding:8px 14px 0;font-size:12px;color:#888;">${esc(m.note)}</div>` : ''}
           <div style="padding:8px 14px 12px;font-size:11px;color:#999;">本地手绘，不加载外链地图瓦片</div>
-          <div style="padding:0 14px 14px;"><button style="width:100%;padding:10px;border:none;border-radius:8px;background:#07C160;color:#fff;font-size:14px;cursor:pointer;" onclick="WeChatAppEngine.closeLocationMap()">关闭</button></div>
+          <div style="padding:0 14px 14px;"><button style="width:100%;padding:10px;border:none;border-radius:8px;background:#34363b;color:#fff;font-size:14px;cursor:pointer;" onclick="WeChatAppEngine.closeLocationMap()">关闭</button></div>
       </div>`;
       (document.getElementById('wx-app-root') || document.body).appendChild(o);
   },
@@ -14648,7 +14881,7 @@ handleImgUpload: (input) => {
       o.innerHTML = `<div style="background:#fff;border-radius:10px;width:100%;max-width:420px;max-height:80%;overflow-y:auto;padding:16px;box-sizing:border-box;">
           <div style="font-size:16px;font-weight:bold;margin-bottom:8px;">我的收藏（${favs.length}）</div>
           ${listHtml}
-          <button style="margin-top:14px;width:100%;padding:10px;border:none;border-radius:8px;background:#07c160;color:#fff;font-size:14px;cursor:pointer;" onclick="document.getElementById('wx-fav-overlay')?.remove()">关闭</button>
+          <button style="margin-top:14px;width:100%;padding:10px;border:none;border-radius:8px;background:#34363b;color:#fff;font-size:14px;cursor:pointer;" onclick="document.getElementById('wx-fav-overlay')?.remove()">关闭</button>
       </div>`;
       (document.getElementById('wx-app-root') || document.body).appendChild(o);
   },
@@ -14695,29 +14928,6 @@ handleImgUpload: (input) => {
       const done = () => WeChatAppEngine.triggerToast('内心独白已复制');
       if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done).catch(() => { WeChatAppEngine.triggerToast(text); });
       else WeChatAppEngine.triggerToast(text);
-  },
-
-  // ── 联系人搜索过滤 ──
-  filterContacts: (q) => {
-      const dyn = document.getElementById('wx-contacts-dynamic');
-      const kw = (q || '').trim().toLowerCase();
-      document.querySelectorAll('#wx-view-contacts .wx-contact-entry').forEach(el => {
-          const name = (el.querySelector('.wx-session-name')?.innerText || '').toLowerCase();
-          el.style.display = (!kw || name.includes(kw)) ? '' : 'none';
-      });
-      if (!dyn) return;
-      let curHeader = null; let headerHasVisible = false;
-      const flushHeader = () => { if (curHeader) curHeader.style.display = headerHasVisible ? '' : 'none'; };
-      dyn.querySelectorAll(':scope > *').forEach(el => {
-          if (el.classList.contains('wx-contact-group')) { flushHeader(); curHeader = el; headerHasVisible = false; }
-          else if (el.classList.contains('wx-session-item')) {
-              const name = (el.querySelector('.wx-session-name')?.innerText || '').toLowerCase();
-              const show = !kw || name.includes(kw);
-              el.style.display = show ? '' : 'none';
-              if (show) headerHasVisible = true;
-          }
-      });
-      flushHeader();
   },
 
   // 仿微信风格输入弹窗（替代原生 prompt）
@@ -14803,13 +15013,8 @@ handleImgUpload: (input) => {
   
   // ── A组新增：发现页挂载契约（B组依赖）──
   setupDiscoverMounts: () => {
-      let letterbox = document.getElementById('wx-discover-letterbox');
-      if (!letterbox) {
-          const group = document.querySelector('#wx-view-discover .wx-cell-group');
-          if (group && group.parentNode) {
-              letterbox = document.createElement('div'); letterbox.id = 'wx-discover-letterbox'; group.parentNode.insertBefore(letterbox, group.nextSibling);
-          }
-      }
+      // 信箱挂载点已迁至左侧抽屉底部（#wx-side-foot）；按 id 查找即可，js/06 的 MutationObserver 会在挂载后接管。
+      const letterbox = document.getElementById('wx-discover-letterbox');
       if (letterbox) window.__wxDiscoverMounts = { letterbox };
   },
   // ── A组新增：消息列表搜索 ──
@@ -14865,7 +15070,7 @@ handleImgUpload: (input) => {
       const map = {};
       (store?.sessions || []).forEach(s => { (s.tags || []).forEach(t => { (map[t] = map[t] || []).push(s.remark || s.name); }); });
       const keys = Object.keys(map);
-      const html = keys.length ? keys.map(t => `<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:14px;font-weight:600;color:#07c160;">#${t}</div><div style="font-size:13px;color:#666;margin-top:6px;">${map[t].join('、')}</div></div>`).join('') : '<div style="font-size:13px;color:#888;text-align:center;padding:40px 0;">还没有标签<br>在好友资料页的“更多信息”里可以添加标签</div>';
+      const html = keys.length ? keys.map(t => `<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:14px;font-weight:600;color:#34363b;">#${t}</div><div style="font-size:13px;color:#666;margin-top:6px;">${map[t].join('、')}</div></div>`).join('') : '<div style="font-size:13px;color:#888;text-align:center;padding:40px 0;">还没有标签<br>在好友资料页的“更多信息”里可以添加标签</div>';
       WeChatAppEngine._openDiscoverOverlay('标签', html);
   },
   // ── A组新增：发现页各行 ──
@@ -14925,7 +15130,7 @@ handleImgUpload: (input) => {
   },
   openLookFeed: () => {
       const store = AppRegistry['wechat']?.wxStore;
-      const items = (store?.moments || []).map(m => `<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;color:#07c160;font-weight:600;">${m.author} · ${m.time}</div><div style="font-size:14px;margin-top:6px;line-height:1.6;">${m.content || ''}</div></div>`).join('');
+      const items = (store?.moments || []).map(m => `<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:13px;color:#34363b;font-weight:600;">${m.author} · ${m.time}</div><div style="font-size:14px;margin-top:6px;line-height:1.6;">${m.content || ''}</div></div>`).join('');
       WeChatAppEngine._openDiscoverOverlay('看一看', items || '<div style="font-size:13px;color:#888;text-align:center;padding:40px 0;">暂无内容</div>');
   },
   openNearby: () => {
@@ -14963,16 +15168,11 @@ handleImgUpload: (input) => {
   _otomeCurSess: () => { const s = AppRegistry['wechat']?.wxStore; return (s && s.sessions.find(x => x.id === s.currentChatId)) || null; },
   _otomeCharName: () => { const s = WeChatAppEngine._otomeCurSess(); return (s && s.name) || '他'; },
   // GROUP-BA · BA-4 菜单开关：逻辑不变，同步 aria-expanded；菜单外点按走 scrim 收起
+  // ••• 现在直接进聊天信息页（旧扇形菜单已删除；forceClose 供 closeOtomeAll 调用）
   toggleChatMoreMenu: (e, forceClose) => {
+    if (forceClose) { WeChatAppEngine.closeChatInfo(); return; }
     if (e) { try { e.stopPropagation(); } catch (err) {} }
-    const menu = document.getElementById('ot-fan-menu');
-    const scrim = document.getElementById('ot-fan-scrim');
-    const hub = document.getElementById('wx-chat-more-btn');
-    if (!menu) return;
-    const open = forceClose ? false : !menu.classList.contains('ot-open');
-    menu.classList.toggle('ot-open', open);
-    if (scrim) scrim.classList.toggle('ot-show', open);
-    if (hub) { hub.classList.toggle('ot-open', open); try { hub.setAttribute('aria-expanded', open ? 'true' : 'false'); } catch (err) {} }
+    WeChatAppEngine.openChatInfo();
   },
   otomeMenuGo: (which, e) => {
     if (e) { try { e.stopPropagation(); } catch (err) {} }
@@ -14997,6 +15197,7 @@ handleImgUpload: (input) => {
     if (id === 'wx-otome-home') { WeChatAppEngine._otomeStopLoops(); const st = WeChatAppEngine._otome; if (st) st.story = null; }
   },
   closeOtomeHome: () => {
+    if (AppRegistry['wechat']?.wxStore?.currentView === 'otome') { WeChatAppEngine.switchTab('sessions'); return; }
     WeChatAppEngine.closeOtomeOverlay('wx-otome-home');
     const pnl = document.getElementById('ot-panel'); if (pnl) pnl.classList.remove('ot-show');
     const dlg = document.getElementById('ot-dialog'); if (dlg) dlg.classList.remove('ot-show');
@@ -16031,7 +16232,7 @@ handleImgUpload: (input) => {
     const G = window.GroupN;
     const list = G ? G.stickerFilterList(store.stickers || [], mood) : (store.stickers || []);
     grid.innerHTML = list.map((s) => '<span style="cursor:pointer;" onclick="WeChatAppEngine.insertSticker(\'' + s + '\')">' + s + '</span>').join('') || '<span style="font-size:12px;color:#999;">这个情绪下没有表情包</span>';
-    document.querySelectorAll('#wx-panel-sticker [data-sticker-mood]').forEach((b) => { b.style.background = b.getAttribute('data-sticker-mood') === mood ? '#07c160' : '#f7f7f7'; b.style.color = b.getAttribute('data-sticker-mood') === mood ? '#fff' : '#333'; });
+    document.querySelectorAll('#wx-panel-sticker [data-sticker-mood]').forEach((b) => { b.style.background = b.getAttribute('data-sticker-mood') === mood ? '#34363b' : '#f7f7f7'; b.style.color = b.getAttribute('data-sticker-mood') === mood ? '#fff' : '#333'; });
     try { if (window.GroupAU) window.GroupAU.applyMoodFilter(mood); } catch (e) {}
   },
 
@@ -16701,7 +16902,7 @@ return t;
 function pillPanelHTML() {
 var s = pillLoad();
 var grid = PILLS.map(function (p) {
-return '<button data-pill="' + p.id + '" style="border:1px solid ' + (s.active === p.id? '#07C160': '#e8ddd2') + ';background:' + (s.active === p.id? '#e6f7ee': '#fff') + ';border-radius:16px;padding:8px 12px;font-size:13px;cursor:pointer;color:#333;text-align:left;">' + esc(p.label)
+return '<button data-pill="' + p.id + '" style="border:1px solid ' + (s.active === p.id? '#34363b': '#e8ddd2') + ';background:' + (s.active === p.id? '#f7f7f8': '#fff') + ';border-radius:16px;padding:8px 12px;font-size:13px;cursor:pointer;color:#333;text-align:left;">' + esc(p.label)
 + '<span style="display:block;font-size:10px;color:#999;">' + (p.local? '本地可用 · ': '需接模型 · ') + esc(p.hint) + '</span></button>';
 }).join('');
 var hist = s.history.slice(0, 5).map(function (h) {
@@ -17178,7 +17379,7 @@ var packSectionHTML = function () {
     + '<select id="au-moment-sticker" style="flex:1;min-width:90px;font-size:12px;padding:5px;border:1px solid #ddd;border-radius:6px;">'
     + STICKER_PACK_REGISTRY.map(function (p) { return p.items.map(function (it) { return '<option value="' + it.id + '">' + esc(it.name) + '（' + esc(p.name) + '）</option>'; }).join(''); }).join('')
     + '</select>'
-    + '<button type="button" style="border:0;border-radius:6px;padding:6px 10px;font-size:12px;background:#07c160;color:#fff;cursor:pointer;" onclick="window.GroupAU.postMomentWithSticker(document.getElementById(\'au-moment-sticker\').value)">发朋友圈</button>'
+    + '<button type="button" style="border:0;border-radius:6px;padding:6px 10px;font-size:12px;background:#34363b;color:#fff;cursor:pointer;" onclick="window.GroupAU.postMomentWithSticker(document.getElementById(\'au-moment-sticker\').value)">发朋友圈</button>'
     + '</div></div>';
   return h;
 };
@@ -24482,7 +24683,7 @@ return null;
 const mainCharAvatar = (name) => {
 if (!isMainChar(name)) return '';
 const custom = activeCustomChar();
-if (custom && custom.dataUrl) return '<img src="' + custom.dataUrl + '" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">';
+if (custom && custom.dataUrl) return '<img src="' + custom.dataUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">';
 return '<span style="display:block;width:100%;height:100%;border-radius:6px;overflow:hidden;background:#fdf6ef;">' + avatarFaceSVG(loadLook()) + '</span>';
 };
 const selfieDataUrl = (look, scene, outfit) => {
@@ -27519,9 +27720,9 @@ try { localStorage.setItem(CK_LOOK_KEY, JSON.stringify({ hair: look.hair, eye: l
                 let html = _note;
                 switch(appId) {
                     case 'wechat':
-                        html = `<div style="background:#ededed;min-height:100%;">` + (data.chats||[]).map(c=>`
+                        html = `<div style="background:#f7f7f8;min-height:100%;">` + (data.chats||[]).map(c=>`
                             <div class="ck-phone-list-item" style="display:flex;align-items:center;gap:10px;background:#fff;margin-bottom:0.5px;">
-                                <div style="width:44px;height:44px;border-radius:8px;background:#07C160;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;flex-shrink:0;">${c.avatar||c.name?.[0]||'?'}</div>
+                                <div style="width:44px;height:44px;border-radius:8px;background:#34363b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;flex-shrink:0;">${c.avatar||c.name?.[0]||'?'}</div>
                                 <div style="flex:1;min-width:0;">
                                     <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
                                         <div style="font-size:15px;font-weight:500;">${c.name||''}</div>

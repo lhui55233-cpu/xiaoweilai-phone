@@ -8,13 +8,13 @@
 
 /* ── Shared palette and rendering ───────────────────────────────────────── */
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root {
-  --wx-auth-green: #07c160;
-  --wx-auth-green-soft: #e7f8ee;
-  --wx-auth-page: #f2f2f7;
+  --wx-auth-green: #34363b;
+  --wx-auth-green-soft: #f7f7f8;
+  --wx-auth-page: #f7f7f8;
   --wx-auth-group: #ffffff;
-  --wx-auth-separator: rgba(60, 60, 67, .16);
-  --wx-auth-label: #1c1c1e;
-  --wx-auth-secondary: #8e8e93;
+  --wx-auth-separator: #ececef;
+  --wx-auth-label: #25262a;
+  --wx-auth-secondary: #8a8b91;
   --wx-auth-tertiary: #aeaeb2;
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
@@ -28,7 +28,7 @@
 }
 
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root > .wx-header {
-  background: rgba(242, 242, 247, .94) !important;
+  background: #ffffff !important;
   border-bottom: 0 !important;
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
@@ -59,14 +59,14 @@
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root > .wx-tab-bar {
   height: calc(56px + 30px) !important;
   padding: 0 4px 30px !important;
-  background: rgba(249, 249, 249, .96) !important;
-  border-top: 1px solid rgba(60, 60, 67, .20) !important;
+  background: #ffffff !important;
+  border-top: 1px solid #ececef !important;
   box-shadow: 0 -5px 16px rgba(0, 0, 0, .035);
   backdrop-filter: saturate(180%) blur(22px);
   -webkit-backdrop-filter: saturate(180%) blur(22px);
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root > .wx-tab-bar .wx-tab-item {
-  color: #8e8e93 !important;
+  color: #8a8b91 !important;
   gap: 2px !important;
   transition: color .16s ease, transform .16s ease;
 }
@@ -86,13 +86,11 @@
 }
 
 /* ── Sessions and contacts ───────────────────────────────────────────────── */
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions {
   background: #fff !important;
 }
 /* 微信式搜索：整条浅灰药丸，空时放大镜+“搜索”居中，输入时左对齐 */
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-bar-wrap,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-bar-wrap {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-bar-wrap {
   position: sticky;
   top: 0;
   padding: 8px 12px !important;
@@ -100,31 +98,24 @@
   border: 0 !important;
   z-index: 12;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box {
   min-height: 36px;
   box-sizing: border-box;
   padding: 8px 12px !important;
   border: 0 !important;
   border-radius: 18px !important;
-  background: #f7f7f7 !important;
-  color: #8e8e93 !important;
+  background: #f7f7f8 !important;
+  color: #8a8b91 !important;
   box-shadow: none !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
   gap: 6px !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box:has(input:not(:placeholder-shown)),
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box:has(input:not(:placeholder-shown)) {
-  justify-content: flex-start !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box .wx-search-icon,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box .wx-search-icon {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box .wx-search-icon {
   flex-shrink: 0 !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box input {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input {
   flex: 0 1 auto !important;
   width: auto !important;
   min-width: 0 !important;
@@ -133,26 +124,22 @@
   outline: none !important;
   color: var(--wx-auth-label) !important;
   font-size: 16px !important;
-  text-align: center !important;
+  text-align: left !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input:not(:placeholder-shown),
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box input:not(:placeholder-shown) {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input:not(:placeholder-shown) {
   flex: 1 1 auto !important;
   text-align: left !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input::placeholder,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-search-box input::placeholder {
-  color: #8e8e93 !important;
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-search-box input::placeholder {
+  color: #8a8b91 !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-session-item {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item {
   min-height: 72px;
   padding: 11px 16px !important;
   background: #fff !important;
   border-bottom: 0 !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item::after,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-session-item::after {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item::after {
   content: "";
   position: absolute;
   left: 84px;
@@ -164,30 +151,26 @@
   transform-origin: bottom;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item.wx-pinned {
-  background: #f7f7f7 !important;
+  background: #f7f7f8 !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item:active,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-session-item:active {
-  background: #f2f2f7 !important;
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item:active {
+  background: #ececef !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-avatar-wrapper,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-avatar-wrapper {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-avatar-wrapper {
   width: 50px !important;
   height: 50px !important;
-  border-radius: 5px !important;
+  border-radius: 50% !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-info,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-session-info {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-info {
   margin-left: 13px !important;
 }
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-name,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-session-name {
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-name {
   color: var(--wx-auth-label) !important;
   font-size: 16px !important;
   font-weight: 500 !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-preview {
-  color: #8e8e93 !important;
+  color: #8a8b91 !important;
   font-size: 13px !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-header {
@@ -202,44 +185,9 @@
   font-size: 11px !important;
 }
 
-/* ── Discover page ───────────────────────────────────────────────────────── */
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover {
-  background: #f2f2f7 !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover .wx-cell-group {
-  margin-top: 9px !important;
-  background: #fff !important;
-  border: 0 !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover .wx-cell {
-  min-height: 55px !important;
-  padding: 14px 16px !important;
-  background: #fff !important;
-  border: 0 !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover .wx-cell:not(:last-child)::after {
-  left: 56px !important;
-  background: var(--wx-auth-separator) !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover .wx-cell-left {
-  color: var(--wx-auth-label) !important;
-  font-size: 16px !important;
-  gap: 14px !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover .wx-cell-icon {
-  width: 25px !important;
-  height: 25px !important;
-  border-radius: 7px !important;
-  font-size: 19px !important;
-}
-:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-discover .wx-cell-arrow {
-  color: #c7c7cc !important;
-  font-size: 21px !important;
-}
-
 /* ── Me page ─────────────────────────────────────────────────────────────── */
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me {
-  background: #f2f2f7 !important;
+  background: #f7f7f8 !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me .wx-me-header {
   min-height: 128px;
@@ -250,7 +198,7 @@
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me .wx-me-header-avatar {
   width: 68px !important;
   height: 68px !important;
-  border-radius: 12px !important;
+  border-radius: 50% !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me .wx-me-nickname {
   color: var(--wx-auth-label) !important;
@@ -259,7 +207,7 @@
   letter-spacing: -.3px !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me .wx-me-id {
-  color: #8e8e93 !important;
+  color: #8a8b91 !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me .wx-cell-group {
   margin-top: 9px !important;
@@ -280,15 +228,15 @@
   font-size: 16px !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-me .wx-cell-right {
-  color: #8e8e93 !important;
+  color: #8a8b91 !important;
 }
 
 /* ── Chat composer and stream (chat only; subpages remain untouched) ──────── */
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-chat-detail {
-  background: #ededf0 !important;
+  background: #ffffff !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-chat-detail .wx-msg-stream {
-  background-color: #ededed;
+  background-color: #ffffff;
   padding: 14px 12px 18px !important;
   gap: 13px !important;
 }
@@ -296,8 +244,8 @@
   min-height: 66px;
   padding: 10px 10px calc(14px + env(safe-area-inset-bottom) + 30px) !important;
   gap: 8px !important;
-  background: rgba(247, 247, 249, .98) !important;
-  border-top: 1px solid rgba(60, 60, 67, .18) !important;
+  background: #ffffff !important;
+  border-top: 1px solid #ececef !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -311,9 +259,9 @@
   min-height: 36px !important;
   padding: 8px 11px !important;
   border: 1px solid rgba(60, 60, 67, .12) !important;
-  border-radius: 5px !important;
-  background: #fff !important;
-  color: #1c1c1e !important;
+  border-radius: 20px !important;
+  background: #f7f7f8 !important;
+  color: #25262a !important;
   font-size: 16px !important;
   line-height: 1.35 !important;
   box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .03);
@@ -322,16 +270,16 @@
   color: #8e8e93 !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-chat-detail .wx-send-btn {
-  width: 46px !important;
-  height: 34px !important;
-  border-radius: 17px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
   background: var(--wx-auth-green) !important;
-  font-size: 14px !important;
-  box-shadow: 0 2px 5px rgba(7, 193, 96, .22);
+  font-size: 18px !important;
+  box-shadow: 0 2px 5px rgba(52, 54, 59, .18);
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-chat-detail .wx-ext-panel {
-  background: #f7f7f9 !important;
-  border-top-color: rgba(60, 60, 67, .14) !important;
+  background: #ffffff !important;
+  border-top-color: #ececef !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-chat-detail .wx-tool-btn .wx-icon {
   border: 0 !important;
@@ -342,8 +290,7 @@
 
 /* iPhone-sized viewports: keep controls clear of the home-indicator area. */
 @media (max-width: 430px) {
-  :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item,
-  :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-contacts .wx-session-item {
+  :is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-view-sessions .wx-session-item {
     padding-left: 14px !important;
     padding-right: 14px !important;
   }
@@ -357,25 +304,19 @@
 
 /* Night theme variants used by the WeChat app, without touching its inner pages. */
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-sessions,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-contacts,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-sessions,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-contacts,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-discover,
+:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-moments-page,
+:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-moments-page,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-me,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-discover,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-me,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-chat-detail,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-chat-detail {
   background: #1c1c1e !important;
 }
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-sessions .wx-session-item,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-contacts .wx-session-item,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-discover .wx-cell,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-me .wx-me-header,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root.av-wx-night #wx-view-me .wx-cell,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-sessions .wx-session-item,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-contacts .wx-session-item,
-:is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-discover .wx-cell,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-me .wx-me-header,
 :is(.sys-app-window[data-app-sandbox="wechat"], body) .wx-app-root[data-wx-theme="dark-night"] #wx-view-me .wx-cell {
   background: #2c2c2e !important;
@@ -405,21 +346,21 @@
   color: #f2f2f7 !important;
 }
 
-/* Discover icons use WeChat-like colored line artwork rather than emoji tiles. */
-#wx-app-root #wx-view-discover .wx-cell-icon { background: transparent !important; color: #576b95 !important; }
-#wx-app-root #wx-view-discover .wx-cell[onclick*="moments" i] .wx-cell-icon { color: #07c160 !important; }
-#wx-app-root #wx-view-discover .wx-cell[onclick*="look"] .wx-cell-icon { color: #fa9d3b !important; }
-#wx-app-root #wx-view-discover .wx-cell[onclick*="search"] .wx-cell-icon { color: #10aeff !important; }
-#wx-app-root #wx-view-discover .wx-cell[onclick*="mini"] .wx-cell-icon { color: #536fca !important; }
 #wx-app-root #t-wx-search-results:empty { display: none; }
 #wx-app-root #t-wx-search-results:not(:empty) { padding: 0 16px; background: #fff; }
 
 /* The device status area is already included in the 116px header. */
 #wx-app-root #wx-view-sessions,
-#wx-app-root #wx-view-contacts,
-#wx-app-root #wx-view-discover {
+#wx-app-root #wx-view-moments-page,
+#wx-app-root #wx-view-otome {
   top: 116px !important;
   height: calc(100% - 202px) !important;
+}
+/* 朋友圈 tab 模式：页内透明顶栏隐藏，用主顶栏标题 + 发表。覆盖层模式（从主页/相册打开）恢复全屏盖层。 */
+#wx-app-root #wx-view-moments-page.wx-moments-tab > .wx-header { display: none !important; }
+#wx-app-root #wx-view-moments-page:not(.wx-moments-tab) {
+  top: 0 !important;
+  height: 100% !important;
 }
 #wx-app-root #wx-view-me {
   position: absolute !important;
@@ -436,3 +377,171 @@
 }
 #wx-app-root #wxu-story-footer .wxu-story-title { color: #999 !important; font-weight: 400 !important; }
 #wx-app-root #wxu-story-footer .wxu-story-nums { color: #999 !important; font-size: 12px !important; }
+
+/* ── Muse restyle: sidebar drawer / contact picker / chat-info / mood ─────
+   新增组件的样式（导航重构 2026-11-28）。只用 §2.3 的 ChatGPT tokens，
+   不新开覆盖文件。 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-scrim {
+  position: absolute; inset: 0; z-index: 900;
+  background: rgba(0, 0, 0, .32);
+  opacity: 0; pointer-events: none; transition: opacity .22s ease;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-scrim.wx-open {
+  opacity: 1; pointer-events: auto;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-drawer {
+  position: absolute; top: 0; left: 0; bottom: 0; z-index: 901;
+  width: 280px; max-width: 82%;
+  background: #ffffff; color: #25262a;
+  transform: translateX(-102%);
+  transition: transform .25s cubic-bezier(.2, .8, .2, 1);
+  display: flex; flex-direction: column;
+  box-shadow: 0 0 24px rgba(0, 0, 0, .18);
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-drawer.wx-open {
+  transform: translateX(0);
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-profile {
+  display: flex; align-items: center; gap: 12px;
+  padding: 68px 16px 16px; cursor: pointer;
+  border-bottom: 1px solid #ececef;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-profile .wx-avatar-wrapper {
+  width: 48px !important; height: 48px !important; border-radius: 50% !important; flex-shrink: 0;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-profile-name {
+  font-size: 16px; font-weight: 600; color: #25262a;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-profile-id {
+  font-size: 12px; color: #8a8b91; margin-top: 2px;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-list {
+  flex: 1; overflow-y: auto; padding: 8px 0;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px; font-size: 15px; color: #25262a; cursor: pointer;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-row:active {
+  background: #f7f7f8;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-row .wx-cell-icon {
+  width: 24px; height: 24px; color: #34363b; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-foot {
+  border-top: 1px solid #ececef;
+  padding-bottom: 30px;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-foot .wx-cell-group {
+  margin-top: 0 !important; border: 0 !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-side-foot .wx-cell {
+  min-height: 52px !important;
+}
+/* 顶栏 ☰ 按钮与发表按钮 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-menu-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #25262a; cursor: pointer; flex-shrink: 0;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-menu-btn:active {
+  background: #f7f7f8;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-top-publish-btn {
+  font-size: 15px; font-weight: 500; color: #25262a; cursor: pointer;
+  padding: 6px 2px; white-space: nowrap;
+}
+/* 联系人选择器：全屏子页，复用会话行样式 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker {
+  background: #ffffff;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker .wx-search-bar-wrap {
+  position: sticky; top: 0; padding: 8px 12px !important;
+  background: #fff !important; border: 0 !important; z-index: 12;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker .wx-search-box {
+  min-height: 36px; box-sizing: border-box; padding: 8px 12px !important;
+  border: 0 !important; border-radius: 18px !important;
+  background: #f7f7f8 !important; color: #8a8b91 !important;
+  display: flex !important; align-items: center !important;
+  justify-content: flex-start !important; gap: 6px !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker .wx-search-box input {
+  flex: 1 1 auto !important; background: transparent !important;
+  border: 0 !important; outline: none !important;
+  color: #25262a !important; font-size: 16px !important; text-align: left !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker .wx-search-box input::placeholder {
+  color: #8a8b91 !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker .wx-session-item {
+  min-height: 64px; padding: 10px 16px !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-contact-picker .wx-avatar-wrapper {
+  width: 46px !important; height: 46px !important; border-radius: 50% !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-picker-now {
+  font-size: 11px; color: #8a8b91;
+  border: 1px solid #ececef; border-radius: 10px; padding: 2px 8px;
+  flex-shrink: 0;
+}
+/* 聊天信息页：Muse 式卡片分组 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-chat-info-page,
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-view-mood-page {
+  background: #f7f7f8;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-card {
+  background: #ffffff; border-radius: 12px; margin: 12px 16px 0;
+  overflow: hidden;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-head {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 16px 20px; gap: 10px;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-head .wx-avatar-wrapper {
+  width: 64px !important; height: 64px !important; border-radius: 50% !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-name {
+  font-size: 18px; font-weight: 600; color: #25262a;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-sub {
+  font-size: 12px; color: #8a8b91;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; font-size: 15px; color: #25262a; cursor: pointer;
+  border-top: 1px solid #ececef;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-row:first-child {
+  border-top: 0;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-row:active {
+  background: #f7f7f8;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-info-row .wx-info-danger {
+  color: #fa5151;
+}
+/* 心绪页：打卡按钮 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-mood-btn {
+  border: 1px solid #ececef; background: #ffffff; color: #25262a;
+  border-radius: 16px; padding: 8px 14px; font-size: 14px; cursor: pointer;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root .wx-mood-btn.wx-on {
+  background: #34363b; border-color: #34363b; color: #ffffff;
+}
+/* 朋友圈升 tab：封面头像圆形，feed 头像圆形 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-view-moments-page .wx-moments-avatar-box .wx-avatar-wrapper {
+  border-radius: 50% !important;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-view-moments-page .wx-feed-item .wx-avatar-wrapper {
+  border-radius: 50% !important;
+}
+/* 乙女游戏升 tab：内层 home 填满视图 */
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-view-otome {
+  background: #fdf6ec;
+}
+:is(.sys-app-window[data-app-sandbox="wechat"], body) #wx-app-root #wx-view-otome #wx-otome-home {
+  position: absolute; inset: 0;
+}

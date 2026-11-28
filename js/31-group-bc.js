@@ -14,14 +14,16 @@ var CUSTOM_KEY = 'wx_custom_themes_v1', PREF_KEY = 'wx_beautifier_prefs_v1';
 var THEME_VARS = ['--wx-accent', '--wx-theme-color', '--wx-bg', '--wx-bg-page', '--wx-bg-card', '--wx-text', '--wx-dim', '--wx-line', '--wx-chat-bg', '--wx-bg-self', '--wx-bg-friend'];
 var BUBBLE_VARS = ['--wx-bubble-self-bg', '--wx-bubble-self-color', '--wx-bubble-friend-bg', '--wx-bubble-friend-color', '--wx-bubble-radius'];
 var THEMES = [
+  { id: 'muse', name: 'Muse', desc: 'ChatGPT 式白底黑字 · 浅灰气泡 · 无尖角', scope: '微信全部页面', vars: { '--wx-accent': '#34363b', '--wx-theme-color': '#34363b', '--wx-bg': '#f7f7f8', '--wx-bg-page': '#ffffff', '--wx-bg-card': '#ffffff', '--wx-text': '#25262a', '--wx-dim': '#8a8b91', '--wx-line': '#ececef', '--wx-chat-bg': '#ffffff', '--wx-bg-self': '#ececef', '--wx-bg-friend': '#ffffff' } },
   { id: 'wechat-green', name: '默认微信绿', desc: '经典 #07C160 + 白底 + 绿气泡', scope: '微信全部页面', vars: { '--wx-accent': '#07c160', '--wx-theme-color': '#07c160', '--wx-bg': '#ededed', '--wx-bg-page': '#ffffff', '--wx-bg-card': '#ffffff', '--wx-text': '#111111', '--wx-dim': '#888888', '--wx-line': '#e5e5e5', '--wx-chat-bg': '#ededed', '--wx-bg-self': '#95ec69', '--wx-bg-friend': '#ffffff' } },
   { id: 'guichao-white', name: '归巢白', desc: '极简白灰，与手机归巢风格一致', scope: '微信全部页面', vars: { '--wx-accent': '#000000', '--wx-theme-color': '#000000', '--wx-bg': '#f9f9f9', '--wx-bg-page': '#ffffff', '--wx-bg-card': '#ffffff', '--wx-text': '#171717', '--wx-dim': '#6e6e6e', '--wx-line': '#e5e5e5', '--wx-chat-bg': '#f9f9f9', '--wx-bg-self': '#000000', '--wx-bg-friend': '#f4f4f4' } },
-  { id: 'dark-night', name: '深色夜间', desc: '与微信夜间模式同一套（AV 组）', scope: '微信全部页面', vars: { '--wx-accent': '#07c160', '--wx-theme-color': '#07c160', '--wx-bg': '#111111', '--wx-bg-page': '#1c1c1e', '--wx-bg-card': '#2c2c2e', '--wx-text': '#f2f2f0', '--wx-dim': '#8e8e93', '--wx-line': '#2c2c2e', '--wx-chat-bg': '#111111', '--wx-bg-self': '#3eb575', '--wx-bg-friend': '#2c2c2c' } },
+  { id: 'dark-night', name: '深色夜间', desc: '与微信夜间模式同一套（AV 组）', scope: '微信全部页面', vars: { '--wx-accent': '#8a8b91', '--wx-theme-color': '#8a8b91', '--wx-bg': '#111111', '--wx-bg-page': '#1c1c1e', '--wx-bg-card': '#2c2c2e', '--wx-text': '#f2f2f0', '--wx-dim': '#8e8e93', '--wx-line': '#2c2c2e', '--wx-chat-bg': '#111111', '--wx-bg-self': '#3a3a3c', '--wx-bg-friend': '#2c2c2c' } },
   { id: 'cream-retro', name: '奶油复古', desc: '米白底 + 暖金点缀，与信件复古风呼应', scope: '微信全部页面', vars: { '--wx-accent': '#b08d3e', '--wx-theme-color': '#b08d3e', '--wx-bg': '#f3ead6', '--wx-bg-page': '#fdf9f0', '--wx-bg-card': '#fffdf6', '--wx-text': '#3d3325', '--wx-dim': '#9a8f7a', '--wx-line': '#e8ddc8', '--wx-chat-bg': '#f3ead6', '--wx-bg-self': '#e8c97a', '--wx-bg-friend': '#fffdf6' } },
   { id: 'morandi-mist', name: '莫兰迪柔雾', desc: '低饱和灰粉 / 灰绿', scope: '微信全部页面', vars: { '--wx-accent': '#7d8b7a', '--wx-theme-color': '#7d8b7a', '--wx-bg': '#e9e7e4', '--wx-bg-page': '#f4f2f0', '--wx-bg-card': '#fbf9f8', '--wx-text': '#4a4a48', '--wx-dim': '#8f8b88', '--wx-line': '#ddd8d3', '--wx-chat-bg': '#e9e7e4', '--wx-bg-self': '#a8b5a0', '--wx-bg-friend': '#fbf9f8' } },
   { id: 'trianon', name: '特里亚农 · 洛可可', desc: '雾蓝银蓝奶白，信笺纸气泡', scope: '微信全部页面', vars: { '--wx-accent': '#5c6884', '--wx-theme-color': '#5c6884', '--wx-bg': '#fbf9f4', '--wx-bg-page': '#fffdf8', '--wx-bg-card': '#fffdf8', '--wx-text': '#1e2748', '--wx-dim': '#46536f', '--wx-line': 'rgba(30,39,72,.16)', '--wx-chat-bg': '#fbf9f4', '--wx-bg-self': '#dce2f1', '--wx-bg-friend': '#fffdf8', '--wx-bubble-self-bg': '#dce2f1', '--wx-bubble-friend-bg': '#fffdf8', '--wx-bubble-self-color': '#1e2748', '--wx-bubble-friend-color': '#1e2748', '--wx-bubble-radius': '14px' } },
 ];
 var BUBBLES = [
+  { id: 'muse', name: 'Muse', selfBg: '#ececef', selfColor: '#25262a', friendBg: '#ffffff', friendColor: '#25262a', radius: 16, tail: false },
   { id: 'classic-green', name: '经典绿', selfBg: '#07c160', selfColor: '#ffffff', friendBg: '#ffffff', friendColor: '#1a1a1a', radius: 5, tail: true },
   { id: 'guichao-grey', name: '归巢白灰', selfBg: '#000000', selfColor: '#ffffff', friendBg: '#f4f4f4', friendColor: '#171717', radius: 12, tail: false },
   { id: 'cream-yellow', name: '奶油黄', selfBg: '#f5c542', selfColor: '#4a3600', friendBg: '#fff8e7', friendColor: '#3d3325', radius: 14, tail: true },
@@ -42,8 +44,8 @@ function loadCustoms() { try { var a = JSON.parse(lsGet(CUSTOM_KEY) || '[]'); re
 function saveCustoms(a) { lsSet(CUSTOM_KEY, JSON.stringify(a)); }
 function getPrefs() { try { var p = JSON.parse(lsGet(PREF_KEY) || '{}') || {}; } catch (e) { var p = {}; } return { fontSize: (typeof p.fontSize === 'number' ? p.fontSize : 16), radius: (typeof p.radius === 'number' ? p.radius : 0), chatBg: (typeof p.chatBg === 'string' ? p.chatBg : '#ededed') }; }
 function setPrefs(p) { lsSet(PREF_KEY, JSON.stringify(p)); }
-function currentThemeId() { return lsGet(THEME_KEY) || 'wechat-green'; }
-function currentBubbleId() { return lsGet(BUBBLE_KEY) || 'classic-green'; }
+function currentThemeId() { return lsGet(THEME_KEY) || 'muse'; }
+function currentBubbleId() { return lsGet(BUBBLE_KEY) || 'muse'; }
 function findTheme(id) {
   for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return { id: THEMES[i].id, name: THEMES[i].name, desc: THEMES[i].desc, scope: THEMES[i].scope, vars: THEMES[i].vars, source: 'builtin' };
   if (id && id.indexOf('custom:') === 0) { var cs = loadCustoms(); for (var j = 0; j < cs.length; j++) if (cs[j].id === id.slice(7)) return { id: id, name: cs[j].name, desc: '自定义 CSS', scope: '微信全部页面', vars: {}, source: 'custom', customId: cs[j].id }; return null; }
@@ -153,7 +155,11 @@ function applyPrefs(silent) {
   var r = root(); if (!r) return;
   var p = getPrefs();
   r.style.setProperty('--wx-bubble-font', p.fontSize + 'px');
-  r.style.setProperty('--wx-chat-bg', p.chatBg);
+  /* 聊天底色只在用户在美化器里显式改过时才覆盖主题值（否则主题的 --wx-chat-bg
+     每次都会被默认 '#ededed' 盖掉，muse 主题的白底永远出不来） */
+  var raw = null;
+  try { raw = JSON.parse(lsGet(PREF_KEY) || '{}') || {}; } catch (e) { raw = {}; }
+  if (typeof raw.chatBg === 'string' && raw.chatBg) r.style.setProperty('--wx-chat-bg', raw.chatBg);
   var b = findBubble(currentBubbleId());
   r.style.setProperty('--wx-bubble-radius', (p.radius > 0 ? p.radius : b.radius) + 'px');
   if (!silent) setPrefs(p);
@@ -222,12 +228,12 @@ function exportCustom(id) {
   return '';
 }
 function resetDefaults() {
-  var p = { fontSize: 16, radius: 0, chatBg: '#ededed' };
+  var p = { fontSize: 16, radius: 0, chatBg: '#ffffff' };
   setPrefs(p);
   setCustomStyle('');
-  applyTheme('wechat-green', { silent: true });
-  applyBubble('classic-green', { silent: true });
-  lsSet(THEME_KEY, 'wechat-green'); lsSet(BUBBLE_KEY, 'classic-green');
+  applyTheme('muse', { silent: true });
+  applyBubble('muse', { silent: true });
+  lsSet(THEME_KEY, 'muse'); lsSet(BUBBLE_KEY, 'muse');
   var r = root(); if (r) flash(r);
   render();
   return true;

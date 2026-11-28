@@ -517,7 +517,10 @@ function syncAfterRender() {
   var title = document.getElementById('wx-chat-title');
   if (cur && cur.isGroup && title) {
     var n = groupMemberNames(cur).length + 1;
-    title.innerText = cur.name + ' (' + n + ')';
+    // 顶栏标题文本写进 #wx-chat-title-name（头像位在 #wx-chat-title 内，innerText 会把它抹掉）
+    var _nameEl = document.getElementById('wx-chat-title-name');
+    if (_nameEl) _nameEl.textContent = cur.name + ' (' + n + ')';
+    else title.innerText = cur.name + ' (' + n + ')';
   }
   var bar = document.getElementById('wx-group-notice-bar');
   if (bar) {

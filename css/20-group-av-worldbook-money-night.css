@@ -22,7 +22,7 @@
 .wx-redpacket-overlay.wx-active .wx-open-coin{animation:avRpPop .45s ease;}
 .wx-rp-result-page.wx-active #wx-rp-result-amount{animation:avRpPop .45s ease;display:inline-block;}
 /* ── 微信夜间模式：真深色（跟随 phone_ui_prefs_v1.theme / nightVibeMode）── */
-.wx-app-root.av-wx-night{--wx-bg-self:#3eb575;--wx-bg-friend:#2c2c2c;background-color:#1c1c1e !important;color:#f2f2f0;}
+.wx-app-root.av-wx-night{--wx-bg-self:#3a3a3c;--wx-bg-friend:#2c2c2c;background-color:#1c1c1e !important;color:#f2f2f0;}
 .wx-app-root.av-wx-night.wx-dark-mode{filter:none !important;}
 .wx-app-root.av-wx-night.wx-fullscreen.wx-dark-mode .wx-scroll-view{filter:none !important;background-color:#111111 !important;}
 .wx-app-root.av-wx-night .wx-header{background:#1c1c1e !important;border-color:#2c2c2e !important;}
@@ -36,7 +36,7 @@
 .wx-app-root.av-wx-night .wx-session-item.wx-pinned{background:#242426 !important;}
 .wx-app-root.av-wx-night .wx-session-name{color:#f2f2f0 !important;}
 .wx-app-root.av-wx-night .wx-session-preview{color:#8e8e93 !important;}
-.wx-app-root.av-wx-night .wx-msg-row.wx-self .wx-bubble{background-color:var(--wx-bg-self) !important;color:#000000 !important;}
+.wx-app-root.av-wx-night .wx-msg-row.wx-self .wx-bubble{background-color:var(--wx-bg-self) !important;color:#f2f2f0 !important;}
 .wx-app-root.av-wx-night .wx-msg-row:not(.wx-self) .wx-bubble{background-color:var(--wx-bg-friend) !important;color:#d5d5d5 !important;}
 .wx-app-root.av-wx-night .wx-input-bar{background:#1c1c1e !important;border-color:#2c2c2e !important;}
 .wx-app-root.av-wx-night .wx-textarea{background:#2c2c2e !important;color:#f2f2f0 !important;}
@@ -75,9 +75,10 @@
 /* 主题变量默认值（默认微信绿） */
 .wx-app-root{--wx-accent:#07c160;--wx-theme-color:#07c160;--wx-bg:#ededed;--wx-bg-page:#ffffff;--wx-bg-card:#ffffff;--wx-text:#111111;--wx-dim:#888888;--wx-line:#e5e5e5;--wx-chat-bg:#ededed;--wx-bg-self:#95ec69;--wx-bg-friend:#ffffff;--wx-bubble-self-bg:#95ec69;--wx-bubble-self-color:#000000;--wx-bubble-friend-bg:#ffffff;--wx-bubble-friend-color:#000000;--wx-bubble-radius:4px;}
 /* ── 内置主题：以 data-wx-theme 属性为识别标记 ── */
+.wx-app-root[data-wx-theme="muse"]{--wx-accent:#34363b;--wx-theme-color:#34363b;--wx-bg:#f7f7f8;--wx-bg-page:#ffffff;--wx-bg-card:#ffffff;--wx-text:#25262a;--wx-dim:#8a8b91;--wx-line:#ececef;--wx-chat-bg:#ffffff;--wx-bg-self:#ececef;--wx-bg-friend:#ffffff;}
 .wx-app-root[data-wx-theme="wechat-green"]{--wx-accent:#07c160;--wx-theme-color:#07c160;--wx-bg:#ededed;--wx-bg-page:#ffffff;--wx-bg-card:#ffffff;--wx-text:#111111;--wx-dim:#888888;--wx-line:#e5e5e5;--wx-chat-bg:#ededed;--wx-bg-self:#95ec69;--wx-bg-friend:#ffffff;}
 .wx-app-root[data-wx-theme="guichao-white"]{--wx-accent:#34363b;--wx-theme-color:#34363b;--wx-bg:#f7f7f8;--wx-bg-page:#ffffff;--wx-bg-card:#ffffff;--wx-text:#25262a;--wx-dim:#8a8b90;--wx-line:#ececef;--wx-chat-bg:#f7f7f8;--wx-bg-self:#34363b;--wx-bg-friend:#f7f7f8;}
-.wx-app-root[data-wx-theme="dark-night"]{--wx-accent:#07c160;--wx-theme-color:#07c160;--wx-bg:#111111;--wx-bg-page:#1c1c1e;--wx-bg-card:#2c2c2e;--wx-text:#f2f2f0;--wx-dim:#8e8e93;--wx-line:#2c2c2e;--wx-chat-bg:#111111;--wx-bg-self:#3eb575;--wx-bg-friend:#2c2c2c;--wx-bubble-self-bg:#3eb575;--wx-bubble-self-color:#000000;--wx-bubble-friend-bg:#2c2c2c;--wx-bubble-friend-color:#d5d5d5;}
+.wx-app-root[data-wx-theme="dark-night"]{--wx-accent:#8a8b91;--wx-theme-color:#8a8b91;--wx-bg:#111111;--wx-bg-page:#1c1c1e;--wx-bg-card:#2c2c2e;--wx-text:#f2f2f0;--wx-dim:#8e8e93;--wx-line:#2c2c2e;--wx-chat-bg:#111111;--wx-bg-self:#3a3a3c;--wx-bg-friend:#2c2c2c;--wx-bubble-self-bg:#3a3a3c;--wx-bubble-self-color:#f2f2f0;--wx-bubble-friend-bg:#2c2c2c;--wx-bubble-friend-color:#d5d5d5;}
 .wx-app-root[data-wx-theme="cream-retro"]{--wx-accent:#b08d3e;--wx-theme-color:#b08d3e;--wx-bg:#f3ead6;--wx-bg-page:#fdf9f0;--wx-bg-card:#fffdf6;--wx-text:#3d3325;--wx-dim:#9a8f7a;--wx-line:#e8ddc8;--wx-chat-bg:#f3ead6;--wx-bg-self:#e8c97a;--wx-bg-friend:#fffdf6;}
 .wx-app-root[data-wx-theme="morandi-mist"]{--wx-accent:#7d8b7a;--wx-theme-color:#7d8b7a;--wx-bg:#e9e7e4;--wx-bg-page:#f4f2f0;--wx-bg-card:#fbf9f8;--wx-text:#4a4a48;--wx-dim:#8f8b88;--wx-line:#ddd8d3;--wx-chat-bg:#e9e7e4;--wx-bg-self:#a8b5a0;--wx-bg-friend:#fbf9f8;}
 .wx-app-root[data-wx-theme="trianon"]{--wx-accent:#5c6884;--wx-theme-color:#5c6884;--wx-bg:#fbf9f4;--wx-bg-page:#fffdf8;--wx-bg-card:#fffdf8;--wx-text:#1e2748;--wx-dim:#46536f;--wx-line:rgba(30,39,72,.16);--wx-chat-bg:#fbf9f4;--wx-bg-self:#dce2f1;--wx-bg-friend:#fffdf8;--wx-bubble-self-bg:#dce2f1;--wx-bubble-self-color:#1e2748;--wx-bubble-friend-bg:#fffdf8;--wx-bubble-friend-color:#1e2748;--wx-bubble-radius:14px;}
@@ -104,6 +105,7 @@
 #wx-app-root .wx-send-btn{background-color:var(--wx-accent,#07c160) !important;}
 #wx-app-root .wx-native-btn{background-color:var(--wx-accent,#07c160) !important;}
 /* ── 气泡：以 [data-wx-bubble="…"] 为标记，独立于主题 ── */
+#wx-app-root[data-wx-bubble="muse"]{--wx-bubble-self-bg:#ececef;--wx-bubble-self-color:#25262a;--wx-bubble-friend-bg:#ffffff;--wx-bubble-friend-color:#25262a;--wx-bubble-radius:16px;}
 #wx-app-root[data-wx-bubble="classic-green"]{--wx-bubble-self-bg:#95ec69;--wx-bubble-self-color:#000000;--wx-bubble-friend-bg:#ffffff;--wx-bubble-friend-color:#000000;--wx-bubble-radius:4px;}
 #wx-app-root[data-wx-bubble="guichao-grey"]{--wx-bubble-self-bg:#34363b;--wx-bubble-self-color:#ffffff;--wx-bubble-friend-bg:#f7f7f8;--wx-bubble-friend-color:#25262a;--wx-bubble-radius:12px;}
 #wx-app-root[data-wx-bubble="cream-yellow"]{--wx-bubble-self-bg:#f5c542;--wx-bubble-self-color:#4a3600;--wx-bubble-friend-bg:#fff8e7;--wx-bubble-friend-color:#3d3325;--wx-bubble-radius:14px;}
