@@ -1,6 +1,6 @@
 
-/* GROUP-AF-DARK-WEATHER-SEARCH · AF 组 7 项补丁样式（自写，未复制任何项目代码）
-   深色主题两套：Gruvbox 深色（背景 #282828）/ 归巢深色；默认白色归巢风不动。 */
+/* GROUP-AF-DARK-WEATHER-SEARCH · AF 组补丁样式（自写，未复制任何项目代码）
+   深色主题已删除（2026-11-28，TINA 已批）：以下只剩搜索 / 天气 / 圆体 / 一起听样式。 */
 /* ── 3. 桌面搜索 ── */
 .af-search{position:relative;margin:12px 18px 0;z-index:60;}
 .af-search input{width:100%;box-sizing:border-box;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:11px 14px;font-size:15px;background:rgba(255,255,255,.92);color:#1c1c1e;outline:none;}
@@ -12,19 +12,7 @@
 .af-sr-type{font-size:11px;color:#8e8e93;margin-right:6px;}
 .af-sr-sub{font-size:12px;color:#8e8e93;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .af-sr-empty{padding:14px;font-size:13px;color:#8e8e93;}
-/* ── 1. 深色主题 ── */
-html[data-af-theme="gruvbox-dark"]{--af-bg:#282828;--af-panel:#3c3836;--af-text:#ebdbb2;--af-muted:#a89984;--af-line:#504945;--af-accent:#d65d0e;}
-html[data-af-theme="guichao-dark"]{--af-bg:#19191c;--af-panel:#232327;--af-text:#e8e8ea;--af-muted:#9a9aa2;--af-line:#2e2e33;--af-accent:#d8d8de;}
-html[data-af-theme] #sys-shell{background-color:var(--af-bg) !important;}
-html[data-af-theme] #sys-shell::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);pointer-events:none;z-index:0;}
-html[data-af-theme] #sys-desktop-layer{background:rgba(0,0,0,.18);}
-html[data-af-theme] .sys-app-name{color:var(--af-text);}
-html[data-af-theme] .sys-app-window{background:var(--af-bg) !important;color:var(--af-text);}
-html[data-af-theme] .sys-dock-bg{background:rgba(255,255,255,.08) !important;}
-html[data-af-theme] .st-root{background:#1c1c1e !important;color:#e8e8ea;}
-html[data-af-theme="gruvbox-dark"] .st-root{background:#282828 !important;color:#ebdbb2;}
-html[data-af-theme] .gd-root{background:var(--af-bg) !important;color:var(--af-text);}
-html[data-af-theme] .gd-card{background:var(--af-panel) !important;color:var(--af-text);border-color:var(--af-line);}
+/* ── 1. 深色主题已删除（2026-11-28，TINA 已批）：html[data-af-theme] 整节 + 选择浮层已删；只剩搜索 / 天气 / 圆体 / 一起听样式。 ── */
 /* ── 5. 滚动反应气泡 ── */
 /* GROUP-FIX3 · FIX3-4(a) 旧气泡定位已移至 fix3-group-style（右上角顶栏下方 + 碰撞避让），此处删除。 */
 /* ── 7. 一起听：本地/在线切换 ── */
@@ -36,16 +24,6 @@ html[data-af-theme] .gd-card{background:var(--af-panel) !important;color:var(--a
 .af-duet-note{font-size:12px;color:#8a8580;line-height:1.6;}
 .af-duet-yt{margin-top:8px;}
 .af-duet-yt iframe{width:100%;height:220px;border:none;border-radius:10px;background:#000;}
-/* ── 1. 深色主题选择浮层 ──
-   设置重构新基准：浮层遮罩墨色 40%、片圆角 10px、行高 56px、字阶 17/13/12；
-   深色主题本体的 .st-root 覆盖（上节 :24-25）只设底色/字色，无字阶可对齐，保持原样。 */
-#af-theme-chooser{position:fixed;inset:0;z-index:99999;background:var(--st-ink-40,rgba(30,39,72,.4));display:flex;align-items:flex-end;}
-#af-theme-chooser .af-theme-sheet{width:100%;background:var(--st-paper-cool,#eef0f5);border-radius:var(--st-radius-lg,10px) var(--st-radius-lg,10px) 0 0;padding:12px 12px calc(12px + env(safe-area-inset-bottom,16px));}
-#af-theme-chooser .af-theme-opt{display:block;width:100%;min-height:56px;background:var(--st-paper,#fffdf8);border:none;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));padding:12px 16px;font-size:17px;line-height:1.4;text-align:left;cursor:pointer;color:var(--st-ink,#1e2748);}
-#af-theme-chooser .af-theme-opt:last-child{border-bottom:none;}
-#af-theme-chooser .af-theme-opt.af-cur{color:var(--st-ink,#1e2748);font-weight:600;}
-#af-theme-chooser .af-cur-check{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-left:8px;color:var(--st-ink,#1e2748);}
-#af-theme-chooser .af-theme-note{text-align:center;font-size:12px;color:var(--st-ink-60,rgba(30,39,72,.6));padding:8px 4px 4px;line-height:1.5;}
 /* ── 2. 天气实时块 ── */
 #af-weather-live .af-wx-src{font-size:12px;color:#8a8580;margin-top:6px;line-height:1.7;}
 #af-weather-live .af-wx-note{font-size:12px;color:#8a8580;margin-top:8px;line-height:1.7;}

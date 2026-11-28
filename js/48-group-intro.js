@@ -4,7 +4,8 @@
  * （字母雨 love / 信封“因为爱，所以相遇”/ FUTURE）、PACE=.5、文案、时间线均未改动；
  * 预览页 intro-preview__2__3_8y5l.html 不接入。接线见本文件末尾的 GROUP-INTRO 段：
  * 读开关（沿用 phone_boot_anim_v1，旧 style 字段忽略）、冷启动自动播、
- * onDone 进锁屏、onEvent('exit') 同步锁屏淡入、设置页开关/预览、点按跳过。
+ * onDone 进锁屏、onEvent('exit') 同步锁屏淡入、点按跳过。
+ * （设置页开关 / 预览已随桌面与外观页删除，见末尾 R3-STEP7 注。）
  */
 
 /* ============================================================
@@ -502,28 +503,8 @@ window.XWIntro={play,skip};
     play({});
     return true;
   }
-  /* 设置页接线：桌面与外观里的开关 / 预览（事件委托，不碰 GroupW 的键） */
-  function rerenderDeskBody() {
-    try {
-      var body = document.querySelector('#gw-desk-body');
-      if (body && window.GroupW && typeof window.GroupW.renderDesktopSettingsHTML === 'function') {
-        body.innerHTML = window.GroupW.renderDesktopSettingsHTML();
-      }
-    } catch (e) {}
-  }
-  document.addEventListener('click', function (e) {
-    var t = e.target && e.target.closest ? e.target.closest('[data-intro-boot-toggle],[data-intro-boot-preview]') : null;
-    if (!t) return;
-    if (t.hasAttribute('data-intro-boot-toggle')) {
-      var cur = load();
-      save({ enabled: !cur.enabled });
-      rerenderDeskBody();
-      return;
-    }
-    if (t.hasAttribute('data-intro-boot-preview')) {
-      play({ force: true });
-    }
-  });
+  /* R3-STEP7：桌面与外观页已删，其上的开机动画开关 / 预览委托（data-intro-boot-*）
+     随之删除；GroupIntro 本体（KEY phone_boot_anim_v1、boot()）保留，动画默认照常播放。 */
   /* 点按跳过：XWIntro 本身不绑点击，这里补上（旧 BV 也是点按即跳过）。 */
   try {
     var introEl = document.getElementById('xwIntro');

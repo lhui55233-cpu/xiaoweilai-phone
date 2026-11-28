@@ -6,7 +6,8 @@
    - A5/A6/A7：Pulse（https://github.com/elliejayliquid/pulse，MIT）。
    合并接线（实测）：M 组记忆树已合入，花园接在它的树上；N 组一起玩/表情包已合入，像素画与表情包包接 N 组；
    P 组动作台/VRM 预览已合入，动作按 A30 约定重命名后委托 P 的 motion，VRM 加载复用 P 的预览器；
-   T 组 phone_ui_prefs_v1 已合入（theme=light|dark|auto，themeCustom={c1浅色,c2主色}），主题两色按此形状写。
+   T 组 phone_ui_prefs_v1 已合入（theme=主题 id，themeCustom={c1浅色,c2主色}），主题两色按此形状写。
+   （深色主题已删除 2026-11-28：夜·蜕茧黑 / 墨绿两款已从 THEMES 移除，存量深色 id 回落归巢默认。）
    C 档一项未碰：见补丁脚本头注释。
 */
 (function () {
@@ -25,15 +26,16 @@ var hexLum = function (hex) { var r = hexRgb(hex); return (0.299 * r[0] + 0.587 
 var dayNum = function () { return new Date().getDate(); };
 
 /* ══════════ A32 主题：14 套 + 每套 5 配色 + 可分享代码 ══════════
-   写进 T 组已合入的 phone_ui_prefs_v1（theme=light|dark|auto 不动其含义；主题两色写 themeCustom.c1/c2，
+   写进 T 组已合入的 phone_ui_prefs_v1（theme 字段存主题 id；主题两色写 themeCustom.c1/c2，
    c1=浅色/背景，c2=主色/强调——与 T 的默认值 {c1:'#ffffff', c2:'#34363b'} 语义一致）。
    2026-11-28 批量 0020（项 1）：主题是唯一数据源（js/54 BU_THEMES 与 js/15 AppTheme.THEMES
    都以这里为准，不再各存一份）；每套主题 = {封面(由 c1/c2 + 配色画), 配色方案 colors[5]}，
    colors[0] 永远是主题原配色 c2，5 个配色全部不含纯黑 #000000；vars 是全套 --app-*（与
-   AppTheme.THEMES / BuThemes 注入的样式同值），dark 标深色款。选颜色只改 themeCustom.c2，
+   AppTheme.THEMES / BuThemes 注入的样式同值）。选颜色只改 themeCustom.c2，
    theme 字段始终保留主题 id（setCustomColor 也不再把它写成 'light'）。 */
 var PREFS_KEY = 'phone_ui_prefs_v1';
-var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
+/* [R3-S8c] 本组不再自备 PREFS_DEFAULT 字面量（旧副本缺 fishWater）：偏好唯一真相来源是
+   js/12 的 PREFS_DEFAULT + window.getUiPrefs/window.setUiPrefs；读/写都走它。 */
 var THEMES = [
   { id: 'guichao', name: '归巢默认', c1: '#ffffff', c2: '#34363b', desc: '归巢黑白灰，默认主题', dark: false, colors: ['#34363b', '#4a4d52', '#6e7278', '#9aa0a6', '#b08d57'], vars: { '--app-bg': '#ffffff', '--app-surface': '#f9f9f9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': '#e5e5e5', '--app-accent': '#34363b', '--app-accent-soft': '#e5e5e5' } },
   { id: 'warm', name: '晨光暖阳', c1: '#fdf6ec', c2: '#c87a5a', desc: '陶土暖阳', dark: false, colors: ['#c87a5a', '#b96a4b', '#d99a76', '#e8b48f', '#8a5a44'], vars: { '--app-bg': '#fdf6ec', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#c87a5a', '--app-accent-soft': '#f3ddd2' } },
@@ -43,32 +45,26 @@ var THEMES = [
   { id: 'trianon', name: '特里亚农 · 洛可可', c1: '#fbf9f4', c2: '#5c6884', desc: '雾蓝银蓝奶白，洛可可信笺风', dark: false, colors: ['#5c6884', '#4c5670', '#7c88a3', '#9aa5bb', '#3d465e'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' } },
   { id: 'bu-spring-pink', name: '春·槐花粉', c1: '#fbf9f4', c2: '#6f687e', desc: '奶白纸底，藕粉只一点点。', dark: false, colors: ['#6f687e', '#5d5768', '#8a8494', '#a9a3b1', '#4a4456'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6f687e', '--app-accent-soft': '#e8c9d0' } },
   { id: 'bu-autumn-red', name: '秋·枫叶红', c1: '#fffdf8', c2: '#5b5871', desc: '信笺纸底，深藕粉点缀。', dark: false, colors: ['#5b5871', '#4a475e', '#75718a', '#9793a8', '#38354a'], vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5b5871', '--app-accent-soft': '#e8c9d0' } },
-  { id: 'bu-night-black', name: '夜·蜕茧黑', c1: '#1e2748', c2: '#e8c9d0', desc: '墨蓝底，藕粉点缀（深色款）。', dark: true, colors: ['#e8c9d0', '#d9aeb8', '#f0dde1', '#c99aa6', '#b98a96'], vars: { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#e8c9d0', '--app-accent-soft': '#5c6884' } },
   { id: 'bu-winter-blue', name: '冬·雪河蓝', c1: '#eef0f5', c2: '#46536f', desc: '画布底，墨蓝柔点缀。', dark: false, colors: ['#46536f', '#39435c', '#5f6d8c', '#7f8ca8', '#2e3648'], vars: { '--app-bg': '#eef0f5', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#dce2f1' } },
   { id: 'bu-mint', name: '薄荷绿', c1: '#fbf9f4', c2: '#6e7894', desc: '奶白纸底，银蓝点缀。', dark: false, colors: ['#6e7894', '#5d667f', '#8b93a8', '#a8adbd', '#4a5165'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6e7894', '--app-accent-soft': '#dce2f1' } },
   { id: 'bu-lavender', name: '薰衣草紫', c1: '#fbf9f4', c2: '#5c6884', desc: '奶白纸底，雾蓝点缀。', dark: false, colors: ['#5c6884', '#6e5f9e', '#8f83b5', '#b0a6cc', '#4a4468'], vars: { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' } },
-  { id: 'bu-cream', name: '奶油黄', c1: '#fffdf8', c2: '#46536f', desc: '信笺纸底，墨蓝柔点缀。', dark: false, colors: ['#46536f', '#39435c', '#5f6d8c', '#8a7a52', '#b08d57'], vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#eef0f5' } },
-  { id: 'bu-forest', name: '墨绿', c1: '#1e2748', c2: '#a9b3cc', desc: '墨蓝底，雾蓝浅点缀（深色款）。', dark: true, colors: ['#a9b3cc', '#93a0bd', '#c2cadb', '#d8dde8', '#7c88a3'], vars: { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#a9b3cc', '--app-accent-soft': '#5c6884' } }
+  { id: 'bu-cream', name: '奶油黄', c1: '#fffdf8', c2: '#46536f', desc: '信笺纸底，墨蓝柔点缀。', dark: false, colors: ['#46536f', '#39435c', '#5f6d8c', '#8a7a52', '#b08d57'], vars: { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#eef0f5' } }
 ];
 var themeById = function (id) { for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return THEMES[i]; return null; };
-/* GROUP-THROTTLE: 缓存 prefs 原始解析结果（500ms TTL + 写版本号失效；与 FIXAPPS 的
-   loadPrefs 同款做法：只省读盘与 JSON.parse，不省合并，每次仍返回新合并对象，
-   调用方改返回对象不污染缓存）。 */
-var _throttleRaw = null, _throttleRawAt = 0, _throttleRawRev = -1, _throttleRawReady = false;
+/* [R3-S8c] 偏好读走 window.getUiPrefs（js/12，唯一 PREFS_DEFAULT，含 fishWater:true）。
+   js/12 未加载时（本文件总在 js/12 之后加载，实践中到不了）只读已存值、不补默认值。 */
 var readPrefs = function () {
-  var _rev = (typeof window !== 'undefined' && typeof window.__throttlePrefsRev === 'number') ? window.__throttlePrefsRev : 0;
-  var _now = Date.now();
-  var raw;
-  if (_throttleRawReady && _throttleRawRev === _rev && _now - _throttleRawAt < 500) { raw = _throttleRaw; }
-  else { raw = lsGet(PREFS_KEY, null); _throttleRaw = raw; _throttleRawAt = _now; _throttleRawRev = _rev; _throttleRawReady = true; }
-  var out = JSON.parse(JSON.stringify(PREFS_DEFAULT));
+  try { if (typeof window !== 'undefined' && typeof window.getUiPrefs === 'function') return window.getUiPrefs(); } catch (e) {}
+  var raw = lsGet(PREFS_KEY, null);
+  var out = {};
   if (raw && typeof raw === 'object') {
-    Object.keys(PREFS_DEFAULT).forEach(function (k) { if (raw[k] !== undefined) out[k] = raw[k]; });
-    Object.keys(raw).forEach(function (k) { if (!(k in out)) out[k] = raw[k]; });
+    Object.keys(raw).forEach(function (k) { out[k] = raw[k]; });
   }
+  if (!out.themeCustom || typeof out.themeCustom !== 'object') out.themeCustom = { c1: '#ffffff', c2: '#34363b' };
   return out;
 };
 var writePrefs = function (patch) {
+  try { if (typeof window !== 'undefined' && typeof window.setUiPrefs === 'function') return window.setUiPrefs(patch); } catch (e) {}
   var cur = readPrefs();
   Object.keys(patch || {}).forEach(function (k) { cur[k] = patch[k]; });
   lsSet(PREFS_KEY, cur);
@@ -80,7 +76,7 @@ var readCustom = function () {
   var tc = (p && p.themeCustom) || {};
   if (isHex(tc.c1) && isHex(tc.c2)) return { c1: tc.c1, c2: tc.c2 };
   if (isHex(tc.hex)) return { c1: '#ffffff', c2: tc.hex };
-  return { c1: PREFS_DEFAULT.themeCustom.c1, c2: PREFS_DEFAULT.themeCustom.c2 };
+  return { c1: '#ffffff', c2: '#34363b' }; /* [R3-S8c] 兜底两色即 js/12 默认 themeCustom 值（PREFS_DEFAULT 字面量已删）。 */
 };
 /* 2026-11-28 批量 0020（项 1）：生效主题 = 主题定义 + themeCustom 里选中的配色。
    themeCustom.c2 是该主题 colors 里的配色时（详情页点的 5 色之一）即生效；非 BU 主题时，
@@ -96,7 +92,12 @@ var effectiveTheme = function (t, tc) {
   if (isHex(tc.c1) && (inColors(tc.c1) || !isBu)) c1 = tc.c1;
   return { id: t.id, name: t.name, c1: c1, c2: c2, desc: t.desc, colors: t.colors, dark: t.dark, vars: t.vars };
 };
+/* 深色模式已删除（2026-11-28）：以下 id 不再是合法主题，读到即迁到归巢默认（见 currentTheme）。 */
+var RETIRED_DARK_IDS = { 'dark': 1, 'guichao-dark': 1, 'gruvbox-dark': 1, 'bu-night-black': 1, 'bu-forest': 1 };
 var currentTheme = function () {
+  /* 深色模式已删除（2026-11-28，TINA 已批）：存量深色 id（dark / guichao-dark / gruvbox-dark /
+     bu-night-black / bu-forest）一律迁到归巢默认，且不读旧 themeCustom——旧深色配色不带到浅色主题上。 */
+  try { var _pt0 = readPrefs(); if (_pt0 && RETIRED_DARK_IDS[_pt0.theme]) { var _g0 = themeById('guichao'); if (_g0) return effectiveTheme(_g0, {}); } } catch (e0) {}
   /* GROUP-BU：theme 字段存着主题 id 时优先认它（AC 组启动时重写 themeCustom 两色，theme 字段不受影响，重启后主题靠它恢复）。 */
   /* GROUP-THROTTLE: 原直读 localStorage 解析改走带缓存的 readPrefs（theme 字段值与 raw 一致，语义不变）。 */
   try { var _pt2 = readPrefs(); if (_pt2 && typeof _pt2.theme === 'string') { var _bt = themeById(_pt2.theme); if (_bt) return effectiveTheme(_bt, _pt2.themeCustom); } } catch (e1) {}
@@ -123,7 +124,6 @@ var applyTheme = function () {
   /* GROUP-BU：V 主题换完后同步 AppTheme 全套变量、桌面底色与 AL 深浅判定。 */
   try { if (window.AppTheme && window.AppTheme.apply) window.AppTheme.apply(); } catch (e2) {}
   try { if (window.BuThemes && window.BuThemes.syncShellBg) window.BuThemes.syncShellBg(); } catch (e3) {}
-  try { if (window.applyTheme) window.applyTheme(); } catch (e4) {}
   return cur;
 };
 var setTheme = function (id) {

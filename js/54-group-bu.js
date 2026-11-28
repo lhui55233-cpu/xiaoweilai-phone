@@ -89,7 +89,6 @@
     /* GROUP-BU：主题 id 再写一份进 phone_ui_prefs_v1.theme（AC 组启动时会重写 themeCustom 两色，theme 字段不受影响，重启后主题靠它恢复）。 */
     try { if (window.setUiPrefs) window.setUiPrefs({ theme: id }); else { var p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); p.theme = id; localStorage.setItem(PREFS_KEY, JSON.stringify(p)); try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (e) {} /* GROUP-THROTTLE: 写后立即失效主题解析缓存 */ } } catch (e) {}
     try { if (window.AppTheme && window.AppTheme.apply) window.AppTheme.apply(); } catch (e) {}
-    try { if (window.applyTheme) window.applyTheme(); } catch (e) {}
     try { syncShellBg(); } catch (e) {}
     syncThemeButtons();
     try { if (typeof toast === 'function') toast('主题已切换为' + t.name + '。'); else if (typeof ALToast === 'function') ALToast('success', '主题已切换为' + t.name + '。'); } catch (e) {}

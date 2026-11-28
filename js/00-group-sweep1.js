@@ -413,20 +413,12 @@ const NavigationManager = (() => {
         // 乙女游戏 tab 时 #wx-otome-home 是当前 tab 内容，返回不得关掉它（否则 tab 变空白）。
         const wxSubs = [...document.querySelectorAll('.wx-subpage-box.wx-active')].filter(el => !(el.id === 'wx-otome-home' && _wxView === 'otome'));
         if (wxSubs.length) {
-            let wxTop = wxSubs[0], wxTopZ = -Infinity;
-            wxSubs.forEach((el) => { const z = parseInt(getComputedStyle(el).zIndex, 10); const zv = Number.isNaN(z) ? 0 : z; if (zv >= wxTopZ) { wxTopZ = zv; wxTop = el; } });
-            wxTop.classList.remove('wx-active');
+            closeTopStSub(document, wxSubs, function (el) { el.classList.remove('wx-active'); });
             return true;
         }
         // 5b. 设置子页面(.st-sub.show)：只处理当前前台设置 APP，避免消费缓存窗口。
         const stWin = AppManager.getActiveId() === 'settings' ? AppManager.getWin('settings') : null;
-        const stSubs = stWin ? stWin.querySelectorAll('.st-sub.show') : [];
-        if (stSubs.length) {
-            var _stEl = stSubs[stSubs.length - 1];
-            _stEl.classList.remove('show');
-            dropClosedStSub(_stEl);
-            return true;
-        }
+        if (stWin && closeTopStSub(stWin)) return true;
         // 5c. 此刻 APP 子页面 (.ck-sub.show)
         // [AT GROUP-AT-BACK-DEDUP] 信箱内层先关：信件详情(z10) → 历史列表(z8) → 子页；
         // 修前一次返回会从信件详情直接跳回立体书首页。
@@ -620,7 +612,7 @@ const home = () => {
             '.wx-feed-popover.wx-active',
             '.wx-subpage-box.wx-active'
         ].join(',')).forEach(el => el.classList.remove('wx-active', 'sd-show'));
-        document.querySelectorAll('.st-sub.show').forEach(el => { el.classList.remove('show'); dropClosedStSub(el); });
+        document.querySelectorAll('.st-sub.show').forEach(el => closeStSub(el));
         document.querySelectorAll('.sys-app-subpage.sys-active').forEach(el => el.classList.remove('sys-active'));
         try { if (window.SystemCenter) SystemCenter.hideAll(); } catch(e) {}
         if (!SystemStore.get('isLocked') && AppManager.getActiveId()) AppManager.minimize();
@@ -645,11 +637,38 @@ window.NavigationManager = NavigationManager;
 // （fixed 的包含块）且 overflow-y:auto → 每个关掉未删的子页都会把窗口的横向
 // 可滚动区撑到 200% 宽，底部出现横向滚动条。滑出动画 280ms，320ms 后确认
 // 还没重新 .show 才删；重新打开同 id 子页时挂载处已先删旧节点，行为不变。
-function dropClosedStSub(el) {
+// [R3-S6] 唯一的 .st-sub 关闭函数：取代旧的 closeBeautyInSettings（缓存式，
+// display:none）与 dropClosedStSub（删除式）——同一元素的两条关闭路径生命
+// 周期相反是缓存被删、重开闪烁的成因。去 .show，等 320ms（280ms 滑出 +
+// 40ms），然后按 data-keep-cache 标记决定：带标记的只 display:none 藏起
+// （仅 #st-sub-beautify，美化缓存复用），其余从 DOM 移除。不加新计时器。
+function closeStSub(el, opts) {
     if (!el || el.nodeType !== 1) return;
+    var keep = !!(opts && opts.keepCached) || (el.hasAttribute && el.hasAttribute('data-keep-cache'));
+    el.classList.remove('show');
     setTimeout(function () {
-        if (!el.classList.contains('show') && el.parentNode) el.parentNode.removeChild(el);
+        if (el.classList.contains('show')) return;
+        if (keep) { el.style.display = 'none'; }
+        else if (el.parentNode) el.parentNode.removeChild(el);
     }, 320);
+}
+
+// [R3-S9] 唯一的"关最上层 .st-sub"：最大 computed z-index，平局 → DOM-last；
+// z-index:auto（非定位元素）→ NaN → 0（与旧微信分支同一守卫）。默认关闭方式
+// 是 S6 的 closeStSub；调用方可传自己的候选集与关闭方式（微信 .wx-subpage-box
+// 只去 .wx-active 类，不删节点）。取代系统返回 / [data-back] / 微信分支三处
+// 各自的"最上层"实现。
+function closeTopStSub(win, candidates, closeOne) {
+    var els = candidates || (win ? Array.prototype.slice.call(win.querySelectorAll('.st-sub.show')) : []);
+    if (!els.length) return false;
+    var top = els[0], topZ = -Infinity;
+    els.forEach(function (el) {
+        var z = parseInt(getComputedStyle(el).zIndex, 10);
+        var zv = Number.isNaN(z) ? 0 : z;
+        if (zv >= topZ) { topZ = zv; top = el; }
+    });
+    (closeOne || closeStSub)(top);
+    return true;
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1525,10 +1544,7 @@ try { if (window.CharInnerLife && window.CharInnerLife.quietBeat) window.CharInn
                        let pct = Math.round((1 - (clientY - rect.top) / rect.height) * 100);
                        pct = Math.max(0, Math.min(100, pct));
                        if (fill) fill.style.height = pct + '%';
-                       if (isBrightness) {
-                           const shell = document.getElementById('sys-shell');
-                           if (shell) shell.style.filter = `brightness(${0.35 + pct/100*0.75})`;
-                       }
+                       if (isBrightness) applyWallpaperBrightness(pct);
                    };
                    let sliding = false;
                    box.addEventListener('touchstart', e => { sliding = true; setFromY(e.touches[0].clientY); }, { passive: true });
@@ -3744,210 +3760,213 @@ AppManager.register('settings', (() => {
         (foot ? `<div class="st-foot">${foot}</div>` : '');
 
     const styleBlock = `<style>
-        .st-root, .st-sub { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12) }
-        .st-root { width:100%; height:100%; background:var(--st-paper,#fffdf8); overflow-y:auto;
+        .st-root, .st-sub, .b-sandbox-core, #st-sub-widget-store, .ga-page, .ao-pinpad { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12) }
+        /* [R3-S10] token 唯一定义处：其余 4 份 verbatim 粘贴已删（美化沙箱 / 小组件商店 / API 页 / 锁屏 pinpad）。
+           5 个选择器同属一块定义——后四者不在 .st-sub 内（.ga-page/.ao-pinpad 是 body 级浮层），
+           只删粘贴不扩选择器会让它们回落到旧海军值；它们只在设置打开时渲染，设置窗口最小化也留 DOM，故覆盖成立。 */
+        .st-root { width:100%; height:100%; background:var(--st-paper,#ffffff); overflow-y:auto;
             font-family:"Noto Serif SC","Songti SC",serif;
-            -webkit-overflow-scrolling:touch; position:relative; color:var(--st-ink,#1e2748); }
-        .st-root :focus-visible, .st-sub :focus-visible { outline:2px solid var(--st-ink-40,rgba(30,39,72,.4)); outline-offset:2px; }
+            -webkit-overflow-scrolling:touch; position:relative; color:var(--st-ink,#171717); }
+        .st-root :focus-visible, .st-sub :focus-visible { outline:2px solid var(--st-ink-40,rgba(23,23,23,.4)); outline-offset:2px; }
         .st-statusbar { height:calc(44px + var(--sys-island-auto-top, 28px) + var(--sys-island-auto-h, 28px)); }
-        .st-bigtitle { font-family:"Cormorant Garamond","Noto Serif SC",serif; font-size:28px; font-weight:600; line-height:1.25; color:var(--st-ink,#1e2748); padding:var(--st-sp-3,12px) var(--st-sp-4,16px) var(--st-sp-2,8px); }
+        .st-bigtitle { font-family:"Cormorant Garamond","Noto Serif SC",serif; font-size:28px; font-weight:600; line-height:1.25; color:var(--st-ink,#171717); padding:var(--st-sp-3,12px) var(--st-sp-4,16px) var(--st-sp-2,8px); }
         .st-sub .st-bigtitle { font-size:20px; padding:var(--st-sp-3,12px) var(--st-sp-4,16px) var(--st-sp-2,8px); }
         .st-home-backrow { display:flex; align-items:center; gap:var(--st-sp-1,4px);
-            color:var(--st-ink,#1e2748); font-size:17px; padding:var(--st-sp-1,4px) var(--st-sp-3,12px) var(--st-sp-1,4px) var(--st-sp-2,8px); cursor:pointer; }
-        .st-home-backrow:active { background:var(--st-ink-08,rgba(30,39,72,.08)); }
+            color:var(--st-ink,#171717); font-size:17px; padding:var(--st-sp-1,4px) var(--st-sp-3,12px) var(--st-sp-1,4px) var(--st-sp-2,8px); cursor:pointer; }
+        .st-home-backrow:active { background:var(--st-ink-08,rgba(23,23,23,.08)); }
         /* 搜索框 */
-        .st-search { margin:0 var(--st-sp-4,16px) var(--st-sp-4,16px); background:var(--st-paper-cool,#eef0f5); border-radius:var(--st-radius-md,8px);
+        .st-search { margin:0 var(--st-sp-4,16px) var(--st-sp-4,16px); background:var(--st-paper-cool,#f9f9f9); border-radius:var(--st-radius-md,8px);
             display:flex; align-items:center; gap:var(--st-sp-2,8px); padding:0 var(--st-sp-3,12px); height:36px; }
         .st-search svg { flex-shrink:0; }
-        .st-search input { flex:1; border:none; outline:none; background:transparent; font-size:17px; color:var(--st-ink,#1e2748); font-family:inherit; }
-        .st-search input::placeholder { color:var(--st-ink-40,rgba(30,39,72,.4)); }
-        .st-search:focus-within { background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink-40,rgba(30,39,72,.4)); }
+        .st-search input { flex:1; border:none; outline:none; background:transparent; font-size:17px; color:var(--st-ink,#171717); font-family:inherit; }
+        .st-search input::placeholder { color:var(--st-ink-40,rgba(23,23,23,.4)); }
+        .st-search:focus-within { background:var(--st-paper,#ffffff); border:1px solid var(--st-ink-40,rgba(23,23,23,.4)); }
         /* 账户卡片 */
-        .st-account { margin:0 var(--st-sp-4,16px) var(--st-sp-6,24px); background:var(--st-paper,#fffdf8); border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px);
+        .st-account { margin:0 var(--st-sp-4,16px) var(--st-sp-6,24px); background:var(--st-paper,#ffffff); border:1px solid var(--st-silver,#e5e5e5); border-radius:var(--st-radius-lg,10px);
             display:flex; align-items:center; gap:var(--st-sp-3,12px); padding:var(--st-sp-4,16px); cursor:pointer; }
-        .st-account:active { background:var(--st-ink-08,rgba(30,39,72,.08)); }
+        .st-account:active { background:var(--st-ink-08,rgba(23,23,23,.08)); }
         .st-acc-avatar { width:58px; height:58px; border-radius:50%; flex-shrink:0;
-            background:var(--st-silver-light,#dce2f1); display:flex; align-items:center; justify-content:center;
-            font-size:28px; overflow:hidden; color:var(--st-ink,#1e2748); }
+            background:var(--st-silver-light,#f4f4f4); display:flex; align-items:center; justify-content:center;
+            font-size:28px; overflow:hidden; color:var(--st-ink,#171717); }
         .st-acc-avatar img { width:100%; height:100%; object-fit:cover; }
         .st-acc-info { flex:1; min-width:0; }
-        .st-acc-name { font-size:20px; font-weight:600; color:var(--st-ink,#1e2748); }
-        .st-acc-sub { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:var(--st-sp-1,4px); line-height:1.5; }
-        .st-group { background:var(--st-paper,#fffdf8); border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px); margin:0 var(--st-sp-4,16px); overflow:hidden; }
+        .st-acc-name { font-size:20px; font-weight:600; color:var(--st-ink,#171717); }
+        .st-acc-sub { font-size:13px; color:var(--st-ink-60,rgba(23,23,23,.6)); margin-top:var(--st-sp-1,4px); line-height:1.5; }
+        .st-group { background:var(--st-paper,#ffffff); border:1px solid var(--st-silver,#e5e5e5); border-radius:var(--st-radius-lg,10px); margin:0 var(--st-sp-4,16px); overflow:hidden; }
         .st-gap { height:var(--st-sp-6,24px); }
-        .st-foot { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); padding:var(--st-sp-2,8px) var(--st-sp-4,16px) 0; margin:0 0 var(--st-sp-6,24px); line-height:1.5; }
+        .st-foot { font-size:13px; color:var(--st-ink-60,rgba(23,23,23,.6)); padding:var(--st-sp-2,8px) var(--st-sp-4,16px) 0; margin:0 0 var(--st-sp-6,24px); line-height:1.5; }
         .st-row { display:flex; align-items:center; gap:var(--st-sp-3,12px);
             padding:0 var(--st-sp-4,16px) 0 var(--st-sp-4,16px); min-height:56px; box-sizing:border-box;
-            border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08)); cursor:pointer; background:var(--st-paper,#fffdf8); }
+            border-bottom:1px solid var(--st-ink-08,rgba(23,23,23,.08)); cursor:pointer; background:var(--st-paper,#ffffff); }
         .st-row:last-child { border-bottom:none; }
-        .st-row:active { background:var(--st-ink-08,rgba(30,39,72,.08)); }
+        .st-row:active { background:var(--st-ink-08,rgba(23,23,23,.08)); }
         .st-ico { width:28px; height:28px; border-radius:var(--st-radius-md,8px); flex-shrink:0;
-            display:flex; align-items:center; justify-content:center; background:var(--st-silver-light,#dce2f1); }
+            display:flex; align-items:center; justify-content:center; background:var(--st-silver-light,#f4f4f4); }
         .st-ico svg { width:17px; height:17px; }
-        .st-ico svg[fill="#fff"] { fill:var(--st-ink,#1e2748); }
-        .st-ico svg [fill="#fff"] { fill:var(--st-ink,#1e2748); }
-        .st-ico svg[stroke="#fff"] { stroke:var(--st-ink,#1e2748); }
-        .st-ico svg [stroke="#fff"] { stroke:var(--st-ink,#1e2748); }
+        .st-ico svg[fill="#fff"] { fill:var(--st-ink,#171717); }
+        .st-ico svg [fill="#fff"] { fill:var(--st-ink,#171717); }
+        .st-ico svg[stroke="#fff"] { stroke:var(--st-ink,#171717); }
+        .st-ico svg [stroke="#fff"] { stroke:var(--st-ink,#171717); }
         /* 自定义复选框（设置页）：纸底 + 1px 墨边框；:checked 时用背景图画墨色对勾（input 无伪元素） */
         .st-check { -webkit-appearance:none; appearance:none; width:20px; height:20px; flex-shrink:0; margin:0; padding:0; cursor:pointer;
-            background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink,#1e2748); border-radius:4px; }
+            background:var(--st-paper,#ffffff); border:1px solid var(--st-ink,#171717); border-radius:4px; }
         .st-check:checked { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E"); background-size:14px; background-position:center; background-repeat:no-repeat; }
-        .st-label { font-size:17px; color:var(--st-ink,#1e2748); flex:1; min-width:0; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .st-label { font-size:17px; color:var(--st-ink,#171717); flex:1; min-width:0; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .st-row.danger .st-label { color:var(--st-danger,#7c2d2d); }
         .st-row-right { display:flex; align-items:center; gap:var(--st-sp-2,8px); flex-shrink:0; }
-        .st-val { font-size:17px; color:var(--st-ink-60,rgba(30,39,72,.6)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:50vw; }
-        .st-arrow { font-size:20px; color:var(--st-ink-40,rgba(30,39,72,.4)); font-weight:400; }
-        .st-switch { width:44px; height:24px; border-radius:999px; background:var(--st-silver,#bfc8e0);
+        .st-val { font-size:17px; color:var(--st-ink-60,rgba(23,23,23,.6)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:50vw; }
+        .st-arrow { font-size:20px; color:var(--st-ink-40,rgba(23,23,23,.4)); font-weight:400; }
+        .st-switch { width:44px; height:24px; border-radius:999px; background:var(--st-silver,#e5e5e5);
             position:relative; transition:background 180ms ease-out; flex-shrink:0; border:none; padding:0; }
-        .st-switch.on { background:var(--st-silver,#bfc8e0); }
-        .st-knob { width:20px; height:20px; border-radius:50%; background:var(--st-paper,#fffdf8);
+        .st-switch.on { background:var(--st-silver,#e5e5e5); }
+        .st-knob { width:20px; height:20px; border-radius:50%; background:var(--st-paper,#ffffff);
             position:absolute; top:2px; left:2px; transition:left 180ms ease-out; }
-        .st-switch.on .st-knob { left:22px; background:var(--st-ink,#1e2748); }
+        .st-switch.on .st-knob { left:22px; background:var(--st-ink,#171717); }
         /* 子页面 */
-        .st-sub { position:fixed; inset:0; background:var(--st-paper,#fffdf8); z-index:9000; padding-bottom:34px;
+        .st-sub { position:fixed; inset:0; background:var(--st-paper,#ffffff); z-index:9000; padding-bottom:34px;
             transform:translateX(100%); transition:transform 280ms ease-out;
             overflow-y:auto; visibility:hidden; }
         .st-sub.show { transform:translateX(0); visibility:visible; }
         .st-sub-bar { height:calc(56px + var(--sys-island-safe-top, 62px)); box-sizing:border-box;
             padding-top:calc(var(--sys-island-safe-top, 62px));
             display:flex; align-items:center; padding-left:8px; padding-right:14px;
-            background:var(--st-paper,#fffdf8);
+            background:var(--st-paper,#ffffff);
             position:sticky; top:0; z-index:5; }
         .st-sub-bar-solid { position:relative; }
-        .st-sub-back { color:var(--st-ink,#1e2748); font-size:17px; display:flex; align-items:center; cursor:pointer; }
-        .st-sub-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:20px; font-weight:600; margin-right:60px; color:var(--st-ink,#1e2748); }
+        .st-sub-back { color:var(--st-ink,#171717); font-size:17px; display:flex; align-items:center; cursor:pointer; }
+        .st-sub-title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:20px; font-weight:600; margin-right:60px; color:var(--st-ink,#171717); }
         /* 禁词 */
         .st-ban-input-row { display:flex; gap:var(--st-sp-2,8px); padding:var(--st-sp-4,16px); }
-        .st-ban-input { flex:1; border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-md,8px);
-            padding:0 var(--st-sp-3,12px); height:40px; font-size:17px; outline:none; background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); font-family:inherit; }
-        .st-ban-input::placeholder { color:var(--st-ink-40,rgba(30,39,72,.4)); }
-        .st-ban-input:focus { border-color:var(--st-ink,#1e2748); }
-        .sys-app-window .st-ban-add-btn { background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); border:1px solid var(--st-ink,#1e2748); border-radius:var(--st-radius-md,8px);
+        .st-ban-input { flex:1; border:1px solid var(--st-silver,#e5e5e5); border-radius:var(--st-radius-md,8px);
+            padding:0 var(--st-sp-3,12px); height:40px; font-size:17px; outline:none; background:var(--st-paper,#ffffff); color:var(--st-ink,#171717); font-family:inherit; }
+        .st-ban-input::placeholder { color:var(--st-ink-40,rgba(23,23,23,.4)); }
+        .st-ban-input:focus { border-color:var(--st-ink,#171717); }
+        .sys-app-window .st-ban-add-btn { background:var(--st-paper,#ffffff); color:var(--st-ink,#171717); border:1px solid var(--st-ink,#171717); border-radius:var(--st-radius-md,8px);
             padding:0 var(--st-sp-5,20px); height:40px; font-size:17px; font-weight:500; cursor:pointer; }
         .st-ban-item { display:flex; align-items:center; justify-content:space-between;
-            padding:0 var(--st-sp-4,16px); min-height:56px; background:var(--st-paper,#fffdf8); border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08)); cursor:pointer; }
+            padding:0 var(--st-sp-4,16px); min-height:56px; background:var(--st-paper,#ffffff); border-bottom:1px solid var(--st-ink-08,rgba(23,23,23,.08)); cursor:pointer; }
         .st-ban-item:last-child { border-bottom:none; }
-        .st-ban-item:active { background:var(--st-ink-08,rgba(30,39,72,.08)); }
-        .st-ban-word { font-size:17px; color:var(--st-ink,#1e2748); }
+        .st-ban-item:active { background:var(--st-ink-08,rgba(23,23,23,.08)); }
+        .st-ban-word { font-size:17px; color:var(--st-ink,#171717); }
         .st-ban-del { color:var(--st-danger,#7c2d2d); font-size:13px; }
-        .st-ban-empty { text-align:center; color:var(--st-ink-60,rgba(30,39,72,.6)); padding:40px; font-size:13px; line-height:1.5; }
+        .st-ban-empty { text-align:center; color:var(--st-ink-60,rgba(23,23,23,.6)); padding:40px; font-size:13px; line-height:1.5; }
         /* Token 统计页 */
-        .st-sub#st-sub-token { background:var(--st-paper,#fffdf8); }
+        .st-sub#st-sub-token { background:var(--st-paper,#ffffff); }
         .st-tk-cover { height:130px;
-            background:var(--st-silver-light,#dce2f1);
+            background:var(--st-silver-light,#f4f4f4);
             position:relative; margin:14px 16px 0; border-radius:var(--st-radius-lg,10px); overflow:hidden; }
         .st-tk-cover img { width:100%; height:100%; object-fit:cover; }
         .st-tk-cover-edit { position:absolute; right:12px; bottom:12px;
-            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); font-size:12px;
+            background:var(--st-paper,#ffffff); color:var(--st-ink,#171717); font-size:12px;
             padding:7px 14px; border-radius:var(--st-radius-md,8px); cursor:pointer;
-            border:1px solid var(--st-ink,#1e2748); letter-spacing:0.3px; }
+            border:1px solid var(--st-ink,#171717); letter-spacing:0.3px; }
         .st-tk-profile { display:flex; align-items:center; gap:14px;
             padding:0 28px; margin-top:-30px; position:relative; }
         .st-tk-avatar { width:68px; height:68px; border-radius:50%;
-            border:4px solid var(--st-paper,#fffdf8); background:var(--st-silver-light,#dce2f1); flex-shrink:0;
+            border:4px solid var(--st-paper,#ffffff); background:var(--st-silver-light,#f4f4f4); flex-shrink:0;
             display:flex; align-items:center; justify-content:center; font-size:28px;
-            overflow:hidden; cursor:pointer; color:var(--st-ink,#1e2748); }
+            overflow:hidden; cursor:pointer; color:var(--st-ink,#171717); }
         .st-tk-avatar img { width:100%; height:100%; object-fit:cover; }
-        .st-avatar-ph { font-size:12px; color:var(--st-ink-60,rgba(30,39,72,.6)); font-weight:500; }
+        .st-avatar-ph { font-size:12px; color:var(--st-ink-60,rgba(23,23,23,.6)); font-weight:500; }
         .st-tk-name { font-size:20px; font-weight:600; padding-top:28px; cursor:pointer;
-            color:var(--st-ink,#1e2748); letter-spacing:0.3px; display:flex; align-items:center; gap:6px; }
+            color:var(--st-ink,#171717); letter-spacing:0.3px; display:flex; align-items:center; gap:6px; }
         .st-tk-name svg { opacity:0.4; }
-        .st-tk-summary { display:flex; margin:24px 16px 0; background:var(--st-paper,#fffdf8);
+        .st-tk-summary { display:flex; margin:24px 16px 0; background:var(--st-paper,#ffffff);
             border-radius:var(--st-radius-lg,10px); overflow:hidden;
-            border:1px solid var(--st-silver,#bfc8e0); }
+            border:1px solid var(--st-silver,#e5e5e5); }
         .st-tk-sum-cell { flex:1; text-align:center; padding:22px 8px;
-            border-right:1px solid var(--st-silver-light,#dce2f1); }
+            border-right:1px solid var(--st-silver-light,#f4f4f4); }
         .st-tk-sum-cell:last-child { border-right:none; }
-        .st-tk-sum-num { font-size:28px; font-weight:600; color:var(--st-ink,#1e2748);
+        .st-tk-sum-num { font-size:28px; font-weight:600; color:var(--st-ink,#171717);
             letter-spacing:-0.5px; font-variant-numeric:tabular-nums; }
-        .st-tk-sum-label { font-size:12px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:4px; letter-spacing:0.3px; }
-        .st-tk-section-title { font-size:13px; font-weight:600; color:var(--st-ink-60,rgba(30,39,72,.6));
+        .st-tk-sum-label { font-size:12px; color:var(--st-ink-60,rgba(23,23,23,.6)); margin-top:4px; letter-spacing:0.3px; }
+        .st-tk-section-title { font-size:13px; font-weight:600; color:var(--st-ink-60,rgba(23,23,23,.6));
             padding:24px 22px 8px; letter-spacing:0.3px; }
-        .st-tk-bar-row { padding:14px 16px; background:var(--st-paper,#fffdf8);
-            border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08)); }
+        .st-tk-bar-row { padding:14px 16px; background:var(--st-paper,#ffffff);
+            border-bottom:1px solid var(--st-ink-08,rgba(23,23,23,.08)); }
         .st-tk-bar-row:last-child { border-bottom:none; }
         .st-tk-bar-head { display:flex; justify-content:space-between;
             font-size:17px; margin-bottom:8px; align-items:center; }
-        .st-tk-bar-app { color:var(--st-ink,#1e2748); font-weight:400; }
-        .st-tk-bar-val { color:var(--st-ink-60,rgba(30,39,72,.6)); font-size:13px; font-variant-numeric:tabular-nums; }
-        .st-tk-bar-track { height:6px; background:var(--st-paper-cool,#eef0f5); border-radius:3px; overflow:hidden; }
-        .st-tk-bar-fill { height:100%; background:var(--st-silver,#bfc8e0); border-radius:3px;
+        .st-tk-bar-app { color:var(--st-ink,#171717); font-weight:400; }
+        .st-tk-bar-val { color:var(--st-ink-60,rgba(23,23,23,.6)); font-size:13px; font-variant-numeric:tabular-nums; }
+        .st-tk-bar-track { height:6px; background:var(--st-paper-cool,#f9f9f9); border-radius:3px; overflow:hidden; }
+        .st-tk-bar-fill { height:100%; background:var(--st-silver,#e5e5e5); border-radius:3px;
             transition:width 280ms ease-out; }
-        .st-tk-empty { text-align:center; color:var(--st-ink-60,rgba(30,39,72,.6)); padding:36px 24px; font-size:13px;
-            background:var(--st-paper,#fffdf8); border-radius:var(--st-radius-lg,10px); margin:0 16px;
-            border:1px solid var(--st-silver,#bfc8e0); line-height:1.5; }
-        .st-tk-group { background:var(--st-paper,#fffdf8); border-radius:var(--st-radius-lg,10px); margin:0 16px;
-            overflow:hidden; border:1px solid var(--st-silver,#bfc8e0); }
+        .st-tk-empty { text-align:center; color:var(--st-ink-60,rgba(23,23,23,.6)); padding:36px 24px; font-size:13px;
+            background:var(--st-paper,#ffffff); border-radius:var(--st-radius-lg,10px); margin:0 16px;
+            border:1px solid var(--st-silver,#e5e5e5); line-height:1.5; }
+        .st-tk-group { background:var(--st-paper,#ffffff); border-radius:var(--st-radius-lg,10px); margin:0 16px;
+            overflow:hidden; border:1px solid var(--st-silver,#e5e5e5); }
         /* ── 我的账户子页（profile） ── */
-        .st-sub#st-sub-profile { background:var(--st-paper,#fffdf8); }
+        .st-sub#st-sub-profile { background:var(--st-paper,#ffffff); }
         .st-pf-hero { display:flex; flex-direction:column; align-items:center;
             padding:18px 16px 8px; }
         .st-pf-avatar-wrap { position:relative; cursor:pointer; }
         .st-pf-avatar { width:108px; height:108px; border-radius:50%;
-            background:var(--st-silver-light,#dce2f1); display:flex; align-items:center; justify-content:center;
-            color:var(--st-ink,#1e2748); font-size:40px; font-weight:600; overflow:hidden;
-            border:3px solid var(--st-paper,#fffdf8); }
+            background:var(--st-silver-light,#f4f4f4); display:flex; align-items:center; justify-content:center;
+            color:var(--st-ink,#171717); font-size:40px; font-weight:600; overflow:hidden;
+            border:3px solid var(--st-paper,#ffffff); }
         .st-pf-avatar img { width:100%; height:100%; object-fit:cover; }
         .st-pf-cam {
             position:absolute; right:2px; bottom:6px; width:30px; height:30px;
-            background:var(--st-paper,#fffdf8); border-radius:50%; display:flex; align-items:center;
-            justify-content:center; border:1px solid var(--st-ink,#1e2748); box-shadow:0 0 0 2px var(--st-paper,#fffdf8); }
+            background:var(--st-paper,#ffffff); border-radius:50%; display:flex; align-items:center;
+            justify-content:center; border:1px solid var(--st-ink,#171717); box-shadow:0 0 0 2px var(--st-paper,#ffffff); }
         .st-pf-cam svg { width:14px; height:14px; }
-        .st-pf-hint { font-size:12px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:10px; letter-spacing:0.2px; }
-        .st-pf-field-label { font-size:13px; font-weight:600; color:var(--st-ink,#1e2748);
+        .st-pf-hint { font-size:12px; color:var(--st-ink-60,rgba(23,23,23,.6)); margin-top:10px; letter-spacing:0.2px; }
+        .st-pf-field-label { font-size:13px; font-weight:600; color:var(--st-ink,#171717);
             padding:18px 22px 8px; letter-spacing:0.2px; }
-        .st-pf-card { background:var(--st-paper,#fffdf8); border-radius:var(--st-radius-lg,10px); margin:0 16px;
-            border:1px solid var(--st-silver,#bfc8e0); padding:0; }
+        .st-pf-card { background:var(--st-paper,#ffffff); border-radius:var(--st-radius-lg,10px); margin:0 16px;
+            border:1px solid var(--st-silver,#e5e5e5); padding:0; }
         .st-pf-input { width:100%; border:none; outline:none; background:transparent;
-            padding:14px 16px; font-size:17px; color:var(--st-ink,#1e2748);
+            padding:14px 16px; font-size:17px; color:var(--st-ink,#171717);
             -webkit-appearance:none; font-family:inherit; box-sizing:border-box; }
-        .st-pf-input::placeholder { color:var(--st-ink-40,rgba(30,39,72,.4)); }
+        .st-pf-input::placeholder { color:var(--st-ink-40,rgba(23,23,23,.4)); }
         .st-pf-textarea { width:100%; border:none; outline:none; background:transparent;
-            padding:14px 16px; font-size:17px; color:var(--st-ink,#1e2748); min-height:96px;
+            padding:14px 16px; font-size:17px; color:var(--st-ink,#171717); min-height:96px;
             resize:none; line-height:1.5; font-family:inherit; -webkit-appearance:none;
             box-sizing:border-box; }
-        .st-pf-textarea::placeholder { color:var(--st-ink-40,rgba(30,39,72,.4)); }
+        .st-pf-textarea::placeholder { color:var(--st-ink-40,rgba(23,23,23,.4)); }
         .st-pf-gender-row { display:grid; grid-template-columns:1fr 1fr 1fr;
             gap:10px; padding:0 16px; }
         .st-pf-gender {
-            background:var(--st-paper,#fffdf8); border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-md,8px);
-            padding:13px 0; font-size:17px; text-align:center; color:var(--st-ink,#1e2748);
+            background:var(--st-paper,#ffffff); border:1px solid var(--st-silver,#e5e5e5); border-radius:var(--st-radius-md,8px);
+            padding:13px 0; font-size:17px; text-align:center; color:var(--st-ink,#171717);
             cursor:pointer; transition:background 180ms ease-out; user-select:none; }
         .st-pf-gender.on {
-            background:var(--st-silver-light,#dce2f1); color:var(--st-ink,#1e2748); border-color:var(--st-ink,#1e2748); }
+            background:var(--st-silver-light,#f4f4f4); color:var(--st-ink,#171717); border-color:var(--st-ink,#171717); }
         .sys-app-window .st-pf-save {
             display:block; width:calc(100% - 32px); margin:22px 16px 18px;
-            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); border:1px solid var(--st-ink,#1e2748); border-radius:var(--st-radius-md,8px);
+            background:var(--st-paper,#ffffff); color:var(--st-ink,#171717); border:1px solid var(--st-ink,#171717); border-radius:var(--st-radius-md,8px);
             padding:0; height:44px; font-size:17px; font-weight:500; cursor:pointer; letter-spacing:0.4px; font-family:inherit; }
-        .st-pf-save:active { background:var(--st-silver-light,#dce2f1); }
-        .st-pf-mask-section { margin:6px 16px 24px; background:var(--st-paper,#fffdf8);
-            border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px); padding:18px 16px; }
-        .st-pf-mask-title { font-size:17px; font-weight:600; color:var(--st-ink,#1e2748);
+        .st-pf-save:active { background:var(--st-silver-light,#f4f4f4); }
+        .st-pf-mask-section { margin:6px 16px 24px; background:var(--st-paper,#ffffff);
+            border:1px solid var(--st-silver,#e5e5e5); border-radius:var(--st-radius-lg,10px); padding:18px 16px; }
+        .st-pf-mask-title { font-size:17px; font-weight:600; color:var(--st-ink,#171717);
             margin-bottom:8px; }
-        .st-pf-mask-desc { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); line-height:1.5;
+        .st-pf-mask-desc { font-size:13px; color:var(--st-ink-60,rgba(23,23,23,.6)); line-height:1.5;
             margin-bottom:14px; }
         .st-pf-mask-add {
-            background:var(--st-paper,#fffdf8); color:var(--st-ink,#1e2748); padding:9px 14px;
-            border:1px solid var(--st-ink,#1e2748); border-radius:var(--st-radius-md,8px); font-size:13px; font-weight:500;
+            background:var(--st-paper,#ffffff); color:var(--st-ink,#171717); padding:9px 14px;
+            border:1px solid var(--st-ink,#171717); border-radius:var(--st-radius-md,8px); font-size:13px; font-weight:500;
             display:inline-block; cursor:pointer; letter-spacing:0.3px; }
-        .st-pf-mask-add:active { background:var(--st-silver-light,#dce2f1); }
+        .st-pf-mask-add:active { background:var(--st-silver-light,#f4f4f4); }
         .st-pf-mask-list { margin-top:14px; }
         .st-pf-mask-item {
-            background:var(--st-paper-warm,#fbf9f4); border:1px solid var(--st-silver,#bfc8e0); border-radius:var(--st-radius-lg,10px);
+            background:var(--st-paper-warm,#f9f9f9); border:1px solid var(--st-silver,#e5e5e5); border-radius:var(--st-radius-lg,10px);
             padding:12px 14px; margin-bottom:8px; display:flex;
             align-items:center; gap:10px; }
         .st-pf-mask-item-info { flex:1; min-width:0; }
-        .st-pf-mask-item-name { font-size:17px; font-weight:500; color:var(--st-ink,#1e2748);
+        .st-pf-mask-item-name { font-size:17px; font-weight:500; color:var(--st-ink,#171717);
             display:flex; align-items:center; gap:6px; }
         .st-pf-mask-item-badge {
             font-size:12px; padding:1px 6px; border-radius:var(--st-radius-sm,6px);
-            background:var(--st-silver-light,#dce2f1); color:var(--st-ink,#1e2748); font-weight:500; }
-        .st-pf-mask-item-desc { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6)); margin-top:3px;
+            background:var(--st-silver-light,#f4f4f4); color:var(--st-ink,#171717); font-weight:500; }
+        .st-pf-mask-item-desc { font-size:13px; color:var(--st-ink-60,rgba(23,23,23,.6)); margin-top:3px;
             overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .st-pf-mask-actions { display:flex; gap:10px; font-size:13px; }
         .st-pf-mask-actions span { cursor:pointer; }
-        .st-pf-mask-actions .pf-mk-use { color:var(--st-ink,#1e2748); }
-        .st-pf-mask-actions .pf-mk-edit { color:var(--st-ink-60,rgba(30,39,72,.6)); }
+        .st-pf-mask-actions .pf-mk-use { color:var(--st-ink,#171717); }
+        .st-pf-mask-actions .pf-mk-edit { color:var(--st-ink-60,rgba(23,23,23,.6)); }
         .st-pf-mask-actions .pf-mk-del { color:var(--st-danger,#7c2d2d); }
         .st-pf-bg {
             position:absolute; inset:0; background-position:center;
@@ -3956,29 +3975,29 @@ AppManager.register('settings', (() => {
         .st-pf-hero > * { position:relative; z-index:1; }
         /* ── 灵动岛设置子页面 ── */
         .is-preview-card { margin:14px 16px 0; padding:14px;
-            background:var(--st-paper,#fffdf8); border-radius:var(--st-radius-lg,10px); border:1px solid var(--st-silver,#bfc8e0); }
+            background:var(--st-paper,#ffffff); border-radius:var(--st-radius-lg,10px); border:1px solid var(--st-silver,#e5e5e5); }
         .is-preview-stage { position:relative; width:100%; height:140px;
-            background:var(--st-paper-cool,#eef0f5);
+            background:var(--st-paper-cool,#f9f9f9);
             border-radius:var(--st-radius-lg,10px); overflow:hidden; }
         .is-preview-island { position:absolute; left:50%;
-            background:var(--st-ink,#1e2748); transition:width 180ms ease-out, height 180ms ease-out,
+            background:var(--st-ink,#171717); transition:width 180ms ease-out, height 180ms ease-out,
                 top 180ms ease-out, border-radius 180ms ease-out, transform 180ms ease-out; }
         .is-preview-label { position:absolute; bottom:8px; left:0; right:0;
-            text-align:center; font-size:12px; color:var(--st-ink-60,rgba(30,39,72,.6)); letter-spacing:0.4px; }
+            text-align:center; font-size:12px; color:var(--st-ink-60,rgba(23,23,23,.6)); letter-spacing:0.4px; }
         .is-sliders { margin-top:14px; padding:4px 0; }
-        .is-slider-row { padding:12px 16px; border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08)); }
+        .is-slider-row { padding:12px 16px; border-bottom:1px solid var(--st-ink-08,rgba(23,23,23,.08)); }
         .is-slider-row:last-child { border-bottom:none; }
         .is-slider-head { display:flex; justify-content:space-between;
-            align-items:center; margin-bottom:8px; font-size:17px; color:var(--st-ink,#1e2748); }
-        .is-slider-val { font-size:13px; color:var(--st-ink-60,rgba(30,39,72,.6));
+            align-items:center; margin-bottom:8px; font-size:17px; color:var(--st-ink,#171717); }
+        .is-slider-val { font-size:13px; color:var(--st-ink-60,rgba(23,23,23,.6));
             font-variant-numeric:tabular-nums; }
         .is-slider { -webkit-appearance:none; appearance:none; width:100%;
-            height:4px; border-radius:2px; background:var(--st-silver-light,#dce2f1); outline:none; }
+            height:4px; border-radius:2px; background:var(--st-silver-light,#f4f4f4); outline:none; }
         .is-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none;
-            width:24px; height:24px; border-radius:50%; background:var(--st-paper,#fffdf8);
-            border:1px solid var(--st-ink-20,rgba(30,39,72,.2)); cursor:pointer; }
+            width:24px; height:24px; border-radius:50%; background:var(--st-paper,#ffffff);
+            border:1px solid var(--st-ink-20,rgba(23,23,23,.2)); cursor:pointer; }
         .is-slider::-moz-range-thumb { width:24px; height:24px; border-radius:50%;
-            background:var(--st-paper,#fffdf8); border:1px solid var(--st-ink-20,rgba(30,39,72,.2)); cursor:pointer; }
+            background:var(--st-paper,#ffffff); border:1px solid var(--st-ink-20,rgba(23,23,23,.2)); cursor:pointer; }
         @media (prefers-reduced-motion: reduce) {
             .st-sub, .st-switch, .st-knob, .is-preview-island, .st-tk-bar-fill { transition:none; }
         }
@@ -4045,8 +4064,6 @@ AppManager.register('settings', (() => {
                 (typeof window !== 'undefined' && window.GroupBI ? '<div class="st-row">' + ICON('var(--st-ink,#1e2748)', I.msg) + '<span class="st-label">char 主动来电</span><div class="st-row-right"><div class="st-switch ' + (window.GroupBI.callsEnabled() ? 'on' : '') + '" data-bi-call-sw="1"><div class="st-knob"></div></div></div></div>' : ''),
                 ROW(ICON('var(--st-ink,#1e2748)', I.bell), '通知', {value:'本地通知 · 离线可用', act:'asNotif'}),
                 ROW(ICON('#34363b', I.bell), '主动消息', {act:'proactive'}),
-                ROW(ICON('#F2A0AE', I.msg), '桌面宠物', {sw:'deskPet'}),
-                ROW(ICON('#F2A0AE', I.msg), '桌宠设置', {act:'petSettings'}),
                 ROW(ICON('var(--st-ink,#1e2748)', I.bell), '后台通知保活', {sw:'bgKeepAlive'}),
                 ROW(ICON('#5856D6', I.summary), '角色私聊观察', {act:'ibRoleDM'})
             ], '开启后将播放静音音频，确保锁屏或后台时能收到系统通知。')}
@@ -4261,7 +4278,6 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
         return `
         <div class="st-sub" id="st-sub-beauty">
             ${stSubBar('主题美化')}
-            <div class="st-bigtitle" style="padding-top:4px;">主题美化</div>
             ${GROUP([
                 ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '壁纸', {act:'b_wallpaper'}),
                 ROW(ICON('#5856D6', I.iconStyle), '应用图标', {act:'b_icons'}),
@@ -4270,19 +4286,12 @@ ROW(ICON('#5856D6', I.summary), '备份与安全中心', {act:'safeCenter'}),
                 ROW(ICON('#34363b', I.bubble), '聊天气泡', {act:'b_bubbles'}),
                 ROW(ICON('#FF2D55', I.chatbg), '页面背景', {act:'b_chatbg'}),
                 ROW(ICON('var(--st-ink-60,rgba(23,23,23,.6))', I.layout), '布局与状态栏', {act:'b_layout'}),
-                ROW(ICON('#5856D6', I.summary), '深色主题', {value: (()=>{try{var p=JSON.parse(localStorage.getItem('phone_ui_prefs_v1')||'{}');return p.theme==='gruvbox-dark'?'Gruvbox 深色':(p.theme==='guichao-dark'?'归巢深色':'归巢白（默认）');}catch(e){return '归巢白（默认）';}})(), act:'af_theme'}),
                 ROW(ICON('var(--st-ink,#171717)', I.widgets), '圆体字体', {value: (()=>{try{return localStorage.getItem('af_round_font_v1')==='1'?'已开启':'关闭';}catch(e){return '关闭';}})(), act:'af_roundfont'}),
-                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'}),
-                ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟组件农历后缀', {value: (typeof window.XWClockLunarSuffix === 'function' ? window.XWClockLunarSuffix() : ''), act:'lunarSuffix'})
+                ROW(ICON('var(--st-ink,#171717)', I.wallpaper), '主题', {value: (typeof window !== 'undefined' && window.GroupV ? window.GroupV.currentTheme().name : '归巢默认'), act:'gv_theme'})
             ])}
             ${GROUP([
-                ROW(ICON('var(--st-ink,#171717)', I.summary), '开机动画', {act:'w_desktop:intro'}),
-                ROW(ICON('var(--st-ink,#171717)', I.layout), '桌面图标', {act:'w_desktop:deskicons'}),
-                ROW(ICON('var(--st-ink,#171717)', I.iconStyle), '图标挑选器', {act:'w_desktop:iconpicker'}),
-                ROW(ICON('var(--st-ink,#171717)', I.clock), '时钟样式', {act:'w_desktop:clock'}),
-                ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面小组件', {act:'w_desktop:widgets'}),
-                ROW(ICON('var(--st-ink,#171717)', I.bubble), '桌宠', {act:'petSettings'})
-            ], '桌面独有的设置：点一行直接跳到对应位置；长按桌面空白处也能进。')}
+                ROW(ICON('var(--st-ink,#171717)', I.widgets), '桌面小组件', {act:'widgetStore'})
+            ])}
             <div style="height:40px;"></div>
         </div>`;
     };
@@ -4719,51 +4728,15 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
             <div style="height:40px;"></div>
         </div>`;
     };
-    const updateBeautyBackBtn = (sub) => {
-        try {
-            const btn = sub.querySelector('#st-beautify-backbtn');
-            if (!btn) return;
-            const home = sub.querySelector('#b-page-home');
-            btn.style.display = (home && home.classList.contains('active')) ? '' : 'none';
-        } catch(e){}
-    };
-    const closeBeautyInSettings = (win) => {
-        try {
-            const w = win || (typeof AppManager !== 'undefined' && AppManager.getWin ? AppManager.getWin('settings') : null);
-            if (!w) return;
-            const sub = w.querySelector('#st-sub-beautify');
-            if (!sub) return;
-            sub.classList.remove('show');
-            // [缓存复用] 不删节点，只 display:none 藏起来。display:none 不占布局，
-            // 不会像 translateX(100%) 的 .st-sub 那样把窗口横向滚动区撑到 200%；
-            // 下次打开时若渲染 HTML 没变可直接复用，免去整页重建。
-            sub.style.display = 'none';
-        } catch(e){}
-    };
     const openBeautyPageInSettings = (pageId, win) => {
         try {
             const cfg = (typeof AppRegistry !== 'undefined') ? AppRegistry['beautify'] : null;
             if (!cfg || typeof cfg.render !== 'function' || typeof cfg.mount !== 'function') {
-                // 兜底：仍走原来的跨 APP 启动
-                window.__beautifyReturnTo = 'settings';
-                window.__beautifyAutoOpen = pageId;
-                AppManager.launch('beautify');
+                // [R3-S4] 美化注册缺失：在设置内报错，绝不 AppManager.launch('beautify')——那会重造 bounce bug。
+                try { if (window.SysDialog && SysDialog.alert) SysDialog.alert('美化页面加载失败，请稍后重试'); } catch (e2) {}
+                console.warn('[beauty-in-settings] beautify registry missing render/mount');
                 return;
             }
-            // 清掉旧入口留下的跨 APP 意图，避免内嵌页里的返回误触 launch('settings')
-            window.__beautifyReturnTo = null;
-            window.__beautifyAutoOpen = null;
-            // 若 beautify APP 已有缓存窗口，先摘掉它，避免 #b-page-* 等 id 在文档里出现两份
-            // （内嵌页里 document.getElementById('b-subpage-new-wallpaper') 等会取到第一份隐藏节点）
-            // 下次再 launch('beautify') 时会重新创建窗口。
-            try {
-                if (typeof appPool !== 'undefined' && appPool['beautify']) {
-                    const oldWin = appPool['beautify'];
-                    if (oldWin && oldWin.parentNode) oldWin.parentNode.removeChild(oldWin);
-                    delete appPool['beautify'];
-                    if (typeof appState !== 'undefined') delete appState['beautify'];
-                }
-            } catch(e){}
             // [缓存复用] 先算一次当前渲染 HTML；若设置内已有同内容子页，直接复用，
             // 不重建 DOM、不重挂引擎（整页重建是闪的成因之一）。内容变了才重建。
             let sub = win.querySelector('#st-sub-beautify');
@@ -4774,7 +4747,7 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                 if (sub) sub.remove();
                 if (html === null) html = cfg.render();
                 const tmp = document.createElement('div');
-                tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + html + '</div>';
+                tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify" data-keep-cache="1">' + html + '</div>';
                 sub = tmp.firstElementChild;
                 sub.__beautyRenderHtml = html;
                 // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
@@ -4785,29 +4758,21 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                 backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
                 sub.appendChild(backBtn);
                 sub.addEventListener('click', (e) => {
-                    if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
+                    if (e.target.closest('[data-beautify-close]')) { closeStSub(sub); return; }
                 });
                 win.appendChild(sub);
             } else {
-                // 复用时把之前 close 藏起来的子页恢复显示（display 由 closeBeautyInSettings 置 none）
+                // 复用时把之前 close 藏起来的子页恢复显示（display 由 closeStSub 置 none）
+                // 并恢复它的层叠位置：appendChild 把已挂载节点移到 DOM 末尾（视觉最上层），
+                // 否则重进主题美化删重挂列表后，DOM 顺序反转，返回会揭出被盖住的美化容器（R3-STEP4）
                 sub.style.display = '';
+                win.appendChild(sub);
             }
             // 挂载引擎到这个子页（winDom = sub，内部全部用 querySelector 定位）
             try { cfg.mount(sub); } catch(e){ console.warn('[beauty-in-settings] mount failed', e); }
-            // 覆盖返回行为：子页「返回」回到美化主页（仍在设置内），不 launch('settings')
-            // 只包一次：原始方法存在引擎上，之后每次都从原始方法重新包，避免 _orig 套 _orig
-            try {
-                if (window.BeautifyEngine) {
-                    if (!window.BeautifyEngine.__beautyOrigGoHome) window.BeautifyEngine.__beautyOrigGoHome = window.BeautifyEngine.goHome;
-                    if (!window.BeautifyEngine.__beautyOrigSwitchPage) window.BeautifyEngine.__beautyOrigSwitchPage = window.BeautifyEngine.switchPage;
-                    const _origGoHome = window.BeautifyEngine.__beautyOrigGoHome;
-                    const _origSwitch = window.BeautifyEngine.__beautyOrigSwitchPage;
-                    window.BeautifyEngine.goHome = () => { try { _origGoHome(); } catch(e){} updateBeautyBackBtn(sub); };
-                    window.BeautifyEngine.switchPage = (pid) => { try { _origSwitch(pid); } catch(e){} updateBeautyBackBtn(sub); };
-                }
-            } catch(e){}
+            // [R3-S5] 返回键同步与图标刷新已并进 BeautifyEngine.switchPage/goHome 定义本身，不再包方法。
             try { if (window.BeautifyEngine && window.BeautifyEngine.switchPage) window.BeautifyEngine.switchPage(pageId); } catch(e){}
-            updateBeautyBackBtn(sub);
+            try { if (window.BeautifyEngine && window.BeautifyEngine._syncBackBtn) window.BeautifyEngine._syncBackBtn(); } catch(e){}
             requestAnimationFrame(() => sub.classList.add('show'));
         } catch(e){ console.warn('[beauty-in-settings]', e); }
     };
@@ -4870,11 +4835,10 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                     return;
                 }
                 // 返回子页
-                // [AT GROUP-AT-BACK-DEDUP] 只关最顶一层（DOM 末位 = 视觉顶层）；修前一次关掉
-                // 全部 .st-sub.show（如 AH 整屋页叠在接模型页上时，点一次返回直接跳回设置首页）。
+                // [AT GROUP-AT-BACK-DEDUP] 只关最顶一层（最大 z-index，平局取 DOM 末位）；
+                // 修前一次关掉全部 .st-sub.show（如 AH 整屋页叠在接模型页上时，点一次返回直接跳回设置首页）。
                 if (e.target.closest('[data-back]')) {
-                    const atSubs = win.querySelectorAll('.st-sub.show');
-                    if (atSubs.length) { const _atEl = atSubs[atSubs.length - 1]; _atEl.classList.remove('show'); dropClosedStSub(_atEl); }
+                    closeTopStSub(win);
                     return;
                 }
                 // 禁词删除
@@ -5571,9 +5535,6 @@ win.addEventListener('change', (e) => {
     // ── 美化子页直接嵌在设置内打开（不再 AppManager.launch('beautify')，
     //    否则设置窗口会被隐藏、先闪回桌面一次才出现子页）──
     function handleAction(act, win) {
-        // 深链：w_desktop:<section> 打开桌面与外观并滚动到对应分组
-        let gwSection = null;
-        if (act && act.indexOf('w_desktop:') === 0) { gwSection = act.slice('w_desktop:'.length); act = 'w_desktop'; }
         // ── 外观与美化：直接在设置内打开对应子页 ──
         const beautySubMap = {
             b_wallpaper: 'wallpaper',
@@ -5592,8 +5553,8 @@ win.addEventListener('change', (e) => {
         if (act && act.indexOf('ah_') === 0 && window.GroupAH) { window.GroupAH.open(act.slice(3), win); return; }
         switch(act) {
             case 'gv_theme': if (window.GroupV) window.GroupV.openThemeSheet(); break;
-            // [W组] 桌面与外观 / 番茄猫入口
-            case 'w_desktop': { if (window.GroupW) window.GroupW.openDesktopSettings(win, gwSection); break; }
+            // [W组] 小组件商店 / 番茄猫入口
+            case 'widgetStore': { if (window.GroupW) window.GroupW.openWidgetStore(win); break; }
             case 'w_focus': { if (window.GroupW) window.GroupW.openPomodoro(); break; }
             // [O组] 内心生活子页：调试页 / 承诺清单（动态建页，数据来自 CharInnerLife，不另存）
             // [BH组] 电话铃声子页：内置/本地/链接三来源 + 专属铃声 + 振动
@@ -5827,18 +5788,6 @@ win.addEventListener('change', (e) => {
                     if (ok) { window.GroupAO.clearPin(); SysDialog.alert('锁屏密码已清除'); }
                 } else { SysDialog.alert('当前没有设置锁屏密码'); }
                 if (window.GroupAO) window.GroupAO.refreshPasscodeSub(win);
-                break;
-            }
-            case 'petSettings': {
-                /* GROUP-PET-MERGE：桌宠设置已并进桌宠市场 app（catos）的“设置”页签，
-                   这里只改跳转目标，不再在设置里另建子页；行本身保留。
-                   注意：js/07 的 GD 只是文件内 IIFE 局部变量（window 上没有 GD），
-                   对外出口是 window.GroupD（js/07 末尾 window.GroupD = GD）。 */
-                try {
-                    if (window.GroupD && GroupD.catosOpenTab) { GroupD.catosOpenTab('settings'); }
-                    else if (window.GroupFIX2 && GroupFIX2.openApp) { GroupFIX2.openApp('catos'); }
-                    else if (typeof AppManager !== 'undefined' && AppManager.launch) { AppManager.launch('catos'); }
-                } catch (e) {}
                 break;
             }
             case 'sound': {
@@ -6168,7 +6117,7 @@ AppManager.register('beautify', (() => {
    // 2. 内部高度密封的视图装配输出层
    const renderView = () => `
        <style>
-           .b-sandbox-core { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
+           .b-sandbox-core {
                width: 100%; height: 100%;
                background: var(--st-paper,#ffffff);
                color: var(--st-ink,#171717);
@@ -6185,16 +6134,10 @@ AppManager.register('beautify', (() => {
            /* 视图页隔离切换 */
            .b-page-view { display: none; }
            .b-page-view.active { display: block; }
-           /* 美化页不播全局详情入场：js/27 的 MutationObserver 会在子页得 .show/.active
-              时自动加 gc-t-detail-in（css/18：右滑 + 从 opacity .35 淡入）；它叠加在
-              子页自身的滑动上，sub 与内页各淡一次（有效透明度 0.35×0.35），底层列表
-              透出来就是闪。改成只滑动不淡入（bSlideIn，时长/缓动与全局一致）：滑动仍在，
-              全程不透明——直接 animation:none 会连滑动一起丢（.st-sub/.b-sub 的 transform
-              过渡因创建与加类在同一帧、首次绘制前完成，根本跑不起来）。afterAnim 有
-              setTimeout 兜底，class 照常清理。只限美化（.b-page-view 与 #st-sub-beautify），
-              不碰全局转场与其他子页。 */
-           #st-sub-beautify.gc-t-detail-in, .b-page-view.gc-t-detail-in { animation: bSlideIn var(--gc-trans-dur, .3s) var(--gc-trans-ease, cubic-bezier(.32, .72, 0, 1)) both; }
-           @keyframes bSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+           /* [R3-S2] 此处原有 bSlideIn override（给美化子页的 gc-t-detail-in 只滑
+              不淡入）已删：js/27 的 observer 现排除自带滑动的 .st-sub /
+              .b-page-view，子页只播自身 transition 一次，不再双重淡入；
+              不要再加 animation override。 */
            /* 基础块面构建器 */
            .b-card-frame { background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver-light,#f4f4f4); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
            .b-card-title { font-size: 13px; color: var(--st-ink-60,rgba(23,23,23,.6)); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
@@ -6263,9 +6206,6 @@ AppManager.register('beautify', (() => {
 <div class="b-sandbox-core">
           <!-- iOS 设置式主页：替代原底部 dock -->
           <style>
-              /* 默认隐藏所有子页 */
-              .b-page-view { display: none; }
-              .b-page-view.active { display: block; }
               /* 主页样式（仿 iOS 设置） */
               .b-home-wrap { padding: 14px 0 30px; }
               .b-home-title { font-family: "Cormorant Garamond","Noto Serif SC",serif; font-size: 28px; font-weight: 600; color: var(--st-ink,#171717);
@@ -6304,9 +6244,6 @@ AppManager.register('beautify', (() => {
               .b-page-view.b-sub > *, .b-page-view.b-sub .b-sub-content > * {
                   max-width: 100%; box-sizing: border-box;
               }
-              .b-sub-content { padding: 0 16px 40px; box-sizing: border-box; overflow-x: hidden; }
-              /* 壁纸子页原本有 margin: -50px -16px 0 是为了脱出 sandbox padding，现在子页是 absolute 不需要 */
-              .b-page-view.b-sub #b-page-wallpaper > div[style*="margin: -50px"] { margin: 0 !important; }
               /* 子页顶部返回栏 */
               .b-sub-bar { position: sticky; top: 0; z-index: 30;
                   background: var(--st-paper,#ffffff);
@@ -6319,8 +6256,6 @@ AppManager.register('beautify', (() => {
               .b-sub-title { position: absolute; left: 50%; transform: translateX(-50%);
                   font-size: 20px; font-weight: 600; color: var(--st-ink,#171717); }
               .b-sub-content { padding: 0; }
-              /* 隐藏原底部 dock */
-              .b-ios-dock-wrapper { display: none !important; }
               @media (prefers-reduced-motion: reduce) { .b-page-view.b-sub { transition: none; } }
           </style>
 
@@ -6794,24 +6729,6 @@ AppManager.register('beautify', (() => {
            </div>
            <input type="file" id="b-universal-file-hub" class="b-hidden-hub" accept="image/*" />
 
-<div class="b-ios-dock-wrapper">
-    <div class="b-dock-btn b-rail-tab active" onclick="window.BeautifyEngine.switchPage('wallpaper')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <span>壁纸</span>
-    </div>
-    <div class="b-dock-btn b-rail-tab" onclick="window.BeautifyEngine.switchPage('bubbles')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        <span>气泡</span>
-    </div>
-    <div class="b-dock-btn b-rail-tab" onclick="window.BeautifyEngine.switchPage('widgets')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>组件</span>
-    </div>
-    <div class="b-dock-btn b-rail-tab" onclick="window.BeautifyEngine.switchPage('icons')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3"/></svg>
-        <span>图标</span>
-    </div>
-</div>
        </div>
    `;
 
@@ -6819,20 +6736,23 @@ AppManager.register('beautify', (() => {
        init: () => {},
        render: renderView,
        resume: (winDom) => {
-           // 从缓存恢复时,若有 autoOpen 意图(从设置二次进入),立即切换到目标子页
-           try {
-               if (window.__beautifyAutoOpen && window.BeautifyEngine && !window.BeautifyEngine._isBootstrap) {
-                   const pageId = window.__beautifyAutoOpen;
-                   window.__beautifyAutoOpen = null;
-                   requestAnimationFrame(() => {
-                       window.BeautifyEngine.switchPage(pageId);
-                   });
-               }
-           } catch(e){}
+           // [R3-S4] 跨应用自动打开已删：唯一入口是设置内 openBeautyPageInSettings；resume 不再跳页。
        },
        mount: (winDom) => {
            const fileHubNode = winDom.querySelector('#b-universal-file-hub');
            let uploadTargetChannel = 'wallpaper'; 
+
+           // [R3-S5] 内嵌返回钮同步（原设置侧 updateBeautyBackBtn，已并进本 mount 闭包）：
+           // 只在美化主页显示 #st-beautify-backbtn；winDom 即当前挂载的子页，每次 mount 重建闭包，不闭包旧 sub。
+           // 设置侧 updateBeautyBackBtn 与本引擎不在同一 IIFE 作用域，故逻辑收进这里作唯一定义。
+           const syncBeautyBackBtn = () => {
+               try {
+                   const btn = winDom.querySelector('#st-beautify-backbtn');
+                   if (!btn) return;
+                   const home = winDom.querySelector('#b-page-home');
+                   btn.style.display = (home && home.classList.contains('active')) ? '' : 'none';
+               } catch(e){}
+           };
 
            // 全栈逻辑引擎组装挂载
            window.BeautifyEngine = {
@@ -6852,6 +6772,12 @@ AppManager.register('beautify', (() => {
                        try { window.BeautifyEngine.refreshWallpaperPreview(); } catch(e){}
                    }
                    if (page) page.classList.add('active');
+                   // [R3-S5] 图标页每次进入都刷新动态图标宿主（原 mount 内的 switchPage 包装，已并进定义）。
+                   if (pageId === 'icons' && typeof window.BeautifyIconPage !== 'undefined') {
+                       const h = winDom.querySelector('#b-icons-dynamic-host');
+                       if (h) { h.innerHTML = window.BeautifyIconPage.renderHTML(); window.BeautifyIconPage.bind(winDom); }
+                   }
+                   syncBeautyBackBtn();
                    // 进入聊天背景页时，渲染联系人下拉
                    if (pageId === 'chatbg') {
                        try { window.BeautifyEngine.refreshChatBgPage(); } catch(e){}
@@ -6870,24 +6796,15 @@ AppManager.register('beautify', (() => {
                        } catch(e){}
                    }
                },
-               // 返回主页
+               // 返回主页（只在设置内：隐藏子页、显示 #b-page-home；[R3-S4] 跨应用 launch('settings') 分支已删）
                goHome: () => {
-                   // 若是从「设置 → 外观」入口启动的,直接回到设置APP
-                   if (window.__beautifyReturnTo === 'settings') {
-                       window.__beautifyReturnTo = null;
-                       // 先把所有子页面收起,避免下次回来时还在子页
-                       try {
-                           winDom.querySelectorAll('.b-page-view.b-sub').forEach(p => p.classList.remove('active'));
-                           const home = winDom.querySelector('#b-page-home');
-                           if (home) home.classList.add('active');
-                       } catch(e){}
-                       AppManager.launch('settings');
-                       return;
-                   }
                    winDom.querySelectorAll('.b-page-view.b-sub').forEach(p => p.classList.remove('active'));
                    const home = winDom.querySelector('#b-page-home');
                    if (home) home.classList.add('active');
+                   syncBeautyBackBtn();
                },
+               // [R3-S5] 内嵌返回钮同步的引擎侧入口，供 openBeautyPageInSettings 在 switchPage 之后再同步一次。
+               _syncBackBtn: syncBeautyBackBtn,
 
                // 壁纸预览刷新：回到壁纸页时，用当前壁纸重算两张预览图的背景
                refreshWallpaperPreview: () => {
@@ -7417,18 +7334,6 @@ AppManager.register('beautify', (() => {
            // 执行冷态默认系统级挂载
            window.BeautifyEngine.toggleSysWidget(true);
 
-           // ★ 若被「设置→外观」入口启动,自动跳到指定子页
-           try {
-               if (window.__beautifyAutoOpen) {
-                   const pageId = window.__beautifyAutoOpen;
-                   window.__beautifyAutoOpen = null;
-                   // 等下一个 tick,确保所有 DOM 已渲染
-                   requestAnimationFrame(() => {
-                       window.BeautifyEngine.switchPage(pageId);
-                   });
-               }
-           } catch(e){}
-
            // ── 装配新版"应用图标"页 ──
            if (typeof window.BeautifyIconPage !== 'undefined') {
                const host = winDom.querySelector('#b-icons-dynamic-host');
@@ -7436,15 +7341,7 @@ AppManager.register('beautify', (() => {
                    host.innerHTML = window.BeautifyIconPage.renderHTML();
                    window.BeautifyIconPage.bind(winDom);
                }
-               // 每次切到图标页时刷新预览（覆盖原 switchPage）
-               const _origSwitch = window.BeautifyEngine.switchPage;
-               window.BeautifyEngine.switchPage = (pageId) => {
-                   _origSwitch(pageId);
-                   if (pageId === 'icons') {
-                       const h = winDom.querySelector('#b-icons-dynamic-host');
-                       if (h) { h.innerHTML = window.BeautifyIconPage.renderHTML(); window.BeautifyIconPage.bind(winDom); }
-                   }
-               };
+               // [R3-S5] 切到图标页时的刷新已并进 switchPage 定义，不再包 switchPage。
            }
        }
    };
@@ -7499,19 +7396,14 @@ AppManager.register('beautify', (() => {
         document.documentElement.classList.toggle('sys-reduce-motion', !!cfg.reduceMotion);
     };
     // 桩对象:挂上 boot 必需方法。完整版会在 beautify APP mount 时覆盖。
+    // [R3-S4] 桩态无 switchPage：美化只能从设置内打开（openBeautyPageInSettings），桩态调用它是编程错误，不再 launch 应用。
     window.BeautifyEngine = window.BeautifyEngine || {
         _isBootstrap: true,
         _getLayout: readLayout,
         _saveLayout: writeLayout,
         _readChatBg: readChatBg,
         _applyAppBgCSS: applyAppBgCSS,
-        applyLayout: applyLayout,
-        // 占位:这些方法在桩态下无法工作,需要 beautify APP 启动后才完整可用
-        switchPage: (pageId) => {
-            // 桩态下记录意图,等 beautify mount 后再切换
-            window.__beautifyAutoOpen = pageId;
-            AppManager.launch('beautify');
-        }
+        applyLayout: applyLayout
     };
 })();
 
@@ -17461,7 +17353,7 @@ return {
 
 
 // ══════════════════════════════════════════════════════════════════════
-// W组 · desksprite 桌宠 + 设置「桌面与外观」+ 小组件 + 番茄猫（GROUP-W-DESKPET-POMO）
+// W组 · desksprite 桌宠 + 小组件商店 + 小组件 + 番茄猫（GROUP-W-DESKPET-POMO）
 // 出处（只借鉴做法，全部为本组原创代码，未复制任何仓库的代码）：
 //  1. 桌宠：desksprite（github.com/welltilln/desksprite，MIT）——零依赖 JS
 //     桌面宠物做法：像素小人 + CRT 书桌（显示器/时钟/绿植/咖啡）、三种模式
@@ -17500,8 +17392,8 @@ const CUTOUT_KEY = 'otome_custom_char_v1';
 const PET_CUTOUT_KEY = 'phone_pet_cutout_v1';
 const MEM_KEY = 'guichao.memories.v1';
 const WEATHER_KEY = 'phone_weather_v1';
-// T 组 A22 形状原样（patches/patch_groupT.py 的 PREFS_DEFAULT），本组不改键名与默认值。
-const PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b' }, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: [] };
+// [R3-S8c] 本组不再自备 PREFS_DEFAULT 字面量（旧副本缺 fishWater，默认值会读成 undefined）：
+// 偏好唯一真相来源是 js/12 的 PREFS_DEFAULT（含 fishWater:true）+ window.getUiPrefs/window.setUiPrefs。
 const WALLPAPERS = [
   { id: 'fish', name: '游鱼', css: 'linear-gradient(135deg,#ffffff 0%,#dce2f1 100%)' },
   { id: '', name: '纯白', css: '#ffffff' },
@@ -17533,19 +17425,17 @@ const isLocked = () => { try { return !!(typeof SystemStore !== 'undefined' && S
 const toast = (msg) => { try { if (window.SysDialog && SysDialog.alert) { SysDialog.alert(msg); return; } } catch (e) {} try { alert(msg); } catch (e) {} };
 
 // ── 1. 偏好 phone_ui_prefs_v1 ──────────────────────────────────────
-// [GROUP-FIXAPPS] tickPet 每 50ms 约 7 次 loadPrefs（实测 prefs 键 139 次/秒 JSON.parse）：
-//   只缓存 _read 的 raw 结果（500ms TTL），每次仍返回新合并对象，调用方改返回对象不污染缓存；
-//   savePrefs 写后即更新缓存；跨 tab 由 storage 事件失效；同 tab 直接写 PREFS_KEY 的另一处
-//   （BU 主题）最多 stale 500ms，只影响 GW 自身偏好读取，不影响主题落盘与应用。
-let _prefsRawCache = null, _prefsRawAt = 0;
+// [R3-S8c] 偏好读走 window.getUiPrefs（js/12，唯一 PREFS_DEFAULT，含 fishWater:true）。
+// js/12 未加载时（仅启动瞬间）只读已存值、不补默认值，getUiPrefs 就绪后自动补全。
 let _deskPetCache = null, _deskPetCacheAt = 0;
 const loadPrefs = () => {
-  const now = Date.now();
-  let d;
-  if (_prefsRawCache !== null && now - _prefsRawAt < 500) { d = _prefsRawCache; }
-  else { d = _read(PREFS_KEY, null); _prefsRawCache = d; _prefsRawAt = now; }
-  const p = Object.assign({}, PREFS_DEFAULT, (d && typeof d === 'object') ? d : {});
-  p.themeCustom = Object.assign({}, PREFS_DEFAULT.themeCustom, (d && d.themeCustom) || {});
+  let p = null;
+  try { if (typeof window !== 'undefined' && typeof window.getUiPrefs === 'function') p = window.getUiPrefs(); } catch (e) { p = null; }
+  if (!p || typeof p !== 'object') {
+    const d = _read(PREFS_KEY, null);
+    p = Object.assign({}, (d && typeof d === 'object') ? d : {});
+    p.themeCustom = Object.assign({}, (p.themeCustom) || {});
+  }
   // [GROUP-FISH] 游鱼成为默认壁纸：一次性迁移。以前没设过壁纸（''）→ 游鱼；以前通过
   // 美化/相机设过图片壁纸（只存在 SystemStore 里）的 → 把图片写进偏好保留下来，不覆盖；
   // 已迁过的（wallpaperMigrated）不再动；用户之后再点纯白也不会被迁回。
@@ -17559,10 +17449,8 @@ const loadPrefs = () => {
   }
   return p;
 };
-const savePrefs = (p) => { _prefsRawCache = p; _prefsRawAt = Date.now(); const _ok = _write(PREFS_KEY, p); try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (e) {} /* GROUP-THROTTLE: 写后立即失效主题解析缓存（petSkin 经此写，FIX-2 readPrefs 缓存须即时失效） */ return _ok; };
-// [GROUP-FIXAPPS] 跨 tab 改偏好时失效 R1 的缓存（同 tab 走 savePrefs/setPref 即时更新）。
-try { window.addEventListener('storage', (e) => { if (!e || e.key === PREFS_KEY) { _prefsRawCache = null; } }); } catch (e) {}
-const setPref = (key, val) => { const p = loadPrefs(); p[key] = val; savePrefs(p); if (key === 'petEnabled') { try { const s3 = JSON.parse(localStorage.getItem('phone_settings_v3') || 'null') || {}; s3.deskPet = !!val; localStorage.setItem('phone_settings_v3', JSON.stringify(s3)); } catch (e) {} _deskPetCache = !!val; _deskPetCacheAt = Date.now(); } applyPrefs(); return p; };
+const savePrefs = (p) => { try { if (typeof window !== 'undefined' && typeof window.setUiPrefs === 'function') { window.setUiPrefs(p || {}); return true; } } catch (e) {} const _ok = _write(PREFS_KEY, p); try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (e) {} /* GROUP-THROTTLE: 写后立即失效主题解析缓存（petSkin 经此写，FIX-2 readPrefs 缓存须即时失效） */ return _ok; };
+const setPref = (key, val) => { let p = null; try { if (typeof window !== 'undefined' && typeof window.setUiPrefs === 'function') { const patch = {}; patch[key] = val; p = window.setUiPrefs(patch); } } catch (e) { p = null; } if (!p) { p = loadPrefs(); p[key] = val; savePrefs(p); } if (key === 'petEnabled') { try { const s3 = JSON.parse(localStorage.getItem('phone_settings_v3') || 'null') || {}; s3.deskPet = !!val; localStorage.setItem('phone_settings_v3', JSON.stringify(s3)); } catch (e) {} _deskPetCache = !!val; _deskPetCacheAt = Date.now(); } applyPrefs(); return p; };
 const wallpaperCss = (id) => { const w = WALLPAPERS.find((x) => x.id === (id || '')); return w ? w.css : '#ffffff'; };
 const applyPrefs = () => {
   const p = loadPrefs();
@@ -18526,7 +18414,6 @@ const petStep = (st, dtMs, o) => {
 // 皮肤 overlay 说明：M 组重建 innerHTML 会清掉 overlay，本组在 tick 里补回；
 // 'cutout' 皮肤优先用 M 组已渲染的抠图 img，没有才用本组上传的图 overlay。
 const GW_CSS = '.gw-hidden{display:none!important}' +
-'#st-sub-w-desktop{--st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12)}' +
 '#gw-desk{position:absolute;right:6px;bottom:106px;width:132px;z-index:4;pointer-events:auto}' + /* GROUP-FIX2: 书桌 180 -> 132px，底边抬到 dock 上方 */
 '#gw-desk .gw-desk-top{height:8px;background:#e8e0d5;border:1px solid #d8cfc2;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.12)}' +
 '#gw-desk .gw-monitor{width:60px;margin:0 auto 2px;text-align:center}' + /* GROUP-FIX2: 状态显示器随书桌缩小 */
@@ -18666,10 +18553,6 @@ const GW_CSS = '.gw-hidden{display:none!important}' +
 '.gw-switch.on{background:var(--st-ink,#1e2748)}' +
 '.gw-switch:after{content:"";position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;background:var(--st-paper,#fffdf8);transition:left 180ms ease-out}' +
 '.gw-switch.on:after{left:22px}' +
-/* 设置·桌面与外观页变体：基规则与番茄浮层共用（番茄 app 不动），仅 #st-sub-w-desktop 内改浅色 */
-'#st-sub-w-desktop .gw-seg button.on{background:var(--st-silver-light,#dce2f1);color:var(--st-ink,#1e2748);border-color:var(--st-ink,#1e2748)}' +
-'#st-sub-w-desktop .gw-switch.on{background:var(--st-silver,#bfc8e0)}' +
-'#st-sub-w-desktop .gw-switch.on:after{background:var(--st-ink,#1e2748)}' +
 '.gw-set-row{display:flex;align-items:center;gap:12px;padding:0;min-height:56px;border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));font-size:17px;color:var(--st-ink,#1e2748)}' +
 '.gw-set-row .lb{flex:1}' +
 '.gw-set-row .sub{font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));line-height:1.5}' +
@@ -19075,7 +18958,7 @@ const bindPetDrag = () => {
   el.addEventListener('pointercancel', endDrag);
 };
 
-// ── 10. 桌面小组件行 + 长按桌面空白处进「桌面与外观」──────────────
+// ── 10. 桌面小组件行──────────────
 const buildWidgetRow = () => {
   const host = document.getElementById('sys-widget-row');
   if (!host) return false;
@@ -19102,7 +18985,6 @@ const showWidgetMenu = (wid, x, y) => {
   menu.innerHTML = '<button data-gw-wm="front"><svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6v12L8 12Z" fill="currentColor" stroke="none"/></svg> 移到前面</button><button data-gw-wm="back">移到后面 <svg class="xwl-ui-vector" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6v12l6.5-6Z" fill="currentColor" stroke="none"/></svg></button>' +
     '<button data-gw-wm="size">尺寸：' + esc(it.size || 'M') + '（点一下换）</button>' +
     /* GROUP-WIDGET（第 5 项）: home 专属菜单项。 */ (it.kind === 'popuphouse' ? '<button data-gw-wm="ph-change">换立绘</button><button data-gw-wm="ph-remove">移除立绘</button>' : '') +
-    '<button data-gw-wm="settings">进「桌面与外观」设置</button>' +
     '<button data-gw-wm="remove" class="danger">移除这个小组件</button>';
   const layer = document.getElementById('sys-desktop-layer') || document.body;
   layer.appendChild(menu);
@@ -19121,7 +19003,6 @@ const showWidgetMenu = (wid, x, y) => {
     /* GROUP-WIDGET（第 5 项）: home 换立绘 / 移除立绘（与空状态点按同一上传页、同一删除逻辑）。 */
     else if (act === 'ph-change') { try { if (window.GroupWIDGET) GroupWIDGET.openPopupHouseUpload(); } catch (err) {} }
     else if (act === 'ph-remove') { try { if (window.GroupWIDGET) GroupWIDGET.removePopupHouseImage(); } catch (err) {} }
-    else if (act === 'settings') openDesktopSettings();
     closeWidgetMenu();
   });
   setTimeout(() => {
@@ -19211,39 +19092,13 @@ const bindWidgetRow = () => {
     else if (kind === 'clock') { /* 不做新功能 */ }
   });
 };
-const bindDesktopLongPress = () => {
-  const layer = document.getElementById('sys-desktop-layer');
-  if (!layer || layer.dataset.gwLpBound) return;
-  layer.dataset.gwLpBound = '1';
-  let timer = null;
-  let sx = 0;
-  let sy = 0;
-  const isEmptyTarget = (t) => {
-    if (!t || !t.closest) return false;
-    if (t.closest('.sys-app-icon-wrapper, .sys-widget-host, #desk-pet, #gw-desk, .gw-widget, .sys-dock-apps, .sys-page-indicator, .sys-home-indicator, .gw-widget-menu, .ac-widget, #ac-dock-bar, .gm-pet-bubble')) return false;
-    return t === layer || t.classList.contains('sys-desktop-page') || t.classList.contains('sys-desktop-paging') || t.id === 'sys-widget-row' || t.id === 'wdrag-hint' || t.id === 'gw-widget-row';
-  };
-  layer.addEventListener('pointerdown', (e) => {
-    if (!isEmptyTarget(e.target)) return;
-    sx = e.clientX;
-    sy = e.clientY;
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => { timer = null; openDesktopSettings(); }, 550);
-  });
-  layer.addEventListener('pointermove', (e) => {
-    if (timer && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) { clearTimeout(timer); timer = null; }
-  });
-  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
-  layer.addEventListener('pointerup', cancel);
-  layer.addEventListener('pointercancel', cancel);
-};
-
-// ── 11. 设置子页「桌面与外观」（st-sub，复用设置页现有样式与返回链）──
-const themeLabel = (t) => ({ light: '浅色', dark: '深色', auto: '跟随系统' }[t] || '浅色');
-const renderDesktopSettingsHTML = () => {
+// ── 11. 设置子页「小组件商店」（st-sub，复用设置页现有样式与返回链）──
+//   R3-STEP5a：桌面与外观页已删；小组件仓库 / 管理是唯一保留下来的部分，
+//   独立成页，由主题美化「桌面小组件」行（act 'widgetStore'）打开。
+//   R3-STEP8：时钟样式 seg + 农历后缀行已搬入本页，挂在时钟目录项之下；
+//   CLOCK_STYLES 表与渲染消费者（renderWidget 读 clockStyle）保留不动。
+const renderWidgetStoreHTML = () => {
   const p = loadPrefs();
-  const seg = (key, opts, cur) => '<div class="gw-seg">' + opts.map((o) => '<button data-gw-set="' + key + '" data-v="' + esc(o.id) + '" class="' + (String(cur) === String(o.id) ? 'on' : '') + '">' + esc(o.name) + '</button>').join('') + '</div>';
-  const swRow = (key, label, sub, on) => '<div class="gw-set-row"><div class="lb">' + esc(label) + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div><button class="gw-switch' + (on ? ' on' : '') + '" data-gw-toggle="' + key + '" aria-label="' + esc(label) + '"></button></div>';
   const w = widgetLoad();
   const placed = w.items.map((it) => {
     const cat = WIDGET_CATALOG.find((c) => c.kind === it.kind) || { name: it.kind };
@@ -19251,45 +19106,40 @@ const renderDesktopSettingsHTML = () => {
       '<button data-gw-wsize="' + esc(it.id) + '">换尺寸</button>' +
       '<button data-gw-wdel="' + esc(it.id) + '">移除</button></div>';
   }).join('') || '<div class="muted">桌面上还没有小组件。</div>';
+  /* R3-STEP8：时钟控制块（样式 seg + 农历后缀行），挂在时钟目录项之下。
+     seg 是旧桌面与外观页同款实现（data-gw-set / data-v），随旧页删除后在此重建，
+     样式复用既有的 .gw-seg，不新增 CSS。 */
+  const seg = (key, opts, cur) => '<div class="gw-seg">' + opts.map((o) => '<button data-gw-set="' + key + '" data-v="' + esc(o.id) + '" class="' + (String(cur) === String(o.id) ? 'on' : '') + '">' + esc(o.name) + '</button>').join('') + '</div>';
+  const lunarSuffix = (typeof window.XWClockLunarSuffix === 'function') ? window.XWClockLunarSuffix() : '';
+  /* 渲染消费者（widgetHTML）把 'default' 及一切非 analog/minimal 按数字渲染，
+     seg 高亮必须跟有效值走，否则新机（clockStyle 存量 'default'）三个按钮全不亮。
+     旧页原样传 p.clockStyle || 'digital' 就有这个毛病，搬过来时顺手按有效值归一。 */
+  const clockStyleEff = (p.clockStyle === 'analog' || p.clockStyle === 'minimal') ? p.clockStyle : 'digital';
+  const clockCtl = '<div class="gw-set-h" id="gw-sec-clock">时钟样式</div>' +
+    seg('clockStyle', CLOCK_STYLES, clockStyleEff) +
+    '<div class="gw-set-row"><div class="lb">时钟组件农历后缀<div class="sub">' + (lunarSuffix ? esc(lunarSuffix) : '留空则自动按当日农历显示') + '</div></div><button data-act="lunarSuffix" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">设置</button></div>';
   const store = WIDGET_CATALOG.map((c) => {
     const onDesk = w.items.some((x) => x.kind === c.kind);
     return '<div class="gw-task-row"><div class="t">' + esc(c.name) + '<div class="sub" style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6))">' + esc(c.desc) + '</div></div>' +
       (onDesk ? '<button disabled style="opacity:.5">已在桌面</button>' :
         '<button data-gw-wadd="' + esc(c.kind) + '" data-wsize="S">小</button><button data-gw-wadd="' + esc(c.kind) + '" data-wsize="M">中</button><button data-gw-wadd="' + esc(c.kind) + '" data-wsize="L">大</button>') +
       /* GROUP-WIDGET（第 3 项）: 日历行直接进日历页（设置也是入口之一）。 */ (c.kind === 'calendar' ? '<button data-gw-opencal="1">打开</button>' : '') +
-      '</div>';
+      '</div>' +
+      /* R3-STEP8：时钟样式 seg + 农历后缀行从桌面与外观页（已删）/ 主题美化搬入本页，
+         挂在时钟目录项之下；seg 与旧页同款（data-gw-set），点按走本页委托；
+         农历行沿用设置页已有的 act 'lunarSuffix' 处理器（冒泡到设置页委托），处理器本身不动。 */
+      (c.kind === 'clock' ? clockCtl : '');
   }).join('');
-  /* 壁纸挑选已合进主题美化 → 壁纸页；这里只留壁纸独有的效果开关（雨幕/游鱼），
-     没有相关壁纸时整段不渲染。 */
-  const _wpFx = (((p.wallpaper || '') === 'rain-letters' || (typeof SystemStore !== 'undefined' && SystemStore.get('lockscreen_wp') === 'rain-letters')) ? swRow('rainEnabled', '雨幕动效', '仅在锁屏／桌面显示；减少动态效果或低电量时自动暂停。', p.rainEnabled !== false) : '') +
-    ((p.wallpaper || '') === 'fish' && window.FishWallpaper && typeof window.FishWallpaper.settingsHTML === 'function' ? window.FishWallpaper.settingsHTML(p) : '');
-  return (_wpFx ? '<div class="gw-set-h" id="gw-sec-wpfx">壁纸效果</div>' + _wpFx : '') +
-    '<div class="gw-set-h">主题</div>' +
-    '<div class="gw-set-row"><div class="lb">当前主题<div class="sub">' + esc(themeLabel(p.theme)) + ' · 14 套主题 + 自定义两色都在主题里换</div></div><button data-gw-theme="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">更换主题</button></div>' +
-(function(){var iv=(window.GroupIntro?window.GroupIntro.load():{enabled:true});return '<div class="gw-set-h" id="gw-sec-intro">开机动画</div><div class="gw-set-row"><div class="lb">开机动画<div class="sub">冷启动时播一次：字母雨落进水面，信封展开“因为爱，所以相遇”，最后汇成 FUTURE；点一下屏幕可跳过；关了直接进锁屏。</div></div><button class="gw-switch'+(iv.enabled?' on':'')+'" data-intro-boot-toggle="1" aria-label="开机动画"></button></div><div class="gw-set-row"><div class="lb">预览<div class="sub">现在播一次开机动画。</div></div><button data-intro-boot-preview="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">预览</button></div>';})()+
-    '<div class="gw-set-h" id="gw-sec-deskicons">桌面图标</div>' +
-    (window.AKDesktop ? window.AKDesktop.settingsIconsHTML() : '<div class="muted">桌面图标管理尚未加载。</div>') +
-    '<div class="gw-set-h" id="gw-sec-iconpicker">图标挑选器</div>' +
-    '<div class="gw-set-row"><div class="lb">精选图标库<div class="sub">60 个单色图标（Tabler 为主）+ 24 个彩色表情，只存图标 ID，换风格不用重存。</div></div><button data-aq-open="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">打开挑选器</button></div>' +
-    (window.AQIcons ? window.AQIcons.pickerSummaryHTML() : '') +
-    '<div class="gw-set-h" id="gw-sec-pet">桌宠</div>' +
-    swRow('petEnabled', '桌宠', '桌面上的他就是这只桌宠（同一张脸、同一份心情/好感/日程）。', p.petEnabled !== false) +
-    '<div class="gw-set-row"><div class="lb">模式</div></div>' + seg('petMode', PET_MODES, p.petMode || 'full') +
-    '<div class="gw-set-row"><div class="lb">大小</div></div>' + seg('petSize', PET_SIZES, p.petSize || 'medium') +
-    '<div class="gw-set-row"><div class="lb">皮肤</div></div>' + seg('petSkin', PET_SKINS, p.petSkin || 'default') +
-    '<div class="gw-set-row"><div class="lb">抠图立绘皮肤<div class="sub">上传一张抠好的立绘图作桌宠皮肤；也会读此刻已有的抠图人物（otome_custom_char_v1）。图片只存本机。</div></div><label style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer">上传图片<input id="gw-cutout-file" type="file" accept="image/*" style="display:none"></label></div>' +
-    '<div class="gw-set-h" id="gw-sec-clock">时钟样式</div>' +
-    seg('clockStyle', CLOCK_STYLES, p.clockStyle || 'digital') +
-    '<div class="gw-set-row"><div class="lb">桌面小组件总开关<div class="sub">关掉后桌面上的小组件全部隐藏，布局保留。</div></div><button class="gw-switch' + (p.widgetsEnabled !== false ? ' on' : '') + '" data-gw-toggle="widgetsEnabled" aria-label="桌面小组件总开关"></button></div>' +
+  return '<div class="gw-set-row"><div class="lb">桌面小组件总开关<div class="sub">关掉后桌面上的小组件全部隐藏，布局保留。</div></div><button class="gw-switch' + (p.widgetsEnabled !== false ? ' on' : '') + '" data-gw-toggle="widgetsEnabled" aria-label="桌面小组件总开关"></button></div>' +
     '<div class="gw-set-h" id="gw-sec-widgets">小组件 · 仓库和管理</div>' +
     '<div class="muted">点尺寸直接放到桌面；桌面上的小组件长按可移动、换尺寸、移除。</div>' +
     store +
     '<div class="gw-set-row"><div class="lb">更多小组件<div class="sub">专注热力图、宠物状态、共读统计等由 AC 组小组件商店管理。</div></div><button data-gw-acstore="1" style="border:1px solid var(--st-silver,#bfc8e0);background:var(--st-paper,#fffdf8);border-radius:8px;padding:7px 10px;font-size:13px">打开商店</button></div>' +
     '<div class="gw-set-h">已在桌面</div>' + placed +
     '<div class="gw-set-h">说明</div>' +
-    '<div class="muted">偏好存在 phone_ui_prefs_v1（T 组形状），W 组小组件布局存在 phone_widgets_w_v1（AC 组的 phone_widgets_v1 不动）；长按桌面空白处也可进这里，不占桌面图标。</div>';
+    '<div class="muted">小组件布局存在 phone_widgets_w_v1（AC 组的 phone_widgets_v1 不动）。</div>';
 };
-const openDesktopSettings = (win, section) => {
+const openWidgetStore = (win) => {
   try {
     let host = win || null;
     if (!host) {
@@ -19297,54 +19147,34 @@ const openDesktopSettings = (win, section) => {
       if (root && root.parentElement) host = root.parentElement;
     }
     if (!host) {
-      // [AK] window.AppManager 从未被赋值（AppManager 只是顶层 const），这里永远进不去，
-      // 长按空白永远打不开设置；改用裸标识符
       try { if (typeof AppManager !== 'undefined' && AppManager.launch) AppManager.launch('settings'); } catch (e) {}
       let tries = 0;
       const poll = setInterval(() => {
         tries++;
         const root = document.getElementById('st-root');
-        if (root && root.parentElement) { clearInterval(poll); openDesktopSettings(root.parentElement); }
+        if (root && root.parentElement) { clearInterval(poll); openWidgetStore(root.parentElement); }
         else if (tries > 20) clearInterval(poll);
       }, 100);
       return false;
     }
-    let sub = host.querySelector('#st-sub-w-desktop');
+    let sub = host.querySelector('#st-sub-widget-store');
     if (!sub) {
       const tmp = document.createElement('div');
-      tmp.innerHTML = '<div class="st-sub" id="st-sub-w-desktop">' + stSubBar('桌面与外观') + '<div id="gw-desk-body" style="padding:0 16px 30px"></div></div>';
+      tmp.innerHTML = '<div class="st-sub" id="st-sub-widget-store">' + stSubBar('桌面小组件') + '<div id="gw-store-body" style="padding:0 16px 30px"></div></div>';
       sub = tmp.firstElementChild;
       host.appendChild(sub);
       sub.addEventListener('click', (e) => {
         if (e.target.closest('[data-back]')) return;
-        const aqBtn = e.target.closest('[data-aq-open]');
-        if (aqBtn) { e.stopPropagation(); try { if (window.AQIcons) window.AQIcons.openPicker(sub); else toast('图标库尚未加载。'); } catch (err) {} return; }
+        /* R3-STEP8：时钟样式 seg（旧桌面与外观页同款委托，随旧页删除后在此重建）：
+           setPref 写 phone_ui_prefs_v1.clockStyle，renderWidgets() 让桌面时钟立即按新样式重渲染，
+           再重刷本页使 seg 高亮跟上。 */
         const setBtn = e.target.closest('[data-gw-set]');
         if (setBtn) {
           e.stopPropagation();
-          const key = setBtn.getAttribute('data-gw-set');
-          const v = setBtn.getAttribute('data-v');
-          setPref(key, v);
-          if (key === 'petSkin' || key === 'petSize' || key === 'petMode') refreshPetSkin();
-          renderPet();
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
-          return;
-        }
-        const fishBtn = e.target.closest('[data-fish-set]');
-        if (fishBtn) {
-          e.stopPropagation();
-          try { if (window.FishWallpaper) window.FishWallpaper.setOpt(fishBtn.getAttribute('data-fish-set'), fishBtn.getAttribute('data-v')); } catch (err) {}
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
-          return;
-        }
-        const fishTog = e.target.closest('[data-fish-toggle]');
-        if (fishTog) {
-          e.stopPropagation();
-          try { if (window.FishWallpaper) window.FishWallpaper.toggleOpt(fishTog.getAttribute('data-fish-toggle')); } catch (err) {}
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          setPref(setBtn.getAttribute('data-gw-set'), setBtn.getAttribute('data-v'));
+          renderWidgets();
+          const body = sub.querySelector('#gw-store-body');
+          if (body) body.innerHTML = renderWidgetStoreHTML();
           return;
         }
         const tog = e.target.closest('[data-gw-toggle]');
@@ -19355,8 +19185,8 @@ const openDesktopSettings = (win, section) => {
           setPref(key, !(p[key] !== false));
           renderWidgets();
           renderPet();
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          const body = sub.querySelector('#gw-store-body');
+          if (body) body.innerHTML = renderWidgetStoreHTML();
           return;
         }
         const opencal = e.target.closest('[data-gw-opencal]');
@@ -19369,43 +19199,24 @@ const openDesktopSettings = (win, section) => {
         if (wadd) {
           e.stopPropagation();
           widgetAdd(wadd.getAttribute('data-gw-wadd'), wadd.getAttribute('data-wsize') || 'M');
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          const body = sub.querySelector('#gw-store-body');
+          if (body) body.innerHTML = renderWidgetStoreHTML();
           return;
         }
         const wdel = e.target.closest('[data-gw-wdel]');
         if (wdel) {
           e.stopPropagation();
           widgetRemove(wdel.getAttribute('data-gw-wdel'));
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
+          const body = sub.querySelector('#gw-store-body');
+          if (body) body.innerHTML = renderWidgetStoreHTML();
           return;
         }
         const wsize = e.target.closest('[data-gw-wsize]');
         if (wsize) {
           e.stopPropagation();
           widgetResize(wsize.getAttribute('data-gw-wsize'));
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
-          return;
-        }
-        const akRe = e.target.closest('[data-ak-restore]');
-        if (akRe) {
-          e.stopPropagation();
-          const id = akRe.getAttribute('data-ak-restore');
-          if (window.AKDesktop) { if (id === '__all') window.AKDesktop.restoreAll(); else window.AKDesktop.restoreIcon(id); }
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
-          return;
-        }
-        if (e.target.closest('[data-gw-theme]')) {
-          e.stopPropagation();
-          if (window.GroupV && window.GroupV.openThemeSheet) { window.GroupV.openThemeSheet(); } else { toast('主题表尚未加载。'); }
-          return;
-        }
-        if (e.target.closest('[data-gw-openpomo]')) {
-          e.stopPropagation();
-          openPomodoro();
+          const body = sub.querySelector('#gw-store-body');
+          if (body) body.innerHTML = renderWidgetStoreHTML();
           return;
         }
         if (e.target.closest('[data-gw-acstore]')) {
@@ -19414,48 +19225,10 @@ const openDesktopSettings = (win, section) => {
           return;
         }
       });
-      sub.addEventListener('change', (e) => {
-        if (e.target && e.target.id === 'gw-fish-color') {
-          try { if (window.FishWallpaper) window.FishWallpaper.setBg(e.target.value); } catch (err) {}
-          const body = sub.querySelector('#gw-desk-body');
-          if (body) body.innerHTML = renderDesktopSettingsHTML();
-          return;
-        }
-        if (e.target && e.target.id === 'gw-cutout-file') {
-          const f = e.target.files && e.target.files[0];
-          if (!f) return;
-          const r = new FileReader();
-          r.onload = (ev) => {
-            try {
-              _write(PET_CUTOUT_KEY, { img: ev.target.result, name: f.name, at: Date.now() });
-              setPref('petSkin', 'cutout');
-              refreshPetSkin();
-              renderPet();
-              toast('抠图已设为桌宠皮肤（只存本机）。');
-            } catch (err) { toast('图片太大，存不下，换张小一点的试试。'); }
-            const body = sub.querySelector('#gw-desk-body');
-            if (body) body.innerHTML = renderDesktopSettingsHTML();
-          };
-          r.readAsDataURL(f);
-        }
-      });
     }
-    const body = sub.querySelector('#gw-desk-body');
-    if (body) body.innerHTML = renderDesktopSettingsHTML();
+    const body = sub.querySelector('#gw-store-body');
+    if (body) body.innerHTML = renderWidgetStoreHTML();
     requestAnimationFrame(() => sub.classList.add('show'));
-    /* 深链：只滚子页自己的滚动容器（.st-sub 自带 overflow-y:auto），不要用全局
-       scrollIntoView——它会滚动所有可滚动祖先，把 #sys-shell 横向滚走导致整个设置滑出屏幕。 */
-    if (section) {
-      requestAnimationFrame(() => {
-        const head = sub.querySelector('#gw-sec-' + section);
-        if (!head) return;
-        const bar = sub.querySelector('.st-sub-bar');
-        const barH = bar ? bar.offsetHeight : 0;
-        try { sub.scrollTop = Math.max(0, head.offsetTop - barH); } catch (e) {}
-        head.style.background = '#f4f4f4'; head.style.borderRadius = '8px';
-        setTimeout(() => { head.style.background = ''; head.style.borderRadius = ''; }, 1200);
-      });
-    }
     return true;
   } catch (e) { return false; }
 };
@@ -19811,7 +19584,6 @@ const initDesktop = () => {
   try { if (!buildPetLayer()) ok = false; } catch (e) { ok = false; }
   try { if (!buildWidgetRow()) ok = false; } catch (e) { ok = false; }
   try { buildStatusPill(); } catch (e) {}
-  try { bindDesktopLongPress(); } catch (e) {}
   try { updatePetMonitor(); } catch (e) {}
   /* GROUP-FIX · 18(b)：桌面页滚动时重算状态屏与搜索栏的重叠（只淡出状态屏）。 */
   try {
@@ -19857,7 +19629,7 @@ return {
   WIDGET_CATALOG: WIDGET_CATALOG, widgetLoad: widgetLoad, widgetSave: widgetSave, widgetAdd: widgetAdd, widgetRemove: widgetRemove, /* GROUP-WIDGET: 导出 widgetSave 供 GroupWIDGET 改小组件 opts（房间/开合）用 */
   widgetMove: widgetMove, widgetResize: widgetResize, widgetSetSize: widgetSetSize, renderWidgets: renderWidgets,
   memoryToday: memoryToday, petStep: petStep, showBubble: showBubble, petSay: petSay,
-  renderDesktopSettingsHTML: renderDesktopSettingsHTML, openDesktopSettings: openDesktopSettings,
+  renderWidgetStoreHTML: renderWidgetStoreHTML, openWidgetStore: openWidgetStore,
   openPomodoro: openPomodoro, closePomodoro: closePomodoro, renderPomo: renderPomo,
   chimeNotes: chimeNotes, chime: chime, ambientStart: ambientStart, ambientStop: ambientStop,
   tickSecond: tickSecond, tickPet: tickPet, initDesktop: initDesktop, buildPetLayer: buildPetLayer,
@@ -32234,7 +32006,7 @@ const GlobalAPI = (() => {
         s.id = 'global-api-css';
         s.textContent = `
         /* ── GlobalAPI 全屏子页面 ── */
-        .ga-page { --st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);
+        .ga-page {
             position:fixed; inset:0; z-index:95000;
             background:var(--st-paper,#fffdf8);
             transform:translateX(100%);
@@ -34201,7 +33973,7 @@ function injectCSS() {
       '.ao-lock-row button{border:0;background:transparent;color:rgba(255,255,255,.85);font-size:13px;cursor:pointer;text-decoration:underline;}',
       '#ao-decoy-line{position:absolute;left:0;right:0;bottom:18%;text-align:center;color:rgba(255,255,255,.85);font-size:13px;letter-spacing:2px;z-index:2;}',
       '#sys-lockscreen-layer.ao-decoy .sys-lock-widgets,#sys-lockscreen-layer.ao-decoy #sys-signature{display:none !important;}',
-      '.ao-pinpad{--st-ink:#171717;--st-paper:#ffffff;--st-paper-warm:#f9f9f9;--st-paper-cool:#f9f9f9;--st-silver:#e5e5e5;--st-silver-light:#f4f4f4;--st-lotus:#f4f4f4;--st-ink-60:rgba(23,23,23,.6);--st-ink-40:rgba(23,23,23,.4);--st-ink-20:rgba(23,23,23,.2);--st-ink-08:rgba(23,23,23,.08);--st-danger:#7c2d2d;--st-radius-sm:6px;--st-radius-md:8px;--st-radius-lg:10px;--st-radius-xl:14px;--st-radius-2xl:18px;--st-sp-1:4px;--st-sp-2:8px;--st-sp-3:12px;--st-sp-4:16px;--st-sp-5:20px;--st-sp-6:24px;--st-sp-8:32px;--st-shadow-float:0 4px 16px rgba(23,23,23,.12);position:fixed;inset:0;z-index:99999;background:rgba(30,39,72,.4);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
+      '.ao-pinpad{position:fixed;inset:0;z-index:99999;background:rgba(30,39,72,.4);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}',
       '.ao-pin-card{background:var(--st-paper,#fffdf8);border:1px solid var(--st-silver,#bfc8e0);border-radius:14px;padding:22px 18px;width:100%;max-width:320px;box-sizing:border-box;text-align:center;box-shadow:var(--st-shadow-float,0 4px 16px rgba(30,39,72,.12));}',
       '.ao-pin-title{font-size:20px;font-weight:600;color:var(--st-ink,#1e2748);}',
       '.ao-pin-sub{font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));margin-top:6px;line-height:1.5;}',
@@ -34548,6 +34320,28 @@ const ASRAPI = (() => {
     return { getConfig, isConfigured, transcribe, toWavBlob };
 })();
 window.ASRAPI = ASRAPI;
+
+/* ── [R3-STEP2] 亮度唯一入口 ──────────────────────────────────────────
+   根因（诊断 §一）：亮度滤镜原来写在 #sys-shell 上，把壳内一切（全部应用
+   白底、锁屏文字、控制中心）都压暗，70% 时白页渲染成 #dfdfdf。
+   滤镜只应落在壁纸层：#sys-shell 的直接子 canvas 全部是壁纸画布——
+   #xwl-fish-canvas（游鱼 2D）、js/60 水面效果创建的无名 WebGL 画布
+   （插在鱼画布之后，水开时是实际可见的壁纸面）、#xwl-rain-canvas
+   （雨幕）。锁屏层背景透明，锁屏壁纸就是透过它看到的同一张鱼画布，
+   故锁屏壁纸已包含在内；不给锁屏层 / 桌面层加滤镜（前者会连白字一起
+   压暗，后者是图标 / 组件 UI 不是壁纸）。公式与存值不变：
+   0.35 + pct/100*0.75（70% → 0.875）。两处旧写点（旧控制中心拖动、
+   SystemCenter.applyEffect）都调这里，公式只此一处。 */
+function applyWallpaperBrightness(pct) {
+    var p = Math.max(0, Math.min(100, Number(pct) || 0));
+    var f = 'brightness(' + (0.35 + p / 100 * 0.75) + ')';
+    var shell = document.getElementById('sys-shell');
+    if (!shell) return;
+    var kids = shell.children;
+    for (var i = 0; i < kids.length; i++) {
+        if (kids[i].tagName === 'CANVAS') kids[i].style.filter = f;
+    }
+}
 
 /* ====== 通知中心+控制中心(注入) ====== */
 // ══════════════════════════════════════════════════════════════════════
@@ -34931,8 +34725,8 @@ const SystemCenter = (() => {
     // 应用系统级副作用
     const applyEffect = (key) => {
         const shell = document.getElementById('sys-shell');
-        if (key === 'brightness' && shell) {
-            shell.style.filter = `brightness(${0.35 + cc.brightness/100*0.75})`;
+        if (key === 'brightness') {
+            applyWallpaperBrightness(cc.brightness);
         }
         if (key === 'darkMode' && shell) {
             // 轻度深色：给桌面叠一层
@@ -36750,8 +36544,8 @@ const IconInteract = (() => {
                 exitEdit();
             }
         }, true);
-        // [AK] 角标点击 = 从桌面移除该图标（app 本身保留，可在设置 → 桌面与外观 → 桌面图标里加回；
-        // 恢复默认图标仍在长按菜单「恢复默认图标」与图标设置页里，不删功能）
+        // [AK] 角标点击 = 从桌面移除该图标（app 本身保留；加回入口随桌面与外观页删除而移除，
+        // 恢复默认图标仍在长按菜单「恢复默认图标」里，不删功能）
         desktop.addEventListener('click', (e) => {
             const badge = e.target.closest('.is-badge');
             if (badge && editMode) {

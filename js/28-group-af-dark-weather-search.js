@@ -1,11 +1,12 @@
 
-/* GROUP-AF-DARK-WEATHER-SEARCH · AF 组：深色主题 / Open-Meteo 天气 / 桌面搜索 /
+/* GROUP-AF-DARK-WEATHER-SEARCH · AF 组：Open-Meteo 天气 / 桌面搜索 /
    长按菜单 / 滚动反应 / 圆体字体 / 一起听在线源 —— 思路自写，未复制任何项目代码。
    出处说明：Open-Meteo（https://open-meteo.com，免费、无需 key）；
    ZCOOL KuaiLe（Google Fonts，https://fonts.google.com/specimen/ZCOOL+KuaiLe）；
    YouTube 嵌套播放（https://www.youtube.com/embed，无需 key）。
-   新增键：phone_ui_prefs_v1.theme、weather_city_v1、af_weather_cache_v1、
-   af_round_font_v1、af_duet_source_v1。只读复用旧键，不改任何旧键。 */
+   新增键：weather_city_v1、af_weather_cache_v1、
+   af_round_font_v1、af_duet_source_v1。只读复用旧键，不改任何旧键。
+   （深色主题已删除 2026-11-28：AFTheme 不再写 phone_ui_prefs_v1.theme。） */
 (function () {
 'use strict';
 if (window.AFGroup) return;
@@ -24,61 +25,9 @@ var REG = G('AppRegistry'), MGR = G('AppManager');
 var $ = function (s, r) { return (r || document).querySelector(s); };
 var sleep = function (ms) { return new Promise(function (res) { setTimeout(res, ms); }); };
 
-/* ══ 1. 深色主题：V 组主题表里没有这两套深色，按 T 组 phone_ui_prefs_v1.theme 加两个取值 ══ */
-var AFTheme = {
-  KEY: 'phone_ui_prefs_v1',
-  THEMES: {
-    'guichao-light': { name: '归巢白（默认）', dark: false },
-    'gruvbox-dark': { name: 'Gruvbox 深色', dark: true },
-    'guichao-dark': { name: '归巢深色', dark: true }
-  },
-  get: function () {
-    try { var p = JSON.parse(LS.get(this.KEY) || '{}') || {}; return this.THEMES[p.theme] ? p.theme : 'guichao-light'; }
-    catch (e) { return 'guichao-light'; }
-  },
-  set: function (id) {
-    if (!this.THEMES[id]) return false;
-    var p = {};
-    try { p = JSON.parse(LS.get(this.KEY) || '{}') || {}; } catch (e) {}
-    p.theme = id;
-    LS.set(this.KEY, JSON.stringify(p));
-    this.apply(); this.syncRow();
-    return true;
-  },
-  apply: function () {
-    var t = this.get();
-    if (this.THEMES[t].dark) document.documentElement.setAttribute('data-af-theme', t);
-    else document.documentElement.removeAttribute('data-af-theme');
-  },
-  label: function () { return this.THEMES[this.get()].name; },
-  syncRow: function () {
-    var row = document.querySelector('[data-act="af_theme"] .st-val');
-    if (row) row.textContent = this.label();
-  },
-  openChooser: function () {
-    var old = document.getElementById('af-theme-chooser');
-    if (old) old.remove();
-    var cur = this.get();
-    var ov = document.createElement('div');
-    ov.id = 'af-theme-chooser';
-    ov.innerHTML = '<div class="af-theme-sheet">'
-      + Object.keys(this.THEMES).map(function (id) {
-          return '<button type="button" class="af-theme-opt' + (id === cur ? ' af-cur' : '') + '" data-af-theme-opt="' + id + '">'
-            + esc(AFTheme.THEMES[id].name) + (id === cur ? ' <svg class="af-cur-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>' : '') + '</button>';
-        }).join('')
-      + '<button type="button" class="af-theme-opt" data-af-theme-opt="__cancel" style="text-align:center;color:var(--st-ink,#1e2748);font-weight:600;">取消</button>'
-      + '<div class="af-theme-note">深色随时可切回白色；壁纸白色默认不变。<br>这里只管两套深色（Gruvbox / 归巢深色）；14 套浅色主题 + 自定义两色在设置 → 主题里。</div></div>';
-    ov.addEventListener('click', function (e) {
-      if (e.target === ov) { ov.remove(); return; }
-      var b = e.target.closest ? e.target.closest('[data-af-theme-opt]') : null;
-      if (!b) return;
-      var id = b.getAttribute('data-af-theme-opt');
-      ov.remove();
-      if (id && id !== '__cancel') AFTheme.set(id);
-    });
-    document.body.appendChild(ov);
-  }
-};
+/* ══ 1. 深色主题已删除（2026-11-28，TINA 已批）：AFTheme（guichao-light / gruvbox-dark / guichao-dark
+   + data-af-theme 属性写 + 选择浮层）整段删掉；浅色主题唯一来源是 GroupV（js/19）+ AppTheme（js/15），
+   存量深色 id 由两处回落到归巢默认。圆体字体（AFFont）保留，不受影响。 ══ */
 
 /* ══ 2. 天气：Open-Meteo 实时取数，没网/失败回退本地并标注来源时间 ══ */
 var AFWeather = {
@@ -619,22 +568,19 @@ var AFDuet = {
   }
 };
 
-/* ══ 初始化 + 设置行点击委托（设置 handleAction 无 af_* 分支，会自然落空） ══ */
-AFTheme.apply();
+/* ══ 初始化 + 圆体字体行点击委托（设置 handleAction 无 af_roundfont 分支，会自然落空） ══ */
 AFFont.apply();
 AFSearch.init();
 AFLongPress.init();
 AFScroll.init();
 AFDuet.init();
 document.addEventListener('click', function (e) {
-  var t = e.target && e.target.closest ? e.target.closest('[data-act="af_theme"],[data-act="af_roundfont"]') : null;
+  var t = e.target && e.target.closest ? e.target.closest('[data-act="af_roundfont"]') : null;
   if (!t) return;
-  var act = t.getAttribute('data-act');
-  if (act === 'af_theme') AFTheme.openChooser();
-  else if (act === 'af_roundfont') AFFont.setEnabled(!AFFont.enabled());
+  AFFont.setEnabled(!AFFont.enabled());
 });
 
-window.AFGroup = { AFTheme: AFTheme, AFWeather: AFWeather, AFSearch: AFSearch, AFLongPress: AFLongPress, AFScroll: AFScroll, AFFont: AFFont, AFDuet: AFDuet };
-window.AFTheme = AFTheme; window.AFWeather = AFWeather; window.AFSearch = AFSearch;
+window.AFGroup = { AFWeather: AFWeather, AFSearch: AFSearch, AFLongPress: AFLongPress, AFScroll: AFScroll, AFFont: AFFont, AFDuet: AFDuet };
+window.AFWeather = AFWeather; window.AFSearch = AFSearch;
 window.AFScroll = AFScroll; window.AFFont = AFFont; window.AFDuet = AFDuet;
 })();

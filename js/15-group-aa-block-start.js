@@ -32,11 +32,11 @@
      或用 readDays() 把 AC 的 read:null 填成真实按日阅读分钟。
    window.AppTheme    { PREFS_KEY:'phone_ui_prefs_v1', THEMES, current(), apply() }
      V 组主题写入点：phone_ui_prefs_v1（T 组 A22 已合入的形状：
-     theme: 'light'|'dark'|'auto'，themeCustom: {c1, c2}）；apply() 读它，
-     把 :root 的 --app-* 改写成对应主题（dark 用深色变量；auto 跟随系统
-     prefers-color-scheme；'gruvbox-dark'/'guichao-dark' 若出现也认，
-     分别取 Gruvbox 深色 #282828 背景与深色归巢；默认/未知回落浅色 :root 值
-     并清掉行内覆盖）。themeCustom 做双形状兼容读：T 形的 {c1, c2} 作
+     theme: 主题 id（如 'guichao' / 'bu-spring-pink'），themeCustom: {c1, c2}）；apply() 读它，
+     把 :root 的 --app-* 改写成对应主题。深色模式已删除（2026-11-28）：
+     旧深色 id（'dark' / 'guichao-dark' / 'gruvbox-dark' / 'bu-night-black' / 'bu-forest'）
+     一律回落归巢默认 'guichao'，'auto' 按浅色处理，不再渲染深色；
+     默认/未知回落浅色 :root 值并清掉行内覆盖）。themeCustom 做双形状兼容读：T 形的 {c1, c2} 作
      --app-bg/--app-accent，AC 形的 {hex} 作 --app-accent（T 与 AC 在
      themeCustom 子字段上的形状分歧见 AppKeyAudit.notes，AA 只兼容读、不修）。
      V 组未合入时 apply() 是空转安全的。另监听 storage 事件：设置页改了
@@ -141,21 +141,18 @@ window.HeatmapData = (function () {
         readFocus: function () { return ls(FOCUS_KEY) || { total: 0, days: {} }; } };
 })();
 /* ── 主题切换：读 T 组 A22 写入点 phone_ui_prefs_v1，改写 --app-* ──
-   theme 取值（T 组形状）：'light' | 'dark' | 'auto'；另认 'gruvbox-dark' /
-   'guichao-dark'（深色主题备选名，若 V 组用此名写入也生效）。themeCustom 双形
-   状兼容读：T 形 {c1, c2} → --app-bg/--app-accent；AC 形 {hex} → --app-accent。 */
+   theme 取值：主题 id（'light' / 'guichao' / 'warm' / 'mint' / 'dusk' / 'sea' / 'trianon' /
+   'bu-*' 浅色款）。深色已删除（2026-11-28）：旧深色 id 在 current() 回落 'guichao'。
+   themeCustom 双形状兼容读：T 形 {c1, c2} → --app-bg/--app-accent；AC 形 {hex} → --app-accent。 */
 window.AppTheme = (function () {
     var PREFS_KEY = 'phone_ui_prefs_v1';
-    var DARK = { '--app-bg': '#232326', '--app-surface': '#2c2c2f', '--app-card': '#2e2e31', '--app-text': '#f2f2f0', '--app-muted': '#9a9aa0', '--app-line': '#3a3a3e', '--app-accent': '#d8d8d2', '--app-accent-soft': '#4a4a44' };
-    var GRUVBOX_DARK = { '--app-bg': '#282828', '--app-surface': '#3c3836', '--app-card': '#32302f', '--app-text': '#ebdbb2', '--app-muted': '#a89984', '--app-line': '#504945', '--app-accent': '#d79921', '--app-accent-soft': '#665c54' };
-    var THEMES = { 'light': {}, 'dark': DARK, 'guichao-dark': DARK, 'gruvbox-dark': GRUVBOX_DARK, 'guichao': { '--app-bg': '#ffffff', '--app-surface': '#f9f9f9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': '#e5e5e5', '--app-accent': '#34363b', '--app-accent-soft': '#e5e5e5' }, 'warm': { '--app-bg': '#fdf6ec', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#c87a5a', '--app-accent-soft': '#f3ddd2' }, 'mint': { '--app-bg': '#eef7f2', '--app-surface': '#f7fbf9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#2f9e7e', '--app-accent-soft': '#d2ece3' }, 'dusk': { '--app-bg': '#f4f0fa', '--app-surface': '#faf8fd', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#7a5fb5', '--app-accent-soft': '#e3dcf2' }, 'sea': { '--app-bg': '#eef4fb', '--app-surface': '#f7fafd', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#3a7bd5', '--app-accent-soft': '#d8e6f7' }, 'trianon': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' }, 'bu-spring-pink': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6f687e', '--app-accent-soft': '#e8c9d0' }, 'bu-autumn-red': { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5b5871', '--app-accent-soft': '#e8c9d0' }, 'bu-night-black': { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#e8c9d0', '--app-accent-soft': '#5c6884' }, 'bu-winter-blue': { '--app-bg': '#eef0f5', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#dce2f1' }, 'bu-mint': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6e7894', '--app-accent-soft': '#dce2f1' }, 'bu-lavender': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' }, 'bu-cream': { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#eef0f5' }, 'bu-forest': { '--app-bg': '#1e2748', '--app-surface': '#46536f', '--app-card': '#46536f', '--app-text': '#fbf9f4', '--app-muted': '#a9b3cc', '--app-line': 'rgba(251,249,244,.16)', '--app-accent': '#a9b3cc', '--app-accent-soft': '#5c6884' } };
+    var THEMES = { 'light': {}, 'guichao': { '--app-bg': '#ffffff', '--app-surface': '#f9f9f9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': '#e5e5e5', '--app-accent': '#34363b', '--app-accent-soft': '#e5e5e5' }, 'warm': { '--app-bg': '#fdf6ec', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#c87a5a', '--app-accent-soft': '#f3ddd2' }, 'mint': { '--app-bg': '#eef7f2', '--app-surface': '#f7fbf9', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#2f9e7e', '--app-accent-soft': '#d2ece3' }, 'dusk': { '--app-bg': '#f4f0fa', '--app-surface': '#faf8fd', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#7a5fb5', '--app-accent-soft': '#e3dcf2' }, 'sea': { '--app-bg': '#eef4fb', '--app-surface': '#f7fafd', '--app-card': '#ffffff', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#3a7bd5', '--app-accent-soft': '#d8e6f7' }, 'trianon': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' }, 'bu-spring-pink': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6f687e', '--app-accent-soft': '#e8c9d0' }, 'bu-autumn-red': { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5b5871', '--app-accent-soft': '#e8c9d0' }, 'bu-winter-blue': { '--app-bg': '#eef0f5', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#dce2f1' }, 'bu-mint': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#6e7894', '--app-accent-soft': '#dce2f1' }, 'bu-lavender': { '--app-bg': '#fbf9f4', '--app-surface': '#fffdf8', '--app-card': '#fffdf8', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#5c6884', '--app-accent-soft': '#dce2f1' }, 'bu-cream': { '--app-bg': '#fffdf8', '--app-surface': '#fbf9f4', '--app-card': '#fbf9f4', '--app-text': '#171717', '--app-muted': '#6e6e6e', '--app-line': 'rgba(23,23,23,.14)', '--app-accent': '#46536f', '--app-accent-soft': '#eef0f5' } };
     /* 2026-11-28 批量 0020（项 1+4）：上面这张表与 js/19 GroupV.THEMES 的 vars 同值；
        浅色主题的墨色 token 对齐到 ChatGPT token（--app-text #1e2748→#171717、
        --app-muted #46536f/#5c6884→#6e6e6e、--app-line rgba(30,39,72,.16)→rgba(23,23,23,.14)），
-       各主题自己的纸底色（--app-bg/--app-surface）与点缀色（--app-accent）保留；
-       深色两款（bu-night-black/bu-forest）的浅色字/线不动。另补 6 个非 BU 主题
-       （guichao/warm/mint/dusk/sea/trianon），与 js/19 同值，否则 AppTheme 认不出它们，
-       data-app-theme 会回落成 light。 */
+       各主题自己的纸底色（--app-bg/--app-surface）与点缀色（--app-accent）保留。
+       另补 6 个非 BU 主题（guichao/warm/mint/dusk/sea/trianon），与 js/19 同值，
+       否则 AppTheme 认不出它们，data-app-theme 会回落成 light。 */
     var ALL_VARS = [];
     Object.keys(THEMES).forEach(function (t) { Object.keys(THEMES[t]).forEach(function (k) { if (ALL_VARS.indexOf(k) < 0) ALL_VARS.push(k); }); });
     /* GROUP-CORE: prefs 解析缓存——复用 GROUP-THROTTLE 的写版本号 + 500ms TTL（与 V/FIX2
@@ -178,13 +175,16 @@ window.AppTheme = (function () {
         if (p.themeCustom && typeof p.themeCustom === 'object') _o2.themeCustom = Object.assign({}, p.themeCustom);
         return _o2;
     }
-    function current() { var t = prefs().theme; if (t === 'auto') return 'auto'; return THEMES[t] ? t : 'light'; }
-    function resolved() {
-        var t = current();
-        if (t === 'auto') { try { return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; } catch (e) { return 'light'; } }
-        return t;
-    }
+    /* 深色模式已删除（2026-11-28）：旧深色 id 一律回落归巢默认 'guichao'，'auto' 按浅色处理；resolved() 永不返回 'dark'。 */
+    var RETIRED_DARK = { 'dark': 1, 'guichao-dark': 1, 'gruvbox-dark': 1, 'bu-night-black': 1, 'bu-forest': 1 };
+    function current() { var t = prefs().theme; if (RETIRED_DARK[t]) return 'guichao'; if (t === 'auto') return 'light'; return THEMES[t] ? t : 'light'; }
+    function resolved() { return current(); }
+    /* [R3-S8a] 主题应用后的 hook 列表：AppTheme.apply 是唯一应用器，应用完按注册顺序调 hook，
+       hook 收到 (新主题 id, 旧主题 id)。波纹（js/27）、微信夜间（js/30）、BC 重应用（js/31）
+       注册为 hook，不再替换 AppTheme.apply。 */
+    var _appliedHooks = [];
     function apply() {
+        var before = resolved();
         var t = resolved();
         /* GROUP-BU：主题 id 存在 phone_ui_prefs_v1.theme 里时优先用它（AC 组启动时会重写 themeCustom 两色，theme 字段不受影响，重启后主题靠它恢复）；否则跟随 V 组当前主题（两色 c1/c2 唯一标识）。 */
         try { var _pt = prefs().theme; if (typeof _pt === 'string' && THEMES[_pt]) t = _pt; else if (window.GroupV && window.GroupV.currentTheme) { var _gv = window.GroupV.currentTheme(); if (_gv && _gv.id && THEMES[_gv.id]) t = _gv.id; } } catch (e) {}
@@ -198,15 +198,14 @@ window.AppTheme = (function () {
         /* GROUP-BU(0020)：V 组 js/19 的 THEMES 是唯一来源；它加载后以它的 vars 为准，
            上面静态表只作加载顺序兜底（js/15 在 js/19 之前加载，首轮 apply 时 GroupV 未就绪）。 */
         try { if (window.GroupV && window.GroupV.themeById) { var _gvt = window.GroupV.themeById(t); if (_gvt && _gvt.vars) vars = _gvt.vars; } } catch (e) {}
-        /* GROUP-BU：--app-* 同步成 --al-*（浅/深两套 token 同源），并按深浅置 data-theme-resolved。 */
+        /* GROUP-BU：--app-* 同步成 --al-*（浅色 token 同源）；深色已删除，data-theme-resolved 恒为 light。 */
         if (vars['--app-bg']) root.style.setProperty('--al-bg', vars['--app-bg']);
         if (vars['--app-text']) root.style.setProperty('--al-fg', vars['--app-text']);
         if (vars['--app-muted']) root.style.setProperty('--al-muted', vars['--app-muted']);
         if (vars['--app-line']) root.style.setProperty('--al-border', vars['--app-line']);
         if (vars['--app-surface']) root.style.setProperty('--al-subtle', vars['--app-surface']);
         if (vars['--app-accent']) root.style.setProperty('--al-focus', vars['--app-accent']);
-        if (t === 'dark' || t === 'guichao-dark' || t === 'gruvbox-dark' || t === 'bu-night-black' || t === 'bu-forest') root.setAttribute('data-theme-resolved', 'dark');
-        else if (THEMES[t]) root.setAttribute('data-theme-resolved', 'light');
+        root.setAttribute('data-theme-resolved', 'light');
         Object.keys(vars).forEach(function (k) { root.style.setProperty(k, vars[k]); });
         var tc = prefs().themeCustom;
         /* GROUP-BU：BU 主题不吃 themeCustom 覆盖（AC 组启动时会把它重写成默认 HSL，覆盖会把点缀色改错）。 */
@@ -215,11 +214,15 @@ window.AppTheme = (function () {
             if (typeof tc.c2 === 'string' && tc.c2) root.style.setProperty('--app-accent', tc.c2);
             else if (typeof tc.hex === 'string' && tc.hex) root.style.setProperty('--app-accent', tc.hex);
         }
+        /* [R3-S8a] 应用完调已注册的 hook（顺序即注册顺序：波纹 js/27 → 微信夜间 js/30 → BC js/31）。 */
+        for (var _hi = 0; _hi < _appliedHooks.length; _hi++) {
+            try { _appliedHooks[_hi](t, before); } catch (e) {}
+        }
         return t;
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply); else apply();
     try { window.addEventListener('storage', function (e) { if (e && e.key === PREFS_KEY) { try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (err) {} /* GROUP-THROTTLE: 跨 tab 改 prefs 也立即失效 */ apply(); } }); } catch (e) {}
-    return { PREFS_KEY: PREFS_KEY, THEMES: THEMES, current: current, resolved: resolved, apply: apply };
+    return { PREFS_KEY: PREFS_KEY, THEMES: THEMES, current: current, resolved: resolved, apply: apply, onApplied: _appliedHooks };
 })();
 /* ── key 审计导出（2026-11-26 全量 grep + 逐键核对读写形状；chara_card_v2/v3 是角色卡 spec 版本号、不是键，已排除）──
    域划分按 T 组 A20 命名空间对齐：charOwned（角色归属）vs 其余系统域。 */

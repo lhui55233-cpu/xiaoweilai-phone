@@ -1634,8 +1634,8 @@ GD._gdApp = gdApp;
     };
     app = gdApp('catos', '桌宠市场', '本机桌宠 · 摸摸 / 喂食 / 玩耍', '', renderBody, bindBody);
     GD.catosApp = app;
-    /* GROUP-PET-MERGE：唯一外部入口——设置首页“桌宠设置”行与主题美化“桌面”组
-       的桌宠深链都走这里：打开 catos 并切到指定页签（行本身不删，只改目标）。 */
+    /* GROUP-PET-MERGE：程序化入口——打开 catos 并切到指定页签。
+       R3-STEP6：设置首页“桌宠设置”行与主题美化“桌宠”行已删，站内暂无调用方；保留供外部调用。 */
     GD.catosOpenTab = function (tab) {
         _catosTab = (tab === 'settings') ? 'settings' : 'adopt';
         var opened = false;

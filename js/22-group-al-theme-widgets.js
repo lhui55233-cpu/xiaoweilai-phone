@@ -28,7 +28,6 @@ function lsGet(k, fb) { try { var r = localStorage.getItem(k); return r == null 
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
 function matchMediaSafe(q) { try { return window.matchMedia ? window.matchMedia(q) : { matches: false, addEventListener: function () {}, addListener: function () {} }; } catch (e) { return { matches: false, addEventListener: function () {}, addListener: function () {} }; } }
 function reducedMotion() { return matchMediaSafe('(prefers-reduced-motion: reduce)').matches; }
-function prefersDark() { return matchMediaSafe('(prefers-color-scheme: dark)').matches; }
 
 /* ── 主题：读 T 组 phone_ui_prefs_v1.theme，AL 偏好存 phone_theme_al_v1 ── */
 function readUiPrefs() {
@@ -45,22 +44,14 @@ function readAlPrefs() {
   return d;
 }
 function saveAlPrefs(p) { lsSet(AL_KEY, p); if (typeof p.roundFont === 'boolean') lsSet(ROUND_KEY, p.roundFont); }
-function saveThemeMode(mode) {
-  try { if (typeof window.setUiPrefs === 'function') { window.setUiPrefs({ theme: mode }); return; } } catch (e) {}
-  var cur = readUiPrefs(); cur.theme = mode; lsSet(PREFS_KEY, cur); try { if (window.__throttlePrefsBump) window.__throttlePrefsBump(); } catch (e) {} /* GROUP-THROTTLE: 写后立即失效主题解析缓存 */
-}
-function resolvedTheme(mode) { return mode === 'auto' ? (prefersDark() ? 'dark' : 'light') : (mode === 'dark' ? 'dark' : 'light'); }
-function applyTheme() {
+/* ── AL 偏好应用：只写 AL 自有属性（色温变体 / 壁纸线条 / 圆体镜像），不再碰主题深浅。
+   浅色/深色/跟随系统开关已删除（2026-11-28，深色模式删除）：data-theme / data-theme-resolved
+   不再由本文件写，主题深浅的唯一应用器是 AppTheme.apply（js/15，恒为 light）。 ── */
+function applyAlPrefs() {
   try {
     var ui = readUiPrefs();
     var al = readAlPrefs();
-    var mode = (ui.theme === 'dark' || ui.theme === 'auto') ? ui.theme : 'light';
-    var res = resolvedTheme(mode);
-    /* GROUP-BU：V 组深色主题（夜·蜕茧黑 / 墨绿）按深色解析，其余 BU 主题按浅色。 */
-    try { var _buGv = document.documentElement.getAttribute('data-gv-theme') || ''; if (_buGv === 'bu-night-black' || _buGv === 'bu-forest' || ui.theme === 'bu-night-black' || ui.theme === 'bu-forest') { mode = 'dark'; res = 'dark'; } } catch (e2) {}
     var html = document.documentElement;
-    html.setAttribute('data-theme', mode);
-    html.setAttribute('data-theme-resolved', res);
     if (al.variant === 'warm' || al.variant === 'cold') html.setAttribute('data-theme-variant', al.variant);
     else html.removeAttribute('data-theme-variant');
     html.setAttribute('data-al-round-font', al.roundFont ? 'on' : 'off');
@@ -70,40 +61,26 @@ function applyTheme() {
       var wpEmpty = !ui.wallpaper;
       shell.setAttribute('data-al-wall', (wpEmpty && al.wall && al.wall !== 'none') ? al.wall : 'none');
     }
-    /* GROUP-BU：AL 主题流程走完后同步 AppTheme 全套变量。 */
+    /* AL 偏好应用完后同步 AppTheme 全套变量。 */
     try { if (window.AppTheme && window.AppTheme.apply) window.AppTheme.apply(); } catch (e2) {}
   } catch (e) {}
-}
-function themeReveal() {
-  if (reducedMotion()) return;
-  try {
-    var d = document.createElement('div');
-    d.className = 'al-theme-reveal';
-    document.body.appendChild(d);
-    setTimeout(function () { try { d.remove(); } catch (e) {} }, 400);
-  } catch (e) {}
-}
-function setTheme(mode) {
-  if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') mode = 'light';
-  saveThemeMode(mode); applyTheme(); themeReveal();
-  return mode;
 }
 function setVariant(v) {
   var al = readAlPrefs();
   al.variant = (v === 'warm' || v === 'cold') ? v : 'none';
-  saveAlPrefs(al); applyTheme();
+  saveAlPrefs(al); applyAlPrefs();
   return al.variant;
 }
 function setWall(w) {
   var al = readAlPrefs();
   al.wall = (w === 'waves' || w === 'mountains' || w === 'forest' || w === 'desert') ? w : 'none';
-  saveAlPrefs(al); applyTheme();
+  saveAlPrefs(al); applyAlPrefs();
   return al.wall;
 }
 function setRoundFont(on) {
   var al = readAlPrefs();
   al.roundFont = !!on;
-  saveAlPrefs(al); applyTheme();
+  saveAlPrefs(al); applyAlPrefs();
   return al.roundFont;
 }
 
@@ -303,7 +280,7 @@ function widgetEntries() {
 }
 function settingEntries() {
   return [
-    { kind: 'setting', name: '主题与外观', sub: '设置 · 浅色/深色/色温/壁纸', act: 'theme' },
+    { kind: 'setting', name: '主题与外观', sub: '设置 · 主题/色温/壁纸', act: 'theme' },
     { kind: 'setting', name: 'API 设置', sub: '设置 · 模型连接', act: 'model' },
     { kind: 'setting', name: '锁屏密码', sub: '设置 · 默认关闭，自行设置', act: 'lock' },
     { kind: 'setting', name: '小组件商店', sub: '设置 · 挑选桌面小组件', act: 'store' }
@@ -558,7 +535,6 @@ function injectThemeControls() {
     var sel = $('#t-p-theme');
     if (!sel || $('#al-theme-extra')) return false;
     var al = readAlPrefs();
-    var ui = readUiPrefs();
     var div = document.createElement('div');
     div.id = 'al-theme-extra';
     div.style.cssText = 'font-size:13px;line-height:2.2;flex-basis:100%;'; /* 占满整行：#t-p-theme 所在行是 flex（js/12 row() 的控件 span，带 flex-wrap），不占满会被挤在同一行、把色温变体/壁纸线条两个下拉压窄 */
@@ -566,30 +542,19 @@ function injectThemeControls() {
       + '<option value="none">默认</option><option value="warm">暖</option><option value="cold">冷</option></select> '
       + '<span>壁纸线条 </span><select id="al-wall" aria-label="壁纸线条">'
       + '<option value="none">纯白</option><option value="waves">波浪</option><option value="mountains">山</option><option value="forest">森林</option><option value="desert">沙漠</option></select><br/>'
-      + '<label><input id="al-round-font" type="checkbox" /> 圆体界面字体（只改界面字体）</label> '
-      + '<button type="button" class="al-theme-toggle" id="al-theme-toggle" aria-label="切换浅色深色跟随系统"><span class="al-ico al-ico-sun"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><circle cx="8" cy="8" r="3" fill="currentColor"/><g stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3 3l1.3 1.3M11.7 11.7L13 13M13 3l-1.3 1.3M4.3 11.7L3 13"/></g></svg></span><span class="al-ico al-ico-moon"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M13.2 9.6A5.6 5.6 0 1 1 6.4 2.8a4.5 4.5 0 0 0 6.8 6.8z" fill="currentColor"/></svg></span><span id="al-theme-mode-label"></span></button>'
-      + '<div style="font-size:12px;color:#8a857e;line-height:1.6;">深色为归巢深色（opt-in，白底默认不变）；壁纸线条仅在未设其他壁纸时出现；圆体默认关闭。</div>';
+      + '<label><input id="al-round-font" type="checkbox" /> 圆体界面字体（只改界面字体）</label>'
+      + '<div style="font-size:12px;color:#8a857e;line-height:1.6;">壁纸线条仅在未设其他壁纸时出现；圆体默认关闭。</div>';
     sel.parentNode.insertBefore(div, sel.nextSibling);
     var vSel = $('#al-variant');
     var wSel = $('#al-wall');
     var rChk = $('#al-round-font');
-    var label = $('#al-theme-mode-label');
     vSel.value = al.variant;
     wSel.value = al.wall;
     rChk.checked = !!al.roundFont;
-    var syncLabel = function () { var _buN = ''; try { if (window.BuThemes) _buN = window.BuThemes.currentName(); } catch (e) {} label.textContent = '当前：' + (_buN || ((readUiPrefs().theme || 'light') === 'auto' ? '跟随系统' : (readUiPrefs().theme === 'dark' ? '深色' : '浅色'))); };
-    syncLabel();
     vSel.addEventListener('change', function () { setVariant(vSel.value); ALToast('success', '色温变体已保存'); });
     wSel.addEventListener('change', function () { setWall(wSel.value); ALToast('success', wSel.value === 'none' ? '已恢复纯白壁纸' : '壁纸线条已保存'); });
     rChk.addEventListener('change', function () { setRoundFont(rChk.checked); ALToast('success', rChk.checked ? '圆体界面字体已开启' : '圆体界面字体已关闭'); });
-    $('#al-theme-toggle').addEventListener('click', function () {
-      var cur = readUiPrefs().theme || 'light';
-      var next = cur === 'light' ? 'dark' : (cur === 'dark' ? 'auto' : 'light');
-      setTheme(next);
-      syncLabel();
-      ALToast('success', '主题已切换为' + (next === 'auto' ? '跟随系统' : (next === 'dark' ? '深色' : '浅色')));
-    });
-    sel.addEventListener('change', function () { try { var _v = sel.value; if (window.BuThemes && _v && _v.indexOf('bu-') === 0) { window.BuThemes.apply(_v); } else { applyTheme(); } } catch (e) { applyTheme(); } syncLabel(); });
+    sel.addEventListener('change', function () { try { var _v = sel.value; if (window.BuThemes && _v && _v.indexOf('bu-') === 0) { window.BuThemes.apply(_v); } else { applyAlPrefs(); } } catch (e) { applyAlPrefs(); } });
     return true;
   } catch (e) { return false; }
 }
@@ -735,7 +700,7 @@ var _inited = false;
 function init() {
   if (_inited) return true;
   _inited = true;
-  try { applyTheme(); } catch (e) {}
+  try { applyAlPrefs(); } catch (e) {}
   try { buildDeskSearch(); } catch (e) {}
   try { injectThemeControls(); } catch (e) {}
   try { a11yPass(); } catch (e) {}
@@ -756,12 +721,6 @@ function init() {
       mo.observe(document.body, { childList: true, subtree: true });
     }
   } catch (e) {}
-  try {
-    var mq = matchMediaSafe('(prefers-color-scheme: dark)');
-    var onChange = function () { try { if ((readUiPrefs().theme || 'light') === 'auto') applyTheme(); } catch (e) {} };
-    if (mq.addEventListener) mq.addEventListener('change', onChange);
-    else if (mq.addListener) mq.addListener(onChange);
-  } catch (e) {}
   return true;
 }
 if (typeof document !== 'undefined') {
@@ -769,7 +728,7 @@ if (typeof document !== 'undefined') {
   else setTimeout(init, 0);
 }
 window.ThemeAL = {
-  init: init, applyTheme: applyTheme, setTheme: setTheme, setVariant: setVariant,
+  init: init, applyAlPrefs: applyAlPrefs, setVariant: setVariant,
   setWall: setWall, setRoundFont: setRoundFont, readAlPrefs: readAlPrefs, readUiPrefs: readUiPrefs,
   modeInfo: modeInfo, showTyping: showTyping, skeleton: skeleton, confetti: confetti,
   setCharStatus: setCharStatus, setState: setState, openModal: openModal, closeModal: closeModal,
@@ -781,7 +740,7 @@ window.ThemeAL = {
     var al = readAlPrefs();
     var ui = readUiPrefs();
     return {
-      theme: ui.theme || 'light', resolved: resolvedTheme(ui.theme || 'light'),
+      theme: ui.theme || 'light', resolved: 'light',
       variant: al.variant, wall: al.wall, roundFont: al.roundFont,
       mode: modeInfo().mode,
       agPresent: (typeof window.PhoneModel !== 'undefined' && !!window.PhoneModel),

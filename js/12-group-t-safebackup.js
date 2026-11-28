@@ -65,7 +65,7 @@ petSkin: 'default', // 宠物皮肤
 clockStyle: 'default', // 时钟组件样式
 migratedFrom: [] // 本次迁移读过哪些旧键（只读一次，不回写旧键）
 } */
-var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b'}, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, fishWater: true, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: []};
+var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b'}, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, fishWater: true, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', pet3d: false, migratedFrom: []}; /* [R3-S8c] pet3d: js/58 VRM 桌面宠开关（isDesktopVRMOn 读 phone_ui_prefs_v1.pet3d）；不在表里会被 setUiPrefs 的键过滤悄悄丢掉——并入 js/00/js/19 写通道后尤其如此，故补进唯一真相表，默认 false（关）。 */
 
 /* ── A20 命名空间方案（文档化）──
 char: 命名空间：一切「属于这个角色」的数据都归 char: 前缀（或历史遗留的
@@ -696,7 +696,7 @@ var p = getUiPrefs();
    const，避免加载顺序耦合。壁纸值可能是色值 / data URL / 路径，见不到的走“其他”兜底。 */
 var OPTS = {
 lang: [['zh-CN', '中文（简体）'], ['en', 'English']],
-theme: [['light', '浅色'], ['dark', '深色'], ['auto', '跟随系统'], ['bu-spring-pink', '春·槐花粉'], ['bu-autumn-red', '秋·枫叶红'], ['bu-night-black', '夜·蜕茧黑'], ['bu-winter-blue', '冬·雪河蓝'], ['bu-mint', '薄荷绿'], ['bu-lavender', '薰衣草紫'], ['bu-cream', '奶油黄'], ['bu-forest', '墨绿']],
+theme: [['light', '浅色'], ['bu-spring-pink', '春·槐花粉'], ['bu-autumn-red', '秋·枫叶红'], ['bu-winter-blue', '冬·雪河蓝'], ['bu-mint', '薄荷绿'], ['bu-lavender', '薰衣草紫'], ['bu-cream', '奶油黄']],
 layout: [['default', '默认'], ['compact', '紧凑']],
 iconStyle: [['default', '默认'], ['line', '极简线条'], ['jelly', '液态果冻'], ['frost', '磨砂玻璃'], ['classic', '经典纯色'], ['ios', 'iOS 原生']],
 wallpaper: [['fish', '游鱼'], ['', '纯白'], ['#fdf2f4', '柔粉'], ['#eef7f2', '薄荷'], ['#eef4fb', '天空'], ['#faf6ef', '暖米'], ['unsent-words', '无法显现的文字'], ['rain-letters', '雨落碎了字里行间']],
@@ -725,7 +725,7 @@ var colorCtl = function (id, val) {
 return '<span style="display:inline-flex;align-items:center;gap:8px;"><input type="color" id="' + id + '" value="' + esc(val) + '" oninput="var s=this.nextElementSibling;if(s)s.textContent=this.value;" style="width:44px;height:32px;padding:2px;border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;background:var(--st-paper,#fffdf8);" /><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + esc(val) + '</span></span>';
 };
 var row = function (label, ctl, last) {
-return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;' + (last ? '' : 'border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));') + '"><span style="font-size:17px;flex-shrink:0;">' + label + '</span><span style="display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;">' + ctl + '</span></div>'; /* 控件 span 允许换行：主题行会被 js/22 的 #al-theme-extra 注入两个下拉+复选框+切换按钮，不换行时同一行挤压、两个下拉被压窄 */
+return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;' + (last ? '' : 'border-bottom:1px solid var(--st-ink-08,rgba(30,39,72,.08));') + '"><span style="font-size:17px;flex-shrink:0;">' + label + '</span><span style="display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;">' + ctl + '</span></div>'; /* 控件 span 允许换行：主题行会被 js/22 的 #al-theme-extra 注入两个下拉+复选框，不换行时同一行挤压、两个下拉被压窄 */
 };
 var checkCtl = function (id, on) {
 return '<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--st-ink-60,rgba(30,39,72,.6));">' + (on ? '开' : '关') + '</span><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + ' class="st-check" /></span>';

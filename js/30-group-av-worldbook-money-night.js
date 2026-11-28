@@ -64,22 +64,7 @@ function avApplyWxNight() {
   else if (s && s.config && s.config.nightVibeMode) root.classList.add('wx-dark-mode');
   return night;
 }
-function avHookTheme() {
-  try {
-    if (window.AFTheme && window.AFTheme.set && !window.AFTheme._avHooked) {
-      window.AFTheme._avHooked = true;
-      var o = window.AFTheme.set;
-      window.AFTheme.set = function (id) { var r = o.call(window.AFTheme, id); try { avApplyWxNight(); } catch (e) {} return r; };
-    }
-  } catch (e) {}
-  try {
-    if (window.AppTheme && window.AppTheme.apply && !window.AppTheme._avHooked) {
-      window.AppTheme._avHooked = true;
-      var o2 = window.AppTheme.apply;
-      window.AppTheme.apply = function () { var r = o2.apply(window.AppTheme, arguments); try { avApplyWxNight(); } catch (e) {} return r; };
-    }
-  } catch (e) {}
-}
+/* [R3-S8a] 微信夜间改为 AppTheme.onApplied hook：注册在 avBoot() 里，不再替换 AppTheme.apply（旧 avHookTheme 已删）。 */
 
 /* ══ 转账详情页修补：区分方向 / 收款入账 / 过期退回 ══ */
 function avTransferExpired(msg) {
@@ -332,7 +317,8 @@ function avInitEngine() {
 }
 
 function avBoot() {
-  avHookTheme();
+  /* [R3-S8a] 微信夜间注册为 AppTheme.onApplied hook：主题应用完即同步夜间态，不再包 apply。 */
+  try { if (window.AppTheme && window.AppTheme.onApplied) window.AppTheme.onApplied.push(function () { try { avApplyWxNight(); } catch (e) {} }); } catch (e) {}
   if (!avInitEngine()) {
     var n = 0;
     var t = setInterval(function () { n++; if (avInitEngine() || n > 20) clearInterval(t); }, 250);

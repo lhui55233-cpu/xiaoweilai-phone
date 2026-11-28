@@ -323,16 +323,8 @@ function hookEngine() {
         if (typeof E.renderUpdates === 'function') { var o = E.renderUpdates; E.renderUpdates = function () { var r = o.apply(E, arguments); try { applyTheme(currentThemeId(), { silent: true }); applyBubble(currentBubbleId(), { silent: true }); } catch (e) {} return r; }; }
         if (typeof E.openSubPage === 'function') { var o2 = E.openSubPage; E.openSubPage = function (pid) { var r = o2.apply(E, arguments); try { if (pid === 'beautifier') { render(); bindControls(); } } catch (e) {} return r; }; }
       }
-      if (window.AppTheme && window.AppTheme.apply && !window.AppTheme._bcHooked) {
-        window.AppTheme._bcHooked = true;
-        var o3 = window.AppTheme.apply;
-        window.AppTheme.apply = function () { var r = o3.apply(window.AppTheme, arguments); try { setTimeout(function () { applyTheme(currentThemeId(), { silent: true }); }, 0); } catch (e) {} return r; };
-      }
-      if (window.AFTheme && window.AFTheme.set && !window.AFTheme._bcHooked) {
-        window.AFTheme._bcHooked = true;
-        var o4 = window.AFTheme.set;
-        window.AFTheme.set = function (id) { var r = o4.call(window.AFTheme, id); try { setTimeout(function () { applyTheme(currentThemeId(), { silent: true }); }, 0); } catch (e) {} return r; };
-      }
+      /* [R3-S8a] AppTheme.apply 不再被包：BC 重应用改注册为 AppTheme.onApplied hook（见 bcBoot），
+         hookEngine 只留 WeChatAppEngine 的轮询（renderUpdates 重刷 BC 主题、beautifier 子页打开时 render/bindControls）。 */
     } catch (e) {}
     if (n > 20) clearInterval(t);
   }, 250);
@@ -342,6 +334,10 @@ function bcBoot() {
   try { applyBubble(currentBubbleId(), { silent: true }); } catch (e) {}
   try { render(); bindControls(); } catch (e) {}
   try { hookEngine(); } catch (e) {}
+  /* [R3-S8a] BC 重应用注册为 AppTheme.onApplied hook（BC-only）：主题应用完延迟一个 tick 再重读
+     currentThemeId() 重刷 BC 主题——BC 状态慢一拍，setTimeout 0 是既有语义的保留，位置从包装移到 hook。
+     验证：主题切换后 BC currentThemeId() 仍是切换前的值（BC 主题与全局主题分开存），重刷只恢复 BC 自身主题。 */
+  try { if (window.AppTheme && window.AppTheme.onApplied) window.AppTheme.onApplied.push(function () { try { setTimeout(function () { applyTheme(currentThemeId(), { silent: true }); }, 0); } catch (e) {} }); } catch (e) {}
   try { window.addEventListener('storage', function (e) { if (e && e.key === 'phone_ui_prefs_v1') setTimeout(function () { applyTheme(currentThemeId(), { silent: true }); }, 0); }); } catch (e) {}
 }
 window.WxThemes = {

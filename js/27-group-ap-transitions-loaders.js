@@ -223,8 +223,12 @@ function fadeIn(el) {
     } catch (e) { return false; }
 }
 var GCNav = { enterDetail: enterDetail, exitDetail: exitDetail, fadeIn: fadeIn };
-/* 子页面激活时自动播一次详情入场（.sys-app-subpage / .wx-subpage-box /
-   .b-page-view / .st-sub  gaining 激活类时）；只做 class，不动原有逻辑 */
+/* 子页面激活时自动播一次详情入场（.sys-app-subpage / .wx-subpage-box
+   gaining 激活类时）；只做 class，不动原有逻辑。
+   [R3-S2] .st-sub 与 .b-page-view 不在此列：两者自带 transform 滑动
+   （js/00 .st-sub / .b-page-view.b-sub），observer 再加 gc-t-detail-in
+   会淡两次（0.35×0.35）造成闪；无自带滑动的 .sys-app-subpage /
+   .wx-subpage-box 仍由 observer 播入场。 */
 function _isActiveSubpage(el) {
     return el.classList.contains('sys-active') || el.classList.contains('wx-active') ||
         el.classList.contains('active') || el.classList.contains('show');
@@ -237,8 +241,7 @@ function _watchSubpages() {
                 if (mu.type !== 'attributes') return;
                 var el = mu.target;
                 if (!el.classList) return;
-                var isSub = el.classList.contains('sys-app-subpage') || el.classList.contains('wx-subpage-box') ||
-                    el.classList.contains('b-page-view') || el.classList.contains('st-sub');
+                var isSub = el.classList.contains('sys-app-subpage') || el.classList.contains('wx-subpage-box');
                 if (!isSub || el.__gcAnimating) return;
                 if (_isActiveSubpage(el)) {
                     el.__gcAnimating = true;
@@ -306,23 +309,8 @@ function themeRipple() {
         return true;
     } catch (e) { return false; }
 }
-function wrapTheme() {
-    try {
-        if (!window.AppTheme || !window.AppTheme.apply || window.AppTheme.apply.__gcWrapped) return false;
-        var orig = window.AppTheme.apply;
-        var wrapped = function () {
-            var before = null, after = null;
-            try { before = window.AppTheme.resolved(); } catch (e) {}
-            var r = orig.apply(window.AppTheme);
-            try { after = window.AppTheme.resolved(); } catch (e) {}
-            if (before !== null && after !== null && before !== after) themeRipple();
-            return r;
-        };
-        wrapped.__gcWrapped = true;
-        window.AppTheme.apply = wrapped;
-        return true;
-    } catch (e) { return false; }
-}
+/* [R3-S8a] 主题切换圆心扩散改为 AppTheme.onApplied hook：只在主题真的变了时扩散；
+   注册在 init() 里，不再替换 AppTheme.apply（旧 wrapTheme 已删）。 */
 /* ── 加载：同一时间只跑一个；超约 2 秒才上追逐圆点；超时移除；切页就停 ── */
 var LOADER_COPIES = ['正在思考…', '正在写…', '快好了…'];
 var _loader = null, _loaderChaseTimer = null, _loaderCopyTimer = null, _loaderTimeout = null, _copyIdx = 0;
@@ -506,7 +494,8 @@ function init() {
     if (!okApp) {
         setTimeout(function () { wrapAppManager(); }, 500); /* 兜底：AppManager 晚定义时再包一次 */
     }
-    wrapTheme();
+    /* [R3-S8a] 波纹注册为 AppTheme.onApplied hook：apply() 后、主题真的变了才扩散（保留旧前后比较语义）。 */
+    try { if (window.AppTheme && window.AppTheme.onApplied) window.AppTheme.onApplied.push(function (after, before) { if (before !== null && after !== null && before !== after) themeRipple(); }); } catch (e) {}
     wrapModelTest();
     _watchSubpages();
     _watchModal();

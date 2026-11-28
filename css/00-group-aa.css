@@ -975,7 +975,7 @@
     /* 后台静默挂载态（保留 DOM 缓存但不可见） */
     .sys-app-window.sys-cached { display: block; transform: translateY(100%); z-index: 1; }
     /* [设置重构浏览器问题修复] 设置窗内关掉的子页是 fixed + translateX(100%)
-       的离屏面板，主修是关页后由 dropClosedStSub 从 DOM 移除；这里再把设置
+       的离屏面板，主修是关页后由 closeStSub 从 DOM 移除；这里再把设置
        窗的横向溢出裁掉，只防滑出动画那 280ms 的瞬时闪现与漏网的离屏面板，
        不遮内容宽度问题（本轮已核对各行/卡片宽度均不超窗宽）。 */
     .sys-app-window[data-app-sandbox="settings"] { overflow-x: clip; }
