@@ -195,12 +195,11 @@ class World {
         // [REF-ALIGNED] Same formula as character-ocean (world.ts:141):
         // ~206px on a 390px phone. Supersedes the v2 0.46 value (~180px)
         // per TINA's "按开源的改".
-        // [SCALE-FIX] Narrow screens (minSide < 600) ×0.7 → ~144px on a
-        // 390px phone (37% of screen width, vs the reference's 27% on a
-        // 1920 desktop). The reference formula scales by minSide, so on a
-        // tall narrow phone the fish take half the screen; this deliberate
-        // deviation restores the reference's proportions. Desktop untouched.
-        const baseLength = clamp(minSide * 0.44, 170, 430) * 1.2 * (minSide < 600 ? 0.7 : 1);
+        // [SCALE-FIX] Narrow screens (minSide < 600) ×0.5 → ~103px on a
+        // 390px phone (26% of screen width, matching the reference's 27% on a
+        // 1920 desktop). Strict-alignment: supersedes the ×0.7 compromise
+        // (~144px / 37%), now that cw 4 gives a 103px fish 26 cells.
+        const baseLength = clamp(minSide * 0.44, 170, 430) * 1.2 * (minSide < 600 ? 0.5 : 1);
         const sharkCount = this.sharkSpecs.length;
         this.sharks = [];
         for (let i = 0; i < sharkCount; i++) {
@@ -1147,10 +1146,12 @@ class AsciiRenderer {
         this.width = width;
         this.height = height;
         this.dpr = dpr;
-        // [SCALE-FIX] Cells of 6-10px (6px on a 390px phone, was 8px at /52).
-        // The reference's glyphs are ~7px on its 1920 desktop; /64 gives the
-        // phone the same ~7px glyphs (ch=9, font 7px). Desktop stays clamped at 10.
-        this.cw = clamp(Math.round(width / 64), 6, 10);
+        // [SCALE-FIX] Cells of 4-10px (4px on a 390px phone, was 6px at /64).
+        // Strict-alignment: the reference's glyphs are ~7px on its 1920
+        // desktop; /96 gives the phone ~4px glyphs (ch=6, font 4px), so the
+        // letters read as texture even in the bright pre-F2 colors.
+        // Desktop stays clamped at 10.
+        this.cw = clamp(Math.round(width / 96), 4, 10);
         this.ch = Math.round(this.cw * 1.45);
         this.cols = Math.ceil(width / this.cw);
         this.rows = Math.ceil(height / this.ch);
@@ -1789,10 +1790,12 @@ class AsciiRenderer {
             else if (!this.pal.light && KINDS[sharkKind[i]] === "manta")
                 color = shade > 0.7 ? "#20313a" : "#43606e";
             else
-                // [SCALE-FIX] Glyphs sit ~20-35 levels from the block (was 65-77)
-                // so they read as texture, not letters, at phone scale.
+                // [SCALE-FIX] Strict-alignment: glyphs back to the bright
+                // pre-F2 values (display ~232/243, as the reference). They
+                // read as texture now because they are ~4px, not because
+                // they are dimmed.
                 color = this.pal.light
-                    ? (shade > 0.55 ? presentLight(70, 72, 78) : presentLight(90, 92, 98))
+                    ? (shade > 0.55 ? presentLight(27, 29, 36) : presentLight(14, 15, 19))
                     : (shade > 0.55 ? "#0e202b" : "#a2bac6");
             ctx.fillStyle = color;
             ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
