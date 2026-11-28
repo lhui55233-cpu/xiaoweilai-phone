@@ -8946,8 +8946,8 @@ html[data-theme="dark"] .sys-app-window[data-app-sandbox="wechat"] .wx-file-name
             <div class="wx-tab-item wx-active" onclick="WeChatAppEngine.switchTab('sessions', '聊天', this)">
                 <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><path d="M8.5 17.5l-3 3v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8.5z"></path><path d="M16 14v1a2 2 0 0 1-2 2h-1.5l-2.5 2.5v-2.5H9"></path></svg></span><span class="wx-tab-label">聊天</span>
             </div>
-            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('moments', '看朋友圈', this)">
-                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></span><span class="wx-tab-label">看朋友圈</span>
+            <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('moments', '朋友圈', this)">
+                <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></span><span class="wx-tab-label">朋友圈</span>
             </div>
             <div class="wx-tab-item" onclick="WeChatAppEngine.switchTab('otome', '乙女游戏', this)">
                 <span class="wx-tab-icon"><svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a4 4 0 0 1 3.8 5.3l-1.4 4.2a2.5 2.5 0 0 1-4.2 1l-2-2h-2l-2 2a2.5 2.5 0 0 1-4.2-1l-1.4-4.2A4 4 0 0 1 7 8Z"/><path d="M8 11v4m-2-2h4m7-.5h.1m2 2h.1"/></svg></span><span class="wx-tab-label">乙女游戏</span>
@@ -10655,7 +10655,7 @@ const sBox = document.getElementById('wx-sessions-container');
       const mainHeader = document.getElementById('wx-main-header');
       const plusBtn = document.getElementById('wx-top-plus-btn');
       const pubBtn = document.getElementById('wx-top-publish-btn');
-      const titles = { sessions: '聊天', moments: '看朋友圈', otome: '乙女游戏', me: '个人主页' };
+      const titles = { sessions: '聊天', moments: '朋友圈', otome: '乙女游戏', me: '个人主页' };
       if (viewId === 'me') {
           if (mainHeader) mainHeader.style.display = 'none';
       } else {
@@ -13115,7 +13115,7 @@ sysPrompt += `\n
   openMomentsPage: (scopeType) => {
       const viewDom = document.getElementById('wx-view-moments-page');
       if (!viewDom) return;
-      // tab 模式（从 看朋友圈 tab 进）：隐藏页内透明顶栏，用主顶栏标题 + 发表；其余入口为覆盖层模式。
+      // tab 模式（从 朋友圈 tab 进）：隐藏页内透明顶栏，用主顶栏标题 + 发表；其余入口为覆盖层模式。
       const _store = AppRegistry['wechat']?.wxStore;
       viewDom.classList.toggle('wx-moments-tab', _store?.currentView === 'moments');
       viewDom.classList.add('wx-active');
