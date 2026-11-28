@@ -702,7 +702,7 @@ iconStyle: [['default', '默认'], ['line', '极简线条'], ['jelly', '液态�
 wallpaper: [['fish', '游鱼'], ['', '纯白'], ['#fdf2f4', '柔粉'], ['#eef7f2', '薄荷'], ['#eef4fb', '天空'], ['#faf6ef', '暖米'], ['unsent-words', '无法显现的文字'], ['rain-letters', '雨落碎了字里行间']],
 petMode: [['full', '完整（书桌 + 溜达）'], ['walk-only', '只走路'], ['desk-only', '只坐桌']],
 petSize: [['small', '小'], ['medium', '中'], ['large', '大']],
-petSkin: [['default', 'QQ 小人（默认）'], ['cat', '小猫'], ['cutout', '抠图立绘'], ['pet-claude', 'Claude'], ['pet-chatgpt', 'ChatGPT'], ['pet-muse', 'Muse']],
+petSkin: [['default', 'QQ 小人（默认）'], ['cat', '小猫'], ['cutout', '抠图立绘'], ['pet-claude', 'Claude'], ['pet-chatgpt', 'ChatGPT'], ['pet-muse', 'Muse'], ['pet-wumi', '五条猫猫']],
 clockStyle: [['default', '默认'], ['digital', '数字'], ['analog', '模拟表盘'], ['minimal', '简约']] /* 'default' 是 PREFS_DEFAULT 的存量值（js/00:17399 未命中 analog/minimal 时按数字渲染），必须进选项表，否则存量默认会显示成“其他（原值：default）” */
 };
 var SEL_STYLE = 'border:1px solid var(--st-silver,#bfc8e0);border-radius:8px;padding:8px 12px;font-size:17px;background:var(--st-paper,#fffdf8);color:var(--st-ink,#1e2748);max-width:200px;';

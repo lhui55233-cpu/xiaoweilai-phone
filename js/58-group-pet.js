@@ -35,7 +35,8 @@ var MARKET = [
   { id: 'cat', skin: 'cat', frame: 'cat', name: '小猫', note: 'desksprite cat.json 原始帧（13x13 橘猫），逐字照录。' },
   { id: 'pet-claude', skin: 'pet-claude', frame: 'crab', name: 'Claude', note: '像素螃蟹（本站手画，13x13，照图 3 像素风：扁平暖色、无描边）。' },
   { id: 'pet-chatgpt', skin: 'pet-chatgpt', frame: 'fox', name: 'ChatGPT', note: '像素黑狐（本站手画，14x13：尖耳、吻部、蓬松尾巴，脖子上系着蓝丝带）。' },
-  { id: 'pet-muse', skin: 'pet-muse', frame: 'jolly', name: 'Muse', note: 'Jolly 像素版（本站手画，13x13：圆乎乎的奶油色毛绒身子，大脸、黑眼睛、粉腮红）。' }
+  { id: 'pet-muse', skin: 'pet-muse', frame: 'jolly', name: 'Muse', note: 'Jolly 像素版（本站手画，13x13：圆乎乎的奶油色毛绒身子，大脸、黑眼睛、粉腮红）。' },
+  { id: 'pet-wumi', skin: 'pet-wumi', frame: null, img: 'assets/pets/wumi.png', name: '五条猫猫', note: '猫塑五条悟：白毛圆墨镜，像素风。' }
 ];
 /* GROUP-PET-MERGE：MARKET_PALETTES 换色表已删除——三款不再是 boy 帧换色，
    各自有真模型（frame 指向 FIX2 SKINS 的 crab / fox / jolly）；领养与设置
@@ -114,6 +115,7 @@ function drawMarketPreview(canvas, modelId) {
     var m = null;
     MARKET.forEach(function (x) { if (x.id === modelId) m = x; });
     if (!m) return false;
+    if (m.img) return false; /* 内置图片皮肤：市场卡直接渲染 <img>，不画 FIX2 预览 */
     /* 按 MARKET 的 frame 取真帧；GroupFIX2.skinKeyForPetSkin 是同一映射的
        另一头（petSkin → 帧键），frame 缺失时才用它兜底。 */
     var key = m.frame || null;
@@ -141,7 +143,7 @@ function drawMarketPreview(canvas, modelId) {
 function currentModel() {
   var skin = '';
   try { skin = (readPrefs() || {}).petSkin || 'default'; } catch (e) {}
-  if (skin === 'cat' || skin === 'pet-claude' || skin === 'pet-chatgpt' || skin === 'pet-muse') return skin;
+  if (skin === 'cat' || skin === 'pet-claude' || skin === 'pet-chatgpt' || skin === 'pet-muse' || skin === 'pet-wumi') return skin;
   return skin === 'cutout' ? 'cutout' : 'default';
 }
 function adopt(modelId) {

@@ -17411,7 +17411,7 @@ const ICON_STYLES = [
 const CLOCK_STYLES = [ { id: 'digital', name: '数字' }, { id: 'analog', name: '模拟表盘' }, { id: 'minimal', name: '简约' } ];
 const PET_MODES = [ { id: 'full', name: '完整（书桌 + 溜达）' }, { id: 'walk-only', name: '只走路' }, { id: 'desk-only', name: '只坐桌' } ];
 const PET_SIZES = [ { id: 'small', name: '小', px: 44 }, { id: 'medium', name: '中', px: 52 }, { id: 'large', name: '大', px: 68 } ]; /* GROUP-FIX2: 桌宠比原来小一圈（中号 64 -> 52） */
-const PET_SKINS = [ { id: 'default', name: 'QQ 小人（默认）' }, { id: 'cat', name: '小猫' }, { id: 'cutout', name: '抠图立绘' }, { id: 'pet-claude', name: 'Claude' }, { id: 'pet-chatgpt', name: 'ChatGPT' }, { id: 'pet-muse', name: 'Muse' } ]; /* GROUP-PET: 市场三款是真模型（Claude 像素螃蟹 / ChatGPT 像素黑狐 / Muse Jolly 像素化，各自 5 张帧 + 独立调色板，见 js/57 SKINS），不是 boy 帧换色；「家里的猫」改名「小猫」 */
+const PET_SKINS = [ { id: 'default', name: 'QQ 小人（默认）' }, { id: 'cat', name: '小猫' }, { id: 'cutout', name: '抠图立绘' }, { id: 'pet-claude', name: 'Claude' }, { id: 'pet-chatgpt', name: 'ChatGPT' }, { id: 'pet-muse', name: 'Muse' }, { id: 'pet-wumi', name: '五条猫猫' } ]; /* GROUP-PET: 市场三款是真模型（Claude 像素螃蟹 / ChatGPT 像素黑狐 / Muse Jolly 像素化，各自 5 张帧 + 独立调色板，见 js/57 SKINS），不是 boy 帧换色；「家里的猫」改名「小猫」 */
 
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const _read = (k, dflt) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return (v === null || v === undefined) ? dflt : v; } catch (e) { return dflt; } };
@@ -18429,8 +18429,10 @@ const GW_CSS = '.gw-hidden{display:none!important}' +
 '#desk-pet.gw-dragging{cursor:grabbing}' +
 '@keyframes gw-shake{0%{margin-left:-1px}50%{margin-left:1px}100%{margin-left:0}}' +
 '#desk-pet.gw-walking .gm-pet-char{animation:gw-bob .5s infinite alternate}' +
+'#desk-pet.gw-walking .gw-skin-overlay{animation:gw-bob .5s infinite alternate}' +
 '@keyframes gw-bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}' +
 '#desk-pet.gw-reduced .gm-pet-char{transition:none!important;animation:none!important}' +
+'#desk-pet.gw-reduced .gw-skin-overlay{animation:none!important}' +
 '#desk-pet.gw-reduced .gm-pet-char svg{transform:none!important}' +
 '#desk-pet .gw-skin-overlay{position:absolute;inset:0;z-index:2;pointer-events:auto}' + /* GROUP-PET: 遮罩是可见宠身时必须可点（原 none 让猫皮肤完全点不到） */
 '#desk-pet .gw-pet-name{position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);font-size:10px;color:#55555c;white-space:nowrap}' +
@@ -18641,7 +18643,7 @@ const petCutoutImg = () => {
   } catch (e) {}
   return '';
 };
-// 皮肤 overlay：只在 petSkin 为 cat/cutout 时盖在 M 组宠物上面；M 组重建
+// 皮肤 overlay：只在 petSkin 为 cat/cutout/pet-wumi 时盖在 M 组宠物上面；M 组重建
 // innerHTML 会清掉它，tick 里补回。default 皮肤不盖，M 组原样渲染。
 // [GROUP-FIXAPPS] 皮肤去重写：内容键不变且 overlay 还有子节点时不重写 innerHTML（原每 tick 重建一次 overlay DOM）。
 //   皮肤切回 default / overlay 被移除或被 M 组重建清空时，键失效或无子节点，下次即重写。
@@ -18666,6 +18668,15 @@ const maintainPetSkin = () => {
     if (!ov) { ov = document.createElement('div'); ov.id = 'gw-pet-skin'; ov.className = 'gw-skin-overlay'; el.appendChild(ov); }
     var _cutKey = 'cutout|' + img.length + ':' + img.slice(0, 48);
     if (_petSkinLastKey !== _cutKey || !ov.hasChildNodes()) { ov.innerHTML = '<img class="gw-cutout" src="' + esc(img) + '" alt="">'; _petSkinLastKey = _cutKey; }
+    return;
+  }
+  if (skin === 'pet-wumi') {
+    /* 内置图片皮肤：与 cutout 同路（遮罩里放静态图），图源是内置文件；不带 cutout 分支“char 里有 img 就跳过”的怪癖。 */
+    const img = 'assets/pets/wumi.png';
+    if (charEl) charEl.style.display = 'none';
+    if (!ov) { ov = document.createElement('div'); ov.id = 'gw-pet-skin'; ov.className = 'gw-skin-overlay'; el.appendChild(ov); }
+    var _wumiKey = 'pet-wumi|' + img;
+    if (_petSkinLastKey !== _wumiKey || !ov.hasChildNodes()) { ov.innerHTML = '<img class="gw-cutout" src="' + esc(img) + '" alt="">'; _petSkinLastKey = _wumiKey; }
     return;
   }
   if (skin === 'cat') {

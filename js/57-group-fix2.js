@@ -423,7 +423,7 @@ var readPrefs = function () {
    pet-chatgpt / pet-muse 不再是 boy 帧换色，各自有真模型（crab / fox /
    jolly）。旧存档里已领养的 pet-claude 等会直接变成新模型（换色款已下线，
    见 js/58 MARKET）。 */
-var PETSKIN_TO_SKIN = { 'cat': 'cat', 'pet-claude': 'crab', 'pet-chatgpt': 'fox', 'pet-muse': 'jolly' };
+var PETSKIN_TO_SKIN = { 'cat': 'cat', 'pet-claude': 'crab', 'pet-chatgpt': 'fox', 'pet-muse': 'jolly', 'pet-wumi': 'cutout' };
 var skinKeyForPetSkin = function (petSkin) {
   if (petSkin === 'cutout') return 'cutout';
   if (PETSKIN_TO_SKIN[petSkin]) return PETSKIN_TO_SKIN[petSkin];

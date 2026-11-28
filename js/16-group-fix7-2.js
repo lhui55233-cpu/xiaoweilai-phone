@@ -52,6 +52,7 @@ var SKINS = {
   'pet-claude': { name: 'Claude · 螃蟹', petSkin: 'pet-claude', frame: 'crab' },
   'pet-chatgpt': { name: 'ChatGPT · 黑狐', petSkin: 'pet-chatgpt', frame: 'fox' },
   'pet-muse': { name: 'Muse · Jolly', petSkin: 'pet-muse', frame: 'jolly' },
+  'pet-wumi': { name: '五条猫猫', petSkin: 'pet-wumi', frame: null },
   qqboy: { name: 'QQ boy（默认小人）', petSkin: 'default', frame: 'boy' },
   custom: { name: '上传抠图立绘', petSkin: 'cutout', frame: null }
 };

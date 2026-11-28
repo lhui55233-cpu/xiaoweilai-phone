@@ -1427,10 +1427,10 @@ GD._gdApp = gdApp;
         var cur = '';
         try { cur = String((JSON.parse(localStorage.getItem('phone_ui_prefs_v1') || '{}') || {}).petSkin || ''); } catch (e) {}
         var cards = GroupPET.MARKET.map(function (m) {
-            var lic = m.id === 'cat' ? 'desksprite cat.json · MIT' : '本站手画像素模型';
+            var lic = m.id === 'cat' ? 'desksprite cat.json · MIT' : (m.img ? '内置图片皮肤' : '本站手画像素模型');
             return '<div class="gd-card" style="margin-top:12px;" data-pet-market="' + m.id + '">'
                 + '<div style="display:flex;gap:12px;align-items:center;">'
-                + '<canvas class="gd-market-preview" data-preview="' + m.id + '" width="14" height="14" style="width:56px;height:56px;image-rendering:pixelated;flex:none;" aria-label="' + m.name + '"></canvas>'
+                + (m.img ? '<img class="gd-market-preview" src="' + m.img + '" width="56" height="56" style="width:56px;height:56px;object-fit:contain;flex:none;" aria-label="' + m.name + '">' : '<canvas class="gd-market-preview" data-preview="' + m.id + '" width="14" height="14" style="width:56px;height:56px;image-rendering:pixelated;flex:none;" aria-label="' + m.name + '"></canvas>')
                 + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;">' + m.name + '</div>'
                 + '<div style="font-size:12px;color:#9a958f;line-height:1.6;margin-top:2px;">' + m.note + '</div>'
                 + '<div style="font-size:12px;color:#9a958f;">' + lic + '</div></div>'
