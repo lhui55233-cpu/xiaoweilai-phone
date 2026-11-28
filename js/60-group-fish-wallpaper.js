@@ -14,6 +14,9 @@
  *      减动效时引擎留一帧静态画面；DPR 上限 2（引擎原有）。
  *   5. 集成：FishWallpaper（window.FishWallpaper）接壁纸设置（风格/底色/跟随主题）、
  *      SystemStore 壁纸（用户图片优先）、EventBus（app 开关）、锁屏/桌面可见性。
+ *   6. 水面效果（WebGL 复合层，FishWater）：2D 鱼画布仍由引擎画，WebGL 再复合一层
+ *      水面——解析坡度折射、两层 Hoskins 焦散（叶缝光斑遮罩）、Beer-Lambert 淡水色（以白为主）与
+ *      太阳高光；点按空处起涟漪；无 WebGL 时自动回到纯 2D。
  * 引擎代码包在 IIFE 里，不污染全局（js/00 已有 clamp/rand/TAU/SPECIES 同名定义）。
  */
 (function () {
@@ -189,13 +192,15 @@ class World {
     seed() {
         const { width: W, height: H } = this;
         const minSide = Math.min(W, H);
-        // Phone-sized sharks. The original's baseLength formula
-        // (clamp(minSide * 0.44, 170, 430) * 1.2) gives ~206px on a 390px
-        // phone; the earlier halving to * 0.26 (~101px, ~26% of screen width)
-        // is still too big, so shrink again to ~66px (~17% of the width).
-        // The body is still ~2 cells thick at that size, so the silhouette
-        // (snout taper, fins, tail) stays readable.
-        const baseLength = clamp(minSide * 0.17, 55, 100);
+        // [REF-ALIGNED] Same formula as character-ocean (world.ts:141):
+        // ~206px on a 390px phone. Supersedes the v2 0.46 value (~180px)
+        // per TINA's "按开源的改".
+        // [SCALE-FIX] Narrow screens (minSide < 600) ×0.7 → ~144px on a
+        // 390px phone (37% of screen width, vs the reference's 27% on a
+        // 1920 desktop). The reference formula scales by minSide, so on a
+        // tall narrow phone the fish take half the screen; this deliberate
+        // deviation restores the reference's proportions. Desktop untouched.
+        const baseLength = clamp(minSide * 0.44, 170, 430) * 1.2 * (minSide < 600 ? 0.7 : 1);
         const sharkCount = this.sharkSpecs.length;
         this.sharks = [];
         for (let i = 0; i < sharkCount; i++) {
@@ -763,6 +768,14 @@ function presentLight(r, g, b) {
         + Math.round(clamp(g3 * 0.78 + 255 * 0.22, 0, 255)) + ","
         + Math.round(clamp(b3 * 0.78 + 255 * 0.22, 0, 255)) + ")";
 }
+// Same light-filter chain as presentLight(), but for a "#rrggbb" hex string
+// (the ACCENTS array). The reference mutes its accents through the canvas
+// CSS filter in light mode; this phone canvas has no filter layer, so the
+// light path runs them through the filter math instead. Dark keeps them raw.
+function presentLightHex(hex) {
+    const c = fishHexRgb(hex);
+    return presentLight(c.r, c.g, c.b);
+}
 // Sparse glyphs on bright skin, dense glyphs in shadow, so the texture
 // reinforces the shading instead of fighting it.
 const SKIN_RAMP = ":;t%SX8#@";
@@ -1026,7 +1039,9 @@ function inTriangle(px, py, ax, ay, bx, by, cx, cy) {
 /** Visible dark-grey cell grid, snapped to device pixels. Shared with the sidebar backdrop. */
 function paintGrid(g, W, H, cw, ch, dpr, light = true) {
     g.setTransform(1, 0, 0, 1, 0, 0);
-    g.strokeStyle = light ? "rgba(30,39,72,0.045)" : "rgba(133,183,202,0.035)";
+    // [REF-ALIGNED] Reference light grid is white 0.055 (invisible on white);
+    // dark value unchanged (already matches the reference).
+    g.strokeStyle = light ? "rgba(255,255,255,0.055)" : "rgba(133,183,202,0.035)";
     g.lineWidth = 1;
     g.beginPath();
     for (let c = 0; c <= Math.ceil(W / cw); c++) {
@@ -1092,7 +1107,8 @@ class AsciiRenderer {
         this.frameId = 0;
         /** Fish cells bucketed by brightness, so each bucket is one fillStyle. */
         this.fishBuckets = FISH_ALPHAS.map(() => []);
-        this.fishStyles = FISH_ALPHAS.map((a) => `rgba(67,65,73,${a})`);
+        // [REF-ALIGNED] Default matches the reference light small-fish colour.
+        this.fishStyles = FISH_ALPHAS.map((a) => `rgba(230,238,255,${a})`);
         const ctx = canvas.getContext("2d", { alpha: false });
         if (!ctx)
             throw new Error("2D canvas unavailable");
@@ -1131,8 +1147,10 @@ class AsciiRenderer {
         this.width = width;
         this.height = height;
         this.dpr = dpr;
-        // A slightly finer character grid keeps the smaller silhouettes legible.
-        this.cw = clamp(Math.round(width / 100), 5, 10);
+        // [SCALE-FIX] Cells of 6-10px (6px on a 390px phone, was 8px at /52).
+        // The reference's glyphs are ~7px on its 1920 desktop; /64 gives the
+        // phone the same ~7px glyphs (ch=9, font 7px). Desktop stays clamped at 10.
+        this.cw = clamp(Math.round(width / 64), 6, 10);
         this.ch = Math.round(this.cw * 1.45);
         this.cols = Math.ceil(width / this.cw);
         this.rows = Math.ceil(height / this.ch);
@@ -1178,30 +1196,14 @@ class AsciiRenderer {
         // chosen colours remain exactly as selected in the wallpaper settings.
         const bg = (this.pal && this.pal.bg) || "#ffffff";
         const isDefaultWhite = bg.toLowerCase() === "#ffffff";
-        if (isDefaultWhite) {
-            const water = g.createLinearGradient(0, 0, W * 0.7, H);
-            water.addColorStop(0, "#f8fcfc");
-            water.addColorStop(0.42, "#e9f3f5");
-            water.addColorStop(0.75, "#d8e9ec");
-            water.addColorStop(1, "#edf4f3");
-            g.fillStyle = water;
-        } else g.fillStyle = bg;
+        // [REF-ALIGNED] Default white is pure white like the reference light
+        // theme (--page:#fff). The v2 gradient (#fbfdfd/#f1f7f8/#f6faf9) is
+        // superseded per TINA's "按开源的改"; other presets keep their exact
+        // selected colours. No hand-drawn caustic lines: the reference has
+        // none, and the WebGL water layer already provides the light play.
+        if (isDefaultWhite) g.fillStyle = "#ffffff";
+        else g.fillStyle = bg;
         g.fillRect(0, 0, W, H);
-        if (isDefaultWhite) {
-            // Quiet, hand-drawn caustics: they sit behind the animated fish.
-            g.save();
-            g.strokeStyle = "rgba(255,255,255,.38)";
-            g.lineWidth = 1;
-            for (let i = 0; i < 9; i++) {
-                const y = H * (0.09 + i * 0.105);
-                g.beginPath();
-                g.moveTo(-W * .1, y);
-                g.bezierCurveTo(W * .22, y - 30, W * .38, y + 27, W * .68, y - 7);
-                g.bezierCurveTo(W * .83, y - 25, W * 1.02, y + 10, W * 1.1, y - 5);
-                g.stroke();
-            }
-            g.restore();
-        }
         if (this.mode !== "type")
             paintGrid(g, W, H, cw, ch, dpr, !!(this.pal && this.pal.light));
     }
@@ -1734,8 +1736,8 @@ class AsciiRenderer {
                 const set = shade >= 0.5 ? EDGE_HEAVY : EDGE_LIGHT;
                 const g = (this.pal.light ? 70 + shade * 80 : 92 + shade * 73) * dim;
                 ctx.fillStyle =
-                    roll < 0.07
-                        ? accents[key % accents.length]
+                    roll < 0.02
+                        ? (this.pal.light ? presentLightHex(accents[key % accents.length]) : accents[key % accents.length])
                         : this.pal.light
                             ? presentLight(Math.round(g * tr), Math.round(g * tg), Math.min(255, Math.round(g * tb + 6)))
                             : `rgb(${Math.round(g * tr)},${Math.round(g * tg)},${Math.min(255, Math.round(g * tb + 6))})`;
@@ -1780,15 +1782,17 @@ class AsciiRenderer {
                 color = this.pal.light
                     ? presentLight(Math.round(70 * tr), Math.round(70 * tg), Math.round(70 * tb))
                     : `rgb(${Math.round(70 * tr)},${Math.round(70 * tg)},${Math.round(70 * tb)})`;
-            else if (roll < 0.09)
-                color = accents[key % accents.length];
+            else if (roll < 0.03)
+                color = this.pal.light ? presentLightHex(accents[key % accents.length]) : accents[key % accents.length];
             else if (roll < 0.13)
                 color = this.pal.light ? presentLight(255, 255, 255) : "#bfd5df";
             else if (!this.pal.light && KINDS[sharkKind[i]] === "manta")
                 color = shade > 0.7 ? "#20313a" : "#43606e";
             else
+                // [SCALE-FIX] Glyphs sit ~20-35 levels from the block (was 65-77)
+                // so they read as texture, not letters, at phone scale.
                 color = this.pal.light
-                    ? (shade > 0.55 ? presentLight(14, 15, 19) : presentLight(27, 29, 36))
+                    ? (shade > 0.55 ? presentLight(70, 72, 78) : presentLight(90, 92, 98))
                     : (shade > 0.55 ? "#0e202b" : "#a2bac6");
             ctx.fillStyle = color;
             ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
@@ -1856,8 +1860,8 @@ class AsciiRenderer {
             }
             const [tr, tg, tb] = SHAPES[KINDS[sharkKind[i]]].tint;
             let level = (flag === FLAG_MARK ? 90 : (120 + shade * 115) * dim) * (this.pal.light ? 1 : 0.82);
-            const accent = hash3(key, Math.floor(t * 1.7), 17) < 0.035;
-            ctx.fillStyle = accent ? accents[key % accents.length]
+            const accent = hash3(key, Math.floor(t * 1.7), 17) < 0.012;
+            ctx.fillStyle = accent ? (this.pal.light ? presentLightHex(accents[key % accents.length]) : accents[key % accents.length])
                 : this.pal.light
                     ? presentLight(Math.min(255, Math.round(level * tr)), Math.min(255, Math.round(level * tg)), Math.min(255, Math.round(level * tb)))
                     : `rgb(${Math.round(level * tr * 0.84)},${Math.min(255, Math.round(level * tg + 8))},${Math.min(255, Math.round(level * tb * 1.06 + 12))})`;
@@ -2090,6 +2094,7 @@ class OceanEngine {
         this.disposed = false;
         this.paused = false;
         this.speed = 0.65;
+        this.onAfterRender = null; // [GROUP-FISH water] hook: called after every render (frame + drawStill).
         this.frame = (now) => {
             const dt = Math.min(0.1, (now - this.last) / 1000);
             this.last = now;
@@ -2103,6 +2108,7 @@ class OceanEngine {
             if (steps === MAX_STEPS)
                 this.acc = 0;
             this.renderer.render(this.world, dt);
+            if (this.onAfterRender) { try { this.onAfterRender(now); } catch (e) {} }
             this.raf = requestAnimationFrame(this.frame);
         };
         this.onMotionPreference = () => {
@@ -2198,6 +2204,7 @@ class OceanEngine {
                 this.world.step(STEP);
         }
         this.renderer.render(this.world, STEP);
+        if (this.onAfterRender) { try { this.onAfterRender(performance.now()); } catch (e) {} }
     }
 }
 
@@ -2212,10 +2219,14 @@ var FISH_MODES = [
     { id: "lines", label: "LINES", name: "线条编织", desc: "线条沿鱼身方向排列，像游动的编织线稿。" },
     { id: "hanzi", label: "HANZI", name: "汉字艺术", desc: "一、十、川、水、魚、鯊，以笔画疏密表现层次。" }
 ];
-/* A quieter phone-scale roster: three different silhouettes rather than five giants. */
+/* [REF-ALIGNED] Same mixed roster as character-ocean (app.ts:14-16).
+   The other kinds in the reference's SharkKind union (zebra, tiger,
+   greathammer, mako, thresher, nurse) are not in its demo roster and
+   have no shapes in this file, so they are not included. */
 var FISH_ROSTER = [
-    { kind: "whaleshark", size: 1 }, { kind: "manta", size: 0.76 },
-    { kind: "sunfish", size: 0.66 }
+    { kind: "whaleshark", size: 1 }, { kind: "manta", size: 0.83 },
+    { kind: "hammerhead", size: 0.86 }, { kind: "sunfish", size: 0.64 },
+    { kind: "classic", size: 0.78 }
 ];
 var FISH_BG_PRESETS = [
     { id: "#ffffff", name: "白" },
@@ -2225,14 +2236,11 @@ var FISH_BG_PRESETS = [
     { id: "#f3eef7", name: "浅紫" },
     { id: "#0b3d5c", name: "深海蓝" }
 ];
-/* Small-fish colours. Light bg: the original's light-theme presented colour —
-   dark fish rgba(230,238,255,α) over the dark gradient, run through the
-   light filter chain (invert + hue-rotate 180° + saturate .48, opacity .78
-   over white), then solved back to one base RGB that reproduces those
-   presented values over this phone's light gradient with the original
-   alpha ramp [0.28, 0.42, 0.58, 0.74, 0.9]: α .28 → rgb(186,191,195),
-   .42 → (163,167,172), .58 → (137,141,146), .74 → (110,114,119),
-   .90 → (84,87,93). Dark bg: the original's dark value, unchanged. */
+/* Small-fish colours, aligned to character-ocean (renderer.ts:379,417):
+   light bg uses the reference's native near-white rgba(230,238,255,α);
+   dark bg uses the reference's dark value rgba(139,182,196,α*0.85).
+   FISH_INK / FISH_FOAM below are only contrast probes for picking
+   light vs dark in fishPaletteFor — they are not the fish colours. */
 var FISH_INK = { r: 67, g: 65, b: 73 };
 var FISH_FOAM = { r: 139, g: 182, b: 196 };
 
@@ -2256,7 +2264,9 @@ function fishPaletteFor(bg) {
     var cInk = fishContrast(lum, fishRelLum(FISH_INK));
     var cFoam = fishContrast(lum, fishRelLum(FISH_FOAM));
     var light = cInk >= cFoam;
-    return { bg: bg, light: light, fish: light ? "67,65,73" : "139,182,196", fishScale: light ? 1 : 0.85 };
+    // [REF-ALIGNED] Light small fish use the reference's native near-white
+    // rgba(230,238,255,α); dark keeps the reference's dark value.
+    return { bg: bg, light: light, fish: light ? "230,238,255" : "139,182,196", fishScale: light ? 1 : 0.85 };
 }
 function fishEsc(s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -2294,6 +2304,314 @@ function fishModeById(id) {
     return FISH_MODES[0];
 }
 
+/* ===== [GROUP-FISH water] Water surface over the ASCII fish =====
+ * The 2D fish canvas stays the engine's render target (and the visible canvas
+ * when the water is off). When the water is on, this module composites it
+ * through a WebGL pass: refraction by the analytic water slope (4 sine waves
+ * + tap ripples), two Dave_Hoskins tileable-caustic layers advected by the
+ * slope (6:4, big/slow + small/fast), a drifting dappled-leaf-light mask, and
+ * a faint Beer-Lambert tint (white-first) with pale leaf reflection toward
+ * the top + a soft sun glint.
+ * No WebGL (context or shader failure) → ok=false and the plain 2D fish
+ * canvas is used, with zero behaviour change. All GLSL is inline strings;
+ * no new files, no new dependencies. */
+var FISH_WATER_VS =
+    "attribute vec2 aPos;\n" +
+    "varying vec2 vUv;\n" +
+    "void main() {\n" +
+    "  vUv = aPos * 0.5 + 0.5;\n" +
+    "  gl_Position = vec4(aPos, 0.0, 1.0);\n" +
+    "}\n";
+var FISH_WATER_FS =
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+    "precision highp float;\n" +
+    "#else\n" +
+    "precision mediump float;\n" +
+    "#endif\n" +
+    "varying vec2 vUv;\n" +
+    "uniform sampler2D uTex;\n" +
+    "uniform sampler2D uDapple;\n" +
+    "uniform float uTime;\n" +
+    "uniform float uAspect;\n" +
+    "uniform float uRefract;\n" +
+    "uniform float uDepth;\n" +
+    "uniform float uCaustic;\n" +
+    "uniform vec2 uDappleOff;\n" +
+    "uniform vec2 uGlintPos;\n" +
+    "uniform vec4 uRipples[6];\n" +
+    "uniform float uRippleCount;\n" +
+    /* One sine wave: xyz = height, dh/dqx, dh/dqy (q = screen units). */
+    "vec3 wave(vec2 q, float t, vec2 dir, float freq, float speed, float amp) {\n" +
+    "  float ph = 6.2831853 * freq * dot(dir, q) - speed * t;\n" +
+    "  float k = 6.2831853 * freq;\n" +
+    "  return vec3(amp * sin(ph), amp * cos(ph) * k * dir.x, amp * cos(ph) * k * dir.y);\n" +
+    "}\n" +
+    /* Dave_Hoskins tileable water caustic (Shadertoy MdlXz8; prototype joltz0r
+       2013): sin/cos iterated 5 times, 1/length accumulated, ^8 squeezes the
+       bright parts into thin lines. */
+    "float fishCaustic(vec2 uv, float t) {\n" +
+    "  vec2 p = mod(uv * 6.2831853, 6.2831853) - 250.0;\n" +
+    "  vec2 i = p;\n" +
+    "  float c = 1.0;\n" +
+    "  float inten = 0.005;\n" +
+    "  for (int n = 0; n < 5; n++) {\n" +
+    "    float tt = t * (1.0 - (3.5 / float(n + 1)));\n" +
+    "    i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x));\n" +
+    "    c += 1.0 / length(vec2(p.x / (sin(i.x + tt) / inten), p.y / (cos(i.y + tt) / inten)));\n" +
+    "  }\n" +
+    "  c /= 5.0;\n" +
+    "  c = 1.17 - pow(c, 1.4);\n" +
+    "  return pow(abs(c), 8.0);\n" +
+    "}\n" +
+    "void main() {\n" +
+    "  vec2 suv = vec2(vUv.x, 1.0 - vUv.y);\n" +
+    "  vec2 q = vec2(suv.x * uAspect, suv.y);\n" +
+    "  float t = uTime;\n" +
+    "  vec3 w1 = wave(q, t, vec2(0.96, 0.28), 1.6, 0.55, 0.035);\n" +
+    "  vec3 w2 = wave(q, t, vec2(-0.51, 0.86), 2.3, 0.80, 0.028);\n" +
+    "  vec3 w3 = wave(q, t, vec2(0.75, -0.66), 3.1, 1.10, 0.020);\n" +
+    "  vec3 w4 = wave(q, t, vec2(-0.19, -0.98), 4.2, 1.40, 0.014);\n" +
+    "  vec2 slopeQ = w1.yz + w2.yz + w3.yz + w4.yz;\n" +
+    "  for (int i = 0; i < 6; i++) {\n" +
+    "    if (float(i) >= uRippleCount) break;\n" +
+    "    vec4 rp = uRipples[i];\n" +
+    "    float age = t - rp.z;\n" +
+    "    if (age < 0.0 || age > 3.0) continue;\n" +
+    "    vec2 qc = vec2(rp.x * uAspect, rp.y);\n" +
+    "    vec2 dq = q - qc;\n" +
+    "    float r = length(dq);\n" +
+    "    float d = r - age * 0.55;\n" +
+    "    float env = exp(-abs(d) * 14.0) * exp(-age * 1.1);\n" +
+    "    float dhdr = rp.w * env * (55.0 * cos(d * 55.0) - 14.0 * sign(d) * sin(d * 55.0));\n" +
+    "    if (r > 0.001) slopeQ += dhdr * dq / r;\n" +
+    "  }\n" +
+    "  vec2 slope = vec2(slopeQ.x * uAspect, slopeQ.y);\n" +
+    "  vec2 ruv = clamp(suv + slope * uRefract, 0.0, 1.0);\n" +
+    "  vec3 col = texture2D(uTex, ruv).rgb;\n" +
+    "  float depth = uDepth * (0.6 + 0.8 * suv.y);\n" +
+    "  col *= exp(-vec3(0.06, 0.02, 0.015) * depth);\n" +
+    "  float dap = texture2D(uDapple, fract(suv * 1.5 + uDappleOff)).r;\n" +
+    "  float dapM = smoothstep(0.2, 0.7, dap);\n" +
+    "  vec2 cuv = suv + slope * 0.35;\n" +
+    "  float ca = fishCaustic(cuv * 1.6, t * 0.55) * 0.6 + fishCaustic(cuv * 3.1, t * 1.15) * 0.4;\n" +
+    "  col += vec3(1.0, 0.97, 0.85) * ca * dapM * uCaustic;\n" +
+    "  float leaf = smoothstep(0.6, 0.0, suv.y);\n" +
+    "  vec3 leafCol = vec3(0.88, 0.93, 0.89) * (0.9 + 0.1 * sin(t * 0.3 + suv.x * 18.0));\n" +
+    "  col = mix(col, leafCol, leaf * 0.08 * (0.35 + 0.65 * dapM));\n" +
+    "  float gd = distance(suv, uGlintPos);\n" +
+    "  float glint = pow(max(0.0, 1.0 - gd / 0.20), 12.0);\n" +
+    "  col += vec3(1.0, 0.95, 0.8) * glint * 0.5 * (0.5 + 0.5 * ca);\n" +
+    "  gl_FragColor = vec4(col, 1.0);\n" +
+    "}\n";
+
+var FishWater = {
+    ok: false, visible: false,
+    gl: null, canvas: null, fishCanvas: null,
+    prog: null, vbo: null, fishTex: null, dappleTex: null,
+    loc: {}, startT: 0, width: 0, height: 0, aspect: 1,
+    rippleData: new Float32Array(24), rippleCount: 0, rippleSlot: 0,
+    RIPPLE_AMP: 0.05, MAX_RIPPLES: 6,
+
+    init: function (fishCanvas, shell) {
+        this.fishCanvas = fishCanvas;
+        if (!fishCanvas || !shell) return;
+        var cv = document.createElement("canvas");
+        cv.setAttribute("aria-hidden", "true");
+        cv.style.cssText = "position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none;";
+        try { shell.insertBefore(cv, fishCanvas.nextSibling); } catch (e) { return; }
+        this.canvas = cv;
+        var gl = null;
+        try { gl = cv.getContext("webgl", { alpha: false, antialias: false, depth: false, stencil: false, preserveDrawingBuffer: false }) || cv.getContext("experimental-webgl", { alpha: false, antialias: false, depth: false, stencil: false }); } catch (e) { gl = null; }
+        if (!gl) { this.ok = false; return; }
+        this.gl = gl;
+        var vs = this.compile(gl, gl.VERTEX_SHADER, FISH_WATER_VS);
+        var fs = this.compile(gl, gl.FRAGMENT_SHADER, FISH_WATER_FS);
+        if (!vs || !fs) { this.ok = false; return; }
+        var prog = gl.createProgram();
+        gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { this.ok = false; return; }
+        this.prog = prog;
+        var vbo = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        this.vbo = vbo;
+        var ft = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, ft);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        this.fishTex = ft;
+        var dt = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, dt);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.makeDapple()); } catch (e) { this.ok = false; return; }
+        this.dappleTex = dt;
+        var L = {};
+        ["uTex", "uDapple", "uTime", "uAspect", "uRefract", "uDepth", "uCaustic", "uDappleOff", "uGlintPos", "uRippleCount"].forEach(function (n) { L[n] = gl.getUniformLocation(prog, n); });
+        L.uRipples = gl.getUniformLocation(prog, "uRipples[0]");
+        L.aPos = gl.getAttribLocation(prog, "aPos");
+        this.loc = L;
+        this.startT = performance.now();
+        this.ok = true;
+        var self = this;
+        try {
+            if (typeof ResizeObserver !== "undefined") {
+                this.ro = new ResizeObserver(function () { self.resize(); });
+                this.ro.observe(fishCanvas);
+            }
+        } catch (e) {}
+        this.resize();
+    },
+
+    compile: function (gl, type, src) {
+        var s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { try { console.warn("[fish-water] shader:", gl.getShaderInfoLog(s)); } catch (e) {} return null; }
+        return s;
+    },
+
+    /* Dappled leaf light: soft blobs on black, leaf shapes bitten out of the
+       edges, drawn wrapped so the texture tiles. Deterministic seed, so the
+       mask is stable across loads. */
+    makeDapple: function () {
+        var S = 256;
+        var c = document.createElement("canvas");
+        c.width = S; c.height = S;
+        var g = c.getContext("2d");
+        if (!g) return c;
+        g.fillStyle = "#000";
+        g.fillRect(0, 0, S, S);
+        var seed = 1234567;
+        function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+        var i, x, y, r, a;
+        for (i = 0; i < 16; i++) {
+            x = rnd() * S; y = rnd() * S; r = 16 + rnd() * 30; a = 0.55 + rnd() * 0.4;
+            var gr = g.createRadialGradient(x, y, 0, x, y, r);
+            gr.addColorStop(0, "rgba(255,255,255," + a.toFixed(2) + ")");
+            gr.addColorStop(0.7, "rgba(255,255,255," + (a * 0.45).toFixed(2) + ")");
+            gr.addColorStop(1, "rgba(255,255,255,0)");
+            g.fillStyle = gr;
+            for (var dx = -S; dx <= S; dx += S) for (var dy = -S; dy <= S; dy += S) {
+                g.save(); g.translate(dx, dy);
+                g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+                g.restore();
+            }
+        }
+        g.globalCompositeOperation = "destination-out";
+        for (i = 0; i < 26; i++) {
+            x = rnd() * S; y = rnd() * S;
+            var len = 10 + rnd() * 18, w = 4 + rnd() * 6, rot = rnd() * Math.PI;
+            g.save();
+            g.translate(x, y); g.rotate(rot);
+            g.beginPath();
+            g.moveTo(-len / 2, 0);
+            g.quadraticCurveTo(0, -w, len / 2, 0);
+            g.quadraticCurveTo(0, w, -len / 2, 0);
+            g.fill();
+            g.restore();
+        }
+        g.globalCompositeOperation = "source-over";
+        return c;
+    },
+
+    resize: function () {
+        if (!this.ok || !this.canvas || !this.fishCanvas) return;
+        var r = this.fishCanvas.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) return;
+        var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        var w = Math.max(1, Math.round(r.width * dpr));
+        var h = Math.max(1, Math.round(r.height * dpr));
+        if (w === this.width && h === this.height) return;
+        this.width = w; this.height = h;
+        this.aspect = r.width / r.height;
+        this.canvas.width = w; this.canvas.height = h;
+    },
+
+    setVisible: function (v) {
+        this.visible = !!v;
+        if (this.canvas) { try { this.canvas.style.display = this.visible ? "block" : "none"; } catch (e) {} }
+    },
+
+    addRipple: function (u, v) {
+        if (!this.ok || !this.visible) return;
+        var t = (performance.now() - this.startT) / 1000;
+        var i = this.rippleSlot;
+        this.rippleData[i * 4] = Math.max(0, Math.min(1, u));
+        this.rippleData[i * 4 + 1] = Math.max(0, Math.min(1, v));
+        this.rippleData[i * 4 + 2] = t;
+        this.rippleData[i * 4 + 3] = this.RIPPLE_AMP;
+        this.rippleSlot = (i + 1) % this.MAX_RIPPLES;
+        if (this.rippleCount < this.MAX_RIPPLES) this.rippleCount++;
+    },
+
+    /* Tap on empty background only: walk up from the target and refuse
+       anything interactive (button/link/input, app icons, widgets, dock,
+       desk pet). The shell itself, desktop pages and lock-screen background
+       pass through. */
+    isEmptyBackground: function (t, shell) {
+        if (!t || !t.closest) return false;
+        var el = t;
+        while (el && el !== shell) {
+            if (el.tagName === "BUTTON" || el.tagName === "A" || el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") return false;
+            if (el.dataset && el.dataset.app !== undefined) return false;
+            var cl = el.classList;
+            if (cl && (cl.contains("sys-app-icon-wrapper") || cl.contains("sys-widget-host") || cl.contains("sys-dock-apps") || cl.contains("gw-widget") || cl.contains("gm-pet-bubble"))) return false;
+            if (el.id === "desk-pet" || el.id === "gw-desk") return false;
+            el = el.parentElement;
+        }
+        return true;
+    },
+
+    draw: function (nowMs) {
+        if (!this.ok || !this.visible || document.hidden) return;
+        var gl = this.gl, fc = this.fishCanvas;
+        if (!gl || !fc || !fc.width || !fc.height) return;
+        this.resize();
+        var t = (nowMs - this.startT) / 1000;
+        gl.viewport(0, 0, this.width, this.height);
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(this.prog);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
+        gl.enableVertexAttribArray(this.loc.aPos);
+        gl.vertexAttribPointer(this.loc.aPos, 2, gl.FLOAT, false, 0, 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.fishTex);
+        try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, fc); } catch (e) { return; }
+        gl.uniform1i(this.loc.uTex, 0);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.dappleTex);
+        gl.uniform1i(this.loc.uDapple, 1);
+        gl.uniform1f(this.loc.uTime, t);
+        gl.uniform1f(this.loc.uAspect, this.aspect);
+        gl.uniform1f(this.loc.uRefract, 0.02);
+        gl.uniform1f(this.loc.uDepth, 1.0);
+        gl.uniform1f(this.loc.uCaustic, 0.25);
+        gl.uniform2f(this.loc.uDappleOff, (t * 0.004) % 1, (t * 0.0025) % 1);
+        gl.uniform2f(this.loc.uGlintPos, 0.72, 0.16);
+        gl.uniform4fv(this.loc.uRipples, this.rippleData);
+        gl.uniform1f(this.loc.uRippleCount, this.rippleCount);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+    },
+
+    info: function () {
+        var renderer = "n/a";
+        try {
+            var gl = this.gl;
+            if (gl) {
+                var ext = gl.getExtension("WEBGL_debug_renderer_info");
+                renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER));
+            }
+        } catch (e) {}
+        return { ok: this.ok, visible: this.visible, renderer: renderer, w: this.width, h: this.height, ripples: this.rippleCount };
+    }
+};
+
 var FishWallpaper = {
     engine: null,
     canvas: null,
@@ -2317,6 +2635,10 @@ var FishWallpaper = {
             this.engine = null;
             this.available = false;
         }
+        /* [GROUP-FISH water] Composite pass over the 2D fish canvas. Failure
+           (no WebGL) leaves ok=false and the plain 2D path untouched. */
+        try { FishWater.init(this.canvas, this.shell); } catch (e) {}
+        try { if (this.engine) this.engine.onAfterRender = function (now) { FishWater.draw(now); }; } catch (e) {}
         var self = this;
         try { document.addEventListener("visibilitychange", function () { self.sync(); }); } catch (e) {}
         try {
@@ -2328,6 +2650,18 @@ var FishWallpaper = {
         try {
             var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
             if (mq && typeof mq.addEventListener === "function") mq.addEventListener("change", function () { self.sync(); });
+        } catch (e) {}
+        /* [GROUP-FISH water] Tap an empty background → one expanding ripple.
+           Passive: never prevents or stops the tap. Gated on the engine
+           actually running (fish shown, foreground, no app open, motion on). */
+        try {
+            this.shell.addEventListener("pointerdown", function (e) {
+                if (!FishWater.ok || !FishWater.visible || !self.lastRunning) return;
+                if (!FishWater.isEmptyBackground(e.target, self.shell)) return;
+                var r = self.shell.getBoundingClientRect();
+                if (!r || r.width < 1 || r.height < 1) return;
+                FishWater.addRipple((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+            });
         } catch (e) {}
         this.sync();
     },
@@ -2385,6 +2719,15 @@ var FishWallpaper = {
                 if (this.engine) { try { this.engine.setRenderMode(fishModeById(style).id); } catch (e) {} }
             }
         }
+        /* [GROUP-FISH water] The GL canvas shows only while the fish shows and
+           the water switch is on; the 2D canvas hides behind it (it keeps being
+           painted by the engine and is sampled as the pool-bottom texture).
+           Water off (or no WebGL) = the exact current 2D rendering. */
+        var waterOn = !(p && p.fishWater === false);
+        var waterShown = show && waterOn && FishWater.ok;
+        FishWater.setVisible(waterShown);
+        if (this.canvas) { try { this.canvas.style.visibility = waterShown ? "hidden" : "visible"; } catch (e) {} }
+        if (waterShown) { try { FishWater.draw(performance.now()); } catch (e) {} }
         var appOpen = false;
         try {
             if (typeof AppManager !== "undefined" && AppManager && typeof AppManager.getActiveId === "function") {
@@ -2420,6 +2763,9 @@ var FishWallpaper = {
         if (key === "followTheme") {
             var p = fishPrefs();
             fishSetPref("fishFollowTheme", !(p && p.fishFollowTheme));
+        } else if (key === "water") {
+            var p2 = fishPrefs();
+            fishSetPref("fishWater", !(p2 && p2.fishWater !== false));
         }
         this.sync();
     },
@@ -2453,11 +2799,16 @@ var FishWallpaper = {
             return '<button class="gw-swatch' + ((!follow && cur === b.id) ? " on" : "") + '" data-fish-set="bg" data-v="' + b.id + '" style="background:' + b.id + '" title="' + fishEsc(b.name) + '" aria-label="底色' + fishEsc(b.name) + '"></button>';
         }).join("") + '<input type="color" id="gw-fish-color" value="' + fishEsc(cur) + '" aria-label="自定义底色" title="自定义底色">' + '</div>';
         h += '<div class="gw-set-row"><div class="lb">跟随主题<div class="sub">开：底色跟当前主题走；关：用上面选的底色。</div></div><button class="gw-switch' + (follow ? " on" : "") + '" data-fish-toggle="followTheme" aria-label="跟随主题"></button></div>';
+        if (typeof FishWater !== "undefined" && FishWater.ok) {
+            var waterOn = !(p && p.fishWater === false);
+            h += '<div class="gw-set-row"><div class="lb">水面效果<div class="sub">阳光下的水面：折射、焦散亮网与叶缝光斑；点一下空处会起涟漪。</div></div><button class="gw-switch' + (waterOn ? " on" : "") + '" data-fish-toggle="water" aria-label="水面效果"></button></div>';
+        }
         h += '<div class="gw-set-row"><div class="lb">关于游鱼<div class="sub">直接复用 jiezi1234/character-ocean 与 stackedlol/ascii-sharks（均为 MIT），按手机改写；底色不跟随主题时以此处为准。</div></div></div>';
         return h;
     }
 };
 window.FishWallpaper = FishWallpaper;
+window.FishWater = FishWater; // debug/state handle for the water pass (same pattern as FishWallpaper).
 /* Start now: the script loads after js/00, so prefs / SystemStore / EventBus exist. */
 try { FishWallpaper.init(); } catch (e) {}
 })();

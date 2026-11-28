@@ -65,7 +65,7 @@ petSkin: 'default', // 宠物皮肤
 clockStyle: 'default', // 时钟组件样式
 migratedFrom: [] // 本次迁移读过哪些旧键（只读一次，不回写旧键）
 } */
-var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b'}, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: []};
+var PREFS_DEFAULT = { lang: 'zh-CN', theme: 'light', themeCustom: { c1: '#ffffff', c2: '#34363b'}, layout: 'default', lastChar: '', lastChat: '', wallpaper: 'fish', fishStyle: 'ascii', fishBg: '#ffffff', fishFollowTheme: false, fishWater: true, wallpaperMigrated: false, iconStyle: 'default', widgetsEnabled: true, petEnabled: true, petMode: 'full', petSize: 'medium', petSkin: 'default', clockStyle: 'default', migratedFrom: []};
 
 /* ── A20 命名空间方案（文档化）──
 char: 命名空间：一切「属于这个角色」的数据都归 char: 前缀（或历史遗留的

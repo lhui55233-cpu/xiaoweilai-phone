@@ -2496,12 +2496,53 @@ let desktopInited = false;
        const FALL = 46 / 34;      // #249：46px 对应 BASE 34px，falloff 按实际图标尺寸等比缩放
        const MAXK = 0.85, LAB_MIN = 1.55, IN_DUR = 0.3;
        let base = 0, raf = 0, inCur = 0, inTarget = 0, pointerX = 0, over = false, lastT = 0;
+       // 图标真实静止尺寸与原始内联宽高。
+       // 注意：布局槽仍用 base（56.55px）。342px 的 Dock 装不下 4 个 72px 图标按
+       // 1.85× 放大（峰值增量 61px，大于 slack 13.5px + 间距可让 28.5px），base 取 72
+       // 会触发溢出保护把峰值压到约 1.12×、名字 pill 永不出现；图标改按自身尺寸等比缩放。
+       // 时序：buildFromIconSystem 只填 HTML、不调 styleIconNode，内联 72px 是之后
+       // repaintAll 才写上的——init 时量会量到 CSS 尺寸 56.55px。所以不在 init 时定死，
+       // 而在每次放大周期开始前（静止 inCur===0 时）懒量；量不到内联时用
+       // IconSystem.cfg.iconSize（styleIconNode 写的就是这个值）兜底。
+       // 圆角：用图标现有的圆角比例（内联 borderRadius/width，当前 21.6/72=30%），
+       // 跟随尺寸等比缩放，静止外观不变（写死 24% 会把静止圆角从 21.6 改成 17.28）。
+       let iconBase = 0, iconRadiusRatio = 0;
+       const origIcon = { w: '', h: '' };
+       const measureIcon = () => {
+           if (inCur !== 0) return false; // 只在静止时量；放大/回弹中不重测
+           const w = row.querySelector('.sys-app-icon-wrapper');
+           const ic = w && w.firstElementChild;
+           if (!ic) return false;
+           if (ic.style.width) { // 内联尺寸就是静止尺寸（styleIconNode 写的）
+               const v = parseFloat(ic.style.width);
+               if (v > 0) iconBase = v;
+               origIcon.w = ic.style.width;
+               origIcon.h = ic.style.height;
+               const rv = parseFloat(ic.style.borderRadius);
+               if (rv > 0 && v > 0) iconRadiusRatio = rv / v;
+               return true;
+           }
+           const IS = (typeof window.IconSystem !== 'undefined') ? window.IconSystem : null;
+           const cfgSize = (IS && IS.cfg && IS.cfg.iconSize) || 0;
+           if (cfgSize > 0) {
+               iconBase = cfgSize;
+               origIcon.w = cfgSize + 'px';
+               origIcon.h = cfgSize + 'px';
+               if (IS.RADIUS_MAP && IS.cfg.radiusLevel !== undefined && IS.RADIUS_MAP[IS.cfg.radiusLevel] !== undefined) iconRadiusRatio = IS.RADIUS_MAP[IS.cfg.radiusLevel] / 100;
+               return true;
+           }
+           return false;
+       };
        // 基准尺寸：未放大时第一个图标的实测宽（--sys-icon-size 的 used 值）
        const measureBase = () => {
            const w = row.querySelector('.sys-app-icon-wrapper');
            if (!w) return false;
            const b = w.getBoundingClientRect().width;
-           if (b > 0) { base = b; return true; }
+           if (b > 0) {
+               base = b;
+               measureIcon(); // 静止时才有效记录；init 时内联未到则走 cfg 兜底
+               return true;
+           }
            return false;
        };
        // 静止布局与原来 space-around 一致：居中 + 间距 = (可用宽 − N·BASE)/N；
@@ -2526,17 +2567,38 @@ let desktopInited = false;
        const applySizes = (scales) => {
            const wraps = row.querySelectorAll('.sys-app-icon-wrapper');
            wraps.forEach((w, i) => {
-               const px = (base * (scales[i] || 1)).toFixed(2) + 'px';
+               const s = scales[i] || 1;
+               const px = (base * s).toFixed(2) + 'px';
                if (w.style.width !== px) w.style.width = px;
+               // 图标按自身静止尺寸等比缩放（宽高一起），始终保持正方形；
+               // 圆角按图标现有比例跟随尺寸（量不到比例时不动圆角）；放大的图标提到前面，避免被邻居盖住
                const ic = w.firstElementChild;
-               if (ic && ic.style.width !== px) ic.style.width = px;
+               if (ic && iconBase > 0) {
+                   const ip = (iconBase * s).toFixed(2) + 'px';
+                   if (ic.style.width !== ip) ic.style.width = ip;
+                   if (ic.style.height !== ip) ic.style.height = ip;
+                   if (iconRadiusRatio > 0) {
+                       const rp = (iconBase * s * iconRadiusRatio).toFixed(2) + 'px';
+                       if (ic.style.borderRadius !== rp) ic.style.borderRadius = rp;
+                   }
+               }
+               const z = String(1 + Math.round((s - 1) * 10));
+               if (w.style.zIndex !== z) w.style.zIndex = z;
            });
        };
        const resetSizes = () => {
            row.querySelectorAll('.sys-app-icon-wrapper').forEach(w => {
                w.style.width = '';
+               w.style.zIndex = '';
                const ic = w.firstElementChild;
-               if (ic) ic.style.width = '';
+               if (ic) {
+                   // 恢复图标原始内联尺寸（styleIconNode 的 72×72），不是清空——
+                   // 清空会回落到 CSS 的 56.55px，图标永久变 57×72 瘦长
+                   ic.style.width = origIcon.w || (iconBase > 0 ? iconBase + 'px' : '');
+                   ic.style.height = origIcon.h || (iconBase > 0 ? iconBase + 'px' : '');
+                   // 圆角按静止尺寸与现有比例恢复（不再是固定的 21.6px，也不再是写死的 24%）
+                   if (iconBase > 0 && iconRadiusRatio > 0) ic.style.borderRadius = (iconBase * iconRadiusRatio).toFixed(2) + 'px';
+               }
            });
        };
        const kick = () => {
@@ -2617,12 +2679,14 @@ let desktopInited = false;
        };
        const onMove = (e) => {
            if (!base && !measureBase()) return;
+           measureIcon(); // 周期开始前（静止时）刷新图标静止尺寸
            pointerX = e.clientX;
            over = true;
            kick();
        };
        const onDown = (e) => {
            if (!base && !measureBase()) return;
+           measureIcon(); // 同上
            pointerX = e.clientX;
            over = true;
            kick();
@@ -2633,6 +2697,13 @@ let desktopInited = false;
        row.addEventListener('pointerup', onEnd);
        row.addEventListener('pointercancel', onEnd);
        row.addEventListener('pointerleave', onEnd);
+       // [round-2] 兜底复位：指针在 APP 窗口上松开时 row 收不到 pointerup，
+       // window 级一定能收到；页面隐藏时同样复位。只在有放大态时才 kick，
+       // 避免每次点按都跑一帧。
+       const resetMag = () => { if (over || inCur > 0) { over = false; kick(); } };
+       window.addEventListener('pointerup', resetMag);
+       window.addEventListener('pointercancel', resetMag);
+       document.addEventListener('visibilitychange', () => { if (document.hidden) resetMag(); });
        window.addEventListener('resize', () => { if (inCur === 0) { measureBase(); layoutRest(); } });
        measureBase();
        layoutRest();
@@ -4664,7 +4735,10 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
             const sub = w.querySelector('#st-sub-beautify');
             if (!sub) return;
             sub.classList.remove('show');
-            dropClosedStSub(sub);
+            // [缓存复用] 不删节点，只 display:none 藏起来。display:none 不占布局，
+            // 不会像 translateX(100%) 的 .st-sub 那样把窗口横向滚动区撑到 200%；
+            // 下次打开时若渲染 HTML 没变可直接复用，免去整页重建。
+            sub.style.display = 'none';
         } catch(e){}
     };
     const openBeautyPageInSettings = (pageId, win) => {
@@ -4691,30 +4765,45 @@ ${(window.GroupAO && window.GroupAO.renderVoiceRefHTML) ? window.GroupAO.renderV
                     if (typeof appState !== 'undefined') delete appState['beautify'];
                 }
             } catch(e){}
+            // [缓存复用] 先算一次当前渲染 HTML；若设置内已有同内容子页，直接复用，
+            // 不重建 DOM、不重挂引擎（整页重建是闪的成因之一）。内容变了才重建。
             let sub = win.querySelector('#st-sub-beautify');
-            if (sub) sub.remove();
-            const tmp = document.createElement('div');
-            tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + cfg.render() + '</div>';
-            sub = tmp.firstElementChild;
-            // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
-            const backBtn = document.createElement('div');
-            backBtn.className = 'sys-app-backbtn';
-            backBtn.id = 'st-beautify-backbtn';
-            backBtn.setAttribute('data-beautify-close', '1');
-            backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
-            sub.appendChild(backBtn);
-            sub.addEventListener('click', (e) => {
-                if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
-            });
-            win.appendChild(sub);
+            let html = null;
+            try { html = cfg.render(); } catch(e){ html = null; }
+            const reuse = !!(sub && html !== null && sub.__beautyRenderHtml === html);
+            if (!reuse) {
+                if (sub) sub.remove();
+                if (html === null) html = cfg.render();
+                const tmp = document.createElement('div');
+                tmp.innerHTML = '<div class="st-sub" id="st-sub-beautify">' + html + '</div>';
+                sub = tmp.firstElementChild;
+                sub.__beautyRenderHtml = html;
+                // 内嵌返回钮：只在美化主页时显示（子页自带「返回」），点按回到「主题美化」列表
+                const backBtn = document.createElement('div');
+                backBtn.className = 'sys-app-backbtn';
+                backBtn.id = 'st-beautify-backbtn';
+                backBtn.setAttribute('data-beautify-close', '1');
+                backBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+                sub.appendChild(backBtn);
+                sub.addEventListener('click', (e) => {
+                    if (e.target.closest('[data-beautify-close]')) { closeBeautyInSettings(win); return; }
+                });
+                win.appendChild(sub);
+            } else {
+                // 复用时把之前 close 藏起来的子页恢复显示（display 由 closeBeautyInSettings 置 none）
+                sub.style.display = '';
+            }
             // 挂载引擎到这个子页（winDom = sub，内部全部用 querySelector 定位）
             try { cfg.mount(sub); } catch(e){ console.warn('[beauty-in-settings] mount failed', e); }
             // 覆盖返回行为：子页「返回」回到美化主页（仍在设置内），不 launch('settings')
+            // 只包一次：原始方法存在引擎上，之后每次都从原始方法重新包，避免 _orig 套 _orig
             try {
                 if (window.BeautifyEngine) {
-                    const _origGoHome = window.BeautifyEngine.goHome;
+                    if (!window.BeautifyEngine.__beautyOrigGoHome) window.BeautifyEngine.__beautyOrigGoHome = window.BeautifyEngine.goHome;
+                    if (!window.BeautifyEngine.__beautyOrigSwitchPage) window.BeautifyEngine.__beautyOrigSwitchPage = window.BeautifyEngine.switchPage;
+                    const _origGoHome = window.BeautifyEngine.__beautyOrigGoHome;
+                    const _origSwitch = window.BeautifyEngine.__beautyOrigSwitchPage;
                     window.BeautifyEngine.goHome = () => { try { _origGoHome(); } catch(e){} updateBeautyBackBtn(sub); };
-                    const _origSwitch = window.BeautifyEngine.switchPage;
                     window.BeautifyEngine.switchPage = (pid) => { try { _origSwitch(pid); } catch(e){} updateBeautyBackBtn(sub); };
                 }
             } catch(e){}
@@ -6095,9 +6184,18 @@ AppManager.register('beautify', (() => {
            /* 页面背景统一铺满，消除顶部露色 */
            .b-page-view { background: transparent; }
            /* 视图页隔离切换 */
-           .b-page-view { display: none; animation: bFade 250ms ease-out forwards; }
+           .b-page-view { display: none; }
            .b-page-view.active { display: block; }
-           @keyframes bFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+           /* 美化页不播全局详情入场：js/27 的 MutationObserver 会在子页得 .show/.active
+              时自动加 gc-t-detail-in（css/18：右滑 + 从 opacity .35 淡入）；它叠加在
+              子页自身的滑动上，sub 与内页各淡一次（有效透明度 0.35×0.35），底层列表
+              透出来就是闪。改成只滑动不淡入（bSlideIn，时长/缓动与全局一致）：滑动仍在，
+              全程不透明——直接 animation:none 会连滑动一起丢（.st-sub/.b-sub 的 transform
+              过渡因创建与加类在同一帧、首次绘制前完成，根本跑不起来）。afterAnim 有
+              setTimeout 兜底，class 照常清理。只限美化（.b-page-view 与 #st-sub-beautify），
+              不碰全局转场与其他子页。 */
+           #st-sub-beautify.gc-t-detail-in, .b-page-view.gc-t-detail-in { animation: bSlideIn var(--gc-trans-dur, .3s) var(--gc-trans-ease, cubic-bezier(.32, .72, 0, 1)) both; }
+           @keyframes bSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
            /* 基础块面构建器 */
            .b-card-frame { background: var(--st-paper,#ffffff); border: 1px solid var(--st-silver-light,#f4f4f4); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
            .b-card-title { font-size: 13px; color: var(--st-ink-60,rgba(23,23,23,.6)); font-weight: 600; margin-bottom: 16px; letter-spacing: 0.3px; }
@@ -6747,6 +6845,11 @@ AppManager.register('beautify', (() => {
                    winDom.querySelectorAll('.b-page-view.b-sub').forEach(p => p.classList.remove('active'));
                    // 打开目标子页
                    const page = winDom.querySelector('#b-page-' + pageId);
+                   // 进入壁纸页时，先用当前壁纸重算两张预览图的背景，再显示页面，
+                   // 避免首帧背景闪变（原先在显示之后才重算）
+                   if (pageId === 'wallpaper') {
+                       try { window.BeautifyEngine.refreshWallpaperPreview(); } catch(e){}
+                   }
                    if (page) page.classList.add('active');
                    // 进入聊天背景页时，渲染联系人下拉
                    if (pageId === 'chatbg') {
@@ -6764,10 +6867,6 @@ AppManager.register('beautify', (() => {
                            const ta = winDom.querySelector('#b-bubble-css');
                            if (ta) ta.value = localStorage.getItem('b_bubble_custom_css') || '';
                        } catch(e){}
-                   }
-                   // 进入壁纸页时，用当前壁纸重算两张预览图的背景
-                   if (pageId === 'wallpaper') {
-                       try { window.BeautifyEngine.refreshWallpaperPreview(); } catch(e){}
                    }
                },
                // 返回主页
@@ -7270,8 +7369,11 @@ AppManager.register('beautify', (() => {
            };
 
            // 全栈图床文件拉取中枢处理中心
+           // mount 会在每次打开时重跑（缓存复用也要重挂引擎以指回当前子页），
+           // 先卸掉上一次绑的 handler 再绑，避免同一节点上叠两层 change 处理
            if (fileHubNode) {
-               fileHubNode.addEventListener('change', event => {
+               if (fileHubNode.__beautyFileHubHandler) fileHubNode.removeEventListener('change', fileHubNode.__beautyFileHubHandler);
+               fileHubNode.__beautyFileHubHandler = event => {
                    const fileObj = event.target.files[0];
                    if (!fileObj) return;
                    
@@ -7307,7 +7409,8 @@ AppManager.register('beautify', (() => {
                    };
                    reader.readAsDataURL(fileObj);
                    fileHubNode.value = '';
-               });
+               };
+               fileHubNode.addEventListener('change', fileHubNode.__beautyFileHubHandler);
            }
 
            // 执行冷态默认系统级挂载
