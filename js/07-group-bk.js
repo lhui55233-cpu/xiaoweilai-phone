@@ -939,6 +939,46 @@ GD._gdApp = gdApp;
         if (t >= 5) return '天冷了，穿暖一点再出门。';
         return '非常冷，注意保暖，尽量少在户外久待。';
     };
+    /* [WX-MAIN-SYNC] 主卡体感三行（体感/贴士/备注）的唯一算法：有实测温度按
+       温度分档推算并注明实测温度与更新时间；无实测按时段给通用提示并标注
+       “非实测体感”。renderBody 与 syncMainCard 共用，不复制两份文案。 */
+    var feelParts = function () {
+        var h = new Date().getHours();
+        var p = PERIODS.find(function (x) { return h >= x.h0 && h < x.h1; }) || PERIODS[2];
+        var real = realTemp();
+        if (real) {
+            return {
+                feel: feelForTemp(real.temp),
+                tip: tipForTemp(real.temp),
+                feelNote: '实测 ' + real.temp + '°C 推算（Open-Meteo' + (real.fetchedAt ? '，' + fmtDT(real.fetchedAt) + '更新' : '') + (real.city ? ' · ' + real.city : '') + '）'
+            };
+        }
+        return { feel: p.feel, tip: p.tip, feelNote: '暂无实测温度 · 按时段的通用提示，非实测体感' };
+    };
+    /* [WX-MAIN-SYNC] 取数成功后只刷新主卡的体感三行，不重跑 renderBody：
+       主卡大号是时钟、温度只在实况卡是设计原意，但主卡既然写了“暂无实测
+       温度”这行字，取数成功后它必须变成实测温度，否则就是自相矛盾的假空
+       状态。无实测时不动主卡（renderBody 已诚实写了“暂无实测温度”），
+       绝不编造数字。只改当前盒子里的三个节点，找不到节点就静默跳过。 */
+    var syncMainCard = function (win) {
+        var real = realTemp();
+        if (!real) return;
+        if (!win || !win.isConnected) return;
+        var parts = feelParts();
+        var set = function (id, txt) { var el = win.querySelector('#' + id); if (el) el.textContent = txt; };
+        set('gd-wx-feel', parts.feel);
+        set('gd-wx-tip', parts.tip);
+        set('gd-wx-feelnote', parts.feelNote);
+    };
+    /* [WX-LOWCARD-SYNC] js/07 的唯一钩子：接 js/28 下卡按钮取数成功后派发的
+       af-weather-refreshed。事件目标是 #af-weather-live，向上找包含主卡
+       #gd-wx-feel 的天气窗口再调 syncMainCard；找不到（天气 app 未打开）就
+       跳过。syncMainCard 本身不动，也不重跑 renderBody。 */
+    window.addEventListener('af-weather-refreshed', function (ev) {
+        var win = ev && ev.target && ev.target.nodeType === 1 ? ev.target : null;
+        while (win && !win.querySelector('#gd-wx-feel')) win = win.parentElement;
+        if (win) syncMainCard(win);
+    });
     var renderBody = function () {
         var now = new Date();
         var h = now.getHours();
@@ -947,24 +987,15 @@ GD._gdApp = gdApp;
         var sched = store.get('phone_schedule_v1', []);
         var todayCount = sched.filter(function (x) { return x.date === todayStr() && !x.done; }).length;
         var memoCount = (store.get('phone_memo_v1', []) || []).length;
-        var real = realTemp();
-        var feel, tip, feelNote;
-        if (real) {
-            feel = feelForTemp(real.temp);
-            tip = tipForTemp(real.temp);
-            feelNote = '实测 ' + real.temp + '°C 推算（Open-Meteo' + (real.fetchedAt ? '，' + fmtDT(real.fetchedAt) + '更新' : '') + (real.city ? ' · ' + real.city : '') + '）';
-        } else {
-            feel = p.feel;
-            tip = p.tip;
-            feelNote = '暂无实测温度 · 按时段的通用提示，非实测体感';
-        }
+        var parts = feelParts();
+        var feel = parts.feel, tip = parts.tip, feelNote = parts.feelNote;
         var html = '<div class="gd-card" style="text-align:center;padding:22px 16px;">'
             + '<div style="font-size:52px;line-height:1;">' + (isNight ? icSvg('moon',48) : icSvg('sun',48)) + '</div>'
             + '<div style="font-size:40px;font-weight:300;margin-top:8px;letter-spacing:2px;">' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div>'
             + '<div style="font-size:14px;color:#6d6862;margin-top:4px;">' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + WEEK_CN[now.getDay()] + ' · ' + p.name + '</div>'
-            + '<div style="font-size:15px;font-weight:600;margin-top:12px;">' + feel + '</div>'
-            + '<div style="font-size:13px;color:#5f6b7a;margin-top:4px;line-height:1.7;">' + tip + '</div>'
-            + '<div style="font-size:11px;color:#5f6b7a;margin-top:6px;">' + feelNote + '</div></div>'
+            + '<div id="gd-wx-feel" style="font-size:15px;font-weight:600;margin-top:12px;">' + feel + '</div>'
+            + '<div id="gd-wx-tip" style="font-size:13px;color:#5f6b7a;margin-top:4px;line-height:1.7;">' + tip + '</div>'
+            + '<div id="gd-wx-feelnote" style="font-size:11px;color:#5f6b7a;margin-top:6px;">' + feelNote + '</div></div>'
             + '<div class="gd-card"><div style="font-size:14px;font-weight:600;">今天的手机</div>'
             + '<div style="font-size:13px;color:#6d6862;line-height:2;margin-top:6px;">今日待办日程：' + todayCount + ' 项<br>备忘录：' + memoCount + ' 条<br>本机时间 ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds()) + '（每分钟自动更新）</div></div>'
             + '<div id="af-weather-live"></div>'
@@ -989,7 +1020,16 @@ GD._gdApp = gdApp;
             wxRefreshPending = true;
             setTimeout(function () {
                 wxRefreshPending = false;
-                try { if (window.AFWeather) window.AFWeather.refresh(win, false); } catch (e) {}
+                try {
+                    if (window.AFWeather) {
+                        // [WX-MAIN-SYNC] AFWeather.refresh 只画 #af-weather-live（下卡），主卡
+                        // 的体感三行是 renderBody 在取数完成前一次性写死的；取数成功写进缓存后
+                        // 必须把主卡也同步过来，否则主卡永远停在“暂无实测温度”。
+                        var p = window.AFWeather.refresh(win, false);
+                        if (p && p.then) p.then(function () { syncMainCard(win); }, function () { syncMainCard(win); });
+                        else syncMainCard(win);
+                    }
+                } catch (e) {}
             }, 0);
         }
         if (timer) clearInterval(timer);

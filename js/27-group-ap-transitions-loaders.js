@@ -21,10 +21,21 @@ function reduced() {
 }
 /* ── 转场守卫：isAnimating 标志 + animationend 后清理 class，防重复点击 ── */
 var _animating = false, _animFailsafe = null;
+/* [W5-A] 转场窗内点的 Home 条：记下来、转场结束立刻补做，不再直接丢掉
+   （丢掉就是“回到桌面钮需点两次”：转场窗内第一下全无反应，只能再点一下）。
+   只在 _setAnimating(false) 处补做——此时转场已结束，补做的 minimize 自己
+   再走一遍正常转场流程，不会与进行中的转场打架。 */
+var _pendingMinimize = false;
+function _drainPendingMinimize() {
+    if (!_pendingMinimize) return;
+    _pendingMinimize = false;
+    try { AppManager.minimize(); } catch (e) {}
+}
 function _setAnimating(v) {
     _animating = !!v;
     if (_animFailsafe) { clearTimeout(_animFailsafe); _animFailsafe = null; }
-    if (v) _animFailsafe = setTimeout(function () { _animating = false; _animFailsafe = null; }, 1500);
+    if (v) _animFailsafe = setTimeout(function () { _animating = false; _animFailsafe = null; _drainPendingMinimize(); }, 1500);
+    else _drainPendingMinimize();
 }
 function isAnimating() { return _animating; }
 function afterAnim(el, cb, ms) {
@@ -67,8 +78,30 @@ function playStagger() {
         setTimeout(function () { sc.classList.remove('gc-stagger-play'); }, 700);
     } catch (e) {}
 }
+/* [W5-A] iframe 嵌套页（归巢 gc-embed-frame / 世界书 wb-embed-frame）的文档级滚动：
+   外层窗 display:none 会把 iframe 的布局视口压成 0，iframe 文档的 scrollTop
+   被钳到 0 且不再回来（普通 div 滚动条不受影响，设置 .st-root 实测保留）。
+   离场时把首个同源 iframe 文档的 scrollTop 也存进 _scrollPos，进场时再回填；
+   跨域 iframe（如视频页的 YouTube 嵌套）读不到就跳过。只动这两个默认钩子，
+   不动各 App 自己的 hide/resume。 */
+function _saveFrameScroll(appId, win) {
+    try {
+        var fr = win && win.querySelector ? win.querySelector('iframe') : null;
+        var doc = fr && fr.contentDocument;
+        if (doc && doc.documentElement) _scrollPos[appId + '#frame'] = doc.documentElement.scrollTop;
+    } catch (e) {}
+}
+function _restoreFrameScroll(appId, win) {
+    try {
+        if (typeof _scrollPos[appId + '#frame'] !== 'number') return;
+        var fr = win && win.querySelector ? win.querySelector('iframe') : null;
+        var doc = fr && fr.contentDocument;
+        if (doc && doc.documentElement) doc.documentElement.scrollTop = _scrollPos[appId + '#frame'];
+    } catch (e) {}
+}
 function defaultOnLeave(appId, win) {
     if (win) { try { _scrollPos[appId] = win.scrollTop; } catch (e) {} }
+    _saveFrameScroll(appId, win);
     if (appId === 'wechat') {
         try { var sb = document.getElementById('wx-chat-state-bar'); if (sb) sb.classList.remove('wx-typing'); } catch (e) {}
     }
@@ -76,6 +109,7 @@ function defaultOnLeave(appId, win) {
 }
 function defaultOnEnter(appId, win) {
     if (win) { try { if (typeof _scrollPos[appId] === 'number') win.scrollTop = _scrollPos[appId]; } catch (e) {} }
+    _restoreFrameScroll(appId, win);
     if (appId === 'wechat') playStagger();
 }
 /* ── App 转场：顺序模式（旧页先走、新页再进），只有居中弹窗才用同时淡入 ── */
@@ -131,7 +165,8 @@ function wrapAppManager() {
         };
         AppManager.launch.__gcWrapped = true;
         AppManager.minimize = function () {
-            if (_animating) return; /* 守卫：转场进行中，忽略重复点击 */
+            /* [W5-A] 转场进行中点 Home 条：记下来、转场结束立刻补做，不直接丢掉。 */
+            if (_animating) { _pendingMinimize = true; return; }
             var cur = null;
             try { cur = AppManager.getActiveId(); } catch (e) {}
             if (reduced() || !cur) return origMin.call(AppManager);
